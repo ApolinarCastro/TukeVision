@@ -1,0 +1,36 @@
+# Entorno virtual
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Configuración local y secretos
+.env
+.env.*
+config/local.*
+config/secrets.*
+
+# Datos y resultados generados
+data/input/*
+data/output/*
+data/evidence/*
+data/temp/*
+logs/*
+models/*
+
+# Mantener las carpetas vacías
+!data/input/.gitkeep
+!data/output/.gitkeep
+!data/evidence/.gitkeep
+!data/temp/.gitkeep
+!logs/.gitkeep
+!models/.gitkeep
+
+# Editores y sistema
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
