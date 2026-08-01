@@ -1,0 +1,10 @@
+{
+  "video": {
+    "max_width": 640,
+    "process_every_n_frames": 1
+  },
+  "output": {
+    "save_processed_video": false,
+    "show_preview": true
+  }
+}
