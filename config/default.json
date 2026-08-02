@@ -13,5 +13,10 @@
     "confidence_threshold": 0.35,
     "device": "cpu",
     "image_size": 640
+  },
+  "zone": {
+    "id": "ZONE-001",
+    "name": "Zona piloto",
+    "polygon": [[100,100],[540,100],[540,420],[100,420]]
   }
 }
