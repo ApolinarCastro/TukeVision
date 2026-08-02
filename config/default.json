@@ -18,5 +18,14 @@
     "id": "ZONE-001",
     "name": "Zona piloto",
     "polygon": [[100,100],[540,100],[540,420],[100,420]]
+  },
+  "business": {
+    "store_id": "STORE-001",
+    "camera_id": "CAM-001",
+    "max_stay_seconds": 30.0,
+    "remain_interval_frames": 30
+  },
+  "alerts": {
+    "risk_threshold": 60
   }
 }
