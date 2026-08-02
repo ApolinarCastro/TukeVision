@@ -67,7 +67,7 @@ class Zone:
 
     @property
     def polygon(self) -> List[List[int]]:
-        return [list(pt) for pt in self._polygon]
+        return [[int(pt[0][0]), int(pt[0][1])] for pt in self._polygon]
 
     def _validate_polygon(self, polygon: List[List[int]]) -> np.ndarray:
         if polygon is None or len(polygon) < 3:
