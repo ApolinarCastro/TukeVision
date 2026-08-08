@@ -11,13 +11,18 @@ from dataclasses import dataclass
 
 @dataclass
 class VideoMetadata:
-    """Metadatos del video."""
+    """Metadatos de la fuente de video.
+
+    Para fuentes en vivo (webcam, RTSP) los campos total_frames y
+    duration_seconds pueden ser 0 (desconocidos) y fps puede ser 0.0.
+    """
     width: int
     height: int
     fps: float
     total_frames: int
     duration_seconds: float
     path: str
+    source_type: str = "FILE"
 
 
 class VideoSourceError(Exception):
@@ -116,12 +121,23 @@ class VideoSource:
             fps=fps,
             total_frames=total_frames,
             duration_seconds=duration,
-            path=str(self._video_path)
+            path=str(self._video_path),
+            source_type=self.source_type,
         )
         self._frame_index = 0
         self._readable_frames = 0
 
         return self._metadata
+
+    @property
+    def source_type(self) -> str:
+        """Tipo de fuente (FILE para archivo local)."""
+        return "FILE"
+
+    @property
+    def is_live(self) -> bool:
+        """Indica si la fuente es en vivo (False para archivo)."""
+        return False
 
     def frames(self) -> Generator[Tuple[int, cv2.typing.MatLike], None, None]:
         """Genera fotogramas uno por uno.

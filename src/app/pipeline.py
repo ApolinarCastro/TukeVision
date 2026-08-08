@@ -6,8 +6,9 @@ Riesgo → Alerta → Evidencia para un único video local.
 """
 
 import json
+import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Dict, Optional
 
@@ -109,17 +110,28 @@ class Pipeline:
         self._evidence_store = EvidenceStore()
 
         self._entry_frame: Dict[int, int] = {}
+        self._clock_start: Optional[float] = None
 
     def _now(self) -> str:
         return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
+    def _elapsed_seconds(self) -> float:
+        """Tiempo transcurrido desde el inicio del procesamiento (reloj monotónico)."""
+        if self._clock_start is None:
+            self._clock_start = time.monotonic()
+        return time.monotonic() - self._clock_start
+
     def _frame_timestamp(self, frame_index: int, fps: float) -> str:
         """Genera un timestamp ISO basado en el índice de fotograma y FPS."""
         # Usamos una fecha base fija para que los timestamps sean deterministas
-        from datetime import datetime, timezone, timedelta
         base = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
         seconds = frame_index / max(fps, 1.0)
         return (base + timedelta(seconds=seconds)).isoformat().replace("+00:00", "Z")
+
+    def _live_timestamp(self, elapsed_seconds: float) -> str:
+        """Genera un timestamp ISO basado en el reloj monotónico de una fuente en vivo."""
+        base = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        return (base + timedelta(seconds=elapsed_seconds)).isoformat().replace("+00:00", "Z")
 
     def _stay_seconds(self, track_id: int, current_frame: int, fps: float) -> float:
         entry = self._entry_frame.get(track_id)
@@ -165,6 +177,23 @@ class Pipeline:
         output_video: Optional[str] = None,
     ) -> PipelineSummary:
         """Procesa un video local y devuelve un resumen."""
+        source = VideoSource(
+            video_path,
+            max_width=self._max_width,
+            process_every_n_frames=self._process_every_n_frames,
+        )
+        return self.process_source(source, output_video=output_video)
+
+    def process_source(
+        self,
+        source,
+        output_video: Optional[str] = None,
+    ) -> PipelineSummary:
+        """Procesa una fuente con interfaz común (archivo, webcam o RTSP).
+
+        La fuente debe exponer open(), frames(), close(), metadata e is_live.
+        El núcleo del pipeline no conoce el origen de los fotogramas.
+        """
         if output_video is None:
             output_dir = Path("data/output")
             output_dir.mkdir(parents=True, exist_ok=True)
@@ -181,96 +210,104 @@ class Pipeline:
         output_writer = None
 
         try:
-            with VideoSource(
-                video_path,
-                max_width=self._max_width,
-                process_every_n_frames=self._process_every_n_frames,
-            ) as source:
-                metadata = source.open()
+            metadata = source.open()
+            is_live = getattr(source, "is_live", False) is True
+            self._clock_start = time.monotonic()
+            self._entry_frame.clear()
 
-                out_path = Path(output_video)
-                out_path.parent.mkdir(parents=True, exist_ok=True)
-                writer_fps = metadata.fps if metadata.fps > 0 else 30.0
-                output_writer = cv2.VideoWriter(
-                    str(out_path),
-                    cv2.VideoWriter_fourcc(*"mp4v"),
-                    writer_fps,
-                    (metadata.width, metadata.height),
-                )
+            out_path = Path(output_video)
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            writer_fps = metadata.fps if metadata.fps > 0 else 30.0
+            output_writer = cv2.VideoWriter(
+                str(out_path),
+                cv2.VideoWriter_fourcc(*"mp4v"),
+                writer_fps,
+                (metadata.width, metadata.height),
+            )
 
-                for frame_index, frame in source.frames():
-                    frames_processed += 1
+            for frame_index, frame in source.frames():
+                frames_processed += 1
+                if is_live:
+                    time_value = self._elapsed_seconds()
+                    time_fps = 1.0
+                    frame_time = self._live_timestamp(time_value)
+                else:
+                    time_value = frame_index
+                    time_fps = writer_fps
                     frame_time = self._frame_timestamp(frame_index, writer_fps)
 
-                    detection_result = self._detector.detect(frame)
-                    persons_detected += len(detection_result.detections)
+                detection_result = self._detector.detect(frame)
+                persons_detected += len(detection_result.detections)
 
-                    tracking_result = self._tracker.update(
-                        detection_result.detections
+                tracking_result = self._tracker.update(
+                    detection_result.detections
+                )
+                tracked = tracking_result.tracked_objects
+                unique_tracks.update(obj.track_id for obj in tracked)
+
+                risk_text = ""
+                for obj in tracked:
+                    transition = self._zone.update(
+                        obj.track_id, obj.x1, obj.y1, obj.x2, obj.y2
                     )
-                    tracked = tracking_result.tracked_objects
-                    unique_tracks.update(obj.track_id for obj in tracked)
-
-                    risk_text = ""
-                    for obj in tracked:
-                        transition = self._zone.update(
-                            obj.track_id, obj.x1, obj.y1, obj.x2, obj.y2
-                        )
-                        stay = self._stay_seconds(
-                            obj.track_id, frame_index, writer_fps
-                        )
-                        observation = self._observation_engine.process_transition(
-                            transition=transition,
-                            track_id=obj.track_id,
-                            store_id=self._store_id,
-                            camera_id=self._camera_id,
-                            zone_id=self._zone.zone_id,
-                            source_frame=frame_index,
-                            timestamp=frame_time,
-                            confidence=obj.confidence,
-                            value=stay,
-                        )
-                        if observation is None:
-                            continue
-                        observations_created += 1
-                        event = self._event_engine.process(observation)
-                        if event is None:
-                            continue
-                        events_created += 1
-                        rule = self._rule_engine.evaluate(event)
-                        if rule is None:
-                            continue
-                        risk = self._risk_calculator.calculate(event, rule)
-                        alert = self._alert_engine.evaluate(event, risk)
-                        if alert is None:
-                            risk_text = f"riesgo {risk.score}"
-                            continue
-                        alerts_created += 1
-                        meta = EvidenceMetadata(
-                            alert_id=alert.alert_id,
-                            event_id=event.event_id,
-                            observation_ids=tuple(event.observation_ids),
-                            track_id=event.track_id,
-                            zone_id=self._zone.zone_id,
-                            duration_seconds=event.duration_seconds,
-                            risk_score=risk.score,
-                            rule_id=rule.rule_id,
-                            timestamp=event.timestamp,
-                            frame_sha256="",
-                        )
-                        evidence_path = self._evidence_store.save(frame, meta)
-                        evidence_created += 1
-                        risk_text = (
-                            f"ALERTA {alert.alert_id} riesgo {risk.score}"
-                        )
-
-                    self._annotate(
-                        frame, tracked, writer_fps, frame_index, risk_text
+                    stay = self._stay_seconds(
+                        obj.track_id, time_value, time_fps
                     )
-                    output_writer.write(frame)
+                    observation = self._observation_engine.process_transition(
+                        transition=transition,
+                        track_id=obj.track_id,
+                        store_id=self._store_id,
+                        camera_id=self._camera_id,
+                        zone_id=self._zone.zone_id,
+                        source_frame=frame_index,
+                        timestamp=frame_time,
+                        confidence=obj.confidence,
+                        value=stay,
+                    )
+                    if observation is None:
+                        continue
+                    observations_created += 1
+                    event = self._event_engine.process(observation)
+                    if event is None:
+                        continue
+                    events_created += 1
+                    rule = self._rule_engine.evaluate(event)
+                    if rule is None:
+                        continue
+                    risk = self._risk_calculator.calculate(event, rule)
+                    alert = self._alert_engine.evaluate(event, risk)
+                    if alert is None:
+                        risk_text = f"riesgo {risk.score}"
+                        continue
+                    alerts_created += 1
+                    meta = EvidenceMetadata(
+                        alert_id=alert.alert_id,
+                        event_id=event.event_id,
+                        observation_ids=tuple(event.observation_ids),
+                        track_id=event.track_id,
+                        zone_id=self._zone.zone_id,
+                        duration_seconds=event.duration_seconds,
+                        risk_score=risk.score,
+                        rule_id=rule.rule_id,
+                        timestamp=event.timestamp,
+                        frame_sha256="",
+                    )
+                    evidence_path = self._evidence_store.save(frame, meta)
+                    evidence_created += 1
+                    risk_text = (
+                        f"ALERTA {alert.alert_id} riesgo {risk.score}"
+                    )
 
-            # Finalizar eventos pendientes para tracks que siguen en la zona al final del video
-            final_timestamp = self._frame_timestamp(frames_processed, writer_fps)
+                self._annotate(
+                    frame, tracked, time_fps, time_value, risk_text
+                )
+                output_writer.write(frame)
+
+            # Finalizar eventos pendientes para tracks que siguen en la zona al final
+            if is_live:
+                final_timestamp = self._live_timestamp(self._elapsed_seconds())
+            else:
+                final_timestamp = self._frame_timestamp(frames_processed, writer_fps)
             final_events = self._event_engine.finalize(final_timestamp)
             for event in final_events:
                 events_created += 1
@@ -300,7 +337,7 @@ class Pipeline:
             tracks_created = len(unique_tracks)
 
             return PipelineSummary(
-                video_path=video_path,
+                video_path=metadata.path,
                 frames_processed=frames_processed,
                 persons_detected=persons_detected,
                 tracks_created=tracks_created,
@@ -318,5 +355,9 @@ class Pipeline:
         finally:
             if output_writer is not None:
                 output_writer.release()
+            try:
+                source.close()
+            except Exception:
+                pass
             self._detector.close()
             self._tracker.close()
