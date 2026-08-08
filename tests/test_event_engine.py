@@ -50,7 +50,7 @@ class TestEventEngine(unittest.TestCase):
         self.assertIsNone(result)
 
     def test_event_on_prolonged_stay(self) -> None:
-        """Verifica que se crea PERMANENCIA_PROLONGADA al superar 30s."""
+        """Verifica que se crea PERMANENCIA_PROLONGADA al superar 30s en la salida."""
         self.event_engine.process(
             self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0)
         )
@@ -63,25 +63,26 @@ class TestEventEngine(unittest.TestCase):
         self.assertEqual(result.track_id, 1)
         self.assertGreaterEqual(result.duration_seconds, 60.0)
 
-    def test_event_fires_during_stay_on_remained(self) -> None:
-        """Verifica que el evento se crea durante la permanencia."""
+    def test_event_fires_on_exit_with_total_duration(self) -> None:
+        """Verifica que el evento se crea en la salida con la duración total."""
         self.event_engine.process(
             self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0)
         )
         result = self.event_engine.process(
-            self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:01:00Z", 900)
+            self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:01:00Z", 1800)
         )
         self.assertIsNotNone(result)
         self.assertEqual(result.event_type, PERMANENCIA_PROLONGADA)
+        self.assertGreaterEqual(result.duration_seconds, 60.0)
 
     def test_event_preserves_observation_ids(self) -> None:
         """Verifica que conserva los identificadores de las observaciones."""
         entry = self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0)
-        stay = self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:01:00Z", 900)
+        exit_obs = self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:01:00Z", 1800)
         self.event_engine.process(entry)
-        result = self.event_engine.process(stay)
+        result = self.event_engine.process(exit_obs)
         self.assertIn(entry.observation_id, result.observation_ids)
-        self.assertIn(stay.observation_id, result.observation_ids)
+        self.assertIn(exit_obs.observation_id, result.observation_ids)
 
     def test_event_is_immutable(self) -> None:
         """Verifica que el evento es inmutable."""
@@ -89,7 +90,7 @@ class TestEventEngine(unittest.TestCase):
             self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0)
         )
         result = self.event_engine.process(
-            self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:01:00Z", 900)
+            self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:01:00Z", 1800)
         )
         with self.assertRaises(Exception):
             result.event_type = "OTHER"
@@ -100,10 +101,11 @@ class TestEventEngine(unittest.TestCase):
             self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0)
         )
         first = self.event_engine.process(
-            self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:01:00Z", 900)
+            self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:01:00Z", 1800)
         )
+        # Segunda salida no debe emitir (ya emitido)
         second = self.event_engine.process(
-            self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:02:00Z", 1800)
+            self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:02:00Z", 3600)
         )
         self.assertIsNotNone(first)
         self.assertIsNone(second)
@@ -117,7 +119,7 @@ class TestEventEngine(unittest.TestCase):
             self._obs(PERSON_ENTERED_ZONE, "2026-08-02T12:00:00Z", 0, track=2)
         )
         result = self.event_engine.process(
-            self._obs(PERSON_REMAINED_IN_ZONE, "2026-08-02T12:01:00Z", 900, track=2)
+            self._obs(PERSON_EXITED_ZONE, "2026-08-02T12:01:00Z", 1800, track=2)
         )
         self.assertIsNotNone(result)
         self.assertEqual(result.track_id, 2)

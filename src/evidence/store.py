@@ -38,9 +38,9 @@ class EvidenceStore:
     def __init__(self, base_dir: str = "data/evidence") -> None:
         self._base_dir = Path(base_dir)
 
-    def _frame_sha256(self, frame: np.ndarray) -> str:
-        raw = np.ascontiguousarray(frame).tobytes()
-        return hashlib.sha256(raw).hexdigest()
+    def _frame_sha256(self, frame_path: Path) -> str:
+        with frame_path.open("rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest()
 
     def _target_dir(self, alert_id: str) -> Path:
         return self._base_dir / alert_id
@@ -90,7 +90,7 @@ class EvidenceStore:
                 "No se pudo guardar el fotograma de evidencia"
             )
 
-        sha256 = self._frame_sha256(frame)
+        sha256 = self._frame_sha256(frame_path)
         metadata_dict = asdict(metadata)
         metadata_dict["frame_sha256"] = sha256
         metadata_dict["observation_ids"] = list(metadata.observation_ids)

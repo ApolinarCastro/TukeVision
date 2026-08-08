@@ -64,11 +64,31 @@ class EventEngine:
             return None
 
         if observation.observation_type == PERSON_REMAINED_IN_ZONE:
-            return self._evaluate(observation, exited=False)
+            # Solo validamos si ya superó el umbral, pero no emitimos hasta la salida
+            return self._check_threshold(observation)
 
         if observation.observation_type == PERSON_EXITED_ZONE:
             return self._evaluate(observation, exited=True)
 
+        return None
+
+    def _check_threshold(self, observation: Observation) -> Optional[Event]:
+        """Verifica si se superó el umbral en una observación de permanencia, sin emitir."""
+        key = observation.track_id
+        entry = self._entry_observations.get(key)
+        if entry is None:
+            return None
+        if self._emitted.get(key, False):
+            return None
+
+        duration = (
+            _parse_timestamp(observation.timestamp) - _parse_timestamp(entry.timestamp)
+        ).total_seconds()
+
+        if duration <= self._max_stay_seconds:
+            return None
+        # Superó el umbral: marcamos como pendiente de emitir en la salida
+        self._emitted[key] = "pending"
         return None
 
     def _evaluate(self, latest: Observation, exited: bool = False) -> Optional[Event]:
@@ -77,7 +97,8 @@ class EventEngine:
         if entry is None:
             return None
 
-        if self._emitted.get(key, False):
+        # Si ya se emitió definitivamente, no volver a emitir
+        if self._emitted.get(key) is True:
             return None
 
         duration = (
@@ -87,8 +108,10 @@ class EventEngine:
         if duration <= self._max_stay_seconds:
             if exited:
                 self._entry_observations.pop(key, None)
+                self._emitted.pop(key, None)
             return None
 
+        # Emitimos el evento con la duración total de la estancia
         self._emitted[key] = True
         self._entry_observations.pop(key, None)
 
@@ -103,6 +126,31 @@ class EventEngine:
             observation_ids=(entry.observation_id, latest.observation_id),
             duration_seconds=duration,
         )
+
+    def finalize(self, current_timestamp: str) -> List[Event]:
+        """Finaliza eventos pendientes para trayectorias que siguen en la zona al finalizar el video."""
+        events = []
+        for key, entry in list(self._entry_observations.items()):
+            if self._emitted.get(key) is True:
+                continue
+            duration = (
+                _parse_timestamp(current_timestamp) - _parse_timestamp(entry.timestamp)
+            ).total_seconds()
+            if duration > self._max_stay_seconds:
+                self._emitted[key] = True
+                self._entry_observations.pop(key, None)
+                events.append(Event(
+                    event_id=self._next_id(),
+                    event_type=PERMANENCIA_PROLONGADA,
+                    timestamp=current_timestamp,
+                    store_id=entry.store_id,
+                    camera_id=entry.camera_id,
+                    zone_id=entry.zone_id,
+                    track_id=key,
+                    observation_ids=(entry.observation_id,),
+                    duration_seconds=duration,
+                ))
+        return events
 
     def reset(self) -> None:
         """Reinicia el estado interno del motor."""

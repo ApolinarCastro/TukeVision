@@ -113,6 +113,14 @@ class Pipeline:
     def _now(self) -> str:
         return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
 
+    def _frame_timestamp(self, frame_index: int, fps: float) -> str:
+        """Genera un timestamp ISO basado en el índice de fotograma y FPS."""
+        # Usamos una fecha base fija para que los timestamps sean deterministas
+        from datetime import datetime, timezone, timedelta
+        base = datetime(2026, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        seconds = frame_index / max(fps, 1.0)
+        return (base + timedelta(seconds=seconds)).isoformat().replace("+00:00", "Z")
+
     def _stay_seconds(self, track_id: int, current_frame: int, fps: float) -> float:
         entry = self._entry_frame.get(track_id)
         if entry is None:
@@ -192,7 +200,7 @@ class Pipeline:
 
                 for frame_index, frame in source.frames():
                     frames_processed += 1
-                    frame_time = self._now()
+                    frame_time = self._frame_timestamp(frame_index, writer_fps)
 
                     detection_result = self._detector.detect(frame)
                     persons_detected += len(detection_result.detections)
@@ -260,6 +268,34 @@ class Pipeline:
                         frame, tracked, writer_fps, frame_index, risk_text
                     )
                     output_writer.write(frame)
+
+            # Finalizar eventos pendientes para tracks que siguen en la zona al final del video
+            final_timestamp = self._frame_timestamp(frames_processed, writer_fps)
+            final_events = self._event_engine.finalize(final_timestamp)
+            for event in final_events:
+                events_created += 1
+                rule = self._rule_engine.evaluate(event)
+                if rule is None:
+                    continue
+                risk = self._risk_calculator.calculate(event, rule)
+                alert = self._alert_engine.evaluate(event, risk)
+                if alert is None:
+                    continue
+                alerts_created += 1
+                meta = EvidenceMetadata(
+                    alert_id=alert.alert_id,
+                    event_id=event.event_id,
+                    observation_ids=tuple(event.observation_ids),
+                    track_id=event.track_id,
+                    zone_id=self._zone.zone_id,
+                    duration_seconds=event.duration_seconds,
+                    risk_score=risk.score,
+                    rule_id=rule.rule_id,
+                    timestamp=event.timestamp,
+                    frame_sha256="",
+                )
+                evidence_path = self._evidence_store.save(frame, meta)
+                evidence_created += 1
 
             tracks_created = len(unique_tracks)
 
