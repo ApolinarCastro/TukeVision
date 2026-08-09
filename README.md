@@ -27,6 +27,19 @@ Coloque un video local en `data/input/` y ejecute:
 .\.venv\Scripts\python.exe scripts\run_prototype.py "data\input\video.mp4"
 ```
 
+## Interfaz operativa local
+
+Aplicación de escritorio Tkinter (biblioteca estándar) que muestra en una
+sola ventana fuente, conexión, zona, persona seguida, permanencia, riesgo,
+alertas y evidencia generada. OpenCV sigue siendo la tecnología de visión;
+no es el sistema de ventanas (ver `docs/LOCAL_INTERFACE.md`).
+
+```powershell
+.\.venv\Scripts\python.exe scripts\run_interface.py
+```
+
+La fuente (archivo, webcam o RTSP) se selecciona dentro de la aplicación.
+
 ### Estructura de entrada y salida
 
 ```text
