@@ -15,7 +15,7 @@ Implementación del primer prototipo funcional (SPEC-0001) completada a nivel de
 ## Activar el entorno virtual
 
 ```powershell
-Set-Location "D:\TukeVision"
+Set-Location "C:\ruta\a\TukeVision"
 .\.venv\Scripts\Activate.ps1
 ```
 
