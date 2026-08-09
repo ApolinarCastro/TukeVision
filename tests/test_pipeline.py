@@ -70,6 +70,53 @@ class TestPipeline(unittest.TestCase):
         with self.assertRaises(PipelineConfigError):
             Pipeline(config=bad_config)
 
+    def test_requires_valid_polygon(self) -> None:
+        """Verifica error con polígono inválido."""
+        bad_config = dict(CONFIG)
+        bad_config["zone"] = {"id": "Z", "polygon": [[1, 2], [3, 4]]}
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
+    def test_rejects_invalid_polygon_vertices(self) -> None:
+        """Verifica error con vértices de forma incorrecta."""
+        bad_config = dict(CONFIG)
+        bad_config["zone"] = {
+            "id": "Z",
+            "polygon": [[1, 2], ["a", "b"], [3, 4], [5, 6]],
+        }
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
+    def test_rejects_negative_max_width(self) -> None:
+        """Verifica error si max_width no es positivo."""
+        bad_config = dict(CONFIG)
+        bad_config["video"] = {"max_width": -10, "process_every_n_frames": 1}
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
+    def test_rejects_confidence_out_of_range(self) -> None:
+        """Verifica error si confidence_threshold está fuera de [0, 1]."""
+        bad_config = dict(CONFIG)
+        bad_config["detection"] = dict(CONFIG["detection"])
+        bad_config["detection"]["confidence_threshold"] = 1.5
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
+    def test_rejects_negative_max_stay(self) -> None:
+        """Verifica error si max_stay_seconds es negativo."""
+        bad_config = dict(CONFIG)
+        bad_config["business"] = dict(CONFIG["business"])
+        bad_config["business"]["max_stay_seconds"] = -5.0
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
+    def test_rejects_risk_threshold_out_of_range(self) -> None:
+        """Verifica error si risk_threshold está fuera de [0, 100]."""
+        bad_config = dict(CONFIG)
+        bad_config["alerts"] = {"risk_threshold": 150}
+        with self.assertRaises(PipelineConfigError):
+            Pipeline(config=bad_config)
+
     @patch("src.app.pipeline.PersonDetector")
     @patch("src.app.pipeline.PersonTracker")
     @patch("src.app.pipeline.VideoSource")
@@ -114,6 +161,54 @@ class TestPipeline(unittest.TestCase):
         # Primera vez: registra entrada y devuelve 0
         self.assertAlmostEqual(self.pipeline._stay_seconds(9, 10, 30.0), 0.0)
         self.assertIn(9, self.pipeline._entry_frame)
+
+    @patch("src.app.pipeline.PersonDetector")
+    @patch("src.app.pipeline.PersonTracker")
+    def test_max_duration_seconds_corta_la_ejecucion(
+        self, mock_tracker_cls, mock_detector_cls
+    ) -> None:
+        """El límite de duración termina la fuente en vivo limpiamente."""
+        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        source = MagicMock()
+        source.source_type = "WEBCAM"
+        source.is_live = True
+        source.metadata = MagicMock(path="WEBCAM:0", fps=30.0)
+        source.state = "OPEN"
+        source.open.return_value = MagicMock(fps=30.0, width=640, height=480)
+        source.frames.return_value = (
+            (i, frame) for i in range(100000)
+        )
+
+        # DURATION_LIMIT se alcanza antes de agotar los frames
+        summary = self.pipeline.process_source(
+            source,
+            output_video=str(Path(self.tmp.name) / "out.mp4"),
+            max_duration_seconds=0.0,
+        )
+        self.assertEqual(summary.final_status, "DURATION_LIMIT")
+        self.assertLess(summary.frames_processed, 100000)
+
+    @patch("src.app.pipeline.PersonDetector")
+    @patch("src.app.pipeline.PersonTracker")
+    def test_max_duration_none_no_corta(
+        self, mock_tracker_cls, mock_detector_cls
+    ) -> None:
+        """Sin límite de duración, la ejecución no se corta por tiempo."""
+        frame = np.zeros((480, 640, 3), dtype=np.uint8)
+        source = MagicMock()
+        source.source_type = "WEBCAM"
+        source.is_live = True
+        source.metadata = MagicMock(path="WEBCAM:0", fps=30.0)
+        source.state = "OPEN"
+        source.open.return_value = MagicMock(fps=30.0, width=640, height=480)
+        source.frames.return_value = ((i, frame) for i in range(3))
+
+        summary = self.pipeline.process_source(
+            source,
+            output_video=str(Path(self.tmp.name) / "out2.mp4"),
+        )
+        self.assertEqual(summary.final_status, "OK")
+        self.assertEqual(summary.frames_processed, 3)
 
 
 if __name__ == "__main__":

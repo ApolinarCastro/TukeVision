@@ -4,6 +4,7 @@ import json
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -98,6 +99,15 @@ class TestEvidenceStore(unittest.TestCase):
     def test_load_missing_metadata_returns_none(self) -> None:
         """Verifica que carga de metadatos inexistente devuelve None."""
         self.assertIsNone(self.store.load_metadata("ALR-NOPE"))
+
+    @patch("src.evidence.store.cv2.imwrite", return_value=False)
+    def test_failed_frame_write_raises_invalid_evidence(
+        self, mock_imwrite
+    ) -> None:
+        """Si cv2 no puede escribir el fotograma, falla de forma controlada."""
+        with self.assertRaises(InvalidEvidenceError):
+            self.store.save(self.frame, self.metadata)
+        mock_imwrite.assert_called_once()
 
 
 if __name__ == "__main__":
