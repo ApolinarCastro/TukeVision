@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Callable, Dict, Optional
 
 import cv2
 import numpy as np
@@ -24,6 +24,7 @@ from src.events.engine import EventEngine
 from src.business.rules import RuleEngine, default_rule
 from src.risk.calculator import RiskCalculator
 from src.alerts.engine import AlertEngine
+from src.alerts.models import Alert
 from src.evidence.store import EvidenceStore
 from src.evidence.models import EvidenceMetadata
 
@@ -51,6 +52,32 @@ class PipelineSummary:
     evidence_created: int
     output_video: str
     final_status: str
+
+
+@dataclass(frozen=True)
+class FrameSnapshot:
+    """Estado observado de un fotograma, para consumo de la interfaz.
+
+    Se construye tras anotar cada fotograma y se entrega a un callback
+    opcional sin alterar la lógica del pipeline. Contiene únicamente
+    datos ya calculados por el núcleo certificado.
+    """
+    frame_index: int
+    frame: np.ndarray
+    source_type: str
+    source_path: str
+    source_state: str
+    fps: float
+    tracked_objects: tuple
+    stays_seconds: Dict[int, float]
+    in_zone_track_ids: tuple
+    risk_text: str
+    latest_alert: Optional[Alert]
+    latest_evidence_path: Optional[str]
+    frames_processed: int
+    persons_detected: int
+    alerts_total: int
+    evidence_total: int
 
 
 def load_config(config_path: str = "config/default.json") -> dict:
@@ -175,6 +202,7 @@ class Pipeline:
         self,
         video_path: str,
         output_video: Optional[str] = None,
+        on_frame: Optional[Callable[[FrameSnapshot], None]] = None,
     ) -> PipelineSummary:
         """Procesa un video local y devuelve un resumen."""
         source = VideoSource(
@@ -182,12 +210,13 @@ class Pipeline:
             max_width=self._max_width,
             process_every_n_frames=self._process_every_n_frames,
         )
-        return self.process_source(source, output_video=output_video)
+        return self.process_source(source, output_video=output_video, on_frame=on_frame)
 
     def process_source(
         self,
         source,
         output_video: Optional[str] = None,
+        on_frame: Optional[Callable[[FrameSnapshot], None]] = None,
     ) -> PipelineSummary:
         """Procesa una fuente con interfaz común (archivo, webcam o RTSP).
 
@@ -246,6 +275,8 @@ class Pipeline:
                 unique_tracks.update(obj.track_id for obj in tracked)
 
                 risk_text = ""
+                latest_alert = None
+                latest_evidence_path = None
                 for obj in tracked:
                     transition = self._zone.update(
                         obj.track_id, obj.x1, obj.y1, obj.x2, obj.y2
@@ -280,6 +311,7 @@ class Pipeline:
                         risk_text = f"riesgo {risk.score}"
                         continue
                     alerts_created += 1
+                    latest_alert = alert
                     meta = EvidenceMetadata(
                         alert_id=alert.alert_id,
                         event_id=event.event_id,
@@ -294,6 +326,7 @@ class Pipeline:
                     )
                     evidence_path = self._evidence_store.save(frame, meta)
                     evidence_created += 1
+                    latest_evidence_path = str(evidence_path)
                     risk_text = (
                         f"ALERTA {alert.alert_id} riesgo {risk.score}"
                     )
@@ -301,6 +334,35 @@ class Pipeline:
                 self._annotate(
                     frame, tracked, time_fps, time_value, risk_text
                 )
+                if on_frame is not None:
+                    stays_seconds = {}
+                    in_zone_track_ids = tuple(
+                        obj.track_id
+                        for obj in tracked
+                        if self._zone.is_inside(obj.track_id)
+                    )
+                    for obj in tracked:
+                        stays_seconds[obj.track_id] = self._stay_seconds(
+                            obj.track_id, time_value, time_fps
+                        )
+                    on_frame(FrameSnapshot(
+                        frame_index=frame_index,
+                        frame=frame,
+                        source_type=getattr(source, "source_type", "FILE"),
+                        source_path=getattr(source.metadata, "path", ""),
+                        source_state=getattr(source, "state", "OPEN"),
+                        fps=getattr(source.metadata, "fps", 0.0),
+                        tracked_objects=tuple(tracked),
+                        stays_seconds=stays_seconds,
+                        in_zone_track_ids=in_zone_track_ids,
+                        risk_text=risk_text,
+                        latest_alert=latest_alert,
+                        latest_evidence_path=latest_evidence_path,
+                        frames_processed=frames_processed,
+                        persons_detected=persons_detected,
+                        alerts_total=alerts_created,
+                        evidence_total=evidence_created,
+                    ))
                 output_writer.write(frame)
 
             # Finalizar eventos pendientes para tracks que siguen en la zona al final
@@ -350,6 +412,8 @@ class Pipeline:
             )
         except VideoSourceError as e:
             raise PipelineError(f"Error de video: {e}")
+        except BaseException:
+            raise
         except Exception as e:
             raise PipelineError(f"Error en pipeline: {e}")
         finally:
