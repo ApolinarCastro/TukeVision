@@ -4,6 +4,7 @@ Uso:
     python scripts/run_prototype.py "data/input/video.mp4"
 """
 
+import logging
 import sys
 from pathlib import Path
 
@@ -11,6 +12,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.app.pipeline import Pipeline, PipelineError, load_config
+from src.observability.logging_setup import new_run_id, setup_logging
 
 
 def main() -> None:
@@ -19,6 +21,9 @@ def main() -> None:
         sys.exit(1)
 
     video_path = sys.argv[1]
+    run_id = new_run_id()
+    setup_logging(run_id=run_id)
+    logger = logging.getLogger("tukevision.script")
 
     if not Path(video_path).exists():
         print(f"VIDEO_PATH: {video_path}")
@@ -28,6 +33,7 @@ def main() -> None:
     try:
         config = load_config()
         pipeline = Pipeline(config=config)
+        logger.info("Procesando video. video_path=%s", video_path)
         summary = pipeline.process(video_path)
 
         print(f"VIDEO_PATH: {summary.video_path}")

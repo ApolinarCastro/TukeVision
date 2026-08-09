@@ -6,6 +6,7 @@ trabajo, entregar snapshots a la vista mediante una cola con backpressure
 cerrar de forma segura. Nunca toca widgets de Tk.
 """
 
+import logging
 import queue
 import threading
 from typing import Callable, Optional
@@ -16,6 +17,8 @@ from src.app.pipeline import Pipeline, PipelineError, load_config
 from src.capture.live_sources import RTSPSource, WebcamSource
 from src.capture.video_source import VideoSource
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
+
+logger = logging.getLogger("tukevision.ui")
 
 
 class StopRequested(BaseException):
@@ -120,14 +123,17 @@ class UiController:
         except StopRequested:
             with self._lock:
                 self._state.final_status = "STOPPED_BY_USER"
+            logger.info("Detenido por el usuario. final_status=STOPPED_BY_USER")
         except (ValueError, PipelineError) as e:
             with self._lock:
                 self._state.error = str(e)
                 self._state.final_status = "ERROR"
+            logger.error("Error controlado en la interfaz: %s", e)
         except Exception as e:
             with self._lock:
                 self._state.error = f"{type(e).__name__}: {e}"
                 self._state.final_status = "ERROR"
+            logger.exception("Error no controlado en la interfaz: %s", e)
         finally:
             with self._lock:
                 self._state.status = AppStatus.STOPPED

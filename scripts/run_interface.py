@@ -15,11 +15,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 import tkinter as tk
 
+from src.observability.logging_setup import new_run_id, setup_logging
 from src.ui.controller import UiController
 from src.ui.tk_view import TkApp
 
 
 def main() -> None:
+    run_id = new_run_id()
+    setup_logging(run_id=run_id)
     controller = UiController()
     root = tk.Tk()
     app = TkApp(root, controller)

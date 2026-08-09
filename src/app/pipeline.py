@@ -6,6 +6,7 @@ Riesgo → Alerta → Evidencia para un único video local.
 """
 
 import json
+import logging
 import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
@@ -27,6 +28,8 @@ from src.alerts.engine import AlertEngine
 from src.alerts.models import Alert
 from src.evidence.store import EvidenceStore
 from src.evidence.models import EvidenceMetadata
+
+logger = logging.getLogger("tukevision.pipeline")
 
 
 class PipelineError(Exception):
@@ -104,15 +107,46 @@ class Pipeline:
         if not zone_cfg.get("id") or not zone_cfg.get("polygon"):
             raise PipelineConfigError("La zona debe tener id y polígono")
 
-        self._max_width = video_cfg.get("max_width", 640)
+        polygon = zone_cfg["polygon"]
+        if not self._valid_polygon(polygon):
+            raise PipelineConfigError(
+                "El polígono de la zona debe tener al menos 3 vértices "
+                "[x, y] con números reales"
+            )
+
+        max_width = int(video_cfg.get("max_width", 640))
+        if max_width <= 0:
+            raise PipelineConfigError("video.max_width debe ser mayor a 0")
+
+        confidence_threshold = float(
+            detection_cfg.get("confidence_threshold", 0.35)
+        )
+        if not 0.0 <= confidence_threshold <= 1.0:
+            raise PipelineConfigError(
+                "detection.confidence_threshold debe estar entre 0 y 1"
+            )
+
+        max_stay_seconds = float(business_cfg.get("max_stay_seconds", 30.0))
+        if max_stay_seconds < 0:
+            raise PipelineConfigError(
+                "business.max_stay_seconds no puede ser negativo"
+            )
+
+        risk_threshold = int(alert_cfg.get("risk_threshold", 60))
+        if not 0 <= risk_threshold <= 100:
+            raise PipelineConfigError(
+                "alerts.risk_threshold debe estar entre 0 y 100"
+            )
+
+        self._max_width = max_width
         self._process_every_n_frames = video_cfg.get("process_every_n_frames", 1)
         self._store_id = business_cfg.get("store_id", "STORE-001")
         self._camera_id = business_cfg.get("camera_id", "CAM-001")
-        self._max_stay_seconds = float(business_cfg.get("max_stay_seconds", 30.0))
+        self._max_stay_seconds = max_stay_seconds
         self._remain_interval_frames = int(
             business_cfg.get("remain_interval_frames", 30)
         )
-        self._risk_threshold = int(alert_cfg.get("risk_threshold", 60))
+        self._risk_threshold = risk_threshold
 
         self._detector = PersonDetector(
             model_path=str(Path("models") / detection_cfg.get("model", "yolo11n.pt")),
@@ -141,6 +175,24 @@ class Pipeline:
 
     def _now(self) -> str:
         return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+    @staticmethod
+    def _valid_polygon(polygon) -> bool:
+        """Valida la forma del polígono de zona: lista de vértices [x, y]."""
+        if not isinstance(polygon, (list, tuple)) or len(polygon) < 3:
+            return False
+        for vertex in polygon:
+            if (
+                not isinstance(vertex, (list, tuple))
+                or len(vertex) != 2
+            ):
+                return False
+            x, y = vertex
+            if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+                return False
+            if isinstance(x, bool) or isinstance(y, bool):
+                return False
+        return True
 
     def _elapsed_seconds(self) -> float:
         """Tiempo transcurrido desde el inicio del procesamiento (reloj monotónico)."""
@@ -203,6 +255,7 @@ class Pipeline:
         video_path: str,
         output_video: Optional[str] = None,
         on_frame: Optional[Callable[[FrameSnapshot], None]] = None,
+        max_duration_seconds: Optional[float] = None,
     ) -> PipelineSummary:
         """Procesa un video local y devuelve un resumen."""
         source = VideoSource(
@@ -210,18 +263,29 @@ class Pipeline:
             max_width=self._max_width,
             process_every_n_frames=self._process_every_n_frames,
         )
-        return self.process_source(source, output_video=output_video, on_frame=on_frame)
+        return self.process_source(
+            source,
+            output_video=output_video,
+            on_frame=on_frame,
+            max_duration_seconds=max_duration_seconds,
+        )
 
     def process_source(
         self,
         source,
         output_video: Optional[str] = None,
         on_frame: Optional[Callable[[FrameSnapshot], None]] = None,
+        max_duration_seconds: Optional[float] = None,
     ) -> PipelineSummary:
         """Procesa una fuente con interfaz común (archivo, webcam o RTSP).
 
         La fuente debe exponer open(), frames(), close(), metadata e is_live.
         El núcleo del pipeline no conoce el origen de los fotogramas.
+
+        max_duration_seconds limita la duración total de la ejecución (reloj
+        monotónico). Si se alcanza, la ejecución termina limpiamente con
+        final_status=DURATION_LIMIT. Es el mecanismo que garantiza que una
+        fuente en vivo no quede ejecutándose indefinidamente.
         """
         if output_video is None:
             output_dir = Path("data/output")
@@ -237,12 +301,22 @@ class Pipeline:
         evidence_created = 0
         unique_tracks = set()
         output_writer = None
+        duration_limit_reached = False
 
         try:
             metadata = source.open()
             is_live = getattr(source, "is_live", False) is True
             self._clock_start = time.monotonic()
             self._entry_frame.clear()
+
+            logger.info(
+                "Pipeline iniciado. source_type=%s live=%s resolucion=%sx%s fps=%s",
+                getattr(source, "source_type", "FILE"),
+                is_live,
+                metadata.width,
+                metadata.height,
+                metadata.fps,
+            )
 
             out_path = Path(output_video)
             out_path.parent.mkdir(parents=True, exist_ok=True)
@@ -255,6 +329,17 @@ class Pipeline:
             )
 
             for frame_index, frame in source.frames():
+                if (
+                    max_duration_seconds is not None
+                    and is_live
+                    and self._elapsed_seconds() >= max_duration_seconds
+                ):
+                    duration_limit_reached = True
+                    logger.info(
+                        "Límite de duración alcanzado: %.1fs",
+                        self._elapsed_seconds(),
+                    )
+                    break
                 frames_processed += 1
                 if is_live:
                     time_value = self._elapsed_seconds()
@@ -398,6 +483,22 @@ class Pipeline:
 
             tracks_created = len(unique_tracks)
 
+            final_status = (
+                "DURATION_LIMIT" if duration_limit_reached else "OK"
+            )
+            logger.info(
+                "Pipeline finalizado. final_status=%s frames=%s personas=%s "
+                "tracks=%s observaciones=%s eventos=%s alertas=%s evidencia=%s",
+                final_status,
+                frames_processed,
+                persons_detected,
+                tracks_created,
+                observations_created,
+                events_created,
+                alerts_created,
+                evidence_created,
+            )
+
             return PipelineSummary(
                 video_path=metadata.path,
                 frames_processed=frames_processed,
@@ -408,13 +509,15 @@ class Pipeline:
                 alerts_created=alerts_created,
                 evidence_created=evidence_created,
                 output_video=output_video,
-                final_status="OK",
+                final_status=final_status,
             )
         except VideoSourceError as e:
+            logger.error("Error de video en pipeline: %s", e)
             raise PipelineError(f"Error de video: {e}")
         except BaseException:
             raise
         except Exception as e:
+            logger.error("Error en pipeline: %s", e)
             raise PipelineError(f"Error en pipeline: {e}")
         finally:
             if output_writer is not None:
