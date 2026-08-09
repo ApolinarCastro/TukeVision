@@ -20,6 +20,9 @@ data/temp/*
 logs/*
 models/*
 
+# Paquetes portables generados
+dist/
+
 # Mantener las carpetas vacías
 !data/input/.gitkeep
 !data/output/.gitkeep
