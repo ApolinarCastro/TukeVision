@@ -122,3 +122,52 @@ autorizada. El pipeline certificado procesará los fotogramas.
 - `HTTP` accesible ≠ `RTSP` validado.
 - `RTSP frames recibidos` ≠ `UC-001 validado`.
 - El paquete portable preparado ≠ despliegue de producción.
+
+## Resultado de la prueba física (infraestructura CCTV autorizada)
+
+Registrado en LOOP-0012C-R a partir de la evidencia experimental.
+
+| Medición | Resultado |
+|---|---|
+| REAL_RTSP_INPUT_STATUS | `FORMALLY_CERTIFIED` (entrada RTSP real validada) |
+| REAL_RTSP_FRAMES_RECEIVED | 30 |
+| REAL_RTSP_RESOLUTION | 352x240 |
+| REAL_RTSP_MEASURED_FPS | 4.24 |
+| REAL_RTSP_SOURCE_CLOSED | PASS |
+| Protocolo | RTSP estándar |
+| Infraestructura | CCTV autorizada |
+
+Interpretación:
+
+- La prueba funcionó mediante la abstracción RTSP genérica existente
+  (`RTSPSource`); no se requirió adaptación específica por fabricante.
+- Esto NO significa compatibilidad universal con todos los fabricantes.
+- `REAL_CAMERA_VISION_PIPELINE: PENDING` — el pipeline completo (YOLO,
+  ByteTrack) sobre cámara real NO se ha validado.
+- `UC001_OPERATIONAL_VALIDATION: BLOCKED_BY_OPERATIONAL_INPUT`.
+
+## Protección de stderr nativo (HOTFIX-RTSP-001)
+
+FFmpeg (backend de OpenCV para RTSP) puede escribir en el descriptor 2
+(stderr nativo) eludiendo `sys.stderr` de Python y el sistema de logging.
+La protección aplicada en `RTSPSource`:
+
+- `OPENCV_FFMPEG_LOGLEVEL=quiet` (defensa complementaria, no sustituto).
+- `_suppress_native_stderr()`: redirige fd 2 a `os.devnull` únicamente
+  durante `open()`, `read()` y `_reconnect()`; restaura fd 2 siempre
+  (incluida una excepción) mediante `try/finally`.
+- `metadata.path` usa `redact_rtsp_url()` (función canónica de
+  `src/observability/logging_setup.py`), conservando host/path/query para
+  diagnóstico sin exponer credenciales.
+- El launcher `test_rtsp.ps1` ejecuta siempre el intérprete del entorno
+  virtual (`.venv\Scripts\python.exe`) y reenvía argumentos y exit code.
+
+## Observaciones webcam pendientes de análisis
+
+Registradas en LOOP-0012C-R sin modificar el pipeline:
+
+- `WEBCAM_OUTPUT_WRITER_WARNING: PENDING_ANALYSIS`
+- `WEBCAM_FPS_METADATA_ANOMALY: PENDING_ANALYSIS`
+
+El pipeline no se modificó para resolverlas; son observaciones registradas
+para un análisis separado.

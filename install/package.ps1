@@ -52,6 +52,8 @@ $filesToCopy = @(
     "requirements.lock.txt",
     "README.md",
     "start_tukevision.ps1",
+    "test_rtsp.ps1",
+    "docs\HOTFIX_RTSP_001.md",
     "models\yolo11n.pt"
 )
 

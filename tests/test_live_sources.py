@@ -160,7 +160,7 @@ class TestRTSPSource(unittest.TestCase):
         source.close()
 
     def test_metadata_does_not_expose_credentials(self) -> None:
-        """La ruta de metadatos RTSP no expone credenciales."""
+        """La ruta de metadatos RTSP no expone credenciales (HOTFIX-RTSP-001)."""
         cap = FakeCapture()
         source = RTSPSource(
             rtsp_url="rtsp://user:secret@10.0.0.5/stream",
@@ -169,8 +169,10 @@ class TestRTSPSource(unittest.TestCase):
         metadata = source.open()
         self.assertNotIn("user", metadata.path)
         self.assertNotIn("secret", metadata.path)
-        self.assertNotIn("10.0.0.5", metadata.path)
-        self.assertEqual(metadata.path, "rtsp://[redacted]")
+        # El host se conserva; las credenciales están redactadas.
+        self.assertEqual(
+            metadata.path, "rtsp://REDACTED:REDACTED@10.0.0.5/stream"
+        )
         source.close()
 
     def test_read_frames(self) -> None:

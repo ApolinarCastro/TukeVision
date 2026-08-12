@@ -7,17 +7,55 @@ a VideoSource (open / read / close / metadata / is_open).
 El núcleo del pipeline no conoce el origen de los fotogramas.
 """
 
+import os
+import sys
 import time
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import Callable, Generator, Optional, Tuple
 
 import cv2
+
+# Reducir verbosidad de FFmpeg usado por OpenCV para RTSP.
+# Esto minimiza (pero no garantiza eliminar) salida en stderr nativo.
+os.environ.setdefault("OPENCV_FFMPEG_LOGLEVEL", "quiet")
 
 from src.capture.video_source import (
     VideoMetadata,
     VideoSourceError,
     VideoReadError,
 )
+from src.observability.logging_setup import redact_rtsp_url
+
+
+@contextmanager
+def _suppress_native_stderr():
+    """Suprime temporalmente stderr a nivel de descriptor de archivo (fd 2).
+
+    FFmpeg (usado por OpenCV para RTSP) escribe directamente en fd 2,
+    eludiendo sys.stderr de Python. Esta redirección captura/silencia
+    cualquier salida nativa durante operaciones críticas de VideoCapture.
+
+    Restituye siempre el estado original mediante try/finally.
+    """
+    original_stderr_fd = os.dup(2)
+    devnull_fd = os.open(os.devnull, os.O_WRONLY)
+    try:
+        os.dup2(devnull_fd, 2)
+        sys.stderr.flush()
+        yield
+    finally:
+        sys.stderr.flush()
+        os.dup2(original_stderr_fd, 2)
+        os.close(original_stderr_fd)
+        os.close(devnull_fd)
+
+
+def _create_capture_with_suppressed_stderr(rtsp_url: str, factory) -> cv2.VideoCapture:
+    """Crea y abre VideoCapture suprimiendo stderr nativo durante la operación."""
+    with _suppress_native_stderr():
+        cap = factory(rtsp_url)
+    return cap
 
 
 class WebcamUnavailableError(VideoSourceError):
@@ -227,7 +265,7 @@ class RTSPSource:
         self.close()
 
         self._state = SourceState.CONNECTING
-        self._cap = self._capture_factory(self._rtsp_url)
+        self._cap = _create_capture_with_suppressed_stderr(self._rtsp_url, self._capture_factory)
 
         if self._cap is None or not self._cap.isOpened():
             self._release_capture()
@@ -238,7 +276,9 @@ class RTSPSource:
         height = int(self._cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         fps = float(self._cap.get(cv2.CAP_PROP_FPS) or 0.0)
 
-        ret, _ = self._cap.read()
+        # También suprimir stderr durante el primer read() que puede generar logs de FFmpeg
+        with _suppress_native_stderr():
+            ret, _ = self._cap.read()
         if not ret:
             self._release_capture()
             self._state = SourceState.FAILED
@@ -251,7 +291,7 @@ class RTSPSource:
             fps=fps,
             total_frames=0,
             duration_seconds=0.0,
-            path="rtsp://[redacted]",
+            path=redact_rtsp_url(self._rtsp_url),
             source_type="RTSP",
         )
         self._frame_index = 0
@@ -264,7 +304,8 @@ class RTSPSource:
         if self._cap is None or not self._cap.isOpened():
             raise VideoSourceError("La fuente RTSP no está abierta. Llame a open() primero.")
 
-        ret, frame = self._cap.read()
+        with _suppress_native_stderr():
+            ret, frame = self._cap.read()
         if not ret:
             if self._reconnect():
                 return self.read()
@@ -289,7 +330,7 @@ class RTSPSource:
         self._release_capture()
         time.sleep(self._reconnect_delay_seconds)
         self._reconnect_count += 1
-        self._cap = self._capture_factory(self._rtsp_url)
+        self._cap = _create_capture_with_suppressed_stderr(self._rtsp_url, self._capture_factory)
         if self._cap is not None and self._cap.isOpened():
             self._state = SourceState.OPEN
             return True
