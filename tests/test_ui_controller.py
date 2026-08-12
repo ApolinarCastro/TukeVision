@@ -19,6 +19,7 @@ from src.alerts.models import Alert
 from src.app.pipeline import PipelineSummary
 from src.app.pipeline import FrameSnapshot
 from src.tracking.person_tracker import TrackedObject
+from src.capture.rtsp_url import build_rtsp_url
 from src.ui.controller import UiController, StopRequested, build_source
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
 
@@ -290,6 +291,27 @@ class TestBuildSource(unittest.TestCase):
     def test_fuente_no_soportada(self) -> None:
         with self.assertRaises(ValueError):
             build_source("HLS", "x", CONFIG)
+
+
+class TestBuildRtspUrl(unittest.TestCase):
+    """Verifica la construcción segura de URL RTSP usada por la vista
+    (LOOP-0013-HOTFIX). No requiere display Tk."""
+
+    def test_compone_url_con_credenciales(self) -> None:
+        url = build_rtsp_url(
+            "rtsp://192.168.1.50:554/cam?channel=1", "admin", "secreto"
+        )
+        self.assertEqual(
+            url,
+            "rtsp://admin:secreto@192.168.1.50:554/cam?channel=1",
+        )
+
+    def test_sin_credenciales_conserva_host(self) -> None:
+        host = "rtsp://192.168.1.50:554/cam"
+        self.assertEqual(build_rtsp_url(host, "", ""), host)
+
+    def test_host_vacio_devuelve_vacio(self) -> None:
+        self.assertEqual(build_rtsp_url("", "u", "p"), "")
 
 
 if __name__ == "__main__":

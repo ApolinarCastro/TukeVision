@@ -12,6 +12,7 @@ import tkinter as tk
 
 import cv2
 
+from src.capture.rtsp_url import build_rtsp_url
 from src.ui.state import AppStatus
 
 
@@ -77,36 +78,63 @@ class TkApp:
         # Controles
         controls = ttk.Frame(self._root, padding=(10, 8))
         controls.pack(fill=tk.X)
+        controls.columnconfigure(1, weight=0)
 
         self._source_var = tk.StringVar(value="FILE")
-        ttk.Label(controls, text="Fuente:").pack(side=tk.LEFT)
+        ttk.Label(controls, text="Fuente:").grid(row=0, column=0, sticky=tk.W)
         ttk.OptionMenu(
             controls, self._source_var, "FILE", "FILE", "WEBCAM", "RTSP",
             command=self._on_source_change,
-        ).pack(side=tk.LEFT, padx=(4, 8))
+        ).grid(row=0, column=1, padx=(4, 8), sticky=tk.W)
 
+        # Campo libre usado por FILE (ruta) y WEBCAM (índice).
         self._input_var = tk.StringVar(value="")
         self._input_entry = ttk.Entry(controls, textvariable=self._input_var, width=34)
-        self._input_entry.pack(side=tk.LEFT, padx=(0, 8))
+        self._input_entry.grid(row=0, column=2, padx=(0, 8), sticky=tk.W)
+
+        # Campos RTSP separados: la contraseña va enmascarada (show="*")
+        # y la URL con credenciales se construye en memoria al iniciar,
+        # sin exponerla en pantalla (LOOP-0013-HOTFIX, SECURE_RTSP_UI_GAP).
+        self._rtsp_host_var = tk.StringVar(value="rtsp://")
+        self._rtsp_user_var = tk.StringVar(value="")
+        self._rtsp_pass_var = tk.StringVar(value="")
+        self._rtsp_frame = ttk.Frame(controls)
+        self._rtsp_frame.grid(row=0, column=3, padx=(0, 8), sticky=tk.W)
+        ttk.Label(self._rtsp_frame, text="Host:").pack(side=tk.LEFT)
+        self._rtsp_host_entry = ttk.Entry(
+            self._rtsp_frame, textvariable=self._rtsp_host_var, width=22
+        )
+        self._rtsp_host_entry.pack(side=tk.LEFT, padx=(2, 6))
+        ttk.Label(self._rtsp_frame, text="Usuario:").pack(side=tk.LEFT)
+        self._rtsp_user_entry = ttk.Entry(
+            self._rtsp_frame, textvariable=self._rtsp_user_var, width=10
+        )
+        self._rtsp_user_entry.pack(side=tk.LEFT, padx=(2, 6))
+        ttk.Label(self._rtsp_frame, text="Contraseña:").pack(side=tk.LEFT)
+        self._rtsp_pass_entry = ttk.Entry(
+            self._rtsp_frame, textvariable=self._rtsp_pass_var, width=10,
+            show="*",
+        )
+        self._rtsp_pass_entry.pack(side=tk.LEFT, padx=(2, 6))
 
         self._file_btn = ttk.Button(
             controls, text="Seleccionar archivo", command=self._on_select_file
         )
-        self._file_btn.pack(side=tk.LEFT, padx=(0, 8))
+        self._file_btn.grid(row=0, column=4, padx=(0, 8), sticky=tk.W)
 
         self._start_btn = ttk.Button(
             controls, text="Iniciar", command=self._on_start
         )
-        self._start_btn.pack(side=tk.LEFT, padx=(0, 4))
+        self._start_btn.grid(row=0, column=5, padx=(0, 4), sticky=tk.W)
 
         self._stop_btn = ttk.Button(
             controls, text="Detener", command=self._on_stop, state=tk.DISABLED
         )
-        self._stop_btn.pack(side=tk.LEFT, padx=(0, 8))
+        self._stop_btn.grid(row=0, column=6, padx=(0, 8), sticky=tk.W)
 
         ttk.Button(
             controls, text="Abrir evidencia", command=self._on_open_evidence
-        ).pack(side=tk.LEFT)
+        ).grid(row=0, column=7, sticky=tk.W)
 
         self._on_source_change("FILE")
 
@@ -125,14 +153,18 @@ class TkApp:
             self._input_entry.configure(state=tk.NORMAL)
             self._input_var.set("")
             self._file_btn.configure(state=tk.NORMAL)
+            self._input_entry.grid()
+            self._rtsp_frame.grid_remove()
         elif kind == "WEBCAM":
             self._input_entry.configure(state=tk.NORMAL)
             self._input_var.set("0")
             self._file_btn.configure(state=tk.DISABLED)
+            self._input_entry.grid()
+            self._rtsp_frame.grid_remove()
         else:  # RTSP
-            self._input_entry.configure(state=tk.NORMAL)
-            self._input_var.set("")
+            self._input_entry.grid_remove()
             self._file_btn.configure(state=tk.DISABLED)
+            self._rtsp_frame.grid()
 
     def _on_select_file(self) -> None:
         path = filedialog.askopenfilename(
@@ -144,10 +176,22 @@ class TkApp:
 
     def _on_start(self) -> None:
         kind = self._source_var.get()
-        value = self._input_var.get()
-        if kind == "FILE" and not value:
-            messagebox.showwarning("Fuente", "Seleccione un archivo de video")
-            return
+        if kind == "RTSP":
+            value = build_rtsp_url(
+                self._rtsp_host_var.get(),
+                self._rtsp_user_var.get(),
+                self._rtsp_pass_var.get(),
+            )
+            if not value or not value.startswith("rtsp://"):
+                messagebox.showwarning(
+                    "Fuente", "Para RTSP ingrese una URL base válida"
+                )
+                return
+        else:
+            value = self._input_var.get()
+            if kind == "FILE" and not value:
+                messagebox.showwarning("Fuente", "Seleccione un archivo de video")
+                return
         try:
             self._controller.start(kind, value)
         except ValueError as e:

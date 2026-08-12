@@ -25,11 +25,11 @@ import argparse
 import getpass
 import sys
 from pathlib import Path
-from urllib.parse import quote, urlsplit, urlunsplit
 
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+from src.capture.rtsp_url import build_rtsp_url
 from src.diagnostics.rtsp_connection_test import (
     RTSPConnectionTest,
     RTSPFrameState,
@@ -39,14 +39,12 @@ from src.observability.logging_setup import redact_rtsp_url
 
 
 def _with_credentials(host: str, username: str, password: str) -> str:
-    """Inserta credenciales en una URL RTSP base sin exponer la contraseña."""
-    parts = urlsplit(host)
-    user = quote(username, safe="")
-    pwd = quote(password, safe="")
-    netloc = f"{user}:{pwd}@{parts.netloc}"
-    return urlunsplit(
-        (parts.scheme, netloc, parts.path, parts.query, parts.fragment)
-    )
+    """Inserta credenciales en una URL RTSP base sin exponer la contraseña.
+
+    Mantiene compatibilidad con los tests de seguridad existentes
+    (AC-SEC-01/02) delegando en el helper compartido.
+    """
+    return build_rtsp_url(host, username, password)
 
 
 def main() -> int:

@@ -19,6 +19,7 @@ from src.capture.live_sources import (
     WebcamSource,
     _suppress_native_stderr,
 )
+from src.capture.rtsp_url import build_rtsp_url
 from src.capture.video_source import VideoMetadata, VideoNotFoundError
 from src.observability.logging_setup import redact_rtsp_url
 from scripts.test_rtsp_connection import _with_credentials
@@ -112,6 +113,30 @@ class TestURLConstruction(unittest.TestCase):
         self.assertIn("Fake%3AP%40ss%5Cword%25123%3F%26%23", url)
         # El password crudo (con caracteres especiales) no aparece.
         self.assertNotIn(FAKE_PASSWORD, url)
+
+    def test_build_rtsp_url_sin_credenciales(self) -> None:
+        """AC-SEC-15: sin credenciales se conserva el host tal cual."""
+        self.assertEqual(
+            build_rtsp_url(FAKE_HOST, "", ""), FAKE_HOST
+        )
+
+    def test_build_rtsp_url_vacio_devuelve_vacio(self) -> None:
+        """AC-SEC-16: host vacío devuelve cadena vacía."""
+        self.assertEqual(build_rtsp_url("", "u", "p"), "")
+        self.assertEqual(build_rtsp_url("   ", "u", "p"), "")
+
+    def test_build_rtsp_url_equivale_a_with_credentials(self) -> None:
+        """AC-SEC-17: el helper compartido construye la misma URL segura."""
+        self.assertEqual(
+            build_rtsp_url(FAKE_HOST, FAKE_USER, FAKE_PASSWORD),
+            _with_credentials(FAKE_HOST, FAKE_USER, FAKE_PASSWORD),
+        )
+
+    def test_build_rtsp_url_con_password_vacio(self) -> None:
+        """AC-SEC-18: contraseña vacía mantiene el usuario y redacta igual."""
+        url = build_rtsp_url(FAKE_HOST, FAKE_USER, "")
+        self.assertNotIn(FAKE_USER, redact_rtsp_url(url))
+        self.assertIn("REDACTED:REDACTED", redact_rtsp_url(url))
 
 
 class TestRedaction(unittest.TestCase):
