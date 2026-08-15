@@ -16,6 +16,7 @@ import cv2
 from src.app.pipeline import Pipeline, PipelineError, load_config
 from src.capture.live_sources import RTSPSource, WebcamSource
 from src.capture.video_source import VideoSource
+from src.observability.logging_setup import redact_rtsp_url
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
 
 logger = logging.getLogger("tukevision.ui")
@@ -95,6 +96,16 @@ class UiController:
 
     def start(self, source_kind: str, source_input: str) -> None:
         """Inicia el pipeline en un hilo de trabajo."""
+        # Trazado seguro de apertura RTSP (LOOP-0015-TRACE, C-04)
+        SOURCE_TYPE = source_kind
+        RTSP_CONTROLLER_VALUE_REDACTED = (
+            redact_rtsp_url(source_input) if source_kind == "RTSP" else ""
+        )
+        logger.info("SOURCE_TYPE=%s", SOURCE_TYPE)
+        if RTSP_CONTROLLER_VALUE_REDACTED:
+            logger.info(
+                "RTSP_CONTROLLER_VALUE_REDACTED=%s", RTSP_CONTROLLER_VALUE_REDACTED
+            )
         if self.is_running():
             raise ValueError("La interfaz ya está en ejecución")
 

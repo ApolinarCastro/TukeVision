@@ -297,18 +297,23 @@ class TestBuildRtspUrl(unittest.TestCase):
     """Verifica la construcción segura de URL RTSP usada por la vista
     (LOOP-0013-HOTFIX). No requiere display Tk."""
 
+    # Contract migration LOOP-0018J-R2: BASE adopts the certified portable
+    # RTSP contract (deterministic channel=1&subtype=1 in query).
     def test_compone_url_con_credenciales(self) -> None:
         url = build_rtsp_url(
             "rtsp://192.168.1.50:554/cam?channel=1", "admin", "secreto"
         )
         self.assertEqual(
             url,
-            "rtsp://admin:secreto@192.168.1.50:554/cam?channel=1",
+            "rtsp://admin:secreto@192.168.1.50:554/cam?channel=1&subtype=1",
         )
 
     def test_sin_credenciales_conserva_host(self) -> None:
         host = "rtsp://192.168.1.50:554/cam"
-        self.assertEqual(build_rtsp_url(host, "", ""), host)
+        self.assertEqual(
+            build_rtsp_url(host, "", ""),
+            "rtsp://192.168.1.50:554/cam?channel=1&subtype=1",
+        )
 
     def test_host_vacio_devuelve_vacio(self) -> None:
         self.assertEqual(build_rtsp_url("", "u", "p"), "")
