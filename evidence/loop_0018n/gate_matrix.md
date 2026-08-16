@@ -21,18 +21,25 @@ Estado de puertas evaluadas hasta PASO 11. (G8+ se completan tras la decisi√≥n.)
 | G15 | SIN fuentes 8/16 tras 4 | PASS | Expl√≠cito en FIRST_PRODUCT_DELIVERY.md |
 | G16 | Aislamiento por c√°mara | PASS (dise√±o) | PRODUCT_CORE.md invariante: SOURCE_ISOLATION=YES, NO_SHARED_MUTABLE_CAPTURE=YES |
 | G17 | STOP final con revisi√≥n humana | PENDIENTE | Al final del LOOP |
+## PASO 11 ó DECISI”N DE PUERTA (RESUELTA)
 
-## PASO 11 ‚Äî DECISI√ìN DE PUERTA (PENDIENTE DE AUTORIZACI√ìN)
+**AutorizaciÛn del operador:** 2026-08-16 ó implementaciÛn mÌnima sobre BASE
+(SourceManager + 4 c·maras sintÈticas, E-01 intacto, 0 deps nuevas).
 
-**Lo que dice el LOOP:** "NO SourceManager/Activity Layer sin autorizaci√≥n" + STOP final con revisi√≥n humana.
+## POST-IMPLEMENTACI”N (G8-G17 completados)
 
-**Lo que la evidencia permite:**
-- El plan est√° completo y todas las puertas de dise√±o (G1-G16) se cumplen.
-- La implementaci√≥n m√≠nima (SourceManager ~1 archivo, composici√≥n de piezas certificadas,
-  0 deps nuevas, 0 toques a E-01) es viable y auditable.
-- Hallazgo de recursos: YOLO 54.5ms/frame ‚Üí la detecci√≥n por c√°mara debe ser config-driven
-  con frame budgeting; el SourceManager (orquestaci√≥n) NO depende de YOLO continuo.
-
-**Decisi√≥n requerida del operador:** autorizar la implementaci√≥n m√≠nima de
-REAL_MULTICAMERA_4_CAMERAS (branch `product/loop-0018n-multicamera4`) o detener el LOOP
-en plan (veredicto PRODUCT_ADVANCE_PLAN_READY sin c√≥digo).
+| Gate | Criterio | Estado | Evidencia |
+|---|---|---|---|
+| G8 | No duplicar arquitectura | PASS | PRODUCT_CORE.md: especializaciÛn multic·mara de ARCHITECTURE.md |
+| G9 | Solo 4 c·maras (8/16 prohibido) | PASS | FIRST_PRODUCT_DELIVERY.md |
+| G10 | PolÌtica AI definida | PASS | AI_POLICY.md |
+| G11 | Presupuesto de recursos | PASS | resource_budget.md: YOLO 54.5ms ? frame budgeting |
+| G12 | 0 dependencias nuevas | PASS | source_manager.py solo stdlib + piezas BASE; requirements.txt sin cambios |
+| G13 | SIN migraciÛn autom·tica E-xx | PASS | E02_E05_APPLICABILITY_MATRIX.md (regla de activaciÛn) |
+| G14 | E-01/OpenCV/FFmpeg intactos | PASS | git diff: solo source_manager.py + test nuevo |
+| G15 | SIN 8/16 tras 4 | PASS | ExplÌcito en FIRST_PRODUCT_DELIVERY.md |
+| G16 | Aislamiento por c·mara | PASS | 14 tests sintÈticos (aislamiento, per-camera state, queue) |
+| G17 | RegresiÛn y determinismo | PASS | 241/241 OK; sintÈticos 3/3 OK; compileall EXIT=0 |
+| G18 | Secretos | PASS | test_secret_not_exposed_in_inventory + grep manual |
+| G19 | Commit checkpoint | PASS | fa5b14f (branch product/loop-0018n-multicamera4) |
+| G20 | TES/Obsidian consistente | PASS | PROJECT_STATUS, DEC-0033, BACKLOG, DEVELOPMENT_LOG actualizados |
