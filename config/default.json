@@ -3,6 +3,11 @@
     "max_width": 640,
     "process_every_n_frames": 1
   },
+  "rtsp": {
+    "open_timeout_ms": 8000,
+    "read_timeout_ms": 4000,
+    "frame_stall_timeout_s": 10.0
+  },
   "output": {
     "save_processed_video": false,
     "show_preview": true

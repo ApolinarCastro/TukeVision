@@ -54,10 +54,14 @@ def build_source(source_kind: str, source_input: str, config: dict):
         url = str(source_input).strip()
         if not url:
             raise ValueError("Para RTSP ingrese una URL")
+        rtsp_cfg = config.get("rtsp", {})
         return RTSPSource(
             rtsp_url=url,
             max_width=max_width,
             process_every_n_frames=every_n,
+            rtsp_open_timeout_ms=int(rtsp_cfg.get("open_timeout_ms", 8000)),
+            rtsp_read_timeout_ms=int(rtsp_cfg.get("read_timeout_ms", 4000)),
+            frame_stall_timeout_s=float(rtsp_cfg.get("frame_stall_timeout_s", 10.0)),
         )
     raise ValueError(f"Fuente no soportada: {source_kind}")
 

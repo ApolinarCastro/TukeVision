@@ -17,6 +17,7 @@ import cv2
 import numpy as np
 
 from src.capture.video_source import VideoSource, VideoSourceError
+from src.capture.live_sources import SourceState
 from src.detection.person_detector import PersonDetector
 from src.tracking.person_tracker import PersonTracker
 from src.context.zone import Zone
@@ -328,6 +329,7 @@ class Pipeline:
                 (metadata.width, metadata.height),
             )
 
+            stream_lost = False
             for frame_index, frame in source.frames():
                 if (
                     max_duration_seconds is not None
@@ -339,6 +341,11 @@ class Pipeline:
                         "Límite de duración alcanzado: %.1fs",
                         self._elapsed_seconds(),
                     )
+                    break
+                # Verificar si la fuente indica pérdida de stream (E-01)
+                if is_live and getattr(source, "state", None) == SourceState.FAILED:
+                    stream_lost = True
+                    logger.info("STREAM_LOST_DETECTED")
                     break
                 frames_processed += 1
                 if is_live:
@@ -450,6 +457,12 @@ class Pipeline:
                     ))
                 output_writer.write(frame)
 
+            # Si la fuente quedó en FAILED (reconexiones agotadas), la pérdida
+            # debe reflejarse aunque frames() termine sin entregar otro frame.
+            if is_live and getattr(source, "state", None) == SourceState.FAILED:
+                stream_lost = True
+                logger.info("STREAM_LOST_DETECTED")
+
             # Finalizar eventos pendientes para tracks que siguen en la zona al final
             if is_live:
                 final_timestamp = self._live_timestamp(self._elapsed_seconds())
@@ -486,6 +499,8 @@ class Pipeline:
             final_status = (
                 "DURATION_LIMIT" if duration_limit_reached else "OK"
             )
+            if stream_lost:
+                final_status = "STREAM_LOST"
             logger.info(
                 "Pipeline finalizado. final_status=%s frames=%s personas=%s "
                 "tracks=%s observaciones=%s eventos=%s alertas=%s evidencia=%s",
