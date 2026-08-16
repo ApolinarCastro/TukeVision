@@ -32,5 +32,13 @@
   },
   "alerts": {
     "risk_threshold": 60
+  },
+  "observation": {
+    "default_profile": "BALANCED",
+    "profiles": {
+      "QUALITY": { "max_analysis_fps": 5.0 },
+      "BALANCED": { "max_analysis_fps": 2.0 },
+      "ECONOMY": { "max_analysis_fps": 1.0 }
+    }
   }
 }
