@@ -1,0 +1,28 @@
+# LOOP-0018N — PRECHECK
+
+**EXECUTION_ID:** LOOP-0018N
+**MODE:** PRODUCT_ADVANCE
+**Fecha:** 2026-08-16
+
+```json
+{
+  "base_path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision",
+  "base_head": "ccacb3d95f963a973ff64400cbdb88500dbde705",
+  "base_checkpoint_expected": "ccacb3d95f963a973ff64400cbdb88500dbde705",
+  "match": true,
+  "branch": "backport/loop-0018j",
+  "git_status": "clean except untracked evidence/ + live_sources.BASE_preE01.bak.py (classified)",
+  "base_tests_inherited": "227/227 PASS (LOOP-0018M-R1)",
+  "obsidian_root": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TES",
+  "portable_lab": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision-portable",
+  "machine": {
+    "cpu": "Intel(R) Core(TM) Ultra 7 155H (16 cores / 22 threads)",
+    "ram_gb": 15.4,
+    "gpu": "Intel(R) Arc(TM) Graphics (2.0 GB VRAM nominal)"
+  },
+  "physical_evidence_referenced": {
+    "LOOP-0018L": "CAM07 subtype0 1280x720@15fps, 3774 s, RAM stable 518-531MB, clean shutdown, reconnect NOT_EXERCISED",
+    "LOOP-0018F": "SmartPSS B1 INCONCLUSIVE (crash contaminó comparación), hallazgo 0xc0000374 repetido en 3 corridas pre-fix"
+  }
+}
+```
