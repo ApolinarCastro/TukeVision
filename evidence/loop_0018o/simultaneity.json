@@ -1,0 +1,49 @@
+{
+  "all_healthy_with_frames": true,
+  "health": {
+    "CAM-07": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 15.0,
+      "resolution": "1280x720",
+      "last_frame_age_ms": 31,
+      "stall_count": 0,
+      "readable_frames": 155,
+      "queue_depth": 8,
+      "last_error": ""
+    },
+    "CAM-01": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 7.0,
+      "resolution": "352x240",
+      "last_frame_age_ms": 16,
+      "stall_count": 0,
+      "readable_frames": 94,
+      "queue_depth": 8,
+      "last_error": ""
+    },
+    "CAM-05": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 7.0,
+      "resolution": "352x240",
+      "last_frame_age_ms": 63,
+      "stall_count": 0,
+      "readable_frames": 17,
+      "queue_depth": 8,
+      "last_error": ""
+    },
+    "CAM-03": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 7.0,
+      "resolution": "352x240",
+      "last_frame_age_ms": 125,
+      "stall_count": 0,
+      "readable_frames": 48,
+      "queue_depth": 8,
+      "last_error": ""
+    }
+  }
+}

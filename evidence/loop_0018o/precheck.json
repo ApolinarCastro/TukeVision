@@ -1,0 +1,10 @@
+{
+  "base_head": "ccb3b2a",
+  "branch": "product/loop-0018n-multicamera4",
+  "dumps_baseline": [],
+  "python_procs_running": [
+    23860,
+    26020
+  ],
+  "host": "rtsp://186.103.177.83:554/cam/realmonitor"
+}

@@ -1,0 +1,39 @@
+{
+  "victim": "CAM-03",
+  "restarted": true,
+  "others_after": {
+    "CAM-07": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 15.0,
+      "resolution": "1280x720",
+      "last_frame_age_ms": 62,
+      "stall_count": 0,
+      "readable_frames": 4797,
+      "queue_depth": 8,
+      "last_error": ""
+    },
+    "CAM-01": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 7.0,
+      "resolution": "352x240",
+      "last_frame_age_ms": 141,
+      "stall_count": 0,
+      "readable_frames": 2260,
+      "queue_depth": 8,
+      "last_error": ""
+    },
+    "CAM-05": {
+      "state": "OPEN",
+      "healthy": true,
+      "fps": 7.0,
+      "resolution": "352x240",
+      "last_frame_age_ms": 77,
+      "stall_count": 0,
+      "readable_frames": 2183,
+      "queue_depth": 8,
+      "last_error": ""
+    }
+  }
+}

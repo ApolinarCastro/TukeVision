@@ -1,0 +1,15 @@
+{
+  "verdict": "MULTICAMERA4_PHYSICAL_CERTIFIED",
+  "simultaneity": true,
+  "stability": true,
+  "isolation_stop": true,
+  "isolation_restart": true,
+  "clean_shutdown": true,
+  "cameras": [
+    7,
+    1,
+    5,
+    3
+  ],
+  "stability_sec": 300
+}

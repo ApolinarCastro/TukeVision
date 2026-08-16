@@ -1,0 +1,35 @@
+======================================================================
+LOOP-0018O — VALIDACION FISICA MULTICAMARA (4 camaras reales)
+======================================================================
+
+[FASE 0] PRECHECK base=ccb3b2a branch=product/loop-0018n-multicamera4 python_procs=2 dumps_baseline=0
+
+[FASE 1] Deteccion pasiva de canales 1-16 (subtype=1, 1 frame)...
+CANALES_ACCESIBLES=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+
+[FASE 2] SELECCION=[7, 1, 5, 3] (CAM07 subtype=0 referencia; resto subtype=1)
+
+[FASE 3] START simultaneo de 4 camaras...
+
+[FASE 4] Esperando simultaneidad (todas healthy + frames)...
+
+[FASE 5] Observacion de estabilidad 300s (sample 5s)...
+ESTABILIDAD=PASS eventos=0
+
+[FASE 6] Aislamiento: STOP CAM-03; las otras deben seguir...
+ISOLATION_STOP=PASS
+RESTART CAM-03 (las otras intactas)...
+ISOLATION_RESTART=PASS
+
+[FASE 7] SALUD INDIVIDUAL:
+  CAM-07: state=OPEN res=1280x720 fps=15.0 frames=4797 stall=0 q=8 err=-
+  CAM-01: state=OPEN res=352x240 fps=7.0 frames=2260 stall=0 q=8 err=-
+  CAM-05: state=OPEN res=352x240 fps=7.0 frames=2183 stall=0 q=8 err=-
+  CAM-03: state=OPEN res=352x240 fps=7.0 frames=16 stall=0 q=8 err=-
+
+[FASE 8] SHUTDOWN limpio (close_all)...
+SHUTDOWN=PASS tcp554=0 threads=1
+
+======================================================================
+CERTIFICACION: MULTICAMERA4_PHYSICAL_CERTIFIED
+======================================================================

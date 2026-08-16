@@ -1,0 +1,11 @@
+{
+  "post_healthy": {
+    "CAM-07": false,
+    "CAM-01": false,
+    "CAM-05": false,
+    "CAM-03": false
+  },
+  "post_tcp554": 0,
+  "post_threads": 1,
+  "clean": true
+}
