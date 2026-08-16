@@ -54,5 +54,14 @@
       { "type": "OBJECT_DETECTED", "min_confidence": 0.35 },
       { "type": "PERSON_DETECTED", "min_confidence": 0.35, "class_name": "person" }
     ]
+  },
+  "temporal": {
+    "association_window_ms": 2000,
+    "track_timeout_ms": 5000,
+    "iou_threshold": 0.05,
+    "max_active_tracks": 8,
+    "max_completed_history": 32,
+    "max_event_refs": 16,
+    "max_evidence_refs": 3
   }
 }
