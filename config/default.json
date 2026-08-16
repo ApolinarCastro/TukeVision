@@ -40,5 +40,19 @@
       "BALANCED": { "max_analysis_fps": 2.0 },
       "ECONOMY": { "max_analysis_fps": 1.0 }
     }
+  },
+  "inference": {
+    "backend": "yolo",
+    "model": "models/yolo11n.pt",
+    "class_ids": [0],
+    "confidence_threshold": 0.35,
+    "device": "cpu",
+    "image_size": 640,
+    "event_queue_maxlen": 16,
+    "event_queue_overflow": "drop_oldest",
+    "events": [
+      { "type": "OBJECT_DETECTED", "min_confidence": 0.35 },
+      { "type": "PERSON_DETECTED", "min_confidence": 0.35, "class_name": "person" }
+    ]
   }
 }
