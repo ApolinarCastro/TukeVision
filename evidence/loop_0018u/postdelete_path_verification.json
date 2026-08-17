@@ -1,0 +1,24 @@
+{
+  "execution_id": "LOOP-0018U",
+  "date": "2026-08-16",
+  "verification": "post-delete",
+  "deleted_paths": {
+    "TukeVision-portable": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision-portable", "absent": true},
+    "TukeVision_RTSP_TestInstall": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_RTSP_TestInstall", "absent": true},
+    "TukeVision_TestInstall": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_TestInstall", "absent": true}
+  },
+  "protected_paths": {
+    "TukeVision_BASE": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision", "intact": true},
+    "TES": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TES", "intact": true},
+    "archive": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive", "intact": true}
+  },
+  "preservation": {
+    "legacy_migrate": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive\\legacy\\portable_migrate_0018u", "hash_match": "16/16"},
+    "forensic_core": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive\\forensic\\rtsp_double_free_0018", "hash_match": "110/110"},
+    "forensic_supplemental": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive\\forensic\\rtsp_double_free_0018_supplemental", "hash_match": "73/73"}
+  },
+  "g21_deleted_paths_absent": "PASS",
+  "g22_base_intact": "PASS",
+  "g23_tes_intact": "PASS",
+  "g24_archive_intact": "PASS"
+}

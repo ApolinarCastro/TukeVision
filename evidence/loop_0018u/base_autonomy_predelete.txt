@@ -1,0 +1,30 @@
+# BASE AUTONOMY PROOF (PRE-DELETE) — LOOP-0018U
+
+**Fecha:** 2026-08-16 · **Runtime:** BASE `.venv` (Python 3.12.10) exclusivamente.
+**Regla:** no se usó Python, config, modelo ni asset desde portable.
+
+## Resultados (pre-delete)
+
+| Check | Resultado |
+|---|---|
+| BASE import smoke | **PASS** (BASE_IMPORT_SMOKE_OK) |
+| Focused critical tests (advance_chain, source_manager, secret_leak, ui_controller) | **66/66 PASS** (5.141s) |
+| Full regression | **370/370 PASS** (26.366s) |
+| Compileall | **PASS** (exit 0) |
+| Secret scan (tests.test_secret_leak) | **PASS** (incluido en focused 66) |
+| Official executable smoke (arranque + 2 frames + apagado limpio) | **PASS** (STOPPED_BY_USER, EXECUTABLE_SMOKE_OK) |
+| Clean shutdown | **PASS** |
+
+## PORTABLE_ACCESSES_DURING_BASE_VALIDATION = 0
+
+Todas las ejecuciones usaron exclusivamente rutas del BASE
+(`.venv`, `src/`, `tests/`, `config/`, `models/` del BASE). Ningún comando
+referenció `TukeVision-portable`, `TukeVision_RTSP_TestInstall` ni
+`TukeVision_TestInstall`.
+
+## Conclusión
+
+> BASE opera y certifica sin el portable (pre-delete). Sin dependencia detectada.
+> Gate G14 (pre-delete regression PASS) y G15 (portable accesses=0) cerrados.
+
+— Fin de base_autonomy_predelete.txt (LOOP-0018U)

@@ -1,0 +1,52 @@
+{
+    "execution_id":  "LOOP-0018U",
+    "phase":  "PRE_DELETE",
+    "created":  "2026-08-16",
+    "migrate_reconciled":  "13/13",
+    "archive_reconciled":  "12/12",
+    "discard_reconciled":  "19/19",
+    "portable_unique_blockers":  0,
+    "gates":  {
+                  "13/13 MIGRATE_RECONCILED":  true,
+                  "G14 pre-delete regression":  true,
+                  "19/19 DISCARD_RECONCILED":  true,
+                  "12/12 ARCHIVE_RECONCILED":  true,
+                  "G15 portable accesses=0":  true,
+                  "PORTABLE_UNIQUE_BLOCKERS=0":  true
+              },
+    "trees":  [
+                  {
+                      "path":  "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision-portable",
+                      "size":  5650940489,
+                      "size_mb":  5389.2,
+                      "file_count":  30270,
+                      "classification":  "CANDIDATE_RETIRO",
+                      "unique_blockers":  0,
+                      "preservation_destination":  "archive/legacy/portable_migrate_0018u (13 MIGRATE) + archive/forensic/* (12 ARCHIVE)",
+                      "safe_delete":  "YES",
+                      "timestamp":  "2026-08-16T21:20:43"
+                  },
+                  {
+                      "path":  "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_RTSP_TestInstall",
+                      "size":  1252264066,
+                      "size_mb":  1194.3,
+                      "file_count":  29876,
+                      "classification":  "CANDIDATE_RETIRO",
+                      "unique_blockers":  0,
+                      "preservation_destination":  "reproducible desde BASE (package.ps1); sin valor único",
+                      "safe_delete":  "YES",
+                      "timestamp":  "2026-08-16T21:20:43"
+                  },
+                  {
+                      "path":  "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_TestInstall",
+                      "size":  1252292890,
+                      "size_mb":  1194.3,
+                      "file_count":  29893,
+                      "classification":  "CANDIDATE_RETIRO",
+                      "unique_blockers":  0,
+                      "preservation_destination":  "reproducible desde BASE (package.ps1); sin valor único",
+                      "safe_delete":  "YES",
+                      "timestamp":  "2026-08-16T21:20:43"
+                  }
+              ]
+}

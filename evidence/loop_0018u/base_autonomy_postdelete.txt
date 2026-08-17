@@ -1,0 +1,37 @@
+# BASE AUTONOMY PROOF (POST-DELETE) — LOOP-0018U
+
+**Fecha:** 2026-08-16 · **Runtime:** BASE `.venv` (Python 3.12.10) exclusivamente.
+**Estado:** tras eliminar `TukeVision_RTSP_TestInstall`, `TukeVision_TestInstall` y
+`TukeVision-portable`.
+
+## Resultados (post-delete)
+
+| Check | Resultado |
+|---|---|
+| BASE critical imports | **PASS** (POSTDELETE_IMPORT_OK) |
+| Full regression | **370/370 PASS** (25.109s) |
+| Compileall | **PASS** (exit 0) |
+| Official executable startup | **PASS** (arranque + 2 frames) |
+| Official executable clean shutdown | **PASS** (STOPPED_BY_USER, EXECUTABLE_SMOKE_OK) |
+| dist intact | **PASS** (zip SHA256 E4DC8CA8… sin cambio) |
+
+## Runtime references a rutas eliminadas
+
+| Búsqueda | Hits |
+|---|---|
+| `TukeVision-portable` en src/config/scripts/install | 2 (nombre del artefacto `TukeVision-portable.zip` en package.ps1, NO path) |
+| `TukeVision_RTSP_TestInstall` / `TukeVision_TestInstall` | 0 |
+| Paths absolutos `Documents\TukeVision-portable` etc. | 0 |
+
+> Las 2 coincidencias son el nombre del ZIP oficial de distribución
+> (`dist\TukeVision-portable.zip`), definido por el mecanismo de packaging BASE,
+> no una referencia al árbol portable eliminado. Referencias históricas en
+> TES/evidence son documentación (permitidas).
+
+## Conclusión
+
+> **BASE_OPERATES_WITHOUT_PORTABLE = YES** (G25 regression PASS, G26 new
+> regressions=0, G27 compileall PASS, G29/G30 executable startup/shutdown PASS,
+> G31 runtime refs=0, G32 operates without portable=YES).
+
+— Fin de base_autonomy_postdelete.txt (LOOP-0018U)

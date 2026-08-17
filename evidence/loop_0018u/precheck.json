@@ -1,0 +1,30 @@
+{
+  "execution_id": "LOOP-0018U",
+  "mode": "CONTROLLED_CLEANUP",
+  "parent": "LOOP-0018T",
+  "date": "2026-08-16",
+  "base_path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision",
+  "base_head": "22dc73e8bf107e2c7b57bcad6aa3b4c468a77e4a",
+  "base_branch": "product/loop-0018r-temporal-tracking",
+  "base_git_status": "controlled (untracked: evidence/loop_0018m_r1, evidence/loop_0018s, src/capture/live_sources.BASE_preE01.bak.py)",
+  "base_runtime": "Python 3.12.10 (.venv BASE)",
+  "base_tests_count": 25,
+  "base_evidence_dirs": ["loop_0018m_r1", "loop_0018n", "loop_0018o", "loop_0018p", "loop_0018q", "loop_0018r", "loop_0018s", "loop_0018t"],
+  "checkpoint_traceable": "YES (HEAD 22dc73e == LOOP-0018T checkpoint)",
+  "post_checkpoint_functional_code": "NONE (git diff clean; only .bak protection + evidence untracked)",
+  "official_executable": "dist/TukeVision-portable.zip",
+  "official_executable_sha256": "E4DC8CA8BC355D2BDFC23EF77BC1398551DA5EA1167C9A17313D7CAF997FB2C3",
+  "official_executable_manifest_git_head": "cfad93163b9fe1b992e87026b0adbb437c518cee",
+  "dist_source_layer_match": "7/7 MATCH (live_sources, source_manager, activity, selective, tracker, advance_chain, pipeline)",
+  "runtime_imports": "ALL_RUNTIME_IMPORTS_OK",
+  "trees": {
+    "TukeVision": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision", "exists": true, "files": 30211, "size_mb": 1222.1, "role": "BASE AUTHORITATIVO"},
+    "TES": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TES", "exists": true, "files": 114, "size_mb": 8.6, "role": "GOVERNANCE/OBSIDIAN"},
+    "archive": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive", "exists": true, "files": 111, "size_mb": 4189.4, "role": "FORENSIC PRESERVATION"},
+    "TukeVision-portable": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision-portable", "exists": true, "files": 30270, "size_mb": 5389.2, "role": "CANDIDATO A RETIRO"},
+    "TukeVision_RTSP_TestInstall": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_RTSP_TestInstall", "exists": true, "files": 29876, "size_mb": 1194.3, "role": "CANDIDATO A RETIRO"},
+    "TukeVision_TestInstall": {"path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision_TestInstall", "exists": true, "files": 29893, "size_mb": 1194.3, "role": "CANDIDATO A RETIRO"}
+  },
+  "g1_checkpoint_traceable": "PASS",
+  "g2_working_state_controlled": "PASS"
+}
