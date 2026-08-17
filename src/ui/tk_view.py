@@ -17,6 +17,26 @@ from src.ui.state import AppStatus
 from src.ui.multicamera import CAMERA_IDS, PANEL_LAYOUT
 
 
+def multicamera_control_state(status: str) -> dict:
+    return {"show_legacy": False, "stop_enabled": status == AppStatus.RUNNING}
+
+
+def fit_frame_to_panel(frame, width: int = 420, height: int = 245):
+    """Letterbox to a stable panel size; only downscale source pixels."""
+    source_height, source_width = frame.shape[:2]
+    scale = min(1.0, width / source_width, height / source_height)
+    resized_width = max(1, int(round(source_width * scale)))
+    resized_height = max(1, int(round(source_height * scale)))
+    image = frame
+    if (resized_width, resized_height) != (source_width, source_height):
+        image = cv2.resize(frame, (resized_width, resized_height), interpolation=cv2.INTER_AREA)
+    left = (width - resized_width) // 2
+    right = width - resized_width - left
+    top = (height - resized_height) // 2
+    bottom = height - resized_height - top
+    return cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(8, 12, 14))
+
+
 class TkApp:
     """Ventana principal de la interfaz operativa."""
 
@@ -25,6 +45,7 @@ class TkApp:
     def __init__(self, root: tk.Tk, controller) -> None:
         self._root = root
         self._controller = controller
+        self._multicamera_mode = bool(getattr(controller, "is_multicamera", False))
         self._photo = None
         self._photos = {camera_id: None for camera_id in CAMERA_IDS}
         self._last_frame_index = -1
@@ -95,11 +116,13 @@ class TkApp:
         controls.columnconfigure(1, weight=0)
 
         self._source_var = tk.StringVar(value="FILE")
-        ttk.Label(controls, text="Fuente:").grid(row=0, column=0, sticky=tk.W)
-        ttk.OptionMenu(
+        self._source_label = ttk.Label(controls, text="Fuente:")
+        self._source_label.grid(row=0, column=0, sticky=tk.W)
+        self._source_menu = ttk.OptionMenu(
             controls, self._source_var, "FILE", "FILE", "WEBCAM", "RTSP",
             command=self._on_source_change,
-        ).grid(row=0, column=1, padx=(4, 8), sticky=tk.W)
+        )
+        self._source_menu.grid(row=0, column=1, padx=(4, 8), sticky=tk.W)
 
         # Campo libre usado por FILE (ruta) y WEBCAM (índice).
         self._input_var = tk.StringVar(value="")
@@ -151,6 +174,12 @@ class TkApp:
         ).grid(row=0, column=7, sticky=tk.W)
 
         self._on_source_change("FILE")
+
+        if self._multicamera_mode:
+            for widget in (self._source_label, self._source_menu, self._input_entry,
+                           self._rtsp_frame, self._file_btn, self._start_btn):
+                widget.grid_remove()
+            self._stop_btn.configure(state=tk.NORMAL)
 
         self._root.after(self.POLL_MS, self._poll)
 
@@ -220,7 +249,7 @@ class TkApp:
         self._stop_btn.configure(state=tk.DISABLED)
 
     def _on_open_evidence(self) -> None:
-        base = os.path.abspath("data/evidence")
+        base = os.path.abspath(getattr(self._controller, "evidence_root", "data/runtime_evidence"))
         if os.path.isdir(base):
             os.startfile(base)
         else:
@@ -245,6 +274,11 @@ class TkApp:
 
     def _poll_once(self) -> None:
         state = self._controller.poll_state()
+        if self._multicamera_mode:
+            controls = multicamera_control_state(state["status"])
+            self._stop_btn.configure(
+                state=tk.NORMAL if controls["stop_enabled"] else tk.DISABLED
+            )
         self._render_video(state)
         self._render_panels(state)
         self._render_status(state)
@@ -255,13 +289,19 @@ class TkApp:
             for camera_id in CAMERA_IDS:
                 panel = panels[camera_id]
                 self._camera_state_vars[camera_id].set(
-                    f"Estado: {panel.source_state}"
+                    f"Estado: {panel.source_state} | Det: {panel.detections} | "
+                    f"Track: {panel.track_id or '-'}\n"
+                    f"Temporal: {panel.temporal or '-'} | Behavior: {panel.behavior or '-'} | "
+                    f"Riesgo: {panel.risk or '-'}"
                 )
                 if panel.frame is not None and panel.frame_index >= 0:
                     self._set_photo(camera_id, panel.frame, panel.frame_index)
+                    marker = getattr(self._controller, "mark_ui_rendered", None)
+                    if marker is not None:
+                        marker(camera_id, panel.frame_index)
 
     def _set_photo(self, camera_id, frame, frame_index) -> None:
-        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb = cv2.cvtColor(fit_frame_to_panel(frame), cv2.COLOR_BGR2RGB)
         ok, buf = cv2.imencode(".png", rgb)
         if not ok:
             return

@@ -9,6 +9,7 @@ sys.path.insert(0, str(BASE))
 from src.app.operational_pipeline import OperationalPipeline
 from src.capture.source_manager import CameraDescriptor, SourceManager
 from src.observability.logging_setup import new_run_id, setup_logging
+from src.observability.runtime_trace import BoundedRuntimeTrace
 from src.ui.controller import UiController
 from src.ui.tk_view import TkApp
 
@@ -78,6 +79,11 @@ class MulticameraRuntime:
     def __init__(self, config, password, host, user):
         self._stop = threading.Event()
         self._controller = UiController(config=config)
+        self.is_multicamera = True
+        self.evidence_root = str((BASE / config.get("evidence", {}).get(
+            "root", "data/runtime_evidence"
+        )).resolve())
+        self._trace = BoundedRuntimeTrace(CAMERAS)
         self._manager = SourceManager()
         for camera_id, channel in zip(CAMERAS, CHANNELS):
             self._manager.register_source(CameraDescriptor(
@@ -91,19 +97,35 @@ class MulticameraRuntime:
     def start(self): self._thread.start()
     def _run(self):
         def on_result(camera_id, snapshot, result):
+            frame_index = int(snapshot.get("frame_index", -1))
+            self._trace.observe_pipeline_result(camera_id, frame_index, result)
             self._controller.ingest_camera_snapshot(
                 camera_id, build_panel_snapshot(snapshot, result)
             )
+            self._trace.mark_ui_model_received(camera_id, frame_index)
         self._pipeline.run(self._stop.is_set, on_result)
     def poll_multicamera(self): return self._controller.poll_multicamera()
+    def mark_ui_rendered(self, camera_id, frame_index):
+        self._trace.mark_ui_rendered(camera_id, frame_index)
     def poll_state(self):
         running = not self._stop.is_set() and self._thread.is_alive()
+        panels = self._controller.poll_multicamera()
+        tracks = [panel.track_id for panel in panels.values() if panel.track_id]
+        risks = [panel.risk for panel in panels.values() if panel.risk]
+        evidence = [panel.evidence for panel in panels.values() if panel.evidence]
+        fps_values = [panel.fps for panel in panels.values() if panel.fps]
         return {"status": "RUNNING" if running else "STOPPED", "source_path_display": "MULTICAMERA",
-                "source_state": "OPEN", "resolution": "", "fps": 0.0, "zone_id": "", "zone_name": "",
-                "followed_track": None, "permanence_seconds": 0.0, "risk_text": "", "latest_risk_score": None,
-                "alert_log": [], "evidence_paths": [], "error": "", "final_status": "STOPPED"}
+                "source_kind": "MULTICAMERA", "source_state": "OPEN" if running else "CLOSED",
+                "resolution": "panel 420x245", "fps": sum(fps_values) / len(fps_values) if fps_values else 0.0,
+                "zone_id": "", "zone_name": "", "followed_track": tracks[-1] if tracks else None,
+                "permanence_seconds": 0.0, "risk_text": risks[-1] if risks else "",
+                "latest_risk_score": None, "alert_log": [], "evidence_paths": evidence[-8:],
+                "error": "", "final_status": "STOPPED" if not running else ""}
     def stop(self): self._stop.set()
-    def close(self): self._stop.set(); self._thread.join(timeout=15)
+    def close(self):
+        self._stop.set()
+        self._thread.join(timeout=15)
+        self._trace.export(BASE / "evidence/loop_0019a_r2/runtime_trace.json")
 
 def main():
     setup_logging(run_id=new_run_id())
