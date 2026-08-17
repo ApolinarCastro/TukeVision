@@ -21,6 +21,7 @@ from src.capture.source_manager import CameraDescriptor, SourceManager
 from src.app.operational_pipeline import OperationalPipeline
 from src.observability.logging_setup import redact_rtsp_url
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
+from src.ui.multicamera import CAMERA_IDS, MultiCameraViewModel
 
 logger = logging.getLogger("tukevision.ui")
 
@@ -91,6 +92,8 @@ class UiController:
         self._stop = threading.Event()
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
+        # Presentation-only orchestration for snapshots produced upstream.
+        self._multicamera = MultiCameraViewModel()
 
     @property
     def status(self) -> str:
@@ -100,6 +103,21 @@ class UiController:
     def is_running(self) -> bool:
         with self._lock:
             return self._state.status == AppStatus.RUNNING
+
+    def ingest_camera_snapshot(self, camera_id: str, snapshot) -> None:
+        """Publish one existing SourceManager/OperationalPipeline snapshot.
+
+        This method never opens a source or runs processing; it only updates
+        the bounded latest-wins presentation model consumed by the UI timer.
+        """
+        self._multicamera.update(camera_id, snapshot)
+
+    def mark_camera_state(self, camera_id: str, source_state: str) -> None:
+        self._multicamera.mark_state(camera_id, source_state)
+
+    def poll_multicamera(self):
+        """Return the four logical panel states for a 2×2 view."""
+        return self._multicamera.snapshot()
 
     def start(self, source_kind: str, source_input: str) -> None:
         """Inicia el pipeline en un hilo de trabajo."""
@@ -215,6 +233,9 @@ class UiController:
 
         with self._lock:
             self._apply_snapshot(snapshot)
+            # Legacy single-source pipeline occupies CAM-001's presentation
+            # slot; multicamera callers publish their own camera_id snapshots.
+            self._multicamera.update("CAM-001", snapshot)
 
         # Backpressure: solo se conserva el último snapshot visual
         try:

@@ -14,6 +14,9 @@ $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 
 $venvPython = Join-Path $ProjectRoot ".venv\Scripts\python.exe"
 $runScript = Join-Path $ProjectRoot "scripts\run_interface.py"
+$multiScript = Join-Path $ProjectRoot "scripts\run_multicamera.py"
+$Mode = "Single"
+if ($args.Count -eq 2 -and $args[0] -eq "-Mode") { $Mode = $args[1] }
 
 if (-not (Test-Path -LiteralPath $venvPython)) {
     Write-Output "ERROR: entorno virtual no encontrado (.venv)"
@@ -24,6 +27,16 @@ if (-not (Test-Path -LiteralPath $venvPython)) {
 if (-not (Test-Path -LiteralPath $runScript)) {
     Write-Output "ERROR: scripts\run_interface.py no encontrado"
     exit 1
+}
+
+if ($Mode -ieq "Multicamera") {
+    if (-not (Test-Path -LiteralPath $multiScript)) {
+        Write-Output "ERROR: scripts\run_multicamera.py no encontrado"
+        exit 1
+    }
+    Write-Output "Iniciando TukeVision modo multicámara..."
+    & $venvPython $multiScript
+    exit $LASTEXITCODE
 }
 
 Write-Output "Iniciando TukeVision..."

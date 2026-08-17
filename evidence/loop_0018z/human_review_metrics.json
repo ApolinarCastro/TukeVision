@@ -1,0 +1,15 @@
+{
+  "reviewed_signals": 4,
+  "useful_signal_count": 0,
+  "benign_activity_count": 0,
+  "ambiguous_count": 0,
+  "insufficient_evidence_count": 4,
+  "system_error_count": 0,
+  "useful_signal_rate": 0.0,
+  "benign_activity_rate": 0.0,
+  "ambiguous_rate": 0.0,
+  "insufficient_evidence_rate": 1.0,
+  "rule": "repeated_activity",
+  "rule_utility": "NOT_MEASURABLE",
+  "evidence_sufficiency": "INSUFFICIENT"
+}

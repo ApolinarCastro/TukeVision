@@ -14,6 +14,7 @@ import cv2
 
 from src.capture.rtsp_url import build_rtsp_url
 from src.ui.state import AppStatus
+from src.ui.multicamera import CAMERA_IDS, PANEL_LAYOUT
 
 
 class TkApp:
@@ -25,6 +26,7 @@ class TkApp:
         self._root = root
         self._controller = controller
         self._photo = None
+        self._photos = {camera_id: None for camera_id in CAMERA_IDS}
         self._last_frame_index = -1
         self._build()
 
@@ -46,8 +48,20 @@ class TkApp:
         # Panel video
         video_frame = ttk.LabelFrame(body, text="Video", padding=(6, 6))
         video_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self._video_label = ttk.Label(video_frame)
-        self._video_label.pack(fill=tk.BOTH, expand=True)
+        self._video_labels = {}
+        self._camera_state_vars = {}
+        for row, columns in enumerate(PANEL_LAYOUT):
+            video_frame.rowconfigure(row, weight=1)
+            for column, camera_id in enumerate(columns):
+                video_frame.columnconfigure(column, weight=1)
+                panel = ttk.LabelFrame(video_frame, text=camera_id, padding=2)
+                panel.grid(row=row, column=column, sticky="nsew", padx=2, pady=2)
+                state_var = tk.StringVar(value="Estado: OFFLINE")
+                self._camera_state_vars[camera_id] = state_var
+                ttk.Label(panel, textvariable=state_var).pack(anchor=tk.W)
+                label = ttk.Label(panel, text="Sin frame")
+                label.pack(fill=tk.BOTH, expand=True)
+                self._video_labels[camera_id] = label
 
         # Panel lateral de estado
         side = ttk.Frame(body, padding=(10, 0))
@@ -237,21 +251,26 @@ class TkApp:
 
     def _render_video(self, state: dict) -> None:
         if state["status"] == AppStatus.RUNNING:
-            snapshot = self._controller.poll_visual()
-            if snapshot is not None and snapshot.frame_index != self._last_frame_index:
-                self._last_frame_index = snapshot.frame_index
-                self._set_photo(snapshot.frame)
+            panels = self._controller.poll_multicamera()
+            for camera_id in CAMERA_IDS:
+                panel = panels[camera_id]
+                self._camera_state_vars[camera_id].set(
+                    f"Estado: {panel.source_state}"
+                )
+                if panel.frame is not None and panel.frame_index >= 0:
+                    self._set_photo(camera_id, panel.frame, panel.frame_index)
 
-    def _set_photo(self, frame) -> None:
+    def _set_photo(self, camera_id, frame, frame_index) -> None:
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         ok, buf = cv2.imencode(".png", rgb)
         if not ok:
             return
         try:
-            self._photo = tk.PhotoImage(data=buf.tobytes())
+            photo = tk.PhotoImage(data=buf.tobytes())
         except tk.TclError:
             return
-        self._video_label.configure(image=self._photo)
+        self._photos[camera_id] = photo
+        self._video_labels[camera_id].configure(image=photo, text="")
 
     def _render_panels(self, state: dict) -> None:
         self._fuente_var.set(f"Fuente: {state['source_path_display'] or '-'}")
