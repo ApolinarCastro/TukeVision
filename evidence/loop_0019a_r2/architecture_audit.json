@@ -1,0 +1,60 @@
+{
+  "schema_version": "ecc.agent-architecture-audit.report.v1",
+  "executive_verdict": {
+    "overall_health": "high_risk",
+    "primary_failure_mode": "wrapper/rendering regression between OperationalPipeline result and multicamera UI model",
+    "most_urgent_fix": "adapt the existing typed runtime result once and retain last real analytical state per camera"
+  },
+  "scope": {
+    "target_name": "TukeVision multicamera operator runtime",
+    "model_stack": ["YOLO local backend", "deterministic behavior rules"],
+    "layers_to_audit": ["tool execution", "tool interpretation", "answer shaping", "platform rendering", "persistence"]
+  },
+  "findings": [
+    {
+      "severity": "critical",
+      "title": "Detection count read from a non-existent event field",
+      "mechanism": "the wrapper reads event.detections although the canonical count is event.metadata.detections",
+      "source_layer": "tool interpretation",
+      "root_cause": "presentation adapter does not follow InferenceEvent contract",
+      "evidence_refs": ["scripts/run_multicamera.py:on_result", "src/inference/events.py:InferenceEvent"],
+      "confidence": 1.0,
+      "recommended_fix": "read the bounded count from canonical event metadata"
+    },
+    {
+      "severity": "critical",
+      "title": "Latest frame erases last real analytical result",
+      "mechanism": "policy-skipped frames publish empty analytics and overwrite track, temporal, behavior and evidence before Tk polling",
+      "source_layer": "platform rendering",
+      "root_cause": "video latest-wins state and sparse analytical state share destructive replacement semantics",
+      "evidence_refs": ["src/ui/multicamera.py:MultiCameraViewModel.update", "src/ui/tk_view.py:TkApp._render_video"],
+      "confidence": 0.99,
+      "recommended_fix": "keep video latest-wins while retaining only the last real bounded analytical values"
+    },
+    {
+      "severity": "high",
+      "title": "Autostart runtime never enables Stop",
+      "mechanism": "the button is enabled only by the legacy manual-start handler, which multicamera mode never calls",
+      "source_layer": "answer shaping",
+      "root_cause": "legacy control lifecycle is reused without multicamera state synchronization",
+      "evidence_refs": ["src/ui/tk_view.py:TkApp._on_start", "scripts/run_multicamera.py:main"],
+      "confidence": 1.0,
+      "recommended_fix": "derive control state from poll_state and hide legacy source selectors in multicamera mode"
+    },
+    {
+      "severity": "high",
+      "title": "Evidence button targets a legacy directory",
+      "mechanism": "UI opens data/evidence while PersistentEvidence writes data/runtime_evidence",
+      "source_layer": "persistence",
+      "root_cause": "presentation path is hard-coded outside the configured evidence contract",
+      "evidence_refs": ["src/ui/tk_view.py:TkApp._on_open_evidence", "config/default.json:evidence.root"],
+      "confidence": 1.0,
+      "recommended_fix": "resolve and open the configured runtime evidence root"
+    }
+  ],
+  "ordered_fix_plan": [
+    {"order": 1, "goal": "canonical result adapter and bounded per-camera trace", "why_now": "it repairs the first broken boundary", "expected_effect": "real analytics reach the UI model"},
+    {"order": 2, "goal": "separate latest video from sticky sparse analytics", "why_now": "events are sparse by policy", "expected_effect": "operator can observe real tracks, temporal state and signals"},
+    {"order": 3, "goal": "synchronize Stop, legacy controls and evidence path", "why_now": "these are demonstrated operator defects", "expected_effect": "coherent controllable product runtime"}
+  ]
+}

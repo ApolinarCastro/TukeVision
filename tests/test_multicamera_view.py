@@ -40,6 +40,27 @@ class TestMultiCameraView(unittest.TestCase):
         with self.assertRaises(ValueError):
             view.mark_state("CAM-999", "FAILED")
 
+    def test_sparse_analytics_survive_a_later_video_only_frame(self):
+        view = MultiCameraViewModel()
+        frame = np.zeros((2, 2, 3), dtype=np.uint8)
+        view.update("CAM-001", SimpleNamespace(
+            frame_index=10, frame=frame, source_state="OPEN", fps=3,
+            detections=2, track_id="TRK-1", temporal="PERSON_PRESENCE ACTIVE 1.2s",
+            behavior="PROLONGED_DWELL", risk="REVIEW 65", evidence="CAM-001/EVD/frame.jpg",
+        ))
+        view.update("CAM-001", SimpleNamespace(
+            frame_index=11, frame=frame, source_state="OPEN", fps=3,
+            detections=None, track_id=None, temporal=None, behavior=None,
+            risk=None, evidence=None,
+        ))
+        panel = view.panel("CAM-001")
+        self.assertEqual(panel.frame_index, 11)
+        self.assertEqual(panel.detections, 2)
+        self.assertEqual(panel.track_id, "TRK-1")
+        self.assertEqual(panel.temporal, "PERSON_PRESENCE ACTIVE 1.2s")
+        self.assertEqual(panel.behavior, "PROLONGED_DWELL")
+        self.assertEqual(panel.evidence, "CAM-001/EVD/frame.jpg")
+
 
 if __name__ == "__main__":
     unittest.main()
