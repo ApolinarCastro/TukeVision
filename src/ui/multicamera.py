@@ -22,6 +22,13 @@ class CameraPanelState:
     frame: Optional[Any] = None
     fps: float = 0.0
     frame_index: int = -1
+    detections: int = 0
+    track_id: Optional[str] = None
+    temporal: str = ""
+    behavior: str = ""
+    risk: str = ""
+    evidence: str = ""
+    analytics_frame_index: int = -1
 
 
 class MultiCameraViewModel:
@@ -46,12 +53,29 @@ class MultiCameraViewModel:
         frame_index = int(getattr(snapshot, "frame_index", current.frame_index))
         if frame_index < current.frame_index:
             return
+        detections = getattr(snapshot, "detections", None)
+        track_id = getattr(snapshot, "track_id", None)
+        temporal = getattr(snapshot, "temporal", None)
+        behavior = getattr(snapshot, "behavior", None)
+        risk = getattr(snapshot, "risk", None)
+        evidence = getattr(snapshot, "evidence", None)
+        has_analytics = any(
+            value not in (None, "")
+            for value in (detections, track_id, temporal, behavior, risk, evidence)
+        )
         self._panels[camera_id] = CameraPanelState(
             camera_id=camera_id,
             source_state=str(getattr(snapshot, "source_state", "OFFLINE") or "OFFLINE"),
             frame=getattr(snapshot, "frame", None),
             fps=float(getattr(snapshot, "fps", 0.0) or 0.0),
             frame_index=frame_index,
+            detections=(int(detections) if detections is not None else current.detections),
+            track_id=(track_id if track_id not in (None, "") else current.track_id),
+            temporal=(str(temporal) if temporal not in (None, "") else current.temporal),
+            behavior=(str(behavior) if behavior not in (None, "") else current.behavior),
+            risk=(str(risk) if risk not in (None, "") else current.risk),
+            evidence=(str(evidence) if evidence not in (None, "") else current.evidence),
+            analytics_frame_index=(frame_index if has_analytics else current.analytics_frame_index),
         )
 
     def mark_state(self, camera_id: str, source_state: str) -> None:
@@ -61,6 +85,10 @@ class MultiCameraViewModel:
         self._panels[camera_id] = CameraPanelState(
             camera_id=camera_id, source_state=source_state, frame=current.frame,
             fps=current.fps, frame_index=current.frame_index,
+            detections=current.detections, track_id=current.track_id,
+            temporal=current.temporal, behavior=current.behavior, risk=current.risk,
+            evidence=current.evidence,
+            analytics_frame_index=current.analytics_frame_index,
         )
 
     def panel(self, camera_id: str) -> CameraPanelState:

@@ -15,6 +15,54 @@ from src.ui.tk_view import TkApp
 CHANNELS = (7, 1, 5, 3)
 CAMERAS = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
 
+
+def build_panel_snapshot(source_snapshot, result):
+    """Adapt one canonical AdvanceChain result without inventing values."""
+    event = result.get("event")
+    track = result.get("track")
+    activity = result.get("temporal_activity")
+    behavior_result = result.get("behavior")
+    evidence = result.get("evidence")
+
+    detections = None
+    if event is not None:
+        value = (getattr(event, "metadata", None) or {}).get("detections")
+        detections = int(value) if value is not None else None
+
+    temporal = None
+    if activity is not None:
+        temporal = "{} {} {:.1f}s".format(
+            getattr(activity, "activity_type", "ACTIVITY"),
+            getattr(activity, "status", ""),
+            float(getattr(activity, "duration_ms", 0) or 0) / 1000.0,
+        ).strip()
+
+    behavior = None
+    risk = None
+    if behavior_result is not None:
+        signals = tuple(getattr(behavior_result, "signals", ()) or ())
+        if signals:
+            behavior = ", ".join(str(item.signal_type) for item in signals)
+        risk_event = getattr(behavior_result, "risk_event", None)
+        if risk_event is not None:
+            risk = "{} {:g}".format(
+                getattr(risk_event, "risk_event_type", "RISK"),
+                float(getattr(risk_event, "risk_score", 0) or 0),
+            )
+
+    return SimpleNamespace(
+        frame_index=int(source_snapshot.get("frame_index", -1)),
+        frame=source_snapshot.get("frame"),
+        source_state=source_snapshot.get("state", "OPEN"),
+        fps=float(source_snapshot.get("fps", 0.0) or 0.0),
+        detections=detections,
+        track_id=getattr(track, "track_id", None),
+        temporal=temporal,
+        behavior=behavior,
+        risk=risk,
+        evidence=(evidence or {}).get("relative_path") if evidence else None,
+    )
+
 def connection_constants():
     tree = ast.parse((BASE / "evidence/loop_0018o/validate_multicamera4.py").read_text(encoding="utf-8"))
     values = {}
@@ -43,9 +91,9 @@ class MulticameraRuntime:
     def start(self): self._thread.start()
     def _run(self):
         def on_result(camera_id, snapshot, result):
-            self._controller.ingest_camera_snapshot(camera_id, SimpleNamespace(
-                frame_index=int(snapshot.get("frame_index", -1)), frame=snapshot.get("frame"),
-                source_state=snapshot.get("state", "OPEN"), fps=float(snapshot.get("fps", 0.0) or 0.0)))
+            self._controller.ingest_camera_snapshot(
+                camera_id, build_panel_snapshot(snapshot, result)
+            )
         self._pipeline.run(self._stop.is_set, on_result)
     def poll_multicamera(self): return self._controller.poll_multicamera()
     def poll_state(self):
