@@ -3,6 +3,10 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from scripts.run_multicamera import build_panel_snapshot
+from src.observability.runtime_trace import BoundedRuntimeTrace
+from src.ui.tk_view import fit_frame_to_panel, multicamera_control_state
+
+import numpy as np
 
 
 class TestMulticameraEntrypoint(unittest.TestCase):
@@ -35,6 +39,38 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertEqual(panel.behavior, "PROLONGED_DWELL")
         self.assertEqual(panel.risk, "REVIEW 65")
         self.assertEqual(panel.evidence, "CAM-001/EVD/frame.jpg")
+
+    def test_runtime_trace_is_bounded_and_records_ui_boundary(self):
+        trace = BoundedRuntimeTrace(("CAM-001",))
+        result = {
+            "observation": object(),
+            "event": SimpleNamespace(metadata={"detections": 2}),
+            "track": object(), "temporal_activity": object(),
+            "behavior": SimpleNamespace(signals=(object(),)),
+            "evidence": {"relative_path": "CAM-001/EVD/frame.jpg"},
+        }
+        trace.observe_pipeline_result("CAM-001", 10, result)
+        trace.mark_ui_model_received("CAM-001", 10)
+        trace.mark_ui_rendered("CAM-001", 10)
+        snapshot = trace.snapshot()["CAM-001"]
+        self.assertEqual(snapshot["FRAME_RECEIVED"], 1)
+        self.assertEqual(snapshot["DETECTIONS_RETURNED"], 2)
+        self.assertEqual(snapshot["UI_MODEL_RECEIVED"], 1)
+        self.assertEqual(snapshot["UI_RENDERED"], 1)
+        self.assertNotIn("frame", snapshot)
+
+    def test_multicamera_controls_follow_runtime_and_hide_legacy(self):
+        running = multicamera_control_state("RUNNING")
+        stopped = multicamera_control_state("STOPPED")
+        self.assertFalse(running["show_legacy"])
+        self.assertTrue(running["stop_enabled"])
+        self.assertFalse(stopped["stop_enabled"])
+
+    def test_panel_fit_is_consistent_without_upscaling_source(self):
+        frame = np.full((100, 200, 3), 255, dtype=np.uint8)
+        fitted = fit_frame_to_panel(frame, width=400, height=240)
+        self.assertEqual(fitted.shape, (240, 400, 3))
+        self.assertEqual(int(np.count_nonzero(fitted == 255)), frame.size)
 
 
 if __name__ == "__main__":
