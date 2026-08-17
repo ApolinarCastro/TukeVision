@@ -53,6 +53,7 @@ class AdvanceChain:
         tracker: Any,
         evidence_store: Any = None,
         correlator: Any = None,
+        behavior_engine: Any = None,
     ) -> None:
         self._source_manager = source_manager
         self._activity = activity_layer
@@ -60,6 +61,7 @@ class AdvanceChain:
         self._tracker = tracker
         self._evidence_store = evidence_store
         self._correlator = correlator
+        self._behavior = behavior_engine
         self._closed = False
 
     # ------------------------------------------------------------------
@@ -103,6 +105,8 @@ class AdvanceChain:
             evidence_store = PersistentEvidenceStore.from_config(config)
         from src.correlation.correlator import build_correlator
         correlator = build_correlator(config)
+        from src.behavior import build_behavior_engine
+        behavior_engine = build_behavior_engine(config)
 
         return cls(
             source_manager=source_manager,
@@ -111,6 +115,7 @@ class AdvanceChain:
             tracker=tracker,
             evidence_store=evidence_store,
             correlator=correlator,
+            behavior_engine=behavior_engine,
         )
 
     # ------------------------------------------------------------------
@@ -197,6 +202,7 @@ class AdvanceChain:
         track = None
         temporal_activity = None
         correlation = None
+        behavior = None
         if event is not None:
             track = self._tracker.ingest(event)
             temporal_activity = next(
@@ -218,6 +224,13 @@ class AdvanceChain:
                 correlation = self._correlator.ingest(
                     track, activity=temporal_activity, metadata=metadata
                 )
+            if self._behavior is not None:
+                behavior = self._behavior.evaluate(
+                    observation=observation, event=event, track=track,
+                    activity=temporal_activity,
+                    trajectory=getattr(correlation, "trajectory", None),
+                    metadata=metadata,
+                )
 
         return {
             "camera_id": camera_id,
@@ -227,6 +240,7 @@ class AdvanceChain:
             "track": track,
             "temporal_activity": temporal_activity,
             "correlation": correlation,
+            "behavior": behavior,
             "evidence": evidence,
         }
 
@@ -246,6 +260,8 @@ class AdvanceChain:
         }
         if self._correlator is not None:
             summary["correlation"] = self._correlator.metrics()
+        if self._behavior is not None:
+            summary["behavior"] = self._behavior.metrics()
         return summary
 
     # ------------------------------------------------------------------
@@ -258,6 +274,7 @@ class AdvanceChain:
         self._closed = True
         if self._correlator is not None:
             self._correlator.close()
+        behavior_totals = self._behavior.close() if self._behavior is not None else None
         tracker_totals = self._tracker.close()
         selective_totals = self._selective.close()
         activity_stats = self._activity.close()
@@ -270,4 +287,5 @@ class AdvanceChain:
             "tracker": tracker_totals,
             "selective": selective_totals,
             "activity": activity_stats,
+            "behavior": behavior_totals,
         }

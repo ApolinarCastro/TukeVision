@@ -83,5 +83,16 @@
     "candidate_ttl_seconds": 120,
     "trajectory_ttl_seconds": 600,
     "max_tracks": 256
+  },
+  "behavior": {
+    "enabled": true,
+    "retention": {"max_results": 64},
+    "rules": {
+      "prolonged_dwell": {"enabled": true, "min_seconds": 30, "score": 25},
+      "repeated_activity": {"enabled": true, "min_events": 3, "score": 20},
+      "multi_camera_sequence": {"enabled": true, "min_transitions": 2, "score": 30},
+      "repeated_zone_activity": {"enabled": true, "min_visits": 3, "score": 20}
+    },
+    "risk": {"min_signal_count": 2, "review_threshold": 60}
   }
 }
