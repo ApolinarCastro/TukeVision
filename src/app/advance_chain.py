@@ -51,11 +51,13 @@ class AdvanceChain:
         activity_layer: ActivityLayer,
         selective_pipeline: Any,
         tracker: Any,
+        evidence_store: Any = None,
     ) -> None:
         self._source_manager = source_manager
         self._activity = activity_layer
         self._selective = selective_pipeline
         self._tracker = tracker
+        self._evidence_store = evidence_store
         self._closed = False
 
     # ------------------------------------------------------------------
@@ -66,6 +68,7 @@ class AdvanceChain:
         cls,
         config: Dict[str, Any],
         source_manager: Any,
+        evidence_store: Any = None,
     ) -> "AdvanceChain":
         """Construye la cadena desde la configuración del producto.
 
@@ -92,12 +95,17 @@ class AdvanceChain:
         activity_layer = ActivityLayer(config=config)
         selective_pipeline = build_pipeline(inference_cfg)
         tracker = build_tracker(config.get("temporal"))
+        from src.evidence.persistent import PersistentEvidenceStore
+
+        if evidence_store is None:
+            evidence_store = PersistentEvidenceStore.from_config(config)
 
         return cls(
             source_manager=source_manager,
             activity_layer=activity_layer,
             selective_pipeline=selective_pipeline,
             tracker=tracker,
+            evidence_store=evidence_store,
         )
 
     # ------------------------------------------------------------------
@@ -157,8 +165,19 @@ class AdvanceChain:
         )
 
         observation_ref = None
+        evidence = None
+        evidence_ref = None
         if observation is not None:
             observation_ref = getattr(observation, "observation_id", None)
+            if self._evidence_store is not None:
+                evidence = self._evidence_store.persist_selected(
+                    frame,
+                    camera_id=camera_id,
+                    timestamp=getattr(observation, "timestamp", ""),
+                    producer="activity-policy",
+                    observation_ref=observation_ref,
+                )
+                evidence_ref = evidence["relative_path"]
 
         event = self._selective.feed(
             camera_id=camera_id,
@@ -166,12 +185,29 @@ class AdvanceChain:
             fps=fps,
             frame=frame,
             observation_ref=observation_ref,
+            evidence_ref=evidence_ref,
             metadata=metadata,
         )
 
         track = None
+        temporal_activity = None
         if event is not None:
             track = self._tracker.ingest(event)
+            temporal_activity = next(
+                (
+                    activity
+                    for activity in self._tracker.active_activities(camera_id)
+                    if activity.track_id == getattr(track, "track_id", None)
+                ),
+                None,
+            )
+            if evidence is not None:
+                evidence = self._evidence_store.link(
+                    evidence_ref,
+                    inference_ref=getattr(event, "inference_ref", None),
+                    event_ref=getattr(event, "event_id", None),
+                    track_ref=getattr(track, "track_id", None),
+                )
 
         return {
             "camera_id": camera_id,
@@ -179,6 +215,8 @@ class AdvanceChain:
             "observation": observation,
             "event": event,
             "track": track,
+            "temporal_activity": temporal_activity,
+            "evidence": evidence,
         }
 
     # ------------------------------------------------------------------

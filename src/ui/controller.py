@@ -9,6 +9,7 @@ cerrar de forma segura. Nunca toca widgets de Tk.
 import logging
 import queue
 import threading
+from types import SimpleNamespace
 from typing import Callable, Optional
 
 import cv2
@@ -16,6 +17,8 @@ import cv2
 from src.app.pipeline import Pipeline, PipelineError, load_config
 from src.capture.live_sources import RTSPSource, WebcamSource
 from src.capture.video_source import VideoSource
+from src.capture.source_manager import CameraDescriptor, SourceManager
+from src.app.operational_pipeline import OperationalPipeline
 from src.observability.logging_setup import redact_rtsp_url
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
 
@@ -129,6 +132,9 @@ class UiController:
 
     def _worker(self, source_kind: str, source_input: str) -> None:
         try:
+            if source_kind == "RTSP":
+                self._run_managed_rtsp(source_input)
+                return
             source = self._source_builder(source_kind, source_input, self._config)
             pipeline = self._pipeline_factory()
             summary = pipeline.process_source(source, on_frame=self._on_frame)
@@ -152,6 +158,55 @@ class UiController:
         finally:
             with self._lock:
                 self._state.status = AppStatus.STOPPED
+
+    def _run_managed_rtsp(self, source_input: str) -> None:
+        """Run RTSP through SourceManager and the operational advance chain."""
+        url = str(source_input).strip()
+        if not url:
+            raise ValueError("Para RTSP ingrese una URL")
+        video_cfg = self._config.get("video", {})
+        rtsp_cfg = self._config.get("rtsp", {})
+        camera_id = self._config.get("business", {}).get("camera_id", "CAM-001")
+        manager = SourceManager()
+        manager.register_source(CameraDescriptor(
+            camera_id=camera_id,
+            host=url,
+            max_width=int(video_cfg.get("max_width", 640)),
+            process_every_n_frames=int(video_cfg.get("process_every_n_frames", 1)),
+            frame_stall_timeout_s=float(rtsp_cfg.get("frame_stall_timeout_s", 10.0)),
+            rtsp_open_timeout_ms=int(rtsp_cfg.get("open_timeout_ms", 8000)),
+        ))
+        runtime = OperationalPipeline(self._config, manager)
+        summary = runtime.run(self._stop.is_set, self._on_operational_result)
+        with self._lock:
+            self._state.final_status = summary.final_status
+            self._state.source_type = "RTSP"
+
+    def _on_operational_result(self, camera_id, source_snapshot, result) -> None:
+        """Adapt an advance-chain result to the existing presentation contract."""
+        track = result.get("track")
+        event = result.get("event")
+        evidence = result.get("evidence")
+        tracked = (track,) if track is not None else ()
+        snapshot = SimpleNamespace(
+            frame_index=result["frame_index"],
+            frame=source_snapshot["frame"],
+            source_type="RTSP",
+            source_path="",
+            source_state=source_snapshot.get("state", "OPEN"),
+            fps=float(source_snapshot.get("fps", 0.0) or 0.0),
+            tracked_objects=tracked,
+            stays_seconds={getattr(track, "track_id", ""): 0.0} if track else {},
+            in_zone_track_ids=(),
+            risk_text="Observación técnica" if event is not None else "",
+            latest_alert=None,
+            latest_evidence_path=(evidence or {}).get("relative_path"),
+            frames_processed=result["frame_index"] + 1,
+            persons_detected=1 if event is not None else 0,
+            alerts_total=0,
+            evidence_total=1 if evidence is not None else 0,
+        )
+        self._on_frame(snapshot)
 
     def _on_frame(self, snapshot) -> None:
         """Callback del pipeline, ejecutado en el hilo de trabajo."""

@@ -16,6 +16,7 @@ config/secrets.*
 data/input/*
 data/output/*
 data/evidence/*
+data/runtime_evidence/*
 data/temp/*
 logs/*
 models/*
