@@ -52,12 +52,14 @@ class AdvanceChain:
         selective_pipeline: Any,
         tracker: Any,
         evidence_store: Any = None,
+        correlator: Any = None,
     ) -> None:
         self._source_manager = source_manager
         self._activity = activity_layer
         self._selective = selective_pipeline
         self._tracker = tracker
         self._evidence_store = evidence_store
+        self._correlator = correlator
         self._closed = False
 
     # ------------------------------------------------------------------
@@ -99,6 +101,8 @@ class AdvanceChain:
 
         if evidence_store is None:
             evidence_store = PersistentEvidenceStore.from_config(config)
+        from src.correlation.correlator import build_correlator
+        correlator = build_correlator(config)
 
         return cls(
             source_manager=source_manager,
@@ -106,6 +110,7 @@ class AdvanceChain:
             selective_pipeline=selective_pipeline,
             tracker=tracker,
             evidence_store=evidence_store,
+            correlator=correlator,
         )
 
     # ------------------------------------------------------------------
@@ -191,6 +196,7 @@ class AdvanceChain:
 
         track = None
         temporal_activity = None
+        correlation = None
         if event is not None:
             track = self._tracker.ingest(event)
             temporal_activity = next(
@@ -208,6 +214,10 @@ class AdvanceChain:
                     event_ref=getattr(event, "event_id", None),
                     track_ref=getattr(track, "track_id", None),
                 )
+            if self._correlator is not None:
+                correlation = self._correlator.ingest(
+                    track, activity=temporal_activity, metadata=metadata
+                )
 
         return {
             "camera_id": camera_id,
@@ -216,6 +226,7 @@ class AdvanceChain:
             "event": event,
             "track": track,
             "temporal_activity": temporal_activity,
+            "correlation": correlation,
             "evidence": evidence,
         }
 
@@ -224,7 +235,7 @@ class AdvanceChain:
     # ------------------------------------------------------------------
     def summary(self) -> Dict[str, Any]:
         """Estado auditable agregado de la cadena (sin secretos ni frames)."""
-        return {
+        summary = {
             "cameras": self.list_cameras(),
             "activity": self._activity.stats(),
             "inference": {
@@ -233,6 +244,9 @@ class AdvanceChain:
             },
             "temporal": self._tracker.metrics(),
         }
+        if self._correlator is not None:
+            summary["correlation"] = self._correlator.metrics()
+        return summary
 
     # ------------------------------------------------------------------
     # Shutdown limpio
@@ -242,6 +256,8 @@ class AdvanceChain:
         if self._closed:
             return {"already_closed": True}
         self._closed = True
+        if self._correlator is not None:
+            self._correlator.close()
         tracker_totals = self._tracker.close()
         selective_totals = self._selective.close()
         activity_stats = self._activity.close()

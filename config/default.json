@@ -69,5 +69,19 @@
     "root": "data/runtime_evidence",
     "max_per_camera": 32,
     "jpeg_quality": 90
+  },
+  "correlation": {
+    "enabled": true,
+    "transitions": [
+      {"source_camera": "CAM-001", "target_camera": "CAM-002", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0},
+      {"source_camera": "CAM-002", "target_camera": "CAM-003", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0},
+      {"source_camera": "CAM-003", "target_camera": "CAM-004", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0}
+    ],
+    "score_weights": {"temporal": 0.7, "topology": 0.3, "direction": 0.0},
+    "max_active_trajectories": 32,
+    "max_candidates_per_camera_pair": 16,
+    "candidate_ttl_seconds": 120,
+    "trajectory_ttl_seconds": 600,
+    "max_tracks": 256
   }
 }
