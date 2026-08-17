@@ -406,6 +406,20 @@ class TestEventDetection(unittest.TestCase):
         self.assertEqual(event.timestamp, FIXED_TS)
         self.assertEqual(event.inference_ref, "INF-X-000001")
 
+    def test_event_propagates_bounded_real_detection_boxes(self) -> None:
+        detector = EventDetector(
+            rules=[{"type": OBJECT_DETECTED, "min_confidence": 0.35}],
+            clock=FIXED_CLOCK,
+        )
+        detections = [
+            InferenceDetection(0, "person", 0.9, i, i + 1, i + 10, i + 20)
+            for i in range(20)
+        ]
+        event = detector.detect(self._result(detections))
+        self.assertEqual(event.metadata["detections"], 20)
+        self.assertEqual(len(event.metadata["bboxes"]), 16)
+        self.assertEqual(event.metadata["bboxes"][0][:4], [0, 1, 10, 20])
+
     def test_below_threshold_no_event(self) -> None:
         detector = EventDetector(
             rules=[{"type": OBJECT_DETECTED, "min_confidence": 0.5}],

@@ -47,11 +47,15 @@ class TestMultiCameraView(unittest.TestCase):
             frame_index=10, frame=frame, source_state="OPEN", fps=3,
             detections=2, track_id="TRK-1", temporal="PERSON_PRESENCE ACTIVE 1.2s",
             behavior="PROLONGED_DWELL", risk="REVIEW 65", evidence="CAM-001/EVD/frame.jpg",
+            bboxes=((1, 2, 10, 20, 0.9, "person"),), track_bbox=(1, 2, 10, 20),
+            event_type="PERSON_DETECTED", track_status="ACTIVE", resolution="640x360",
         ))
         view.update("CAM-001", SimpleNamespace(
             frame_index=11, frame=frame, source_state="OPEN", fps=3,
             detections=None, track_id=None, temporal=None, behavior=None,
             risk=None, evidence=None,
+            bboxes=None, track_bbox=None, event_type=None, track_status=None,
+            resolution="640x360",
         ))
         panel = view.panel("CAM-001")
         self.assertEqual(panel.frame_index, 11)
@@ -60,6 +64,9 @@ class TestMultiCameraView(unittest.TestCase):
         self.assertEqual(panel.temporal, "PERSON_PRESENCE ACTIVE 1.2s")
         self.assertEqual(panel.behavior, "PROLONGED_DWELL")
         self.assertEqual(panel.evidence, "CAM-001/EVD/frame.jpg")
+        self.assertEqual(panel.bboxes[0][:4], (1, 2, 10, 20))
+        self.assertEqual(panel.track_bbox, (1, 2, 10, 20))
+        self.assertEqual(panel.event_type, "PERSON_DETECTED")
 
 
 if __name__ == "__main__":

@@ -155,6 +155,10 @@ class TestAdvanceChainFeed(unittest.TestCase):
         # Tracking: evento -> LocalTrack (obligatorio con event).
         self.assertIsNotNone(result["track"])
         self.assertEqual(result["track"].camera_id, "CAM-01")
+        self.assertEqual(
+            result["track"].last_bbox,
+            tuple(result["event"].metadata["bboxes"][0][:4]),
+        )
         chain.close()
 
     def test_policy_skip_yields_no_observation(self):

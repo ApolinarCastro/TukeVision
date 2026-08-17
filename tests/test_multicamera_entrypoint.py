@@ -2,9 +2,9 @@ import unittest
 from pathlib import Path
 from types import SimpleNamespace
 
-from scripts.run_multicamera import build_panel_snapshot
+from scripts.run_multicamera import build_panel_snapshot, camera_subtype
 from src.observability.runtime_trace import BoundedRuntimeTrace
-from src.ui.tk_view import fit_frame_to_panel, multicamera_control_state
+from src.ui.tk_view import annotate_frame, fit_frame_to_panel, multicamera_control_state
 
 import numpy as np
 
@@ -23,13 +23,17 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertNotIn("VideoCapture", entrypoint)
 
     def test_canonical_result_is_adapted_without_fabricating_values(self):
-        event = SimpleNamespace(metadata={"detections": 2}, event_type="PERSON_DETECTED")
-        track = SimpleNamespace(track_id="TRK-7")
+        event = SimpleNamespace(
+            metadata={"detections": 2, "bboxes": [[10, 20, 80, 120, 0.91, "person"]]},
+            event_type="PERSON_DETECTED", confidence=0.91,
+        )
+        track = SimpleNamespace(track_id="TRK-7", status="ACTIVE", last_bbox=(10, 20, 80, 120))
         activity = SimpleNamespace(activity_type="PERSON_PRESENCE", status="ACTIVE", duration_ms=2300)
         signal = SimpleNamespace(signal_type="PROLONGED_DWELL")
         risk = SimpleNamespace(risk_event_type="REVIEW", risk_score=65)
         behavior = SimpleNamespace(signals=(signal,), risk_event=risk)
-        source = {"frame_index": 9, "frame": object(), "state": "OPEN", "fps": 4.0}
+        source = {"frame_index": 9, "frame": object(), "state": "OPEN", "fps": 4.0,
+                  "resolution": "640x360"}
         result = {"event": event, "track": track, "temporal_activity": activity,
                   "behavior": behavior, "evidence": {"relative_path": "CAM-001/EVD/frame.jpg"}}
         panel = build_panel_snapshot(source, result)
@@ -39,6 +43,25 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertEqual(panel.behavior, "PROLONGED_DWELL")
         self.assertEqual(panel.risk, "REVIEW 65")
         self.assertEqual(panel.evidence, "CAM-001/EVD/frame.jpg")
+        self.assertEqual(panel.bboxes[0][:4], (10, 20, 80, 120))
+        self.assertEqual(panel.event_type, "PERSON_DETECTED")
+        self.assertEqual(panel.track_status, "ACTIVE")
+        self.assertEqual(panel.resolution, "640x360")
+
+    def test_real_bbox_and_track_are_drawn_without_mutating_source(self):
+        frame = np.zeros((100, 160, 3), dtype=np.uint8)
+        panel = SimpleNamespace(
+            bboxes=((10, 20, 80, 90, 0.91, "person"),),
+            track_id="TRK-7", track_bbox=(10, 20, 80, 90),
+            event_type="PERSON_DETECTED", analytics_frame_index=9,
+        )
+        annotated = annotate_frame(frame, panel)
+        self.assertEqual(int(frame.sum()), 0)
+        self.assertGreater(int(annotated.sum()), 0)
+        self.assertTrue(np.any(annotated[20, 10] != 0))
+
+    def test_all_authorized_channels_use_consistent_main_stream(self):
+        self.assertEqual([camera_subtype(channel) for channel in (7, 1, 5, 3)], [0, 0, 0, 0])
 
     def test_runtime_trace_is_bounded_and_records_ui_boundary(self):
         trace = BoundedRuntimeTrace(("CAM-001",))
