@@ -1,0 +1,25 @@
+OFFICIAL EXECUTABLE HASH (C3) - LOOP-0018T
+Fecha: 2026-08-16
+
+Ejecutable oficial de distribución: dist/TukeVision-portable.zip
+  SHA256: E4DC8CA8BC355D2BDFC23EF77BC1398551DA5EA1167C9A17313D7CAF997FB2C3
+  Tamaño: 4.93 MB
+
+Package dir (dist/TukeVision):
+  MANIFEST.json          SHA256: B521F761ABBCB1F80FE41E50CB00887ECE6D86D1DED94B7D8EE145D2F38D3966
+  start_tukevision.ps1   SHA256: 101EEE33EE9E3D24E723E1F13A185C6AAD6FB37D867B26F25CF6DF95CC7E8629
+  git_head (MANIFEST)            : cfad93163b9fe1b992e87026b0adbb437c518cee
+  model_sha256 (MANIFEST)        : 0EBBC80D4A7680D14987A577CD21342B65ECFD94632BD9A8DA63AE6417644EE1
+
+Smoke test del ejecutable (package dir, runtime BASE, PYTHONDONTWRITEBYTECODE=1):
+  Arranque:            OK
+  Procesamiento 2 fr:  OK
+  Apagado limpio:      STOPPED_BY_USER (final_status limpio, sin errores)
+  EXECUTABLE_SMOKE_OK
+  (pycache: 0 en el paquete tras el test; paquete reconstruido limpio)
+
+Validación funcional del paquete:
+  SourceManager, ObservationPolicy, ActivityLayer, SelectiveInferencePipeline,
+  EventDetector, build_engine, LocalTracker, build_tracker, AdvanceChain,
+  Pipeline (2.1) -> TODOS inicializables desde dist/TukeVision.
+  FUNCTIONAL_PACKAGE_OK

@@ -1,0 +1,30 @@
+﻿{
+    "execution_id":  "LOOP-0018T",
+    "phase":  "4 (C4)",
+    "archive_root":  "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\archive\\forensic\\rtsp_double_free_0018",
+    "total_files":  110,
+    "total_bytes":  4392925445,
+    "hash_match":  true,
+    "loops":  [
+                  "loop_0018g",
+                  "loop_0018i",
+                  "loop_0018j",
+                  "loop_0018j_r1",
+                  "loop_0018j_r2",
+                  "loop_0018j_r3",
+                  "loop_0018j_r4",
+                  "loop_0018k",
+                  "loop_0018l"
+              ],
+    "per_loop":  {
+                     "loop_0018g":  6,
+                     "loop_0018j_r4":  18,
+                     "loop_0018j":  16,
+                     "loop_0018l":  12,
+                     "loop_0018k":  16,
+                     "loop_0018j_r3":  8,
+                     "loop_0018j_r2":  13,
+                     "loop_0018i":  16,
+                     "loop_0018j_r1":  5
+                 }
+}

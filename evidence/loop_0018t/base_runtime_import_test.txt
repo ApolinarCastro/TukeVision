@@ -1,0 +1,36 @@
+# BASE RUNTIME IMPORT TEST (C2/C3) — LOOP-0018T
+
+**Fecha:** 2026-08-16 · **Intérprete:** `.venv\Scripts\python.exe` (BASE, 3.12.10)
+
+## Módulos importados correctamente
+
+```
+src.capture.live_sources            (E-01)
+src.capture.source_manager          (SourceManager, CameraDescriptor)
+src.observations.activity           (ActivityLayer, ObservationPolicy)
+src.observations.engine             (ObservationEngine 2.1)
+src.inference.selective             (SelectiveInferencePipeline)
+src.inference.engines               (Deterministic | Yolo, build_engine)
+src.inference.events                (InferenceEvent, EventDetector)
+src.temporal.tracker                (LocalTracker, build_tracker)
+src.temporal.contract               (LocalTrack, TemporalActivity)
+src.app.pipeline                    (Pipeline 2.1)
+src.app.advance_chain               (AdvanceChain — nuevo C1)
+src.ui.controller                   (UiController)
+src.evidence.store                  (EvidenceStore)
+src.risk.calculator                 (RiskCalculator)
+src.alerts.engine                   (AlertEngine)
+```
+
+## Resultado
+
+```
+ALL_IMPORTS_OK
+```
+
+## Nota
+
+`FutureWarning: target=None is deprecated since v0.8 ...` es un deprecation
+conocido de la dependencia `supervision` (no bloqueante, sin impacto funcional).
+
+— Fin de base_runtime_import_test.txt (LOOP-0018T)

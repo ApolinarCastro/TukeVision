@@ -1,0 +1,781 @@
+﻿{
+    "execution_id":  "LOOP-0018T",
+    "phase":  "4 (C4)",
+    "created":  "2026-08-16",
+    "source":  "C:\\\\Users\\\\ASUS Zenbook\\\\Documents\\\\TukeVision-portable\\\\evidence",
+    "destination":  "C:\\\\Users\\\\ASUS Zenbook\\\\Documents\\\\TukeVision\\\\archive\\\\forensic\\\\rtsp_double_free_0018",
+    "files_total":  110,
+    "hash_match":  true,
+    "entries":  [
+                    {
+                        "relative":  "loop_0018g\\dumps\\python.exe.18740.dmp",
+                        "size":  48832862,
+                        "sha256_source":  "550FFF151E82655D43313E13046EAD3B939F77B10233C2510A9FFC4D6F3D367C",
+                        "sha256_destination":  "550FFF151E82655D43313E13046EAD3B939F77B10233C2510A9FFC4D6F3D367C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018g\\dumps\\python.exe.27364.dmp",
+                        "size":  48232510,
+                        "sha256_source":  "487FC60ABD731EA86C7379AF4C2A9A287E725E5B66A6C400708C55CB58927D5A",
+                        "sha256_destination":  "487FC60ABD731EA86C7379AF4C2A9A287E725E5B66A6C400708C55CB58927D5A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018g\\dumps\\python.exe.31912.dmp",
+                        "size":  48772142,
+                        "sha256_source":  "E7B4EF371108E70E380BCBBF0C9399389C2DFE37F7F27721C81FB51D6CEDC431",
+                        "sha256_destination":  "E7B4EF371108E70E380BCBBF0C9399389C2DFE37F7F27721C81FB51D6CEDC431",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018g\\logs\\tukevision-RUN-4C073A.log",
+                        "size":  4590,
+                        "sha256_source":  "6FBA8027116B7FC0FB9AC421997B0EE5BD788EB2EE3665BA80A3C35079E3BB7C",
+                        "sha256_destination":  "6FBA8027116B7FC0FB9AC421997B0EE5BD788EB2EE3665BA80A3C35079E3BB7C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018g\\logs\\tukevision-RUN-9E502A.log",
+                        "size":  6795,
+                        "sha256_source":  "C14EFD88927D0F6984754E9FF960064E4CDDE9386C5A6FD2792F7B011CCC7F53",
+                        "sha256_destination":  "C14EFD88927D0F6984754E9FF960064E4CDDE9386C5A6FD2792F7B011CCC7F53",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018g\\logs\\tukevision-RUN-EA7156.log",
+                        "size":  4756,
+                        "sha256_source":  "2845523A70C3DB5CCACA33B76583A9B46565BD8BE8A458FE5CDB226FE068D64D",
+                        "sha256_destination":  "2845523A70C3DB5CCACA33B76583A9B46565BD8BE8A458FE5CDB226FE068D64D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\cleanup_log.txt",
+                        "size":  784,
+                        "sha256_source":  "852343C281F578C831424369B701949FAB3093A3535D746EE1F3D811B895E2FC",
+                        "sha256_destination":  "852343C281F578C831424369B701949FAB3093A3535D746EE1F3D811B895E2FC",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\cleanup_loop_0018i.ps1",
+                        "size":  2242,
+                        "sha256_source":  "E7BD54069EE0EA0B0DC5E31705618454D24FAB6091BF9321A177F8152A0A0F71",
+                        "sha256_destination":  "E7BD54069EE0EA0B0DC5E31705618454D24FAB6091BF9321A177F8152A0A0F71",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\GATE-pre-reproduccion.md",
+                        "size":  1474,
+                        "sha256_source":  "63C956722581C468324B4485F24AC5EB434C1327A5D767D18C42E58B0CA4C1FF",
+                        "sha256_destination":  "63C956722581C468324B4485F24AC5EB434C1327A5D767D18C42E58B0CA4C1FF",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\instrumentation_log.txt",
+                        "size":  1044,
+                        "sha256_source":  "37F6E675C2FB826EABB374DC4FCF2E82EB482EBD5A42532404DF5007C7B42309",
+                        "sha256_destination":  "37F6E675C2FB826EABB374DC4FCF2E82EB482EBD5A42532404DF5007C7B42309",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\instrument_loop_0018i.ps1",
+                        "size":  2841,
+                        "sha256_source":  "0CC749869FFC22AE11171BD479842FC4A99AD35D85707DF8E9C08656D432F8D1",
+                        "sha256_destination":  "0CC749869FFC22AE11171BD479842FC4A99AD35D85707DF8E9C08656D432F8D1",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\monitor_reproduction_loop_0018i.ps1",
+                        "size":  3803,
+                        "sha256_source":  "ECDD1D91D1A2AD7705201E37AB3C4D2619E24793B096472C61289466C43F594F",
+                        "sha256_destination":  "ECDD1D91D1A2AD7705201E37AB3C4D2619E24793B096472C61289466C43F594F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\run_instrument.cmd",
+                        "size":  164,
+                        "sha256_source":  "5533FC864F7A171A46E00C4F44A0D236C942AF0DDBC7666071975F5EEC5FA9CE",
+                        "sha256_destination":  "5533FC864F7A171A46E00C4F44A0D236C942AF0DDBC7666071975F5EEC5FA9CE",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\config\\verify_loop_0018i.ps1",
+                        "size":  1706,
+                        "sha256_source":  "8031985D7DCE9919EA04399557475C5B571A251909794D5E1017B06217BD9F93",
+                        "sha256_destination":  "8031985D7DCE9919EA04399557475C5B571A251909794D5E1017B06217BD9F93",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\dumps\\python.exe.16192.dmp",
+                        "size":  4169853752,
+                        "sha256_source":  "C3C3C5C782177AEC02E44228789ED8A59CF9EF913ED939C675818E3A8AF25237",
+                        "sha256_destination":  "C3C3C5C782177AEC02E44228789ED8A59CF9EF913ED939C675818E3A8AF25237",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\logs\\reproduction_monitor.log",
+                        "size":  3286657,
+                        "sha256_source":  "560690263D56F300028503394CA853399483499C8F0146E05835D945D8B21D0B",
+                        "sha256_destination":  "560690263D56F300028503394CA853399483499C8F0146E05835D945D8B21D0B",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\analyze.txt",
+                        "size":  30962,
+                        "sha256_source":  "75E108BDD835754DED86A70F45662B76CEEF3C77E0BD062B911D1149D21AE194",
+                        "sha256_destination":  "75E108BDD835754DED86A70F45662B76CEEF3C77E0BD062B911D1149D21AE194",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\cmds_analyze.txt",
+                        "size":  34,
+                        "sha256_source":  "73B29AEA5BF4B2D3BDF7E062FA1FB5856C7C60CEF3B4CA29B25EAE932F7AFCE1",
+                        "sha256_destination":  "73B29AEA5BF4B2D3BDF7E062FA1FB5856C7C60CEF3B4CA29B25EAE932F7AFCE1",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\heap_threads.txt",
+                        "size":  23154,
+                        "sha256_source":  "E658D785163B473F9F0B0AC03B2360008859FCA6417606C9920275027F1261BA",
+                        "sha256_destination":  "E658D785163B473F9F0B0AC03B2360008859FCA6417606C9920275027F1261BA",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\modinfo.txt",
+                        "size":  17200,
+                        "sha256_source":  "E29A2BE1D9A76D3061E914AFB7F35426383B1EEBEC5727EE11B2D2A26E3FD59D",
+                        "sha256_destination":  "E29A2BE1D9A76D3061E914AFB7F35426383B1EEBEC5727EE11B2D2A26E3FD59D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\threads_kv.txt",
+                        "size":  301512,
+                        "sha256_source":  "2687E636DA0454E1EAF2C019A2D962E17ED64B62B5B65EFCB9B783A0C5A37C4F",
+                        "sha256_destination":  "2687E636DA0454E1EAF2C019A2D962E17ED64B62B5B65EFCB9B783A0C5A37C4F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018i\\windbg\\verifier.txt",
+                        "size":  18568,
+                        "sha256_source":  "091790AC5ADB6D1931DDF1D23B9466DFEA43A2987541450A679468248350EB15",
+                        "sha256_destination":  "091790AC5ADB6D1931DDF1D23B9466DFEA43A2987541450A679468248350EB15",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\BACKPORT_PLAN_TUKEVISION_BASE.md",
+                        "size":  5600,
+                        "sha256_source":  "6AD198CA5E7FE6828A475D178C51775193F2242D0AE3809FE430785F92EBEFD0",
+                        "sha256_destination":  "6AD198CA5E7FE6828A475D178C51775193F2242D0AE3809FE430785F92EBEFD0",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\BASELINE_TUKEVISION_MASTER_PRE_BACKPORT.json",
+                        "size":  10826009,
+                        "sha256_source":  "CFDB1E1F0A00ABF3AD38A19F5AF4CC4DE13BFB80471C6EF7567C059FE428053F",
+                        "sha256_destination":  "CFDB1E1F0A00ABF3AD38A19F5AF4CC4DE13BFB80471C6EF7567C059FE428053F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\certified_change_map.md",
+                        "size":  3920,
+                        "sha256_source":  "0DEBE878B65009ABF64580105F24F544B029E357669A45D2B278F9BAE53EE3D5",
+                        "sha256_destination":  "0DEBE878B65009ABF64580105F24F544B029E357669A45D2B278F9BAE53EE3D5",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\classification_loop_0018j.md",
+                        "size":  7876,
+                        "sha256_source":  "8874BF94B34FED55A732F2F39CBD807316BD0D69386D2C44AACEF26C6BFA407A",
+                        "sha256_destination":  "8874BF94B34FED55A732F2F39CBD807316BD0D69386D2C44AACEF26C6BFA407A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\code_diff.json",
+                        "size":  112762,
+                        "sha256_source":  "4CFAD3C4EA71FAC9716C2BBC307DE3F289E75100245D013B287BA6B28DB55B8F",
+                        "sha256_destination":  "4CFAD3C4EA71FAC9716C2BBC307DE3F289E75100245D013B287BA6B28DB55B8F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\code_diff.py",
+                        "size":  2303,
+                        "sha256_source":  "8A5FCF322D8FD237C4527B404164AF95391B977B0822DFC7C6D44602D0103E30",
+                        "sha256_destination":  "8A5FCF322D8FD237C4527B404164AF95391B977B0822DFC7C6D44602D0103E30",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\code_diff_output.txt",
+                        "size":  95504,
+                        "sha256_source":  "8E7763A475C664EFB525E9C2E56645FC4118EA9BEF7C442CCB0268DC484005D7",
+                        "sha256_destination":  "8E7763A475C664EFB525E9C2E56645FC4118EA9BEF7C442CCB0268DC484005D7",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\diff_trees.py",
+                        "size":  2151,
+                        "sha256_source":  "6B4DB752DD97E485B5368C7A23D8C543C715237E650E13B28627175C5C79F92F",
+                        "sha256_destination":  "6B4DB752DD97E485B5368C7A23D8C543C715237E650E13B28627175C5C79F92F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\file_inventory_base.json",
+                        "size":  6823510,
+                        "sha256_source":  "452720B10E6578C5B894DB5CEF73681A9E29555683628C6A4480392DEFB3EC66",
+                        "sha256_destination":  "452720B10E6578C5B894DB5CEF73681A9E29555683628C6A4480392DEFB3EC66",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\file_inventory_portable.json",
+                        "size":  6715313,
+                        "sha256_source":  "E17396AF51B5D9198D439905D8D3DE5BAE9DFC7CAA405896377C87DEEDEED10F",
+                        "sha256_destination":  "E17396AF51B5D9198D439905D8D3DE5BAE9DFC7CAA405896377C87DEEDEED10F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\inventory.ps1",
+                        "size":  1011,
+                        "sha256_source":  "A6EDC51C8B4B525B46D235671D9D154B6547E9FA1CCCD9748A10D628161477B5",
+                        "sha256_destination":  "A6EDC51C8B4B525B46D235671D9D154B6547E9FA1CCCD9748A10D628161477B5",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\LOOP-0018J-BASELINE-DIFF-BACKPORT-PLAN.md",
+                        "size":  6450,
+                        "sha256_source":  "CCDE0A1396A9B26C3C9A78A861A0BD6077BA423962D3D8E91703E59851B2BCA1",
+                        "sha256_destination":  "CCDE0A1396A9B26C3C9A78A861A0BD6077BA423962D3D8E91703E59851B2BCA1",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\precheck.md",
+                        "size":  591,
+                        "sha256_source":  "653DDA6AF45B8FEA0A9F1F7D08907AE758F9F2F55D5A91BF7D65E9846C3C2F3A",
+                        "sha256_destination":  "653DDA6AF45B8FEA0A9F1F7D08907AE758F9F2F55D5A91BF7D65E9846C3C2F3A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\test_matrix_loop_0018j.md",
+                        "size":  2480,
+                        "sha256_source":  "C926041E4C3CCFDF2E01D5737274FC24621E90523EE20C1478D2C30CCCE8E7F0",
+                        "sha256_destination":  "C926041E4C3CCFDF2E01D5737274FC24621E90523EE20C1478D2C30CCCE8E7F0",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\tree_diff_summary.json",
+                        "size":  11296303,
+                        "sha256_source":  "3832C2E1B3761DACAFFB8C7438B41BDAA78DEB6DAF0BA562B63D0400F47C19B7",
+                        "sha256_destination":  "3832C2E1B3761DACAFFB8C7438B41BDAA78DEB6DAF0BA562B63D0400F47C19B7",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j\\tree_diff_summary.md",
+                        "size":  7554,
+                        "sha256_source":  "10FC0D19534AAA5E8E4C558A6B1F2765BA5B9952D18C7B1E419AE7FA8902A783",
+                        "sha256_destination":  "10FC0D19534AAA5E8E4C558A6B1F2765BA5B9952D18C7B1E419AE7FA8902A783",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r1\\baseline_hashes.json",
+                        "size":  532,
+                        "sha256_source":  "49896A512C2D58A361BF9BA27668B3F4677ECC6922E9FE6611139F2DF48827C6",
+                        "sha256_destination":  "49896A512C2D58A361BF9BA27668B3F4677ECC6922E9FE6611139F2DF48827C6",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r1\\baseline_tests.txt",
+                        "size":  1373,
+                        "sha256_source":  "CEBA041F0292F9B4D595300878C5EE72672DFC834DF7550B2232370E4E5671DE",
+                        "sha256_destination":  "CEBA041F0292F9B4D595300878C5EE72672DFC834DF7550B2232370E4E5671DE",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r1\\divergence_f1_rtsp_url_contract.md",
+                        "size":  5084,
+                        "sha256_source":  "14709D4CB0CA8F874B216781DB57C810DABA2BB5318373357EAEAF5B79602225",
+                        "sha256_destination":  "14709D4CB0CA8F874B216781DB57C810DABA2BB5318373357EAEAF5B79602225",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r1\\phase_gates.json",
+                        "size":  1813,
+                        "sha256_source":  "B7BD0F409C90071180F0811CDAA06E280325E373C8DD26659D11C9678B9D2BB8",
+                        "sha256_destination":  "B7BD0F409C90071180F0811CDAA06E280325E373C8DD26659D11C9678B9D2BB8",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r1\\precheck.json",
+                        "size":  1575,
+                        "sha256_source":  "CEA8AD44F0BD05DFA4B11B6F3239964BA342E5BB10708E4895D80DB002287A2A",
+                        "sha256_destination":  "CEA8AD44F0BD05DFA4B11B6F3239964BA342E5BB10708E4895D80DB002287A2A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\authorized_diff.txt",
+                        "size":  10646,
+                        "sha256_source":  "03DAFC4B950DE4A37242F9681C98F806B8B578D618364AD02B66FE76393E2D8C",
+                        "sha256_destination":  "03DAFC4B950DE4A37242F9681C98F806B8B578D618364AD02B66FE76393E2D8C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\contract_conflict.md",
+                        "size":  3785,
+                        "sha256_source":  "EAEB11398E69BF8D5233499E6F35E82908AD69F2259612FEE72F78A8A2A05E81",
+                        "sha256_destination":  "EAEB11398E69BF8D5233499E6F35E82908AD69F2259612FEE72F78A8A2A05E81",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\divergence_f2_trace_scope.md",
+                        "size":  4237,
+                        "sha256_source":  "EEAF23A031057A5CF0BDC5FEFDC48974BF2C0AD56E74117955D5170E5C7B1CAE",
+                        "sha256_destination":  "EEAF23A031057A5CF0BDC5FEFDC48974BF2C0AD56E74117955D5170E5C7B1CAE",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\final_git_diff.txt",
+                        "size":  9482,
+                        "sha256_source":  "E92F440563472E88F4882A8EFDA3796FF5D4A56E7B75B8BCACA04D42A2EC3A80",
+                        "sha256_destination":  "E92F440563472E88F4882A8EFDA3796FF5D4A56E7B75B8BCACA04D42A2EC3A80",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\focused_tests_after.txt",
+                        "size":  922,
+                        "sha256_source":  "3AA83F5BD86749D26EE4EA34DAA53C05B7620C15CA0410E900F71DECAA8D1500",
+                        "sha256_destination":  "3AA83F5BD86749D26EE4EA34DAA53C05B7620C15CA0410E900F71DECAA8D1500",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\focused_tests_before.txt",
+                        "size":  956,
+                        "sha256_source":  "6AD40DF7A7215EB2505A78740F2E3CCED50E725A23BE24C561A03C416ADB3A6F",
+                        "sha256_destination":  "6AD40DF7A7215EB2505A78740F2E3CCED50E725A23BE24C561A03C416ADB3A6F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\full_regression.txt",
+                        "size":  69164,
+                        "sha256_source":  "24B5FD526D7F20D10C7563AF33B41D5F7BB0FDCF5B949C3171B74A7A767D0AFF",
+                        "sha256_destination":  "24B5FD526D7F20D10C7563AF33B41D5F7BB0FDCF5B949C3171B74A7A767D0AFF",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\LOOP-0018J-R2-CERTIFICATION.md",
+                        "size":  3578,
+                        "sha256_source":  "B881C3A87195C2DF3B78BF08FBAD0D5368B3C17EFC4FF549570741ACFD9D780A",
+                        "sha256_destination":  "B881C3A87195C2DF3B78BF08FBAD0D5368B3C17EFC4FF549570741ACFD9D780A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\phase_gates.json",
+                        "size":  2675,
+                        "sha256_source":  "1AA43A34ABF90AED990E0F6D383992B1D8A1CAD8F124BCACED1E60597CFE6799",
+                        "sha256_destination":  "1AA43A34ABF90AED990E0F6D383992B1D8A1CAD8F124BCACED1E60597CFE6799",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\postchange_hashes.json",
+                        "size":  1065,
+                        "sha256_source":  "D357B5D1EA78BBBC652FF16EFB6345E03FDBE6F8FA30723872D303549C28AC6E",
+                        "sha256_destination":  "D357B5D1EA78BBBC652FF16EFB6345E03FDBE6F8FA30723872D303549C28AC6E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\prechange_hashes.json",
+                        "size":  1707,
+                        "sha256_source":  "2BCA3A4C615D12457631A84D6CDDB2006FF5429EC3B5CA9C173E91ABCA1AD5F9",
+                        "sha256_destination":  "2BCA3A4C615D12457631A84D6CDDB2006FF5429EC3B5CA9C173E91ABCA1AD5F9",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\precheck.json",
+                        "size":  1130,
+                        "sha256_source":  "7B626DDCB9BE10724B4FCC421645365224E5DDEB3F58365E8950483BA99BC298",
+                        "sha256_destination":  "7B626DDCB9BE10724B4FCC421645365224E5DDEB3F58365E8950483BA99BC298",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r2\\RTSP_URL_CONTRACT_MIGRATION.md",
+                        "size":  3762,
+                        "sha256_source":  "AC242DB94642ABD4FC8E7E8179CADD30603ADC3CBCA96DFC2906153B785059A5",
+                        "sha256_destination":  "AC242DB94642ABD4FC8E7E8179CADD30603ADC3CBCA96DFC2906153B785059A5",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\DECISION_OPTION_C_APPLICABILITY_MATRIX.md",
+                        "size":  4106,
+                        "sha256_source":  "F2A28A5B4BA1E1EDE750DC3622C889EFA37ECCFB2B4551AA892F5ABAA53FB802",
+                        "sha256_destination":  "F2A28A5B4BA1E1EDE750DC3622C889EFA37ECCFB2B4551AA892F5ABAA53FB802",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\final_git_diff.txt",
+                        "size":  550,
+                        "sha256_source":  "2E98F7A84EA39C4BFED43716B731801A9A8D8E9A44F06069535471DD5D0AD202",
+                        "sha256_destination":  "2E98F7A84EA39C4BFED43716B731801A9A8D8E9A44F06069535471DD5D0AD202",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\focused_tests_after.txt",
+                        "size":  389,
+                        "sha256_source":  "A4D60AB8C0C12828CA1F65B51129DE65C76991601690636195CD262197F697BA",
+                        "sha256_destination":  "A4D60AB8C0C12828CA1F65B51129DE65C76991601690636195CD262197F697BA",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\full_regression.txt",
+                        "size":  32,
+                        "sha256_source":  "DA7F9B825DD91AF8097EA21B1F366A4649D226BD1200FDFC78169EE3C52589E0",
+                        "sha256_destination":  "DA7F9B825DD91AF8097EA21B1F366A4649D226BD1200FDFC78169EE3C52589E0",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\LOOP-0018J-R3-CERTIFICATION.md",
+                        "size":  3848,
+                        "sha256_source":  "3E9CD256299054FA446C794DFF818872B52D8DBC39A5874DCCD06AF39D7099F2",
+                        "sha256_destination":  "3E9CD256299054FA446C794DFF818872B52D8DBC39A5874DCCD06AF39D7099F2",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\phase_gates.json",
+                        "size":  958,
+                        "sha256_source":  "05AF32A7A964E8646E3DFFD9FF9C611AE286D5CD9336EE04B0D52FC9864CC720",
+                        "sha256_destination":  "05AF32A7A964E8646E3DFFD9FF9C611AE286D5CD9336EE04B0D52FC9864CC720",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\postchange_hashes.json",
+                        "size":  771,
+                        "sha256_source":  "6C71DF6C91A6280786645E2CB3F7FC416B76E83D807CF6E99E9EE564DA4AC96C",
+                        "sha256_destination":  "6C71DF6C91A6280786645E2CB3F7FC416B76E83D807CF6E99E9EE564DA4AC96C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r3\\precheck.json",
+                        "size":  901,
+                        "sha256_source":  "76A50D1277B26EF5E0E6FF4EBB640EC9760B8C14F653D949626F871F215B8B6E",
+                        "sha256_destination":  "76A50D1277B26EF5E0E6FF4EBB640EC9760B8C14F653D949626F871F215B8B6E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\cross_tree_comparison.json",
+                        "size":  6324378,
+                        "sha256_source":  "6B49EEB4F330527B924F20ACBD967A1923901A0CE94C153378981835E6B64D84",
+                        "sha256_destination":  "6B49EEB4F330527B924F20ACBD967A1923901A0CE94C153378981835E6B64D84",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\experimental_e01_e05_map.md",
+                        "size":  3230,
+                        "sha256_source":  "1A45906CA41233AB94410DFDA221404B6B276CD8A66E4387DD4C4BA296597177",
+                        "sha256_destination":  "1A45906CA41233AB94410DFDA221404B6B276CD8A66E4387DD4C4BA296597177",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\folder_disposition_matrix.md",
+                        "size":  2524,
+                        "sha256_source":  "DA8A598936C13E149966F035286F913FE34EBABB4025570AE0ED1564FE168423",
+                        "sha256_destination":  "DA8A598936C13E149966F035286F913FE34EBABB4025570AE0ED1564FE168423",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\forensic_preservation_map.md",
+                        "size":  3368,
+                        "sha256_source":  "AEACB66E85899B3B298342DF5D29A96790B08451F641EB17596BF51D4D7CD1A7",
+                        "sha256_destination":  "AEACB66E85899B3B298342DF5D29A96790B08451F641EB17596BF51D4D7CD1A7",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\functional_classification.json",
+                        "size":  1262,
+                        "sha256_source":  "EF44B3CDCC94EE4FCA10ECA23E2D7513057270F76E5A8F90A79DFA716E31B73D",
+                        "sha256_destination":  "EF44B3CDCC94EE4FCA10ECA23E2D7513057270F76E5A8F90A79DFA716E31B73D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\hash_inventory.json",
+                        "size":  8860031,
+                        "sha256_source":  "4ED49E20B6EEF0BEED036B546DF645CFB35AFAD713C80F75D2A923EBE194C60C",
+                        "sha256_destination":  "4ED49E20B6EEF0BEED036B546DF645CFB35AFAD713C80F75D2A923EBE194C60C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\inventory_BASE.json",
+                        "size":  5585988,
+                        "sha256_source":  "A5387CE9B044D75160272CD8E81ADB8D32E2BAD5255F0E35A2CE2766FEB89CBF",
+                        "sha256_destination":  "A5387CE9B044D75160272CD8E81ADB8D32E2BAD5255F0E35A2CE2766FEB89CBF",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\inventory_PORTABLE.json",
+                        "size":  5502252,
+                        "sha256_source":  "DB22533664015501205F256854B1CB326337C77FFB47A3C6D847C3C597BE9169",
+                        "sha256_destination":  "DB22533664015501205F256854B1CB326337C77FFB47A3C6D847C3C597BE9169",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\inventory_RTSP_TESTINSTALL.json",
+                        "size":  5443977,
+                        "sha256_source":  "7F0523C01439EF90A9CCB99ECC7C3B4E0DE19B80D10AD6A009BE00CBF6C16CB4",
+                        "sha256_destination":  "7F0523C01439EF90A9CCB99ECC7C3B4E0DE19B80D10AD6A009BE00CBF6C16CB4",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\inventory_TES.json",
+                        "size":  24448,
+                        "sha256_source":  "714EEB2884F405FDF8038B7111AB62F26A302DC0D44C96AAFB792BE178518FC0",
+                        "sha256_destination":  "714EEB2884F405FDF8038B7111AB62F26A302DC0D44C96AAFB792BE178518FC0",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\inventory_TESTINSTALL.json",
+                        "size":  5442970,
+                        "sha256_source":  "61FD55FED53555D8D16E6C1B1FC0926487BB7788A4B2A9327146147061DE05E7",
+                        "sha256_destination":  "61FD55FED53555D8D16E6C1B1FC0926487BB7788A4B2A9327146147061DE05E7",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\LOOP-0018J-R4-STORAGE-CONSOLIDATION-AUDIT.md",
+                        "size":  4626,
+                        "sha256_source":  "68DB791C7EB82F4FEF1C54F68947793FC88FC176A7AFD5D7FED11C931320838A",
+                        "sha256_destination":  "68DB791C7EB82F4FEF1C54F68947793FC88FC176A7AFD5D7FED11C931320838A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\precheck.json",
+                        "size":  2316,
+                        "sha256_source":  "B0D9F03A26D4B750252E726A69595E015B16209552AB4050C5696B90A605DA1C",
+                        "sha256_destination":  "B0D9F03A26D4B750252E726A69595E015B16209552AB4050C5696B90A605DA1C",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\significant_diff_detail.json",
+                        "size":  43927,
+                        "sha256_source":  "039A00814718C6E887A983806B978D885169F37A7D184BB02E25382BFAAA3F9F",
+                        "sha256_destination":  "039A00814718C6E887A983806B978D885169F37A7D184BB02E25382BFAAA3F9F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\TARGET_TUKEVISION_STRUCTURE.md",
+                        "size":  2309,
+                        "sha256_source":  "63B0888F7DC72DEC3E2F494DAFB4043763DC280585834B4BE8BCBD8482D09F3E",
+                        "sha256_destination":  "63B0888F7DC72DEC3E2F494DAFB4043763DC280585834B4BE8BCBD8482D09F3E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\testinstall_analysis.md",
+                        "size":  2666,
+                        "sha256_source":  "0DDD63EDB8C949E4E95EC42DCBEAA2A9AF14EB26669393F12C0C55DB44AB1DA3",
+                        "sha256_destination":  "0DDD63EDB8C949E4E95EC42DCBEAA2A9AF14EB26669393F12C0C55DB44AB1DA3",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\tree_inventory.json",
+                        "size":  1951,
+                        "sha256_source":  "E26E2A09EC697FE5D6A683A68F9BC99B45E7903523A78FD9F97ACD85C4ACD59B",
+                        "sha256_destination":  "E26E2A09EC697FE5D6A683A68F9BC99B45E7903523A78FD9F97ACD85C4ACD59B",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018j_r4\\unique_artifacts.md",
+                        "size":  4631,
+                        "sha256_source":  "19C0418A3F2EB14FD528285104DF14DB91CBFC0D63EF8FABE3266D5F660E9169",
+                        "sha256_destination":  "19C0418A3F2EB14FD528285104DF14DB91CBFC0D63EF8FABE3266D5F660E9169",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\base_vs_portable_lifecycle_diff.md",
+                        "size":  4314,
+                        "sha256_source":  "DD51D58DEB9FD7C9B5958CBC0935433563273DA2CCD7A3916117E6EC23434234",
+                        "sha256_destination":  "DD51D58DEB9FD7C9B5958CBC0935433563273DA2CCD7A3916117E6EC23434234",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\compileall.txt",
+                        "size":  20,
+                        "sha256_source":  "D42B9C3BF0B51664A50EEBDB09E6618B5E9295EF793382C9435002E60007A4E6",
+                        "sha256_destination":  "D42B9C3BF0B51664A50EEBDB09E6618B5E9295EF793382C9435002E60007A4E6",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\controllable_capture.py",
+                        "size":  7306,
+                        "sha256_source":  "9FA1570235C7C199F11C60A10116F66D71C48F4D1B0DB3695F05CF838782C922",
+                        "sha256_destination":  "9FA1570235C7C199F11C60A10116F66D71C48F4D1B0DB3695F05CF838782C922",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\focused_tests.txt",
+                        "size":  662,
+                        "sha256_source":  "E0BC753EFCD436E1B1B99FDF6A45EC2BA128541B2B57812D69B9468249C3819A",
+                        "sha256_destination":  "E0BC753EFCD436E1B1B99FDF6A45EC2BA128541B2B57812D69B9468249C3819A",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\full_regression.txt",
+                        "size":  1373,
+                        "sha256_source":  "8D2AC6B42177ABEDA6282921386B5D274A291A43ED99F663FF528F3D1E0F8BAB",
+                        "sha256_destination":  "8D2AC6B42177ABEDA6282921386B5D274A291A43ED99F663FF528F3D1E0F8BAB",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\git_diff.txt",
+                        "size":  1159,
+                        "sha256_source":  "AAE308E2C9C227F3C4DBEF9A4F011ECC0C8EE79258739705FDE71351BFF0CF4E",
+                        "sha256_destination":  "AAE308E2C9C227F3C4DBEF9A4F011ECC0C8EE79258739705FDE71351BFF0CF4E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\lifecycle_model.md",
+                        "size":  6922,
+                        "sha256_source":  "55F2E83A7468C289B43B13E9393CEED4C30B4A2EDDA2358FAF62B551F4D6E9C5",
+                        "sha256_destination":  "55F2E83A7468C289B43B13E9393CEED4C30B4A2EDDA2358FAF62B551F4D6E9C5",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\LOOP-0018K-NATIVE-RTSP-LIFECYCLE-HARDENING.md",
+                        "size":  5836,
+                        "sha256_source":  "767A6BEA212CFFF08644E2DFEC496774FE7888819C2AA6458D265BAA60064C69",
+                        "sha256_destination":  "767A6BEA212CFFF08644E2DFEC496774FE7888819C2AA6458D265BAA60064C69",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\postchange_hashes.json",
+                        "size":  971,
+                        "sha256_source":  "5D47957EC32991CF8F533ED9BE4B3A54B4BBBD185DAF33EE90CABBCCE9DEC429",
+                        "sha256_destination":  "5D47957EC32991CF8F533ED9BE4B3A54B4BBBD185DAF33EE90CABBCCE9DEC429",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\precheck.json",
+                        "size":  6961,
+                        "sha256_source":  "574DFA0AFF8EA6A513F75E1D8C26545CEE09A745BAAE00219548FA65AF8CDCFD",
+                        "sha256_destination":  "574DFA0AFF8EA6A513F75E1D8C26545CEE09A745BAAE00219548FA65AF8CDCFD",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\reproduction_matrix.md",
+                        "size":  2765,
+                        "sha256_source":  "CA8A3CECDE117308BC7645A3F81F224E99F2081C3BAC6FA0DB105C06A8C3827D",
+                        "sha256_destination":  "CA8A3CECDE117308BC7645A3F81F224E99F2081C3BAC6FA0DB105C06A8C3827D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\repro_base_control.py",
+                        "size":  4399,
+                        "sha256_source":  "216BF36BCBF11D6E45E117DB91C63407E6D64913B5A9AAAD80DD6AA53BD789CA",
+                        "sha256_destination":  "216BF36BCBF11D6E45E117DB91C63407E6D64913B5A9AAAD80DD6AA53BD789CA",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\repro_e01_race.py",
+                        "size":  8232,
+                        "sha256_source":  "57952C2FC666459194018EE4DF4CD35B846BB6A8E28ACE8D7AA3661640D8477D",
+                        "sha256_destination":  "57952C2FC666459194018EE4DF4CD35B846BB6A8E28ACE8D7AA3661640D8477D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\repro_e01_race_output.json",
+                        "size":  26761,
+                        "sha256_source":  "12671E4033F621AAAD1A6711C689DA5ECB720E5DE3899EF04D26FC28B4616488",
+                        "sha256_destination":  "12671E4033F621AAAD1A6711C689DA5ECB720E5DE3899EF04D26FC28B4616488",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\root_cause_assessment.md",
+                        "size":  3010,
+                        "sha256_source":  "AABD2F0F92A578CB6B9498EB3D04BC56C3C00904526CE53605FF749FB72664F9",
+                        "sha256_destination":  "AABD2F0F92A578CB6B9498EB3D04BC56C3C00904526CE53605FF749FB72664F9",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018k\\__pycache__\\controllable_capture.cpython-312.pyc",
+                        "size":  10853,
+                        "sha256_source":  "77FAF94C6C178AEB8EF9BA2C549CFE4EDD40F6D0C988D1764F3CC502238382B4",
+                        "sha256_destination":  "77FAF94C6C178AEB8EF9BA2C549CFE4EDD40F6D0C988D1764F3CC502238382B4",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\crashdump_inventory_post.json",
+                        "size":  970,
+                        "sha256_source":  "1090F067FDED3BEB7C73E4FB13993ED95175FBD2A47D3762E7EB4FE32AD9B91D",
+                        "sha256_destination":  "1090F067FDED3BEB7C73E4FB13993ED95175FBD2A47D3762E7EB4FE32AD9B91D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\crashdump_inventory_pre.json",
+                        "size":  1845,
+                        "sha256_source":  "3DA2C56122FF5DBBFFB6EADD92E24E360B7EE2C5547717D74305499F7550C45D",
+                        "sha256_destination":  "3DA2C56122FF5DBBFFB6EADD92E24E360B7EE2C5547717D74305499F7550C45D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\gate_matrix.md",
+                        "size":  2817,
+                        "sha256_source":  "007C7AC3F46EDC6C2556747AE94E3770F3C26BB746965BCBA43E5A9A9A079139",
+                        "sha256_destination":  "007C7AC3F46EDC6C2556747AE94E3770F3C26BB746965BCBA43E5A9A9A079139",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\LOOP-0018L-PHYSICAL-RTSP-LIFECYCLE-RECERTIFICATION.md",
+                        "size":  6017,
+                        "sha256_source":  "C0FE055B406C0DF296D81BB9CE473AD825C5D0E8D9EF3AD4BAD003F1F0612523",
+                        "sha256_destination":  "C0FE055B406C0DF296D81BB9CE473AD825C5D0E8D9EF3AD4BAD003F1F0612523",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\monitor_console.txt",
+                        "size":  218,
+                        "sha256_source":  "86CD3FF7DC00B318A7A89CD23778ADEACB89ADFC7A4B4769025AAB694943345E",
+                        "sha256_destination":  "86CD3FF7DC00B318A7A89CD23778ADEACB89ADFC7A4B4769025AAB694943345E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\monitor_physical.ps1",
+                        "size":  4833,
+                        "sha256_source":  "E8668702898DE0DEDC3AC69FFB22821341235DEF56B38C883EC3285821438730",
+                        "sha256_destination":  "E8668702898DE0DEDC3AC69FFB22821341235DEF56B38C883EC3285821438730",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\monitor_stderr.txt",
+                        "size":  0,
+                        "sha256_source":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+                        "sha256_destination":  "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\physical_run_timeline.md",
+                        "size":  2591,
+                        "sha256_source":  "1D04AC28B64C68EEFEFC24405EACD2E60C593BF695B36109DBDF504E8F95F79E",
+                        "sha256_destination":  "1D04AC28B64C68EEFEFC24405EACD2E60C593BF695B36109DBDF504E8F95F79E",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\precheck.json",
+                        "size":  2395,
+                        "sha256_source":  "618BA423E5425E3483991C04F6A3FACD5C21B1B89DF80B2C815879D62F5EF10F",
+                        "sha256_destination":  "618BA423E5425E3483991C04F6A3FACD5C21B1B89DF80B2C815879D62F5EF10F",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\process_samples.csv",
+                        "size":  10365,
+                        "sha256_source":  "DE89C4F3A59064EA5DB5153EBE2540C887D0373E09337FC7DD4CE82C0547C068",
+                        "sha256_destination":  "DE89C4F3A59064EA5DB5153EBE2540C887D0373E09337FC7DD4CE82C0547C068",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\rtsp_lifecycle_events.jsonl",
+                        "size":  52309,
+                        "sha256_source":  "4F007C5B02C79AC420218AEE79A00128097BB5413FBBD9EB80F677AB8F13A55D",
+                        "sha256_destination":  "4F007C5B02C79AC420218AEE79A00128097BB5413FBBD9EB80F677AB8F13A55D",
+                        "match":  true
+                    },
+                    {
+                        "relative":  "loop_0018l\\run_metadata.json",
+                        "size":  638,
+                        "sha256_source":  "303C04D79FC434BE726AC39409D75E1469085DE0ACC4659C3E758A70CF2C28E1",
+                        "sha256_destination":  "303C04D79FC434BE726AC39409D75E1469085DE0ACC4659C3E758A70CF2C28E1",
+                        "match":  true
+                    }
+                ]
+}

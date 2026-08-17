@@ -1,0 +1,26 @@
+FORENSIC HASH VERIFICATION (C4) - LOOP-0018T
+Fecha: 2026-08-16
+
+Fuente:  C:\Users\ASUS Zenbook\Documents\TukeVision-portable\evidence
+Destino: C:\Users\ASUS Zenbook\Documents\TukeVision\archive\forensic\rtsp_double_free_0018
+
+Archivos verificados: 110
+Hash SHA-256 coinciden (source == destination): True
+Tamaño total copiado: 4,392,925,445 bytes (~4.19 GB)
+
+Loops archivados:
+  loop_0018g     6  archivos  (dumps python.exe.18740/27364/31912.dmp + logs)
+  loop_0018i    16  archivos  (dumps python.exe.16192.dmp [4.17 GB] + windbg config/analyze)
+  loop_0018j    16  archivos  (BACKPORT_PLAN, baseline diff, code_diff, inventories)
+  loop_0018j_r1  5  archivos
+  loop_0018j_r2 13  archivos
+  loop_0018j_r3  8  archivos
+  loop_0018j_r4 18  archivos  (hash_inventory.json 8.86 MB)
+  loop_0018k    16  archivos
+  loop_0018l    12  archivos
+
+Veredicto: FORENSIC_HASH_MATCH = 100% (110/110)
+FORENSIC_EVIDENCE_INDEPENDENT_FROM_PORTABLE = YES
+
+El material de origen NO fue borrado ni modificado (copia íntegra).
+Manifest autoritativo: FORENSIC_ARCHIVE_MANIFEST.json (en el destino).

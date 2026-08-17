@@ -1,0 +1,91 @@
+{
+  "execution_id": "LOOP-0018T",
+  "mode": "PRODUCT_ADVANCE_TRANSITION",
+  "parent": "LOOP-0018S",
+  "date": "2026-08-16",
+  "base": {
+    "path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision",
+    "branch": "product/loop-0018r-temporal-tracking",
+    "head": "cfad93163b9fe1b992e87026b0adbb437c518cee",
+    "expected_head": "cfad93163b9fe1b992e87026b0adbb437c518cee",
+    "head_match": true,
+    "working_tree": {
+      "tracked_clean": true,
+      "untracked": [
+        "evidence/loop_0018m_r1/",
+        "evidence/loop_0018s/",
+        "src/capture/live_sources.BASE_preE01.bak.py"
+      ],
+      "untracked_classified": "evidencia/backup protegidos; sin código funcional nuevo"
+    },
+    "recent_commits": [
+      "cfad931 loop-0018r temporal",
+      "5d0d116 loop-0018q",
+      "c743231 loop-0018p"
+    ]
+  },
+  "critical_hashes": {
+    "src/capture/live_sources.py": "6a9ae7e1187c2b8644b3f9f73abbcb5d689b61a7 (E-01 INTACTO)",
+    "src/capture/source_manager.py": "29e0274beac2f623fcd24feca7f9c9bf1c85f33e (SourceManager INTACTO)",
+    "src/observations/activity.py": "114b6a3715024d7f142f6b7082950f6fffc4e41b (Observation INTACTA)",
+    "src/inference/selective.py": "855f20bd421289b442d66941365d7dec5ba09241 (Inference INTACTO)",
+    "src/temporal/tracker.py": "ca51c4b9a7974f1b27e358691b8e572c14185c1d (Temporal INTACTO)",
+    "src/app/pipeline.py": "b6388bb135e30bfe0c3a7deba0a018fe39c159e8",
+    "src/ui/controller.py": "9f7917a8d74256414f266a1fdd7463f487ce008a",
+    "config/default.json": "f23e30429df7201c515bfe850c8d1328a44be2d8"
+  },
+"baseline": {
+        "test_count": 359,
+        "result": "359/359 PASS (unittest discover, intérprete portable 3.12.10)",
+        "compileall": "PASS",
+        "credential_leak": 0,
+        "baseline_verified_at_precheck": true
+    },
+  "runtime": {
+    "base_venv": "BROKEN (pyvenv.cfg -> C:\\Users\\Tuke\\AppData\\Local\\Programs\\Python\\Python312, intérprete inexistente)",
+    "base_venv_site_packages": "contiene cv2, ultralytics, torch, etc. (paquetes presentes; redirector roto)",
+    "portable_venv": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision-portable\\.venv\\Scripts\\python.exe Python 3.12.10",
+    "portable_critical_versions": {
+      "python": "3.12.10",
+      "cv2": "5.0.0",
+      "numpy": "2.5.2",
+      "torch": "2.13.0+cpu",
+      "ultralytics": "8.4.115",
+      "supervision": "0.29.1"
+    },
+    "system_python": {
+      "3.12": "C:\\Users\\ASUS Zenbook\\AppData\\Local\\Programs\\Python\\Python312\\python.exe (3.12.10)",
+      "3.14": "C:\\Python314\\python.exe",
+      "3.11": "C:\\Users\\ASUS Zenbook\\AppData\\Roaming\\uv\\python\\cpython-3.11.15 (Astral)"
+    }
+  },
+  "requirements": {
+    "requirements.txt": ["ultralytics==8.4.115", "supervision==0.29.1", "trackers==2.5.0.post0", "opencv-python==5.0.0.93"],
+    "requirements.lock.txt": "presente (lock completo)",
+    "new_dependencies": 0
+  },
+  "packaging": {
+    "mechanism": "install/package.ps1 (copia config/docs/install/scripts/src/requirements/models -> dist/TukeVision + MANIFEST.json + zip opcional)",
+    "verify": "install/verify_package.ps1 (MANIFEST, modelo yolo11n.pt hash 0EBBC80D..., requirements, archivos críticos, exclusiones)",
+    "pyinstaller_spec": "NO existe (el 'ejecutable' es un paquete portable de app Python + launchers ps1)",
+    "dist": "OUTDATED (MANIFEST git_head 4e530f3, build 15-08, pre-E01/pre-advance; sin inference/temporal/source_manager/activity)"
+  },
+  "conditions_from_loop_0018s": {
+    "c1": "INTEGRACIÓN capa 2.2 -> cadena 2.1 (wiring SourceManager->ActivityLayer->SelectiveInference->LocalTracker en el pipeline que ejecuta el producto)",
+    "c2": "regenerar venv BASE (o fijar formalmente intérprete portable como runner estándar) antes de cualquier build/entrega",
+    "c3": "rebuild dist/ desde HEAD cfad931 con MANIFEST actualizado (inference/temporal/source_manager/activity) antes de cualquier entrega",
+    "c4": "compuerta forense doble free: evidencia debe sobrevivir independientemente de TukeVision-portable"
+  },
+  "c1_evidence_definition": {
+    "chain_21": "cadena operativa del producto (la ÚNICA cableada): SOURCE->PersonDetector->PersonTracker->Zone->ObservationEngine->EventEngine->RuleEngine->RiskCalculator->AlertEngine->EvidenceStore->UI->VideoWriter",
+    "chain_22": "capas PRODUCT ADVANCE implementadas y certificadas sintéticamente pero NO cableadas: SourceManager->ActivityLayer/ObservationPolicy->SelectiveInferencePipeline->LocalTracker",
+    "h1": "ningún entry point (src/app/pipeline.py, src/ui/controller.py, scripts/*) importa src.inference, src.temporal ni src.observations.activity (verificado)",
+    "register_from_source_manager": "existe en ActivityLayer y SelectiveInferencePipeline; SIN llamador en runtime",
+    "local_tracker_register": "register_camera(camera_id) existe; sin método register_from_source_manager (composición manual)"
+  },
+  "testinstall": {
+    "rtsp_testinstall": "revisión previa loop_0018j_r4: UNIQUE_ARTIFACTS=0, REPRODUCIBLE=YES (conclusión a revalidar en FASE 12)",
+    "testinstall": "idem"
+  },
+  "evidence_loop_0018t_dir": "evidence/loop_0018t (creado)"
+}

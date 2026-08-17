@@ -1,0 +1,36 @@
+# BASE RUNTIME REGRESSION (C2) — LOOP-0018T
+
+**Fecha:** 2026-08-16 · **Intérprete:** `.venv\Scripts\python.exe` (BASE, 3.12.10)
+
+## Comando
+
+```
+.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py"
+```
+
+## Resultado
+
+```
+Ran 370 tests in 25.135s
+OK
+```
+
+## Desglose
+
+| Concepto | Valor |
+|---|---|
+| Tests baseline (pre-C1, LOOP-0018S certificado) | 359 |
+| Tests nuevos C1 (tests/test_advance_chain.py) | 11 |
+| Total | 370 |
+| Fallos | 0 |
+| Errores | 0 |
+| NEW_REGRESSIONS | 0 |
+
+## Verificaciones adicionales
+
+- COMPILEALL (`python -m compileall -q src scripts tests`): **OK**
+- Imports críticos: **ALL_IMPORTS_OK**
+- Versiones críticas: idénticas al portable certificado (cv2 5.0.0, numpy 2.5.2,
+  torch 2.13.0+cpu, ultralytics 8.4.115, supervision 0.29.1, trackers 2.5.0.post0).
+
+— Fin de base_runtime_regression.txt (LOOP-0018T)
