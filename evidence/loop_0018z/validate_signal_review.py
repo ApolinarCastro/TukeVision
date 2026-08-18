@@ -1,21 +1,35 @@
-"""LOOP-0018Z validation adapter over the certified LOOP-0018Y harness."""
+"""QW-04 validation adapter over the baseline four-camera behavior harness."""
 
 from __future__ import annotations
 
-import csv
+import argparse
+import getpass
 import hashlib
 import importlib.util
 import json
 import os
 import sys
 import time
-from collections import Counter, defaultdict
+from collections import Counter
+from dataclasses import replace
 from pathlib import Path
+from typing import Any
+
 
 BASE = Path(__file__).resolve().parents[2]
-EVIDENCE = BASE / "evidence" / "loop_0018z"
+EVIDENCE = Path(os.environ.get(
+    "TUKEVISION_EVIDENCE_ROOT",
+    str(BASE / "evidence" / "loop_0019a_qw04_r2"),
+))
+MAX_CAPTURE_SECONDS = 300
 sys.path.insert(0, str(BASE))
 
+from scripts.run_multicamera import connection_host
+from src.evidence.clips import (
+    EvidenceClipAdapter,
+    TemporalClipCoordinator,
+    TemporalFrameBuffer,
+)
 from src.evidence.persistent import PersistentEvidenceStore
 from src.review import BoundedReviewExporter, record_from_signal
 
@@ -37,61 +51,65 @@ def canonical_hash(value: object) -> str:
 
 def write_json(name: str, value: object) -> None:
     (EVIDENCE / name).write_text(
-        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True), encoding="utf-8"
+        json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True),
+        encoding="utf-8",
     )
 
 
-def human_review(records, evidence_store: PersistentEvidenceStore):
-    choices = {
-        "1": "USEFUL_SIGNAL",
-        "2": "BENIGN_ACTIVITY",
-        "3": "AMBIGUOUS",
-        "4": "INSUFFICIENT_EVIDENCE",
-        "5": "SYSTEM_ERROR",
-    }
-    reviewed = []
-    print("\nHUMAN_REVIEW: 1=USEFUL 2=BENIGN 3=AMBIGUOUS 4=INSUFFICIENT_EVIDENCE 5=SYSTEM_ERROR")
-    for index, record in enumerate(records, 1):
-        existing = [ref for ref in record.evidence_refs if evidence_store.resolve(ref).is_file()]
-        if existing:
-            try:
-                os.startfile(evidence_store.resolve(existing[-1]))
-            except OSError:
-                pass
-        print(json.dumps({
-            "index": index,
-            "review_id": record.review_id,
-            "camera_id": record.camera_id,
-            "signal_type": record.signal_type,
-            "rule_id": record.rule_id,
-            "rule_score": record.rule_score,
-            "evidence_available": bool(existing),
-            "structured_explanation": record.structured_explanation,
-        }, ensure_ascii=False, default=list))
-        while True:
-            answer = input(f"Clasificacion humana [{index}/{len(records)}] (1-5): ").strip()
-            if answer in choices:
-                break
-            print("Entrada invalida; use 1, 2, 3, 4 o 5.")
-        note = input("Nota breve opcional (sin datos personales): ").strip()
-        reviewed.append(record.with_review(choices[answer], note))
-    return tuple(reviewed)
+def bounded_parent_arguments() -> bool:
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--stage-seconds", type=int)
+    parser.add_argument("--main-seconds", type=int)
+    known, _ = parser.parse_known_args()
+    if known.stage_seconds is None:
+        sys.argv.extend(("--stage-seconds", "10"))
+    elif known.stage_seconds <= 0:
+        return False
+    if known.main_seconds is None:
+        sys.argv.extend(("--main-seconds", str(MAX_CAPTURE_SECONDS)))
+    elif known.main_seconds <= 0 or known.main_seconds > MAX_CAPTURE_SECONDS:
+        return False
+    return True
+
+
+def install_fresh_credential_prompt(parent) -> None:
+    """Patch only the old harness seam; never recover a historical username."""
+
+    def fresh_connection_constants() -> tuple[str, str]:
+        username = getpass.getpass(
+            "Usuario RTSP autorizado (no se muestra ni persiste): "
+        )
+        return connection_host(), username
+
+    parent.historical_connection_constants = fresh_connection_constants
 
 
 def main() -> int:
+    if not bounded_parent_arguments():
+        EVIDENCE.mkdir(parents=True, exist_ok=True)
+        write_json("validation_status.json", {"status": "CAPTURE_BOUND_INVALID"})
+        print("CAPTURE_BOUND_INVALID")
+        return 2
+
     EVIDENCE.mkdir(parents=True, exist_ok=True)
     config = json.loads((BASE / "config" / "default.json").read_text(encoding="utf-8"))
-    frozen_keys = ("observation", "inference", "temporal", "correlation", "behavior", "evidence", "review_export")
+    frozen_keys = (
+        "observation", "inference", "temporal", "correlation", "behavior",
+        "evidence", "review_export", "clips",
+    )
     frozen = {key: config[key] for key in frozen_keys}
     baseline_hash = canonical_hash(frozen)
     write_json("validation_baseline.json", {
-        "execution_id": "LOOP-0018Z",
+        "execution_id": "LOOP-0019A-QW04-R2",
+        "base_commit_expected": "04abddfc1b6c72a78a045e62049c0dbc936d88c8",
         "frozen_blocks": frozen,
         "fingerprint_sha256": baseline_hash,
         "threshold_changes_during_validation": 0,
+        "max_capture_seconds": MAX_CAPTURE_SECONDS,
     })
 
     review_config = config["review_export"]
+    clip_config = config["clips"]
     exporter = BoundedReviewExporter(
         max_records_total=review_config["max_records_total"],
         max_records_per_camera=review_config["max_records_per_camera"],
@@ -100,39 +118,125 @@ def main() -> int:
         max_candidates=review_config["max_candidates"],
     )
     live_dataset = EVIDENCE / "signal_review_records.jsonl"
-    state = {"stage": "", "started": 0.0, "duration": 0, "available": 0}
+    max_duration = float(clip_config["max_clip_duration_seconds"])
+    clip_buffer = TemporalFrameBuffer(
+        pre_roll_seconds=float(clip_config["pre_roll_seconds"]),
+        retention_seconds=max_duration,
+        max_frames_per_camera=int(clip_config["max_frames_per_camera"]),
+        max_fps=float(clip_config["buffer_fps"]),
+    )
+    evidence_root = BASE / config["evidence"].get("root", "data/runtime_evidence")
+    clip_adapter = EvidenceClipAdapter(
+        evidence_root,
+        max_clips_per_camera=int(clip_config["max_clips_per_camera"]),
+        max_clip_duration_seconds=max_duration,
+        frame_rate=float(clip_config["buffer_fps"]),
+        container=clip_config["container"],
+        codec=clip_config["codec"],
+    )
+    coordinator = TemporalClipCoordinator(
+        clip_buffer,
+        clip_adapter,
+        pre_roll_seconds=float(clip_config["pre_roll_seconds"]),
+        post_roll_seconds=float(clip_config["post_roll_seconds"]),
+        max_pending_per_camera=int(clip_config["max_pending_per_camera"]),
+    )
+    state: dict[str, Any] = {
+        "stage": "",
+        "available_signals": 0,
+        "clips_available": 0,
+        "clips_unavailable": 0,
+    }
+    pending_records = {}
     parent = load_parent()
+    install_fresh_credential_prompt(parent)
     original_run_stage = parent.run_stage
     original_feed = parent.AdvanceChain.feed
 
+    def publish_clip(metadata: dict[str, Any]) -> None:
+        record = pending_records.pop(metadata["signal_id"], None)
+        if record is None:
+            return
+        available = metadata.get("availability") == "AVAILABLE"
+        completed = replace(
+            record,
+            clip_evidence_ref=metadata.get("clip_evidence_ref"),
+            clip_available=available,
+            clip_sha256=metadata.get("sha256"),
+            clip_duration_seconds=metadata.get("duration_seconds"),
+        )
+        exporter.offer(completed)
+        exporter.export_jsonl(live_dataset)
+        state["clips_available" if available else "clips_unavailable"] += 1
+
     def wrapped_run_stage(label, camera_count, duration, *args, **kwargs):
-        state.update(stage=label, started=time.monotonic(), duration=duration)
-        return original_run_stage(label, camera_count, duration, *args, **kwargs)
+        state["stage"] = label
+        if label == "MAIN":
+            coordinator.clear()
+            pending_records.clear()
+        result = original_run_stage(label, camera_count, duration, *args, **kwargs)
+        if label == "MAIN":
+            for metadata in coordinator.flush():
+                publish_clip(metadata)
+            for signal_id, record in tuple(pending_records.items()):
+                publish_clip(clip_adapter.unavailable(
+                    camera_id=record.camera_id,
+                    signal_id=signal_id,
+                    start_timestamp=0,
+                    end_timestamp=0,
+                    reason="clip_finalize_incomplete",
+                ))
+            exporter.export_jsonl(live_dataset)
+        return result
 
     def wrapped_feed(chain, camera_id, *args, **kwargs):
+        frame_index = args[0] if args else kwargs.get("frame_index", -1)
+        frame = args[2] if len(args) > 2 else kwargs.get("frame")
+        now = time.monotonic()
+        if state["stage"] == "MAIN":
+            for metadata in coordinator.append(camera_id, now, frame, frame_index):
+                publish_clip(metadata)
         result = original_feed(chain, camera_id, *args, **kwargs)
         behavior = result.get("behavior")
         if state["stage"] == "MAIN" and behavior is not None:
-            state["available"] += len(behavior.signals)
-            elapsed = time.monotonic() - state["started"]
-            if elapsed >= state["duration"] - review_config["capture_window_seconds"]:
-                track = result.get("track")
-                correlation = result.get("correlation")
-                trajectory = getattr(correlation, "trajectory", None)
-                event = result.get("event")
-                observation = result.get("observation")
-                created_at = getattr(event, "timestamp", None) or getattr(observation, "timestamp", None) or ""
-                for signal in behavior.signals:
-                    exporter.offer(record_from_signal(
-                        signal,
-                        behavior.features,
-                        created_at=created_at,
-                        track_id=getattr(track, "track_id", None),
-                        trajectory_id=getattr(trajectory, "trajectory_id", None),
+            state["available_signals"] += len(behavior.signals)
+            track = result.get("track")
+            correlation = result.get("correlation")
+            trajectory = getattr(correlation, "trajectory", None)
+            event = result.get("event")
+            observation = result.get("observation")
+            created_at = (
+                getattr(event, "timestamp", None)
+                or getattr(observation, "timestamp", None)
+                or ""
+            )
+            for signal in behavior.signals:
+                if signal.signal_id in pending_records:
+                    continue
+                record = record_from_signal(
+                    signal,
+                    behavior.features,
+                    created_at=created_at,
+                    track_id=getattr(track, "track_id", None),
+                    trajectory_id=getattr(trajectory, "trajectory_id", None),
+                )
+                pending_records[signal.signal_id] = record
+                if not clip_config.get("enabled", False):
+                    publish_clip(clip_adapter.unavailable(
+                        camera_id=camera_id,
+                        signal_id=signal.signal_id,
+                        start_timestamp=now,
+                        end_timestamp=now,
+                        reason="clip_disabled",
                     ))
-                    # Persist the bounded selected set immediately; do not
-                    # wait for MAIN shutdown or evidence-retention cleanup.
-                    exporter.export_jsonl(live_dataset)
+                elif not coordinator.request(camera_id, signal.signal_id, now):
+                    publish_clip(clip_adapter.unavailable(
+                        camera_id=camera_id,
+                        signal_id=signal.signal_id,
+                        start_timestamp=now,
+                        end_timestamp=now,
+                        reason="pending_clip_bound_reached",
+                    ))
         return result
 
     parent.run_stage = wrapped_run_stage
@@ -146,54 +250,102 @@ def main() -> int:
         return 5
 
     records = exporter.select()
+    exporter.export_jsonl(live_dataset)
     evidence_store = PersistentEvidenceStore.from_config(config)
     assert evidence_store is not None
-    broken = 0
-    mismatches = 0
+    broken_static = 0
+    static_mismatches = 0
+    broken_clips = 0
+    clip_mismatches = 0
     evidence_index = []
+    clip_index = []
     for record in records:
-        for ref in record.evidence_refs:
-            target = evidence_store.resolve(ref)
+        for reference in record.evidence_refs:
+            target = evidence_store.resolve(reference)
             if not target.is_file() or not target.with_name("metadata.json").is_file():
-                broken += 1
+                broken_static += 1
                 continue
-            metadata = json.loads(target.with_name("metadata.json").read_text(encoding="utf-8"))
+            metadata = json.loads(
+                target.with_name("metadata.json").read_text(encoding="utf-8")
+            )
             actual = hashlib.sha256(target.read_bytes()).hexdigest()
-            if actual != metadata.get("sha256"):
-                mismatches += 1
-            evidence_index.append({"review_id": record.review_id, "evidence_ref": ref,
-                                   "sha256": actual, "verified": actual == metadata.get("sha256")})
+            verified = actual == metadata.get("sha256")
+            static_mismatches += int(not verified)
+            evidence_index.append({
+                "review_id": record.review_id,
+                "evidence_ref": reference,
+                "sha256": actual,
+                "verified": verified,
+            })
+        if record.clip_available and record.clip_evidence_ref:
+            clip_metadata = {
+                "availability": "AVAILABLE",
+                "clip_evidence_ref": record.clip_evidence_ref,
+                "sha256": record.clip_sha256,
+            }
+            target = evidence_root / record.clip_evidence_ref
+            sidecar = target.with_suffix(".json")
+            verified = EvidenceClipAdapter.verify(clip_metadata, evidence_root)
+            linkage = False
+            if sidecar.is_file():
+                stored = json.loads(sidecar.read_text(encoding="utf-8"))
+                linkage = (
+                    stored.get("signal_id") == record.signal_id
+                    and stored.get("camera_id") == record.camera_id
+                )
+            broken_clips += int(not target.is_file() or not sidecar.is_file())
+            clip_mismatches += int(not verified or not linkage)
+            clip_index.append({
+                "review_id": record.review_id,
+                "signal_id": record.signal_id,
+                "camera_id": record.camera_id,
+                "clip_evidence_ref": record.clip_evidence_ref,
+                "sha256": record.clip_sha256,
+                "verified": verified,
+                "signal_camera_linkage": linkage,
+            })
     write_json("evidence_index.json", evidence_index)
-    if broken or mismatches:
-        write_json("validation_status.json", {"status": "EVIDENCE_TRACEABILITY_DIVERGENCE",
-                                               "broken_evidence_refs": broken,
-                                               "evidence_hash_mismatch": mismatches})
+    write_json("clip_index.json", clip_index)
+    if broken_static or static_mismatches or broken_clips or clip_mismatches:
+        write_json("validation_status.json", {
+            "status": "EVIDENCE_TRACEABILITY_DIVERGENCE",
+            "broken_evidence_refs": broken_static,
+            "evidence_hash_mismatch": static_mismatches,
+            "broken_clip_refs": broken_clips,
+            "clip_hash_or_linkage_mismatch": clip_mismatches,
+        })
         return 6
 
-    reviewed = human_review(records, evidence_store) if records else ()
-    target = EVIDENCE / "signal_review_records.jsonl"
-    with target.open("w", encoding="utf-8", newline="\n") as handle:
-        for record in reviewed:
-            handle.write(json.dumps(record.to_dict(), ensure_ascii=False, sort_keys=True) + "\n")
-    with (EVIDENCE / "human_review_matrix.csv").open("w", newline="", encoding="utf-8") as handle:
-        writer = csv.DictWriter(handle, fieldnames=("review_id", "signal_id", "camera_id", "signal_type",
-                                                     "rule_id", "human_classification", "review_notes"))
-        writer.writeheader()
-        for record in reviewed:
-            writer.writerow({key: record.to_dict()[key] for key in writer.fieldnames})
-    counts = Counter(record.human_classification for record in reviewed)
-    rule_counts = defaultdict(Counter)
-    for record in reviewed:
-        rule_counts[record.rule_id][record.human_classification] += 1
     stats = exporter.stats()
-    stats.update({"available_signals": state["available"], "reviewed_signals": len(reviewed),
-                  "classification_counts": dict(counts), "rule_classifications": {k: dict(v) for k, v in rule_counts.items()},
-                  "broken_evidence_refs": broken, "evidence_hash_mismatch": mismatches,
-                  "baseline_fingerprint": baseline_hash})
+    stats.update({
+        "available_signals": state["available_signals"],
+        "review_records": len(records),
+        "temporal_clips": len(clip_index),
+        "clip_fallbacks": state["clips_unavailable"],
+        "baseline_fingerprint": baseline_hash,
+        "operator_verification": "PENDING",
+    })
     write_json("review_metrics.json", stats)
-    write_json("validation_status.json", {"status": "VALIDATION_AND_HUMAN_REVIEW_COMPLETED",
-                                           "config_sha256": baseline_hash})
-    print("VALIDATION_AND_HUMAN_REVIEW_COMPLETED")
+    if state["available_signals"] and not clip_index:
+        write_json("validation_status.json", {
+            "status": "SIGNALS_WITHOUT_TEMPORAL_CLIPS",
+            "available_signals": state["available_signals"],
+        })
+        print("SIGNALS_WITHOUT_TEMPORAL_CLIPS")
+        return 7
+    if not records:
+        write_json("validation_status.json", {"status": "NO_REAL_BEHAVIOR_SIGNALS"})
+        print("NO_REAL_BEHAVIOR_SIGNALS")
+        return 8
+
+    write_json("validation_status.json", {
+        "status": "OPERATOR_VERIFICATION_PENDING",
+        "real_signals_captured": len(records),
+        "real_clips_created": len(clip_index),
+        "signal_clip_linkage_verified": len(clip_index),
+        "config_sha256": baseline_hash,
+    })
+    print("OPERATOR_VERIFICATION_READY")
     return 0
 
 

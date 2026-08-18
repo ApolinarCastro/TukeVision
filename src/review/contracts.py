@@ -49,6 +49,10 @@ class SignalReviewRecord:
     review_notes: str = ""
     created_at: str = ""
     evidence_available: bool = True
+    clip_evidence_ref: Optional[str] = None
+    clip_available: bool = False
+    clip_sha256: Optional[str] = None
+    clip_duration_seconds: Optional[float] = None
 
     def __post_init__(self) -> None:
         if self.human_classification not in ALLOWED_CLASSIFICATIONS:

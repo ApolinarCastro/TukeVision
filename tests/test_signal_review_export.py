@@ -26,6 +26,7 @@ class TestSignalReviewRecord(unittest.TestCase):
         self.assertEqual(data["signal_id"], "BS-1")
         self.assertEqual(data["human_classification"], "NOT_REVIEWED")
         self.assertTrue(data["evidence_available"])
+        self.assertFalse(data["clip_available"])
         self.assertEqual(data["source_refs"], ["EVT-1", "T-1"])
         self.assertIn("threshold", data["structured_explanation"])
         self.assertNotIn("suspicious", json.dumps(data).lower())

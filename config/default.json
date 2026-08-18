@@ -70,6 +70,18 @@
     "max_per_camera": 32,
     "jpeg_quality": 90
   },
+  "clips": {
+    "enabled": true,
+    "pre_roll_seconds": 5,
+    "post_roll_seconds": 5,
+    "max_clip_duration_seconds": 10,
+    "buffer_fps": 5,
+    "max_frames_per_camera": 64,
+    "max_pending_per_camera": 8,
+    "max_clips_per_camera": 32,
+    "container": "mp4",
+    "codec": "mpeg4"
+  },
   "correlation": {
     "enabled": true,
     "transitions": [
