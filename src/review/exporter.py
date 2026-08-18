@@ -1,14 +1,150 @@
-"""Deterministic, memory-bounded JSONL signal review exporter."""
+"""Deterministic, memory-bounded JSONL signal review exporter.
 
+The selected JSONL and its human-review matrix are also the durable source of
+truth used by evidence retention.  Keeping that reader here avoids a second
+review-state store and makes pending protection reconstructible after restart.
+"""
+
+import csv
 import json
 import os
 import tempfile
 from collections import Counter, defaultdict
+from dataclasses import dataclass
 from hashlib import sha256
-from pathlib import Path
-from typing import Dict, List, Tuple
+from pathlib import Path, PurePosixPath
+from typing import Dict, FrozenSet, List, Optional, Tuple
 
 from .contracts import SignalReviewRecord
+
+
+RETENTION_OK = "RETENTION_OK"
+RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS = (
+    "RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS"
+)
+
+
+def _safe_reference(value: object) -> Optional[str]:
+    if value is None:
+        return None
+    reference = PurePosixPath(str(value).replace("\\", "/"))
+    if not reference.parts or reference.is_absolute() or ".." in reference.parts:
+        return None
+    return reference.as_posix()
+
+
+@dataclass(frozen=True)
+class ReviewRetentionState:
+    """Persistent pending-review references relevant to bounded retention."""
+
+    review_ids: FrozenSet[str] = frozenset()
+    signal_ids: FrozenSet[str] = frozenset()
+    static_refs: FrozenSet[str] = frozenset()
+    clip_refs: FrozenSet[str] = frozenset()
+    indeterminate: bool = False
+
+    def protects_static(self, reference: str) -> bool:
+        normalized = _safe_reference(reference)
+        return self.indeterminate or (
+            normalized is not None and normalized in self.static_refs
+        )
+
+    def protects_clip(self, reference: str, signal_id: str = "") -> bool:
+        normalized = _safe_reference(reference)
+        return self.indeterminate or (
+            normalized is not None and normalized in self.clip_refs
+        ) or (bool(signal_id) and str(signal_id) in self.signal_ids)
+
+
+def load_review_retention_state(
+    review_target: str | Path | None,
+) -> ReviewRetentionState:
+    """Load pending/selected review protection without keeping runtime locks.
+
+    A row in the selected dataset remains protected until the adjacent official
+    human-review matrix contains a completed classification for the same review
+    or signal.  A malformed state is treated conservatively: callers must not
+    evict evidence while the durable review contract is indeterminate.
+    """
+    if review_target is None:
+        return ReviewRetentionState()
+    target = Path(review_target)
+    if not target.is_file():
+        return ReviewRetentionState()
+
+    completed_reviews: set[str] = set()
+    completed_signals: set[str] = set()
+    matrix = target.parent / "human_review_matrix.csv"
+    if matrix.is_file():
+        try:
+            with matrix.open("r", encoding="utf-8-sig", newline="") as stream:
+                for row in csv.DictReader(stream):
+                    classification = str(row.get("classification") or "").strip().upper()
+                    if classification and classification != "NOT_REVIEWED":
+                        completed_reviews.add(str(row.get("review_id") or ""))
+                        completed_signals.add(str(row.get("signal_id") or ""))
+        except (OSError, csv.Error, UnicodeError):
+            return ReviewRetentionState(indeterminate=True)
+
+    review_ids: set[str] = set()
+    signal_ids: set[str] = set()
+    static_refs: set[str] = set()
+    clip_refs: set[str] = set()
+    indeterminate = False
+    try:
+        with target.open("r", encoding="utf-8") as stream:
+            for line in stream:
+                if not line.strip():
+                    continue
+                try:
+                    row = json.loads(line)
+                except (TypeError, ValueError):
+                    indeterminate = True
+                    continue
+                if not isinstance(row, dict):
+                    indeterminate = True
+                    continue
+                review_id = str(row.get("review_id") or "")
+                signal_id = str(row.get("signal_id") or "")
+                classification = str(
+                    row.get("human_classification") or ""
+                ).strip().upper()
+                review_state = str(row.get("review_state") or "").strip().upper()
+                if (
+                    review_id in completed_reviews
+                    or signal_id in completed_signals
+                    or classification not in {"", "NOT_REVIEWED"}
+                    or review_state in {"REVIEWED", "COMPLETED", "CLOSED", "RELEASED"}
+                ):
+                    continue
+                if review_id:
+                    review_ids.add(review_id)
+                if signal_id:
+                    signal_ids.add(signal_id)
+                references = row.get("evidence_refs") or ()
+                if not isinstance(references, (list, tuple)):
+                    references = (references,)
+                references = tuple(references) + (
+                    row.get("static_evidence_ref"),
+                    row.get("evidence_ref"),
+                )
+                for value in references:
+                    reference = _safe_reference(value)
+                    if reference:
+                        static_refs.add(reference)
+                clip_reference = _safe_reference(row.get("clip_evidence_ref"))
+                if clip_reference:
+                    clip_refs.add(clip_reference)
+    except (OSError, UnicodeError):
+        return ReviewRetentionState(indeterminate=True)
+
+    return ReviewRetentionState(
+        review_ids=frozenset(review_ids),
+        signal_ids=frozenset(signal_ids),
+        static_refs=frozenset(static_refs),
+        clip_refs=frozenset(clip_refs),
+        indeterminate=indeterminate,
+    )
 
 
 class BoundedReviewExporter:

@@ -125,7 +125,11 @@ class MulticameraRuntime:
                 max_width=int(config.get("video", {}).get("max_width", 640)),
                 rtsp_open_timeout_ms=int(config.get("rtsp", {}).get("open_timeout_ms", 8000)),
                 frame_stall_timeout_s=float(config.get("rtsp", {}).get("frame_stall_timeout_s", 10.0))))
-        self._pipeline = OperationalPipeline(config, self._manager)
+        self._pipeline = OperationalPipeline(
+            config,
+            self._manager,
+            review_target=QW04_REVIEW_TARGET,
+        )
         self.review_target = QW04_REVIEW_TARGET
         self._qw04 = RuntimeQw04Integration.from_config(
             config,

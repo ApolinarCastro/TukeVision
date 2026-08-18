@@ -25,9 +25,12 @@ class OperationalPipeline:
         source_manager: Any,
         chain: Optional[AdvanceChain] = None,
         poll_interval_s: float = 0.01,
+        review_target: Any = None,
     ) -> None:
         self._manager = source_manager
-        self._chain = chain or AdvanceChain.build(config, source_manager)
+        self._chain = chain or AdvanceChain.build(
+            config, source_manager, review_target=review_target
+        )
         self._poll_interval_s = max(0.001, float(poll_interval_s))
         self._last_frame: Dict[str, int] = {}
         self._closed = False

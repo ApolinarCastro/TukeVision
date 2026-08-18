@@ -8,10 +8,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import math
 import os
 import re
 import tempfile
+import threading
 import uuid
 from collections import defaultdict, deque
 from dataclasses import dataclass
@@ -19,6 +21,16 @@ from datetime import datetime, timezone
 from fractions import Fraction
 from pathlib import Path
 from typing import Any, Deque, Dict, Iterable, Optional
+
+from src.review.exporter import (
+    RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS,
+    RETENTION_OK,
+    ReviewRetentionState,
+    load_review_retention_state,
+)
+
+
+logger = logging.getLogger("tukevision.evidence.clip_retention")
 
 
 _SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$")
@@ -120,6 +132,7 @@ class EvidenceClipAdapter:
         frame_rate: float = 5.0,
         container: str = "mp4",
         codec: str = "mpeg4",
+        review_target: str | Path | None = None,
     ) -> None:
         if max_clips_per_camera < 1 or max_clip_duration_seconds <= 0 or frame_rate <= 0:
             raise ValueError("invalid clip bounds")
@@ -129,6 +142,9 @@ class EvidenceClipAdapter:
         self.frame_rate = float(frame_rate)
         self.container = _component(container, "container")
         self.codec = _component(codec, "codec")
+        self.review_target = None if review_target is None else Path(review_target)
+        self._retention_status: Dict[str, str] = {}
+        self._lock = threading.RLock()
 
     def unavailable(
         self,
@@ -171,19 +187,68 @@ class EvidenceClipAdapter:
             Path(temporary).unlink(missing_ok=True)
             raise
 
-    def _enforce_retention(self, camera_id: str) -> None:
+    def _media(self, camera_id: str) -> list[Path]:
         directory = self.root / "clips" / camera_id
-        media = sorted(
+        if not directory.is_dir():
+            return []
+        return sorted(
             directory.glob(f"*.{self.container}"),
             key=lambda item: (item.stat().st_mtime_ns, item.name),
         )
-        for target in media[:-self.max_clips_per_camera]:
+
+    def _media_protected(
+        self, target: Path, state: ReviewRetentionState
+    ) -> bool:
+        reference = target.relative_to(self.root).as_posix()
+        signal_id = ""
+        try:
+            metadata = json.loads(target.with_suffix(".json").read_text(encoding="utf-8"))
+            signal_id = str(metadata.get("signal_id") or "")
+        except (OSError, TypeError, ValueError):
+            pass
+        return state.protects_clip(reference, signal_id)
+
+    def _set_retention_status(self, camera_id: str, status: str) -> str:
+        self._retention_status[camera_id] = status
+        if status != RETENTION_OK:
+            logger.warning("%s camera_id=%s", status, camera_id)
+        return status
+
+    def _enforce_retention(self, camera_id: str) -> str:
+        directory = self.root / "clips" / camera_id
+        media = self._media(camera_id)
+        state = load_review_retention_state(self.review_target)
+        while len(media) > self.max_clips_per_camera:
+            target = next(
+                (item for item in media if not self._media_protected(item, state)),
+                None,
+            )
+            if target is None:
+                return self._set_retention_status(
+                    camera_id,
+                    RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS,
+                )
             target.unlink(missing_ok=True)
             target.with_suffix(".json").unlink(missing_ok=True)
-        existing = {item.with_suffix(".json") for item in directory.glob(f"*.{self.container}")}
-        for metadata in directory.glob("*.json"):
-            if metadata not in existing:
-                metadata.unlink(missing_ok=True)
+            media.remove(target)
+        existing = {item.with_suffix(".json") for item in media}
+        if directory.is_dir():
+            for metadata in directory.glob("*.json"):
+                reference = metadata.with_suffix(f".{self.container}").relative_to(
+                    self.root
+                ).as_posix()
+                if metadata not in existing and not state.protects_clip(reference):
+                    metadata.unlink(missing_ok=True)
+        return self._set_retention_status(camera_id, RETENTION_OK)
+
+    def enforce_retention(self, camera_id: str) -> str:
+        camera_id = _component(camera_id, "camera_id")
+        with self._lock:
+            return self._enforce_retention(camera_id)
+
+    def retention_status(self, camera_id: str) -> str:
+        camera_id = _component(camera_id, "camera_id")
+        return self._retention_status.get(camera_id, RETENTION_OK)
 
     def create_clip(
         self,
@@ -226,6 +291,26 @@ class EvidenceClipAdapter:
                 start_timestamp=start_timestamp, end_timestamp=end_timestamp,
                 reason="clip_buffer_empty", clip_id=clip_id,
             )
+
+        with self._lock:
+            self._enforce_retention(camera_id)
+            media = self._media(camera_id)
+            state = load_review_retention_state(self.review_target)
+            if len(media) >= self.max_clips_per_camera and all(
+                self._media_protected(item, state) for item in media
+            ):
+                self._set_retention_status(
+                    camera_id,
+                    RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS,
+                )
+                return self.unavailable(
+                    camera_id=camera_id,
+                    signal_id=signal_id,
+                    start_timestamp=start_timestamp,
+                    end_timestamp=end_timestamp,
+                    reason=RETENTION_CAPACITY_BLOCKED_BY_PROTECTED_REVIEWS,
+                    clip_id=clip_id,
+                )
 
         relative = Path("clips") / camera_id / f"{clip_id}.{self.container}"
         target = self.root / relative
@@ -278,7 +363,8 @@ class EvidenceClipAdapter:
                 "created_at": datetime.now(timezone.utc).isoformat(),
             }
             self._atomic_json(metadata_path, metadata)
-            self._enforce_retention(camera_id)
+            with self._lock:
+                self._enforce_retention(camera_id)
             return metadata
         except Exception:
             Path(temporary_name).unlink(missing_ok=True)

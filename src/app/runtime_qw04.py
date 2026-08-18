@@ -77,6 +77,7 @@ class RuntimeQw04Integration:
             frame_rate=float(clip_config["buffer_fps"]),
             container=str(clip_config["container"]),
             codec=str(clip_config["codec"]),
+            review_target=review_target,
         )
         coordinator = TemporalClipCoordinator(
             buffer,

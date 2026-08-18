@@ -195,13 +195,15 @@ class TestRuntimeQw04Integration(unittest.TestCase):
 
     def test_from_config_reuses_existing_coordinator_and_adapter(self):
         with tempfile.TemporaryDirectory() as temporary:
+            review_target = Path(temporary) / "records.jsonl"
             integration = RuntimeQw04Integration.from_config(
                 config(),
                 evidence_root=Path(temporary) / "runtime",
-                review_target=Path(temporary) / "records.jsonl",
+                review_target=review_target,
             )
             self.assertIsInstance(integration.coordinator, TemporalClipCoordinator)
             self.assertIsInstance(integration.coordinator.adapter, EvidenceClipAdapter)
+            self.assertEqual(integration.coordinator.adapter.review_target, review_target)
 
 
 class TestOperationalRuntimeWiring(unittest.TestCase):
@@ -223,6 +225,10 @@ class TestOperationalRuntimeWiring(unittest.TestCase):
         self.assertEqual(manager_type.call_count, 1)
         self.assertEqual(manager.register_source.call_count, 4)
         self.assertEqual(pipeline_type.call_count, 1)
+        self.assertEqual(
+            pipeline_type.call_args.kwargs["review_target"],
+            runtime.review_target,
+        )
         self.assertEqual(bridge_factory.call_count, 1)
         source = Path("scripts/run_multicamera.py").read_text(encoding="utf-8")
         self.assertNotIn("VideoCapture", source)

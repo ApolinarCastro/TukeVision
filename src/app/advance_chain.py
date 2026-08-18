@@ -73,6 +73,7 @@ class AdvanceChain:
         config: Dict[str, Any],
         source_manager: Any,
         evidence_store: Any = None,
+        review_target: Any = None,
     ) -> "AdvanceChain":
         """Construye la cadena desde la configuración del producto.
 
@@ -102,7 +103,9 @@ class AdvanceChain:
         from src.evidence.persistent import PersistentEvidenceStore
 
         if evidence_store is None:
-            evidence_store = PersistentEvidenceStore.from_config(config)
+            evidence_store = PersistentEvidenceStore.from_config(
+                config, review_target=review_target
+            )
         from src.correlation.correlator import build_correlator
         correlator = build_correlator(config)
         from src.behavior import build_behavior_engine
@@ -187,7 +190,8 @@ class AdvanceChain:
                     producer="activity-policy",
                     observation_ref=observation_ref,
                 )
-                evidence_ref = evidence["relative_path"]
+                if evidence is not None:
+                    evidence_ref = evidence["relative_path"]
 
         event = self._selective.feed(
             camera_id=camera_id,
