@@ -207,8 +207,8 @@ class RuntimeQw04Integration:
                 )
                 if record.camera_id != camera_id:
                     record = replace(record, camera_id=camera_id)
-                self._pending_records[signal_id] = record
                 if not self._clips_enabled:
+                    self._pending_records[signal_id] = record
                     self._publish_clip(
                         self.coordinator.adapter.unavailable(
                             camera_id=camera_id,
@@ -218,15 +218,13 @@ class RuntimeQw04Integration:
                             reason="clip_disabled",
                         )
                     )
-                elif not self.coordinator.request(camera_id, signal_id, timestamp):
-                    self._publish_clip(
-                        self.coordinator.adapter.unavailable(
-                            camera_id=camera_id,
-                            signal_id=signal_id,
-                            start_timestamp=timestamp,
-                            end_timestamp=timestamp,
-                            reason="pending_clip_bound_reached",
-                        )
+                elif self.coordinator.request(camera_id, signal_id, timestamp):
+                    self._pending_records[signal_id] = record
+                else:
+                    self._remember_signal(signal_id)
+                    logger.info(
+                        "QW04_SIGNAL_SKIPPED_PENDING_BOUND camera_id=%s",
+                        camera_id,
                     )
             return completed
         except Exception as exc:
