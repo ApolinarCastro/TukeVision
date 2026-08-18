@@ -211,9 +211,11 @@ def camera_status_color(status: str) -> str:
     }.get(status, COLORS["offline"])
 
 
-def camera_summary_line(panel) -> str:
+def camera_summary_line(panel, *, include_source_state: bool = True) -> str:
     """Línea compacta y factual del panel lateral (una por cámara)."""
-    parts = [str(getattr(panel, "source_state", "-") or "-")]
+    parts = []
+    if include_source_state:
+        parts.append(str(getattr(panel, "source_state", "-") or "-"))
     resolution = getattr(panel, "resolution", "") or ""
     if resolution:
         parts.append(resolution)
@@ -247,6 +249,44 @@ def camera_summary_line(panel) -> str:
     if evidence:
         parts.append("EVD ✓")
     return " · ".join(parts) if parts else "-"
+
+
+def health_header_text(snapshot) -> str:
+    """Compact raw host metrics; missing values are never fabricated."""
+    if snapshot is None:
+        return "CPU N/A | RAM N/A | DISK N/A | HEALTH UNKNOWN"
+    cpu = (
+        f"CPU {snapshot.cpu_percent:.1f}%"
+        if snapshot.cpu_percent is not None else "CPU N/A"
+    )
+    if (
+        snapshot.ram_percent is None
+        or snapshot.ram_used_mb is None
+        or snapshot.ram_total_mb is None
+    ):
+        ram = "RAM N/A"
+    else:
+        ram = (
+            f"RAM {snapshot.ram_percent:.1f}% · "
+            f"{snapshot.ram_used_mb:.0f}/{snapshot.ram_total_mb:.0f} MB"
+        )
+    if snapshot.disk_percent is None or snapshot.disk_free_gb is None:
+        disk = "DISK N/A"
+    else:
+        disk = f"DISK {snapshot.disk_percent:.1f}% · {snapshot.disk_free_gb:.1f} GB free"
+    return f"{cpu} | {ram} | {disk} | HEALTH {snapshot.global_health}"
+
+
+def camera_health_text(health) -> str:
+    """Factual per-camera line derived from SourceManager CameraHealth."""
+    parts = [f"{health.camera_id} · RTSP {health.source_state}"]
+    if health.fps is not None and health.fps > 0:
+        parts.append(f"{health.fps:.1f} FPS")
+    if health.last_frame_age is not None:
+        parts.append(f"FRAME {health.last_frame_age:.1f}s")
+    if health.stall_count:
+        parts.append(f"STALLS {health.stall_count}")
+    return " · ".join(parts)
 
 
 def resolve_evidence_path(ref, root) -> Optional[str]:
@@ -405,12 +445,21 @@ class TkApp:
 
         status = tk.Frame(header, bg=COLORS["bg"])
         status.pack(side=tk.RIGHT, padx=14, pady=8)
+        self._health_var = tk.StringVar(
+            value="CPU N/A | RAM N/A | DISK N/A | HEALTH UNKNOWN"
+        )
+        tk.Label(
+            status, textvariable=self._health_var, bg=COLORS["bg"],
+            fg=COLORS["text"], font=FONT_SMALL,
+        ).pack(side=tk.TOP, anchor=tk.E)
+        status_metrics = tk.Frame(status, bg=COLORS["bg"])
+        status_metrics.pack(side=tk.TOP, anchor=tk.E)
         self._cameras_var = tk.StringVar(value="CAMERAS: 0 / 4 ONLINE")
         self._res_var = tk.StringVar(value="RES: -")
         self._fps_var = tk.StringVar(value="FPS: -")
         for var in (self._cameras_var, self._fps_var, self._res_var):
             tk.Label(
-                status, textvariable=var, bg=COLORS["bg"], fg=COLORS["text_dim"],
+                status_metrics, textvariable=var, bg=COLORS["bg"], fg=COLORS["text_dim"],
                 font=FONT_BODY,
             ).pack(side=tk.RIGHT, padx=(12, 0))
 
@@ -900,8 +949,14 @@ class TkApp:
             self._set_dot(self._live_dot, COLORS["offline"])
             self._live_label.configure(text="IDLE", fg=COLORS["offline"])
         panels = self._controller.poll_multicamera()
-        online = online_camera_count(panels, running=running)
-        self._cameras_var.set(f"CAMERAS: {online} / 4 ONLINE")
+        health = state.get("system_health")
+        self._health_var.set(health_header_text(health))
+        online = (
+            health.online_camera_count
+            if health is not None else online_camera_count(panels, running=running)
+        )
+        total = health.total_camera_count if health is not None else 4
+        self._cameras_var.set(f"CAMERAS: {online} / {total} ONLINE")
         resolutions = [
             str(getattr(panel, "resolution", ""))
             for panel in panels.values()
@@ -920,9 +975,20 @@ class TkApp:
     def _render_side_panel(self, state: dict) -> None:
         running = state["status"] == AppStatus.RUNNING
         panels = self._controller.poll_multicamera()
+        health = state.get("system_health")
+        camera_health = (
+            {item.camera_id: item for item in health.camera_health}
+            if health is not None else {}
+        )
         for camera_id in CAMERA_IDS:
             panel = panels[camera_id]
-            if running:
+            if camera_id in camera_health:
+                text = camera_health_text(camera_health[camera_id])
+                details = camera_summary_line(panel, include_source_state=False)
+                if running and details != "-":
+                    text = f"{text} · {details}"
+                self._cam_summary_vars[camera_id].set(text)
+            elif running:
                 text = camera_summary_line(panel)
                 self._cam_summary_vars[camera_id].set(f"{camera_id} · {text}")
             else:

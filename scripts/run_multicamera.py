@@ -7,6 +7,7 @@ import os
 import sys
 import threading
 import tkinter as tk
+from dataclasses import replace
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -17,6 +18,7 @@ from src.app.runtime_qw04 import RuntimeQw04Integration
 from src.capture.source_manager import CameraDescriptor, SourceManager
 from src.observability.logging_setup import new_run_id, setup_logging
 from src.observability.runtime_trace import BoundedRuntimeTrace
+from src.observability.system_health import SystemHealthSampler
 from src.ui.controller import UiController
 from src.ui.tk_view import TkApp
 
@@ -125,6 +127,19 @@ class MulticameraRuntime:
                 max_width=int(config.get("video", {}).get("max_width", 640)),
                 rtsp_open_timeout_ms=int(config.get("rtsp", {}).get("open_timeout_ms", 8000)),
                 frame_stall_timeout_s=float(config.get("rtsp", {}).get("frame_stall_timeout_s", 10.0))))
+        health_config = config.get("system_health", {})
+        try:
+            health_interval = float(health_config.get("sample_interval_seconds", 3.0))
+        except (AttributeError, TypeError, ValueError):
+            health_interval = 3.0
+        if not 2.0 <= health_interval <= 5.0:
+            health_interval = 3.0
+        self._health = SystemHealthSampler(
+            self._manager,
+            CAMERAS,
+            sample_interval_seconds=health_interval,
+            disk_path=BASE,
+        )
         self._pipeline = OperationalPipeline(
             config,
             self._manager,
@@ -158,18 +173,35 @@ class MulticameraRuntime:
         def on_result(camera_id, snapshot, result):
             self._handle_pipeline_result(camera_id, snapshot, result)
         self._pipeline.run(self._stop.is_set, on_result)
-    def poll_multicamera(self): return self._controller.poll_multicamera()
+    def _runtime_running(self):
+        return not self._stop.is_set() and self._thread.is_alive()
+    def poll_multicamera(self):
+        panels = self._controller.poll_multicamera()
+        health = self._health.snapshot(runtime_running=self._runtime_running())
+        by_camera = {item.camera_id: item for item in health.camera_health}
+        return {
+            camera_id: replace(
+                panel,
+                source_state=by_camera[camera_id].source_state,
+                fps=(
+                    by_camera[camera_id].fps
+                    if by_camera[camera_id].fps is not None else panel.fps
+                ),
+            ) if camera_id in by_camera else panel
+            for camera_id, panel in panels.items()
+        }
     def mark_ui_rendered(self, camera_id, frame_index):
         self._trace.mark_ui_rendered(camera_id, frame_index)
     def poll_state(self):
-        running = not self._stop.is_set() and self._thread.is_alive()
-        panels = self._controller.poll_multicamera()
+        running = self._runtime_running()
+        panels = self.poll_multicamera()
         tracks = [panel.track_id for panel in panels.values() if panel.track_id]
         risks = [panel.risk for panel in panels.values() if panel.risk]
         evidence = [panel.evidence for panel in panels.values() if panel.evidence]
         fps_values = [panel.fps for panel in panels.values() if panel.fps]
         resolutions = [panel.resolution for panel in panels.values() if panel.resolution]
         qw04 = self._qw04.summary()
+        system_health = self._health.snapshot(runtime_running=running)
         return {"status": "RUNNING" if running else "STOPPED", "source_path_display": "MULTICAMERA",
                 "source_kind": "MULTICAMERA", "source_state": "OPEN" if running else "CLOSED",
                 "resolution": resolutions[0] if resolutions else "-",
@@ -178,6 +210,7 @@ class MulticameraRuntime:
                 "permanence_seconds": 0.0, "risk_text": risks[-1] if risks else "",
                 "latest_risk_score": None, "alert_log": [], "evidence_paths": evidence[-8:],
                 "clips_available": int(qw04.get("clips_available", 0) or 0),
+                "system_health": system_health,
                 "error": "", "final_status": "STOPPED" if not running else ""}
     def _resolve_artifact(self, ref):
         """Absolute path of an evidence/clip artifact under evidence_root."""
