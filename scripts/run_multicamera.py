@@ -12,6 +12,7 @@ from types import SimpleNamespace
 BASE = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BASE))
 from src.app.operational_pipeline import OperationalPipeline
+from src.app.runtime_qw04 import RuntimeQw04Integration
 from src.capture.source_manager import CameraDescriptor, SourceManager
 from src.observability.logging_setup import new_run_id, setup_logging
 from src.observability.runtime_trace import BoundedRuntimeTrace
@@ -20,6 +21,7 @@ from src.ui.tk_view import TkApp
 
 CHANNELS = (7, 1, 5, 3)
 CAMERAS = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
+QW04_REVIEW_TARGET = BASE / "evidence/loop_0019a_qw04_r2/signal_review_records.jsonl"
 
 
 def camera_subtype(channel):
@@ -123,16 +125,32 @@ class MulticameraRuntime:
                 rtsp_open_timeout_ms=int(config.get("rtsp", {}).get("open_timeout_ms", 8000)),
                 frame_stall_timeout_s=float(config.get("rtsp", {}).get("frame_stall_timeout_s", 10.0))))
         self._pipeline = OperationalPipeline(config, self._manager)
+        self._qw04 = RuntimeQw04Integration.from_config(
+            config,
+            evidence_root=Path(self.evidence_root),
+            review_target=QW04_REVIEW_TARGET,
+        )
         self._thread = threading.Thread(target=self._run, name="tukevision-multicamera-pipeline", daemon=True)
     def start(self): self._thread.start()
+    def _handle_pipeline_result(self, camera_id, snapshot, result):
+        frame_index = int(snapshot.get("frame_index", -1))
+        self._trace.observe_pipeline_result(camera_id, frame_index, result)
+        timestamp = snapshot.get("timestamp")
+        if timestamp is not None:
+            self._qw04.ingest(
+                camera_id,
+                float(timestamp),
+                snapshot.get("frame"),
+                frame_index,
+                result,
+            )
+        self._controller.ingest_camera_snapshot(
+            camera_id, build_panel_snapshot(snapshot, result)
+        )
+        self._trace.mark_ui_model_received(camera_id, frame_index)
     def _run(self):
         def on_result(camera_id, snapshot, result):
-            frame_index = int(snapshot.get("frame_index", -1))
-            self._trace.observe_pipeline_result(camera_id, frame_index, result)
-            self._controller.ingest_camera_snapshot(
-                camera_id, build_panel_snapshot(snapshot, result)
-            )
-            self._trace.mark_ui_model_received(camera_id, frame_index)
+            self._handle_pipeline_result(camera_id, snapshot, result)
         self._pipeline.run(self._stop.is_set, on_result)
     def poll_multicamera(self): return self._controller.poll_multicamera()
     def mark_ui_rendered(self, camera_id, frame_index):
@@ -151,10 +169,13 @@ class MulticameraRuntime:
                 "permanence_seconds": 0.0, "risk_text": risks[-1] if risks else "",
                 "latest_risk_score": None, "alert_log": [], "evidence_paths": evidence[-8:],
                 "error": "", "final_status": "STOPPED" if not running else ""}
-    def stop(self): self._stop.set()
-    def close(self):
+    def stop(self):
         self._stop.set()
         self._thread.join(timeout=15)
+        if not self._thread.is_alive():
+            self._qw04.close()
+    def close(self):
+        self.stop()
         self._trace.export(BASE / "evidence/loop_0019a_r2/runtime_trace.json")
 
 def main():

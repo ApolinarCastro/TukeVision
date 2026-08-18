@@ -227,6 +227,9 @@ class TestOperationalRuntimeWiring(unittest.TestCase):
             def join(self, timeout):
                 order.append(("join", timeout))
 
+            def is_alive(self):
+                return False
+
         runtime = MulticameraRuntime.__new__(MulticameraRuntime)
         runtime._stop = threading.Event()
         runtime._thread = Thread()
