@@ -42,16 +42,17 @@ class TestMultiCameraView(unittest.TestCase):
 
     def test_sparse_analytics_survive_a_later_video_only_frame(self):
         view = MultiCameraViewModel()
-        frame = np.zeros((2, 2, 3), dtype=np.uint8)
+        analytics_frame = np.full((2, 2, 3), 7, dtype=np.uint8)
+        live_frame = np.zeros((2, 2, 3), dtype=np.uint8)
         view.update("CAM-001", SimpleNamespace(
-            frame_index=10, frame=frame, source_state="OPEN", fps=3,
+            frame_index=10, frame=analytics_frame, source_state="OPEN", fps=3,
             detections=2, track_id="TRK-1", temporal="PERSON_PRESENCE ACTIVE 1.2s",
             behavior="PROLONGED_DWELL", risk="REVIEW 65", evidence="CAM-001/EVD/frame.jpg",
             bboxes=((1, 2, 10, 20, 0.9, "person"),), track_bbox=(1, 2, 10, 20),
             event_type="PERSON_DETECTED", track_status="ACTIVE", resolution="640x360",
         ))
         view.update("CAM-001", SimpleNamespace(
-            frame_index=11, frame=frame, source_state="OPEN", fps=3,
+            frame_index=11, frame=live_frame, source_state="OPEN", fps=3,
             detections=None, track_id=None, temporal=None, behavior=None,
             risk=None, evidence=None,
             bboxes=None, track_bbox=None, event_type=None, track_status=None,
@@ -67,6 +68,9 @@ class TestMultiCameraView(unittest.TestCase):
         self.assertEqual(panel.bboxes[0][:4], (1, 2, 10, 20))
         self.assertEqual(panel.track_bbox, (1, 2, 10, 20))
         self.assertEqual(panel.event_type, "PERSON_DETECTED")
+        self.assertEqual(panel.analytics_frame_index, 10)
+        self.assertIs(panel.analytics_frame, analytics_frame)
+        self.assertIs(panel.frame, live_frame)
 
 
 if __name__ == "__main__":

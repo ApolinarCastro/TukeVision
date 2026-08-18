@@ -7,6 +7,7 @@ cv2.imencode (PNG), sin introducir dependencias nuevas.
 """
 
 import os
+from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
 import tkinter as tk
 
@@ -35,6 +36,82 @@ def fit_frame_to_panel(frame, width: int = 420, height: int = 245):
     top = (height - resized_height) // 2
     bottom = height - resized_height - top
     return cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=(8, 12, 14))
+
+
+def select_panel_frame(panel):
+    """Select a truthful display frame, preferring exact event analytics."""
+    analytics_frame = getattr(panel, "analytics_frame", None)
+    analytics_frame_index = int(getattr(panel, "analytics_frame_index", -1))
+    has_geometry = bool(
+        tuple(getattr(panel, "bboxes", ()) or ())
+        or getattr(panel, "track_bbox", None)
+    )
+    if analytics_frame is not None and analytics_frame_index >= 0 and has_geometry:
+        return analytics_frame, analytics_frame_index, "ANALITICA"
+    return getattr(panel, "frame", None), int(getattr(panel, "frame_index", -1)), "VIVO"
+
+
+def annotate_frame(frame, panel, displayed_frame_index=None):
+    """Draw only geometry and identifiers supplied by the canonical runtime."""
+    annotated = frame.copy()
+    frame_index = (
+        int(getattr(panel, "frame_index", -1))
+        if displayed_frame_index is None else int(displayed_frame_index)
+    )
+    analytics_frame_index = int(getattr(panel, "analytics_frame_index", -1))
+    if frame_index < 0 or frame_index != analytics_frame_index:
+        return annotated
+    height, width = annotated.shape[:2]
+    for item in tuple(getattr(panel, "bboxes", ()) or ()):
+        if len(item) < 5:
+            continue
+        x1, y1, x2, y2 = (
+            max(0, min(int(item[index]), width - 1 if index % 2 == 0 else height - 1))
+            for index in range(4)
+        )
+        confidence = float(item[4])
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), (64, 220, 128), 2)
+        cv2.putText(
+            annotated, f"YOLO {confidence:.0%}", (x1, max(14, y1 - 5)),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.45, (64, 220, 128), 1, cv2.LINE_AA,
+        )
+    track_bbox = getattr(panel, "track_bbox", None)
+    track_id = getattr(panel, "track_id", None)
+    if track_bbox is not None and len(track_bbox) == 4 and track_id:
+        x1, y1, x2, y2 = (int(value) for value in track_bbox)
+        x1, x2 = max(0, x1), min(width - 1, x2)
+        y1, y2 = max(0, y1), min(height - 1, y2)
+        cv2.rectangle(annotated, (x1, y1), (x2, y2), (32, 160, 255), 2)
+        cv2.putText(
+            annotated, str(track_id), (x1, min(height - 5, y2 + 16)),
+            cv2.FONT_HERSHEY_SIMPLEX, 0.45, (32, 160, 255), 1, cv2.LINE_AA,
+        )
+    return annotated
+
+
+def panel_status_text(panel) -> str:
+    """Render a compact, factual summary of the latest canonical result."""
+    confidence = "-"
+    if panel.event_confidence is not None:
+        confidence = f"{panel.event_confidence:.0%}"
+    analytics_frame = "-"
+    if panel.analytics_frame_index >= 0:
+        analytics_frame = str(panel.analytics_frame_index)
+    evidence_name = "-"
+    if panel.evidence:
+        evidence_name = Path(panel.evidence).name
+    _, displayed_frame_index, display_mode = select_panel_frame(panel)
+    return (
+        f"Estado: {panel.source_state} | {panel.resolution or '-'} | "
+        f"Imagen: {display_mode} {displayed_frame_index} | "
+        f"Video: {panel.frame_index} | Det: {panel.detections} | "
+        f"Track: {panel.track_id or '-'} "
+        f"({panel.track_status or '-'})\n"
+        f"Evento: {panel.event_type or '-'} {confidence} | "
+        f"Frame analítico: {analytics_frame} | Temporal: {panel.temporal or '-'}\n"
+        f"Behavior: {panel.behavior or '-'} | Riesgo: {panel.risk or '-'} | "
+        f"Evidencia: {evidence_name}"
+    )
 
 
 class TkApp:
@@ -288,20 +365,25 @@ class TkApp:
             panels = self._controller.poll_multicamera()
             for camera_id in CAMERA_IDS:
                 panel = panels[camera_id]
-                self._camera_state_vars[camera_id].set(
-                    f"Estado: {panel.source_state} | Det: {panel.detections} | "
-                    f"Track: {panel.track_id or '-'}\n"
-                    f"Temporal: {panel.temporal or '-'} | Behavior: {panel.behavior or '-'} | "
-                    f"Riesgo: {panel.risk or '-'}"
-                )
+                self._camera_state_vars[camera_id].set(panel_status_text(panel))
                 if panel.frame is not None and panel.frame_index >= 0:
-                    self._set_photo(camera_id, panel.frame, panel.frame_index)
+                    self._set_photo(camera_id, panel)
                     marker = getattr(self._controller, "mark_ui_rendered", None)
                     if marker is not None:
                         marker(camera_id, panel.frame_index)
 
-    def _set_photo(self, camera_id, frame, frame_index) -> None:
-        rgb = cv2.cvtColor(fit_frame_to_panel(frame), cv2.COLOR_BGR2RGB)
+    def _set_photo(self, camera_id, panel) -> None:
+        frame, displayed_frame_index, _ = select_panel_frame(panel)
+        rgb = cv2.cvtColor(
+            fit_frame_to_panel(
+                annotate_frame(
+                    frame,
+                    panel,
+                    displayed_frame_index=displayed_frame_index,
+                )
+            ),
+            cv2.COLOR_BGR2RGB,
+        )
         ok, buf = cv2.imencode(".png", rgb)
         if not ok:
             return

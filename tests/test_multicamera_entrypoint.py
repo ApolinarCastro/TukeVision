@@ -1,10 +1,21 @@
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
-from scripts.run_multicamera import build_panel_snapshot, camera_subtype
+from scripts.run_multicamera import (
+    build_panel_snapshot,
+    camera_subtype,
+    prompt_connection_credentials,
+)
 from src.observability.runtime_trace import BoundedRuntimeTrace
-from src.ui.tk_view import annotate_frame, fit_frame_to_panel, multicamera_control_state
+from src.ui.tk_view import (
+    annotate_frame,
+    fit_frame_to_panel,
+    multicamera_control_state,
+    panel_status_text,
+    select_panel_frame,
+)
 
 import numpy as np
 
@@ -21,6 +32,18 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertNotIn("rtsp://", launcher.lower())
         self.assertNotIn("password=", launcher.lower())
         self.assertNotIn("VideoCapture", entrypoint)
+
+    def test_username_and_password_are_requested_locally_without_history(self):
+        with patch(
+            "scripts.run_multicamera.getpass.getpass",
+            side_effect=("operator", "secret"),
+        ) as prompt:
+            credentials = prompt_connection_credentials()
+
+        self.assertEqual(credentials, ("operator", "secret"))
+        self.assertEqual(prompt.call_count, 2)
+        entrypoint = Path("scripts/run_multicamera.py").read_text(encoding="utf-8")
+        self.assertNotIn('node.targets[0].id in {"HOST", "USER"}', entrypoint)
 
     def test_canonical_result_is_adapted_without_fabricating_values(self):
         event = SimpleNamespace(
@@ -51,6 +74,7 @@ class TestMulticameraEntrypoint(unittest.TestCase):
     def test_real_bbox_and_track_are_drawn_without_mutating_source(self):
         frame = np.zeros((100, 160, 3), dtype=np.uint8)
         panel = SimpleNamespace(
+            frame_index=9,
             bboxes=((10, 20, 80, 90, 0.91, "person"),),
             track_id="TRK-7", track_bbox=(10, 20, 80, 90),
             event_type="PERSON_DETECTED", analytics_frame_index=9,
@@ -60,8 +84,68 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertGreater(int(annotated.sum()), 0)
         self.assertTrue(np.any(annotated[20, 10] != 0))
 
+    def test_stale_analytics_are_not_drawn_over_a_newer_video_frame(self):
+        frame = np.zeros((100, 160, 3), dtype=np.uint8)
+        panel = SimpleNamespace(
+            frame_index=10,
+            bboxes=((10, 20, 80, 90, 0.91, "person"),),
+            track_id="TRK-7", track_bbox=(10, 20, 80, 90),
+            analytics_frame_index=9,
+        )
+
+        annotated = annotate_frame(frame, panel)
+
+        self.assertEqual(int(annotated.sum()), 0)
+
+    def test_panel_selects_exact_analytics_frame_for_persistent_overlay(self):
+        live_frame = np.zeros((100, 160, 3), dtype=np.uint8)
+        analytics_frame = np.full((100, 160, 3), 17, dtype=np.uint8)
+        panel = SimpleNamespace(
+            frame=live_frame,
+            frame_index=10,
+            analytics_frame=analytics_frame,
+            analytics_frame_index=9,
+            bboxes=((10, 20, 80, 90, 0.91, "person"),),
+            track_id="TRK-7",
+            track_bbox=(10, 20, 80, 90),
+        )
+
+        selected, selected_index, mode = select_panel_frame(panel)
+        annotated = annotate_frame(
+            selected,
+            panel,
+            displayed_frame_index=selected_index,
+        )
+
+        self.assertIs(selected, analytics_frame)
+        self.assertEqual(selected_index, 9)
+        self.assertEqual(mode, "ANALITICA")
+        self.assertGreater(int(annotated.sum()), int(analytics_frame.sum()))
+
     def test_all_authorized_channels_use_consistent_main_stream(self):
         self.assertEqual([camera_subtype(channel) for channel in (7, 1, 5, 3)], [0, 0, 0, 0])
+
+    def test_panel_text_exposes_operator_verification_fields(self):
+        panel = SimpleNamespace(
+            frame_index=11,
+            analytics_frame=object(),
+            source_state="OPEN", resolution="640x360", detections=2,
+            track_id="TRK-7", track_status="ACTIVE",
+            event_type="PERSON_DETECTED", event_confidence=0.91,
+            analytics_frame_index=9,
+            bboxes=((10, 20, 80, 90, 0.91, "person"),),
+            track_bbox=(10, 20, 80, 90),
+            temporal="PERSON_PRESENCE ACTIVE 2.3s",
+            behavior="PROLONGED_DWELL", risk="REVIEW 65",
+            evidence="CAM-001/EVD/frame.jpg",
+        )
+        text = panel_status_text(panel)
+        self.assertIn("PERSON_DETECTED 91%", text)
+        self.assertIn("Track: TRK-7 (ACTIVE)", text)
+        self.assertIn("Imagen: ANALITICA 9", text)
+        self.assertIn("Video: 11", text)
+        self.assertIn("Frame analítico: 9", text)
+        self.assertIn("Evidencia: frame.jpg", text)
 
     def test_runtime_trace_is_bounded_and_records_ui_boundary(self):
         trace = BoundedRuntimeTrace(("CAM-001",))

@@ -1,6 +1,11 @@
 """BASE multicamera operator entrypoint; capture remains in SourceManager."""
 from __future__ import annotations
-import ast, getpass, json, sys, threading
+import ast
+import getpass
+import json
+import sys
+import threading
+import tkinter as tk
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -17,6 +22,13 @@ CHANNELS = (7, 1, 5, 3)
 CAMERAS = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
 
 
+def camera_subtype(channel):
+    """Use the same authorized main stream for a coherent four-camera view."""
+    if channel not in CHANNELS:
+        raise ValueError(f"unsupported authorized channel: {channel}")
+    return 0
+
+
 def build_panel_snapshot(source_snapshot, result):
     """Adapt one canonical AdvanceChain result without inventing values."""
     event = result.get("event")
@@ -29,6 +41,11 @@ def build_panel_snapshot(source_snapshot, result):
     if event is not None:
         value = (getattr(event, "metadata", None) or {}).get("detections")
         detections = int(value) if value is not None else None
+    metadata = (getattr(event, "metadata", None) or {}) if event else {}
+    bboxes = tuple(
+        tuple(item) for item in metadata.get("bboxes", ())
+        if isinstance(item, (list, tuple)) and len(item) >= 5
+    )
 
     temporal = None
     if activity is not None:
@@ -58,22 +75,35 @@ def build_panel_snapshot(source_snapshot, result):
         fps=float(source_snapshot.get("fps", 0.0) or 0.0),
         detections=detections,
         track_id=getattr(track, "track_id", None),
+        track_status=getattr(track, "status", None),
+        track_bbox=getattr(track, "last_bbox", None),
+        bboxes=bboxes if event is not None else None,
+        event_id=getattr(event, "event_id", None),
+        event_type=getattr(event, "event_type", None),
+        event_confidence=getattr(event, "confidence", None),
+        inference_ref=getattr(event, "inference_ref", None),
         temporal=temporal,
         behavior=behavior,
         risk=risk,
         evidence=(evidence or {}).get("relative_path") if evidence else None,
+        resolution=str(source_snapshot.get("resolution", "") or ""),
     )
 
-def connection_constants():
+def connection_host():
+    """Load only authorized, non-secret endpoint metadata."""
     tree = ast.parse((BASE / "evidence/loop_0018o/validate_multicamera4.py").read_text(encoding="utf-8"))
-    values = {}
     for node in tree.body:
         if isinstance(node, ast.Assign) and len(node.targets) == 1 and isinstance(node.targets[0], ast.Name):
-            if node.targets[0].id in {"HOST", "USER"} and isinstance(node.value, ast.Constant):
-                values[node.targets[0].id] = str(node.value.value)
-    if set(values) != {"HOST", "USER"}:
-        raise RuntimeError("Historical non-secret connection metadata unavailable")
-    return values["HOST"], values["USER"]
+            if node.targets[0].id == "HOST" and isinstance(node.value, ast.Constant):
+                return str(node.value.value)
+    raise RuntimeError("Authorized non-secret endpoint metadata unavailable")
+
+
+def prompt_connection_credentials():
+    """Request fresh credentials locally without echoing or persistence."""
+    username = getpass.getpass("Usuario RTSP autorizado (no se muestra ni persiste): ")
+    password = getpass.getpass("Credencial RTSP autorizada (no se muestra ni persiste): ")
+    return username, password
 
 class MulticameraRuntime:
     def __init__(self, config, password, host, user):
@@ -88,7 +118,7 @@ class MulticameraRuntime:
         for camera_id, channel in zip(CAMERAS, CHANNELS):
             self._manager.register_source(CameraDescriptor(
                 camera_id=camera_id, host=host, channel=channel,
-                subtype=0 if channel == 7 else 1, username=user, password=password,
+                subtype=camera_subtype(channel), username=user, password=password,
                 max_width=int(config.get("video", {}).get("max_width", 640)),
                 rtsp_open_timeout_ms=int(config.get("rtsp", {}).get("open_timeout_ms", 8000)),
                 frame_stall_timeout_s=float(config.get("rtsp", {}).get("frame_stall_timeout_s", 10.0))))
@@ -130,14 +160,13 @@ class MulticameraRuntime:
 def main():
     setup_logging(run_id=new_run_id())
     config = json.loads((BASE / "config/default.json").read_text(encoding="utf-8"))
-    host, user = connection_constants()
-    password = getpass.getpass("Credencial RTSP autorizada (no se muestra ni persiste): ")
-    if not password:
+    host = connection_host()
+    user, password = prompt_connection_credentials()
+    if not user or not password:
         print("AUTHORIZED_SOURCE_UNAVAILABLE")
         return 3
     runtime = MulticameraRuntime(config, password, host, user)
     runtime.start()
-    import tkinter as tk
     root = tk.Tk()
     try:
         TkApp(root, runtime).run()

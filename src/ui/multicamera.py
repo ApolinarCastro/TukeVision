@@ -24,11 +24,20 @@ class CameraPanelState:
     frame_index: int = -1
     detections: int = 0
     track_id: Optional[str] = None
+    track_status: str = ""
+    track_bbox: Optional[Tuple[int, int, int, int]] = None
+    bboxes: Tuple[tuple, ...] = ()
+    event_id: str = ""
+    event_type: str = ""
+    event_confidence: Optional[float] = None
+    inference_ref: str = ""
     temporal: str = ""
     behavior: str = ""
     risk: str = ""
     evidence: str = ""
+    analytics_frame: Optional[Any] = None
     analytics_frame_index: int = -1
+    resolution: str = ""
 
 
 class MultiCameraViewModel:
@@ -55,13 +64,23 @@ class MultiCameraViewModel:
             return
         detections = getattr(snapshot, "detections", None)
         track_id = getattr(snapshot, "track_id", None)
+        track_status = getattr(snapshot, "track_status", None)
+        track_bbox = getattr(snapshot, "track_bbox", None)
+        bboxes = getattr(snapshot, "bboxes", None)
+        event_id = getattr(snapshot, "event_id", None)
+        event_type = getattr(snapshot, "event_type", None)
+        event_confidence = getattr(snapshot, "event_confidence", None)
+        inference_ref = getattr(snapshot, "inference_ref", None)
         temporal = getattr(snapshot, "temporal", None)
         behavior = getattr(snapshot, "behavior", None)
         risk = getattr(snapshot, "risk", None)
         evidence = getattr(snapshot, "evidence", None)
-        has_analytics = any(
+        has_event_analytics = any(
             value not in (None, "")
-            for value in (detections, track_id, temporal, behavior, risk, evidence)
+            for value in (
+                detections, track_id, track_bbox, bboxes, event_id, event_type,
+                event_confidence, inference_ref, temporal, behavior, risk,
+            )
         )
         self._panels[camera_id] = CameraPanelState(
             camera_id=camera_id,
@@ -71,11 +90,25 @@ class MultiCameraViewModel:
             frame_index=frame_index,
             detections=(int(detections) if detections is not None else current.detections),
             track_id=(track_id if track_id not in (None, "") else current.track_id),
+            track_status=(str(track_status) if track_status not in (None, "") else current.track_status),
+            track_bbox=(tuple(track_bbox) if track_bbox is not None else current.track_bbox),
+            bboxes=(tuple(tuple(item) for item in bboxes) if bboxes is not None else current.bboxes),
+            event_id=(str(event_id) if event_id not in (None, "") else current.event_id),
+            event_type=(str(event_type) if event_type not in (None, "") else current.event_type),
+            event_confidence=(float(event_confidence) if event_confidence is not None else current.event_confidence),
+            inference_ref=(str(inference_ref) if inference_ref not in (None, "") else current.inference_ref),
             temporal=(str(temporal) if temporal not in (None, "") else current.temporal),
             behavior=(str(behavior) if behavior not in (None, "") else current.behavior),
             risk=(str(risk) if risk not in (None, "") else current.risk),
             evidence=(str(evidence) if evidence not in (None, "") else current.evidence),
-            analytics_frame_index=(frame_index if has_analytics else current.analytics_frame_index),
+            analytics_frame=(
+                getattr(snapshot, "frame", None)
+                if has_event_analytics else current.analytics_frame
+            ),
+            analytics_frame_index=(
+                frame_index if has_event_analytics else current.analytics_frame_index
+            ),
+            resolution=str(getattr(snapshot, "resolution", current.resolution) or current.resolution),
         )
 
     def mark_state(self, camera_id: str, source_state: str) -> None:
@@ -86,9 +119,15 @@ class MultiCameraViewModel:
             camera_id=camera_id, source_state=source_state, frame=current.frame,
             fps=current.fps, frame_index=current.frame_index,
             detections=current.detections, track_id=current.track_id,
+            track_status=current.track_status, track_bbox=current.track_bbox,
+            bboxes=current.bboxes, event_id=current.event_id,
+            event_type=current.event_type, event_confidence=current.event_confidence,
+            inference_ref=current.inference_ref,
             temporal=current.temporal, behavior=current.behavior, risk=current.risk,
             evidence=current.evidence,
+            analytics_frame=current.analytics_frame,
             analytics_frame_index=current.analytics_frame_index,
+            resolution=current.resolution,
         )
 
     def panel(self, camera_id: str) -> CameraPanelState:

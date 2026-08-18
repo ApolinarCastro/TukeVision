@@ -204,7 +204,13 @@ class AdvanceChain:
         correlation = None
         behavior = None
         if event is not None:
-            track = self._tracker.ingest(event)
+            primary_bbox = (getattr(event, "metadata", None) or {}).get(
+                "primary_bbox"
+            )
+            bbox = None
+            if isinstance(primary_bbox, (list, tuple)) and len(primary_bbox) == 4:
+                bbox = tuple(int(value) for value in primary_bbox)
+            track = self._tracker.ingest(event, bbox=bbox)
             temporal_activity = next(
                 (
                     activity

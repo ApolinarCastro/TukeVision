@@ -32,6 +32,7 @@ VALID_EVENT_TYPES = (OBJECT_DETECTED, PERSON_DETECTED)
 
 # Límites sanitizadores de la metadata del evento.
 _METADATA_MAX_SERIALIZED_BYTES = 4096
+_MAX_EVENT_BBOXES = 16
 
 DROP_OLDEST = "drop_oldest"
 DROP_NEWEST = "drop_newest"
@@ -234,6 +235,7 @@ class EventDetector:
 
         best_confidence: Optional[float] = None
         best_rule: Optional[Dict[str, Any]] = None
+        best_detection = None
         best_specific = False
         for detection in result.detections:
             for rule in self._rules:
@@ -253,6 +255,7 @@ class EventDetector:
                 ):
                     best_confidence = detection.confidence
                     best_rule = rule
+                    best_detection = detection
                     best_specific = specific
 
         if best_rule is None:
@@ -261,10 +264,26 @@ class EventDetector:
         # La metadata del evento propaga (acotada y sin credenciales) la
         # metadata del resultado, que se sanitiza en la serialización.
         event_metadata: Dict[str, Any] = dict(result.metadata or {})
+        ranked_detections = sorted(
+            result.detections,
+            key=lambda item: item.confidence,
+            reverse=True,
+        )
         event_metadata.update(
             {
                 "detections": len(result.detections),
                 "engine": result.engine_name,
+                "bboxes": [
+                    [
+                        item.x1, item.y1, item.x2, item.y2,
+                        round(float(item.confidence), 6), item.class_id,
+                    ]
+                    for item in ranked_detections[:_MAX_EVENT_BBOXES]
+                ],
+                "primary_bbox": [
+                    best_detection.x1, best_detection.y1,
+                    best_detection.x2, best_detection.y2,
+                ],
             }
         )
         return InferenceEvent(
