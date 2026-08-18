@@ -2,28 +2,110 @@
 
 Responsabilidad única: presentar widgets y actualizarlos desde el hilo
 principal (vía Tk.after()). Nunca modifica widgets desde el hilo de
-trabajo. Convierte los frames del pipeline a PhotoImage usando
-cv2.imencode (PNG), sin introducir dependencias nuevas.
+trabajo. Convierte los frames del pipeline a PhotoImage usando PIL/OpenCV,
+sin introducir dependencias nuevas.
+
+Recuperación visual quirúrgica (LOOP-0019B): se reutilizan los patrones
+probados del Command Center portable (LOOP-0017B, preservado en
+archive/legacy/portable_migrate_0018u):
+
+  - Paneles de video dinámicos sobre Canvas: llenan el espacio disponible
+    y nunca quedan limitados a un tamaño fijo artificial.
+  - fit_display_size: preserva la relación de aspecto, escala SOLO la copia
+    de presentación con LANCZOS (nunca se toca el frame analítico).
+  - bgr_frame_to_rgb: punto único de conversión de color.
+  - Overlays legibles sin tapar la escena; información técnica secundaria
+    movida al panel lateral.
+
+El frame de procesamiento nunca se modifica aquí; la presentación es una
+vista que NO reescribe el pipeline, RTSP, YOLO ni tracking.
 """
 
+import io
 import os
 from pathlib import Path
 from tkinter import filedialog, messagebox, ttk
+from typing import Optional
 import tkinter as tk
 
 import cv2
+from PIL import Image
 
 from src.capture.rtsp_url import build_rtsp_url
 from src.ui.state import AppStatus
 from src.ui.multicamera import CAMERA_IDS, PANEL_LAYOUT
 
 
+# ---------------------------------------------------------------------------
+# Design System (recoverado del Command Center portable, LOOP-0017B)
+# ---------------------------------------------------------------------------
+COLORS = {
+    "bg": "#0F172A",
+    "panel": "#192134",
+    "panel_muted": "#10192E",
+    "border": "#2E3D5E",
+    "text": "#E6E8EE",
+    "text_dim": "#94A3B8",
+    "accent": "#38BDF8",
+    "accent_dim": "#1B3A5A",
+    "online": "#22C55E",
+    "degraded": "#F59E0B",
+    "alert": "#EF4444",
+    "offline": "#64748B",
+}
+
+FONT_TITLE = ("Segoe UI", 15, "bold")
+FONT_SUBTITLE = ("Segoe UI", 8)
+FONT_PANEL_TITLE = ("Segoe UI", 9, "bold")
+FONT_BODY = ("Segoe UI", 9)
+FONT_BODY_BOLD = ("Segoe UI", 9, "bold")
+FONT_SMALL = ("Segoe UI", 8)
+
+
 def multicamera_control_state(status: str) -> dict:
     return {"show_legacy": False, "stop_enabled": status == AppStatus.RUNNING}
 
 
+def fit_display_size(
+    src_w: int, src_h: int, max_w: int, max_h: int
+):
+    """Tamaño de presentación que llena el área máxima sin deformar.
+
+    Conserva la relación de aspecto y NUNCA escala por encima de la
+    resolución de la fuente (sin fake upscale): si el área es mayor que la
+    fuente, la imagen se muestra a resolución nativa y el Canvas la centra.
+    """
+    if src_w <= 0 or src_h <= 0 or max_w <= 0 or max_h <= 0:
+        return int(src_w), int(src_h)
+    scale = min(1.0, max_w / src_w, max_h / src_h)
+    disp_w = max(1, int(round(src_w * scale)))
+    disp_h = max(1, int(round(src_h * scale)))
+    return disp_w, disp_h
+
+
+def bgr_frame_to_rgb(frame):
+    """Convierte BGR (OpenCV) a RGB. Único punto de conversión de color."""
+    return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+
+def build_display_image(frame, max_w: int, max_h: int):
+    """Construye la imagen de presentación sin modificar el frame original.
+
+    BGR -> RGB -> escala LANCZOS (solo presentación, nunca upscale). El
+    frame de entrada no se modifica: el pipeline sigue recibiendo el frame
+    real. Reutiliza el patrón probado del portable (LOOP-0017B).
+    """
+    src_h, src_w = frame.shape[:2]
+    disp_w, disp_h = fit_display_size(src_w, src_h, max_w, max_h)
+    rgb = bgr_frame_to_rgb(frame)
+    image = Image.fromarray(rgb)
+    if (disp_w, disp_h) != (src_w, src_h):
+        image = image.resize((disp_w, disp_h), Image.Resampling.LANCZOS)
+    return image
+
+
 def fit_frame_to_panel(frame, width: int = 420, height: int = 245):
-    """Letterbox to a stable panel size; only downscale source pixels."""
+    """Letterbox a un tamaño de panel estable; solo reduce píxeles fuente."""
     source_height, source_width = frame.shape[:2]
     scale = min(1.0, width / source_width, height / source_height)
     resized_width = max(1, int(round(source_width * scale)))
@@ -114,8 +196,152 @@ def panel_status_text(panel) -> str:
     )
 
 
+def camera_status_color(status: str) -> str:
+    """Color semántico del estado de una cámara."""
+    return {
+        "OPEN": COLORS["online"],
+        "READING": COLORS["online"],
+        "CONNECTING": COLORS["degraded"],
+        "RECONNECTING": COLORS["degraded"],
+        "STALLED": COLORS["degraded"],
+        "FAILED": COLORS["alert"],
+        "ERROR": COLORS["alert"],
+        "OFFLINE": COLORS["offline"],
+        "CLOSED": COLORS["offline"],
+    }.get(status, COLORS["offline"])
+
+
+def camera_summary_line(panel) -> str:
+    """Línea compacta y factual del panel lateral (una por cámara)."""
+    parts = [str(getattr(panel, "source_state", "-") or "-")]
+    resolution = getattr(panel, "resolution", "") or ""
+    if resolution:
+        parts.append(resolution)
+    detections = getattr(panel, "detections", None)
+    if detections:
+        parts.append(f"{int(detections)} det")
+    track_id = getattr(panel, "track_id", None)
+    if track_id:
+        track = f"TRK {track_id}"
+        status = getattr(panel, "track_status", "") or ""
+        if status:
+            track = f"{track} ({status})"
+        parts.append(track)
+    confidence = getattr(panel, "event_confidence", None)
+    event_type = getattr(panel, "event_type", "") or ""
+    if event_type:
+        text = event_type
+        if confidence is not None:
+            text = f"{text} {float(confidence):.0%}"
+        parts.append(text)
+    temporal = getattr(panel, "temporal", "") or ""
+    if temporal:
+        parts.append(temporal)
+    behavior = getattr(panel, "behavior", "") or ""
+    if behavior:
+        parts.append(behavior)
+    risk = getattr(panel, "risk", "") or ""
+    if risk:
+        parts.append(risk)
+    evidence = getattr(panel, "evidence", "") or ""
+    if evidence:
+        parts.append("EVD ✓")
+    return " · ".join(parts) if parts else "-"
+
+
+def resolve_evidence_path(ref, root) -> Optional[str]:
+    """Absolute path of the exact evidence artifact, or None when invalid.
+
+    Referencias relativas solo se aceptan dentro de `root` (sin escape de
+    raíz); nunca se devuelve una carpeta ni un archivo inexistente.
+    """
+    if not ref:
+        return None
+    root_path = Path(os.path.abspath(str(root))).resolve()
+    if os.path.isabs(str(ref)):
+        candidate = Path(str(ref)).resolve()
+    else:
+        candidate = (root_path / str(ref)).resolve()
+        try:
+            candidate.relative_to(root_path)
+        except ValueError:
+            return None
+    return str(candidate) if candidate.is_file() else None
+
+
+def online_camera_count(panels, *, running: bool) -> int:
+    """Cámaras online derivadas del estado real del runtime.
+
+    Con el runtime detenido el conteo es 0: la UI nunca inventa cámaras
+    activas a partir de metadata retenida (LOOP-0019B-R1).
+    """
+    if not running:
+        return 0
+    return sum(
+        1
+        for panel in panels.values()
+        if str(getattr(panel, "source_state", "")) in ("OPEN", "READING")
+    )
+
+
+def stopped_camera_line(camera_id: str) -> str:
+    """Línea del panel lateral coherente con un runtime detenido."""
+    return f"{camera_id} · CLOSED · SYSTEM IDLE"
+
+
+def frozen_overlay_text() -> str:
+    """Etiqueta de un último frame congelado tras la detención."""
+    return "CLOSED · LAST FRAME / OFFLINE"
+
+
+def apply_stopped_state(panel) -> dict:
+    """Estado offline uniforme de un panel tras STOP.
+
+    Transición única centralizada para CAM-001..CAM-004: deriva SOLO del
+    estado global/runtime (STOPPED), nunca del último metadata/frame
+    retenido. Toda cámara termina gris, CLOSED, sin analytics activos.
+    """
+    return {
+        "camera_id": str(getattr(panel, "camera_id", "")),
+        "source_state": "CLOSED",
+        "online": False,
+        "track_id": None,
+        "track_status": "",
+        "event_type": "",
+        "event_confidence": None,
+        "temporal": "",
+        "behavior": "",
+        "risk": "",
+        "overlay": frozen_overlay_text(),
+    }
+
+
+def frozen_render_required(rendered, camera_id, size_changed, index_changed) -> bool:
+    """¿Debe redibujarse el panel congelado? Por cámara, sin bandera global.
+
+    Evita el sesgo de orden: tras STOP los cuatro paneles se redibujan en el
+    primer pase aunque tamaño/índice no hayan cambiado (LOOP-0019B-R2).
+    """
+    if size_changed or index_changed:
+        return True
+    return not bool(rendered.get(camera_id, False))
+
+
+def action_button_states(evidence_target, clip_target, review_available: bool) -> dict:
+    """Habilita los botones solo cuando existe un recurso válido."""
+    return {
+        "evidence_enabled": bool(evidence_target),
+        "clip_enabled": bool(clip_target) or bool(review_available),
+    }
+
+
 class TkApp:
-    """Ventana principal de la interfaz operativa."""
+    """Ventana principal de la interfaz operativa local.
+
+    Centro 2x2 (paneles de video grandes y dinámicos), lateral consolidado
+    (seguimiento/temporal/behavior/riesgo/alertas/evidencia/clip) e
+    inferior con controles claros (Detener / Abrir evidencia / Abrir clip).
+    """
 
     POLL_MS = 33
 
@@ -123,73 +349,172 @@ class TkApp:
         self._root = root
         self._controller = controller
         self._multicamera_mode = bool(getattr(controller, "is_multicamera", False))
-        self._photo = None
         self._photos = {camera_id: None for camera_id in CAMERA_IDS}
+        self._last_render_index = {camera_id: -1 for camera_id in CAMERA_IDS}
+        self._last_render_size = {camera_id: (0, 0) for camera_id in CAMERA_IDS}
+        self._last_frame = None
         self._last_frame_index = -1
+        self._evidence_btn = None
+        self._clip_btn = None
+        self._evidence_target: Optional[str] = None
+        self._clip_target: Optional[str] = None
+        self._review_available = False
+        self._stopped_rendered = {camera_id: False for camera_id in CAMERA_IDS}
         self._build()
 
+    # ------------------------------------------------------------------ build
     def _build(self) -> None:
         self._root.title("TukeVision - Interfaz operativa local")
-        self._root.geometry("1120x680")
+        self._root.geometry("1280x720")
+        self._root.minsize(1024, 640)
+        self._root.configure(bg=COLORS["bg"])
         self._root.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        # Cabecera
-        header = ttk.Frame(self._root, padding=(10, 8))
-        header.pack(fill=tk.X)
-        ttk.Label(header, text="TukeVision", font=("Segoe UI", 16, "bold")).pack(side=tk.LEFT)
-        self._status_var = tk.StringVar(value="Estado: LISTA")
-        ttk.Label(header, textvariable=self._status_var).pack(side=tk.RIGHT)
+        self._build_header()
+        self._build_body()
+        self._build_controls()
+        self._build_settings()
 
-        body = ttk.Frame(self._root, padding=(10, 4))
-        body.pack(fill=tk.BOTH, expand=True)
+        self._on_source_change("FILE")
+        self._root.after(self.POLL_MS, self._poll)
 
-        # Panel video
-        video_frame = ttk.LabelFrame(body, text="Video", padding=(6, 6))
-        video_frame.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self._video_labels = {}
-        self._camera_state_vars = {}
-        for row, columns in enumerate(PANEL_LAYOUT):
-            video_frame.rowconfigure(row, weight=1)
-            for column, camera_id in enumerate(columns):
-                video_frame.columnconfigure(column, weight=1)
-                panel = ttk.LabelFrame(video_frame, text=camera_id, padding=2)
-                panel.grid(row=row, column=column, sticky="nsew", padx=2, pady=2)
-                state_var = tk.StringVar(value="Estado: OFFLINE")
-                self._camera_state_vars[camera_id] = state_var
-                ttk.Label(panel, textvariable=state_var).pack(anchor=tk.W)
-                label = ttk.Label(panel, text="Sin frame")
-                label.pack(fill=tk.BOTH, expand=True)
-                self._video_labels[camera_id] = label
+    def _build_header(self) -> None:
+        header = tk.Frame(self._root, bg=COLORS["bg"])
+        header.pack(side=tk.TOP, fill=tk.X)
 
-        # Panel lateral de estado
-        side = ttk.Frame(body, padding=(10, 0))
-        side.pack(side=tk.RIGHT, fill=tk.Y)
+        brand = tk.Frame(header, bg=COLORS["bg"])
+        brand.pack(side=tk.LEFT, padx=14, pady=8)
+        title_row = tk.Frame(brand, bg=COLORS["bg"])
+        title_row.pack(fill=tk.X, anchor=tk.W)
+        tk.Label(
+            title_row, text="TUKEVISION", bg=COLORS["bg"], fg=COLORS["text"],
+            font=FONT_TITLE,
+        ).pack(side=tk.LEFT)
+        self._live_dot = tk.Canvas(title_row, width=12, height=12, bg=COLORS["bg"],
+                                   highlightthickness=0)
+        self._live_dot.pack(side=tk.LEFT, padx=(10, 4), pady=2)
+        self._live_label = tk.Label(
+            title_row, text="IDLE", bg=COLORS["bg"], fg=COLORS["offline"],
+            font=FONT_PANEL_TITLE,
+        )
+        self._live_label.pack(side=tk.LEFT)
+        tk.Label(
+            brand, text="Retail Intelligence & Loss Prevention",
+            bg=COLORS["bg"], fg=COLORS["text_dim"], font=FONT_SUBTITLE,
+        ).pack(fill=tk.X, anchor=tk.W)
 
-        self._fuente_var = tk.StringVar(value="Fuente: -")
-        self._conexion_var = tk.StringVar(value="Conexión: -")
-        self._resolucion_var = tk.StringVar(value="Resolución: -")
+        status = tk.Frame(header, bg=COLORS["bg"])
+        status.pack(side=tk.RIGHT, padx=14, pady=8)
+        self._cameras_var = tk.StringVar(value="CAMERAS: 0 / 4 ONLINE")
+        self._res_var = tk.StringVar(value="RES: -")
         self._fps_var = tk.StringVar(value="FPS: -")
-        self._track_var = tk.StringVar(value="Track ID: -")
-        self._permanencia_var = tk.StringVar(value="Permanencia: -")
-        self._riesgo_var = tk.StringVar(value="Riesgo: -")
-        self._alertas_var = tk.StringVar(value="Alertas: -")
-        self._evidencia_var = tk.StringVar(value="Evidencia: -")
-        self._zona_var = tk.StringVar(value="Zona: -")
+        for var in (self._cameras_var, self._fps_var, self._res_var):
+            tk.Label(
+                status, textvariable=var, bg=COLORS["bg"], fg=COLORS["text_dim"],
+                font=FONT_BODY,
+            ).pack(side=tk.RIGHT, padx=(12, 0))
 
-        self._make_panel(side, "Fuente", [
-            self._fuente_var, self._conexion_var, self._resolucion_var,
-            self._fps_var,
-        ])
-        self._make_panel(side, "Seguimiento", [
-            self._track_var, self._permanencia_var, self._zona_var,
-        ])
-        self._make_panel(side, "Riesgo", [self._riesgo_var])
-        self._make_panel(side, "Alertas", [self._alertas_var])
-        self._make_panel(side, "Evidencia", [self._evidencia_var])
+    def _build_body(self) -> None:
+        body = tk.Frame(self._root, bg=COLORS["bg"])
+        body.pack(side=tk.TOP, fill=tk.BOTH, expand=True, padx=10, pady=(0, 6))
+        self._build_video_area(body)
+        self._build_side_panel(body)
 
-        # Controles
-        controls = ttk.Frame(self._root, padding=(10, 8))
-        controls.pack(fill=tk.X)
+    def _build_video_area(self, parent) -> None:
+        area = tk.Frame(parent, bg=COLORS["bg"])
+        area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._video_canvases = {}
+        for row, columns in enumerate(PANEL_LAYOUT):
+            area.rowconfigure(row, weight=1, uniform="cam")
+            for column, camera_id in enumerate(columns):
+                area.columnconfigure(column, weight=1, uniform="cam")
+                cell = tk.Frame(
+                    area, bg=COLORS["panel"],
+                    highlightbackground=COLORS["border"], highlightthickness=1,
+                )
+                cell.grid(row=row, column=column, sticky="nsew", padx=2, pady=2)
+                canvas = tk.Canvas(cell, bg="#0A0F1E", highlightthickness=0)
+                canvas.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+                canvas.bind(
+                    "<Configure>", lambda e, c=camera_id: self._on_canvas_resize(c)
+                )
+                self._video_canvases[camera_id] = canvas
+                self._draw_placeholder(camera_id, canvas, "OFFLINE")
+
+    def _build_side_panel(self, parent) -> None:
+        panel = tk.Frame(parent, bg=COLORS["panel"], width=292)
+        panel.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
+        panel.pack_propagate(False)
+        panel.configure(highlightbackground=COLORS["border"], highlightthickness=1)
+
+        tk.Label(
+            panel, text="SEGUIMIENTO", bg=COLORS["panel"], fg=COLORS["text_dim"],
+            font=FONT_PANEL_TITLE,
+        ).pack(fill=tk.X, padx=10, pady=(8, 2), anchor=tk.W)
+        self._cam_summary_vars = {}
+        for camera_id in CAMERA_IDS:
+            var = tk.StringVar(value=f"{camera_id} · OFFLINE")
+            self._cam_summary_vars[camera_id] = var
+            tk.Label(
+                panel, textvariable=var, bg=COLORS["panel"], fg=COLORS["text"],
+                font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+            ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
+
+        tk.Frame(panel, bg=COLORS["border"], height=1).pack(fill=tk.X, padx=8, pady=6)
+        tk.Label(
+            panel, text="ALERTAS", bg=COLORS["panel"], fg=COLORS["text_dim"],
+            font=FONT_PANEL_TITLE,
+        ).pack(fill=tk.X, padx=10, pady=(0, 2), anchor=tk.W)
+        self._alerts_var = tk.StringVar(value="Alertas: -")
+        tk.Label(
+            panel, textvariable=self._alerts_var, bg=COLORS["panel"],
+            fg=COLORS["text"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+        ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
+
+        tk.Frame(panel, bg=COLORS["border"], height=1).pack(fill=tk.X, padx=8, pady=6)
+        tk.Label(
+            panel, text="EVIDENCIA / CLIP", bg=COLORS["panel"], fg=COLORS["text_dim"],
+            font=FONT_PANEL_TITLE,
+        ).pack(fill=tk.X, padx=10, pady=(0, 2), anchor=tk.W)
+        self._evidence_var = tk.StringVar(value="Evidencia: -")
+        tk.Label(
+            panel, textvariable=self._evidence_var, bg=COLORS["panel"],
+            fg=COLORS["text"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+        ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
+        self._clip_var = tk.StringVar(value="Clip: -")
+        tk.Label(
+            panel, textvariable=self._clip_var, bg=COLORS["panel"],
+            fg=COLORS["accent"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+        ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
+
+    def _build_controls(self) -> None:
+        controls = tk.Frame(self._root, bg=COLORS["bg"])
+        controls.pack(side=tk.TOP, fill=tk.X, padx=10, pady=(0, 8))
+
+        def button(parent, text, command, accent=False):
+            return tk.Button(
+                parent, text=text, command=command,
+                relief=tk.FLAT, bg=COLORS["accent_dim"] if accent else COLORS["panel"],
+                fg=COLORS["accent"] if accent else COLORS["text"],
+                activebackground=COLORS["panel_muted"], activeforeground=COLORS["text"],
+                font=FONT_BODY_BOLD, padx=14, pady=4, cursor="hand2", borderwidth=1,
+                highlightbackground=COLORS["border"],
+            )
+
+        self._stop_btn = button(controls, "Detener", self._on_stop, accent=True)
+        self._stop_btn.configure(state=tk.DISABLED)
+        self._stop_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._evidence_btn = button(controls, "Abrir evidencia", self._on_open_evidence)
+        self._evidence_btn.configure(state=tk.DISABLED)
+        self._evidence_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._clip_btn = button(controls, "Abrir clip / revisión", self._on_open_clips)
+        self._clip_btn.configure(state=tk.DISABLED)
+        self._clip_btn.pack(side=tk.LEFT)
+
+    def _build_settings(self) -> None:
+        wrap = tk.Frame(self._root, bg=COLORS["bg"])
+        wrap.pack(side=tk.TOP, fill=tk.X)
+        controls = ttk.Frame(wrap, padding=(12, 2))
         controls.columnconfigure(1, weight=0)
 
         self._source_var = tk.StringVar(value="FILE")
@@ -201,14 +526,10 @@ class TkApp:
         )
         self._source_menu.grid(row=0, column=1, padx=(4, 8), sticky=tk.W)
 
-        # Campo libre usado por FILE (ruta) y WEBCAM (índice).
         self._input_var = tk.StringVar(value="")
         self._input_entry = ttk.Entry(controls, textvariable=self._input_var, width=34)
         self._input_entry.grid(row=0, column=2, padx=(0, 8), sticky=tk.W)
 
-        # Campos RTSP separados: la contraseña va enmascarada (show="*")
-        # y la URL con credenciales se construye en memoria al iniciar,
-        # sin exponerla en pantalla (LOOP-0013-HOTFIX, SECURE_RTSP_UI_GAP).
         self._rtsp_host_var = tk.StringVar(value="rtsp://")
         self._rtsp_user_var = tk.StringVar(value="")
         self._rtsp_pass_var = tk.StringVar(value="")
@@ -241,16 +562,8 @@ class TkApp:
         )
         self._start_btn.grid(row=0, column=5, padx=(0, 4), sticky=tk.W)
 
-        self._stop_btn = ttk.Button(
-            controls, text="Detener", command=self._on_stop, state=tk.DISABLED
-        )
-        self._stop_btn.grid(row=0, column=6, padx=(0, 8), sticky=tk.W)
-
-        ttk.Button(
-            controls, text="Abrir evidencia", command=self._on_open_evidence
-        ).grid(row=0, column=7, sticky=tk.W)
-
-        self._on_source_change("FILE")
+        self._settings_wrap = wrap
+        self._settings_controls = controls
 
         if self._multicamera_mode:
             for widget in (self._source_label, self._source_menu, self._input_entry,
@@ -258,16 +571,27 @@ class TkApp:
                 widget.grid_remove()
             self._stop_btn.configure(state=tk.NORMAL)
 
-        self._root.after(self.POLL_MS, self._poll)
+    # ------------------------------------------------------------- placeholders
+    def _draw_placeholder(self, camera_id, canvas, source_state: str) -> None:
+        canvas.delete("all")
+        cw = max(canvas.winfo_width(), 64)
+        ch = max(canvas.winfo_height(), 64)
+        color = camera_status_color(source_state)
+        canvas.create_oval(8, 8, 20, 20, fill=color, outline="")
+        canvas.create_text(
+            26, 14, anchor=tk.W, text=camera_id, fill=COLORS["text"],
+            font=FONT_BODY_BOLD,
+        )
+        canvas.create_text(
+            cw // 2, ch // 2, anchor=tk.CENTER,
+            text=f"{source_state} - sin señal",
+            fill=COLORS["text_dim"], font=FONT_SMALL,
+        )
 
-    def _make_panel(self, parent, title, vars_):
-        panel = ttk.LabelFrame(parent, text=title, padding=(8, 6))
-        panel.pack(fill=tk.X, pady=(0, 8))
-        for var in vars_:
-            ttk.Label(panel, textvariable=var, wraplength=300).pack(
-                fill=tk.X, anchor=tk.W
-            )
+    def _on_canvas_resize(self, camera_id: str) -> None:
+        self._last_render_size[camera_id] = (0, 0)
 
+    # ------------------------------------------------------------- actions
     def _on_source_change(self, kind: str) -> None:
         if kind == "FILE":
             self._input_entry.configure(state=tk.NORMAL)
@@ -325,12 +649,45 @@ class TkApp:
         self._start_btn.configure(state=tk.NORMAL)
         self._stop_btn.configure(state=tk.DISABLED)
 
+    def _evidence_base(self) -> str:
+        return os.path.abspath(getattr(
+            self._controller, "evidence_root", "data/runtime_evidence"
+        ))
+
+    def _resolve_ref(self, ref) -> Optional[str]:
+        return resolve_evidence_path(ref, self._evidence_base())
+
+    def _open_resource(self, path: str) -> None:
+        try:
+            os.startfile(path)
+        except OSError:
+            messagebox.showerror("Recurso", "No se pudo abrir el recurso")
+
+    def _launch_review(self) -> None:
+        launcher = getattr(self._controller, "launch_review", None)
+        if callable(launcher):
+            launcher()
+            return
+        bat = Path(__file__).resolve().parents[2] / "review_behavior_signals.bat"
+        if bat.is_file():
+            os.startfile(str(bat))
+
     def _on_open_evidence(self) -> None:
-        base = os.path.abspath(getattr(self._controller, "evidence_root", "data/runtime_evidence"))
-        if os.path.isdir(base):
-            os.startfile(base)
-        else:
-            messagebox.showinfo("Evidencia", "No existe carpeta de evidencia")
+        target = self._evidence_target
+        if target and os.path.isfile(target):
+            self._open_resource(target)
+            return
+        messagebox.showinfo("Evidencia", "EVIDENCE_UNAVAILABLE")
+
+    def _on_open_clips(self) -> None:
+        target = self._clip_target
+        if target and os.path.isfile(target):
+            self._open_resource(target)
+            return
+        if self._review_available:
+            self._launch_review()
+            return
+        messagebox.showinfo("Clip", "CLIP_REVIEW_UNAVAILABLE")
 
     def _on_close(self) -> None:
         try:
@@ -338,6 +695,7 @@ class TkApp:
         finally:
             self._root.destroy()
 
+    # ------------------------------------------------------------- poll loop
     def _poll(self) -> None:
         if not self._root.winfo_exists():
             return
@@ -356,102 +714,243 @@ class TkApp:
             self._stop_btn.configure(
                 state=tk.NORMAL if controls["stop_enabled"] else tk.DISABLED
             )
+        self._update_action_targets(state)
         self._render_video(state)
-        self._render_panels(state)
-        self._render_status(state)
+        self._render_header(state)
+        self._render_side_panel(state)
+        self._update_button_states()
 
-    def _render_video(self, state: dict) -> None:
-        if state["status"] == AppStatus.RUNNING:
-            panels = self._controller.poll_multicamera()
-            for camera_id in CAMERA_IDS:
-                panel = panels[camera_id]
-                self._camera_state_vars[camera_id].set(panel_status_text(panel))
-                if panel.frame is not None and panel.frame_index >= 0:
-                    self._set_photo(camera_id, panel)
-                    marker = getattr(self._controller, "mark_ui_rendered", None)
-                    if marker is not None:
-                        marker(camera_id, panel.frame_index)
+    def _update_action_targets(self, state: dict) -> None:
+        """Deriva los objetivos exactos de evidencia/clip desde el runtime."""
+        self._evidence_target = None
+        self._clip_target = None
+        self._review_available = False
+        if self._multicamera_mode:
+            latest = getattr(self._controller, "latest_evidence", None)
+            clip = getattr(self._controller, "clip_target", None)
+            review = getattr(self._controller, "review_available", None)
+            if callable(latest):
+                self._evidence_target = latest()
+            if callable(clip):
+                self._clip_target = clip()
+            if callable(review):
+                self._review_available = bool(review())
+        else:
+            paths = state.get("evidence_paths") or []
+            if paths:
+                self._evidence_target = self._resolve_ref(str(paths[-1]))
 
-    def _set_photo(self, camera_id, panel) -> None:
-        frame, displayed_frame_index, _ = select_panel_frame(panel)
-        rgb = cv2.cvtColor(
-            fit_frame_to_panel(
-                annotate_frame(
-                    frame,
-                    panel,
-                    displayed_frame_index=displayed_frame_index,
-                )
-            ),
-            cv2.COLOR_BGR2RGB,
+    def _update_button_states(self) -> None:
+        states = action_button_states(
+            self._evidence_target, self._clip_target, self._review_available
         )
-        ok, buf = cv2.imencode(".png", rgb)
-        if not ok:
+        if self._evidence_btn is not None:
+            self._evidence_btn.configure(
+                state=tk.NORMAL if states["evidence_enabled"] else tk.DISABLED
+            )
+        if self._clip_btn is not None:
+            self._clip_btn.configure(
+                state=tk.NORMAL if states["clip_enabled"] else tk.DISABLED
+            )
+
+    # ------------------------------------------------------------- rendering
+    def _render_video(self, state: dict) -> None:
+        running = state["status"] == AppStatus.RUNNING
+        panels = self._controller.poll_multicamera()
+        for camera_id in CAMERA_IDS:
+            panel = panels[camera_id]
+            canvas = self._video_canvases[camera_id]
+            frame = getattr(panel, "frame", None)
+            frame_index = int(getattr(panel, "frame_index", -1))
+            if running:
+                self._stopped_rendered[camera_id] = False
+                if frame is None or frame_index < 0:
+                    self._draw_placeholder(
+                        camera_id, canvas,
+                        str(getattr(panel, "source_state", "OFFLINE") or "OFFLINE"),
+                    )
+                    continue
+                self._render_camera(camera_id, panel, canvas)
+            else:
+                stopped = apply_stopped_state(panel)
+                if frame is None or frame_index < 0:
+                    self._draw_placeholder(
+                        camera_id, canvas, stopped["source_state"]
+                    )
+                    continue
+                self._render_frozen_camera(
+                    camera_id, canvas, frame, frame_index, stopped
+                )
+
+    def _render_camera(self, camera_id, panel, canvas) -> None:
+        frame, displayed_frame_index, _ = select_panel_frame(panel)
+        frame_index = int(getattr(panel, "frame_index", -1))
+        cw = canvas.winfo_width()
+        ch = canvas.winfo_height()
+        size = (cw, ch)
+        changed = (
+            size != self._last_render_size[camera_id]
+            or frame_index != self._last_render_index[camera_id]
+        )
+        if not changed or cw < 32 or ch < 32:
             return
+        annotated = annotate_frame(
+            frame, panel, displayed_frame_index=displayed_frame_index
+        )
+        image = build_display_image(annotated, cw, ch)
+        buf = io.BytesIO()
+        image.save(buf, format="PNG")
         try:
-            photo = tk.PhotoImage(data=buf.tobytes())
+            photo = tk.PhotoImage(data=buf.getvalue())
         except tk.TclError:
             return
         self._photos[camera_id] = photo
-        self._video_labels[camera_id].configure(image=photo, text="")
+        canvas.delete("all")
+        canvas.create_image(cw // 2, ch // 2, image=photo, anchor=tk.CENTER)
+        self._draw_overlay(canvas, camera_id, panel, cw, ch)
+        self._last_render_size[camera_id] = size
+        self._last_render_index[camera_id] = frame_index
+        marker = getattr(self._controller, "mark_ui_rendered", None)
+        if marker is not None:
+            marker(camera_id, frame_index)
 
-    def _render_panels(self, state: dict) -> None:
-        self._fuente_var.set(f"Fuente: {state['source_path_display'] or '-'}")
-        self._conexion_var.set(f"Conexión: {state['source_state'] or '-'}")
-        self._resolucion_var.set(f"Resolución: {state['resolution'] or '-'}")
-        self._fps_var.set(f"FPS: {state['fps']:.1f}" if state["fps"] else "FPS: -")
-        self._zona_var.set(f"Zona: {state['zone_id']} {state['zone_name']}")
-        if state["followed_track"] is not None:
-            self._track_var.set(f"Track ID: {state['followed_track']}")
-            self._permanencia_var.set(
-                f"Permanencia: {state['permanence_seconds']:.1f}s"
+    def _render_frozen_camera(
+        self, camera_id, canvas, frame, frame_index, stopped
+    ) -> None:
+        """Último frame congelado tras STOP, marcado como offline.
+
+        Mantiene la referencia visual pero elimina todo estado activo:
+        sin Track/Event/Temporal/Behavior y sin contadores verdes.
+        """
+        cw = canvas.winfo_width()
+        ch = canvas.winfo_height()
+        size = (cw, ch)
+        if cw < 32 or ch < 32:
+            return
+        if not frozen_render_required(
+            self._stopped_rendered,
+            camera_id,
+            size != self._last_render_size[camera_id],
+            frame_index != self._last_render_index[camera_id],
+        ):
+            return
+        image = build_display_image(frame, cw, ch)
+        buf = io.BytesIO()
+        image.save(buf, format="PNG")
+        try:
+            photo = tk.PhotoImage(data=buf.getvalue())
+        except tk.TclError:
+            return
+        self._photos[camera_id] = photo
+        canvas.delete("all")
+        canvas.create_image(cw // 2, ch // 2, image=photo, anchor=tk.CENTER)
+        canvas.create_oval(
+            6, 6, 16, 16, fill=camera_status_color(stopped["source_state"]),
+            outline="",
+        )
+        canvas.create_text(
+            22, 11, anchor=tk.W, text=camera_id,
+            fill=COLORS["text"], font=FONT_BODY_BOLD,
+        )
+        canvas.create_rectangle(
+            0, ch - 26, cw, ch, fill=COLORS["panel"], outline=""
+        )
+        canvas.create_text(
+            cw // 2, ch - 13, anchor=tk.CENTER, text=stopped["overlay"],
+            fill=COLORS["text_dim"], font=FONT_SMALL,
+        )
+        self._last_render_size[camera_id] = size
+        self._last_render_index[camera_id] = frame_index
+        self._stopped_rendered[camera_id] = True
+
+    @staticmethod
+    def _draw_overlay(canvas, camera_id, panel, cw: int, ch: int) -> None:
+        state = str(getattr(panel, "source_state", "OPEN") or "OPEN")
+        canvas.create_oval(6, 6, 16, 16, fill=camera_status_color(state), outline="")
+        canvas.create_text(
+            22, 11, anchor=tk.W, text=camera_id, fill=COLORS["text"],
+            font=FONT_BODY_BOLD,
+        )
+        resolution = getattr(panel, "resolution", "") or ""
+        if resolution:
+            canvas.create_text(
+                cw - 8, 11, anchor=tk.E, text=resolution,
+                fill=COLORS["text_dim"], font=FONT_SMALL,
             )
-        else:
-            self._track_var.set("Track ID: -")
-            self._permanencia_var.set("Permanencia: -")
+        track_id = getattr(panel, "track_id", None)
+        if track_id:
+            canvas.create_text(
+                8, ch - 12, anchor=tk.W, text=f"TRK {track_id}",
+                fill="#E2A125", font=FONT_BODY_BOLD,
+            )
+        confidence = getattr(panel, "event_confidence", None)
+        if confidence is not None:
+            canvas.create_text(
+                cw - 8, ch - 12, anchor=tk.E,
+                text=f"{float(confidence):.0%}", fill=COLORS["text"],
+                font=FONT_BODY_BOLD,
+            )
 
-        # Riesgo real del núcleo: score real si existe, si no el texto del núcleo, si no "—"
-        risk = state["latest_risk_score"]
-        if risk is not None:
-            self._riesgo_var.set(f"Riesgo: {risk}/100")
-        elif state["risk_text"]:
-            self._riesgo_var.set(f"Riesgo: {state['risk_text']}")
+    def _render_header(self, state: dict) -> None:
+        running = state["status"] == AppStatus.RUNNING
+        if running:
+            self._set_dot(self._live_dot, COLORS["online"])
+            self._live_label.configure(text="LIVE", fg=COLORS["online"])
         else:
-            self._riesgo_var.set("Riesgo: —")
+            self._set_dot(self._live_dot, COLORS["offline"])
+            self._live_label.configure(text="IDLE", fg=COLORS["offline"])
+        panels = self._controller.poll_multicamera()
+        online = online_camera_count(panels, running=running)
+        self._cameras_var.set(f"CAMERAS: {online} / 4 ONLINE")
+        resolutions = [
+            str(getattr(panel, "resolution", ""))
+            for panel in panels.values()
+            if getattr(panel, "resolution", "")
+        ]
+        if resolutions:
+            self._res_var.set(f"RES: {resolutions[0]}")
+        fps = state.get("fps") or 0.0
+        self._fps_var.set(f"FPS: {fps:.1f}" if fps else "FPS: -")
 
-        if state["alert_log"]:
-            last = state["alert_log"][-1]
-            self._alertas_var.set(
+    @staticmethod
+    def _set_dot(canvas, color: str) -> None:
+        canvas.delete("all")
+        canvas.create_oval(1, 1, 11, 11, fill=color, outline="")
+
+    def _render_side_panel(self, state: dict) -> None:
+        running = state["status"] == AppStatus.RUNNING
+        panels = self._controller.poll_multicamera()
+        for camera_id in CAMERA_IDS:
+            panel = panels[camera_id]
+            if running:
+                text = camera_summary_line(panel)
+                self._cam_summary_vars[camera_id].set(f"{camera_id} · {text}")
+            else:
+                self._cam_summary_vars[camera_id].set(
+                    stopped_camera_line(camera_id)
+                )
+
+        alerts = state.get("alert_log") or []
+        if alerts:
+            last = alerts[-1]
+            self._alerts_var.set(
                 f"Alertas: {last['alert_id']} / evento {last['event_id']} / "
-                f"riesgo {last['risk_score']} / {last['created_at']}"
+                f"riesgo {last['risk_score']}"
             )
         else:
-            self._alertas_var.set("Alertas: -")
-        if state["evidence_paths"]:
-            self._evidencia_var.set(
-                f"Evidencia: {state['evidence_paths'][-1]}"
-            )
-        else:
-            self._evidencia_var.set("Evidencia: -")
+            self._alerts_var.set("Alertas: -")
 
-    def _render_status(self, state: dict) -> None:
-        if state["status"] == AppStatus.RUNNING:
-            text = "Estado: EN EJECUCIÓN"
-            color = "#1a6b1a"
-        elif state["error"]:
-            text = f"Estado: ERROR - {state['error']}"
-            color = "#b00000"
+        evidence = state.get("evidence_paths") or []
+        if evidence:
+            self._evidence_var.set(f"Evidencia: {evidence[-1]}")
         else:
-            text = f"Estado: DETENIDO ({state['final_status']})"
-            color = "#555555"
-        self._status_var.set(text)
-        self._status_var_color(color)
+            self._evidence_var.set("Evidencia: -")
 
-    def _status_var_color(self, color: str) -> None:
-        for w in self._root.winfo_children():
-            for child in w.winfo_children():
-                if isinstance(child, ttk.Label) and child.cget("textvariable") == str(self._status_var):
-                    child.configure(foreground=color)
-                    return
+        clips = state.get("clips_available")
+        if clips:
+            self._clip_var.set(f"Clip disponible: {int(clips)}")
+        else:
+            self._clip_var.set("Clip: -")
 
     def run(self) -> None:
         self._root.mainloop()

@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import getpass
 import json
+import os
 import sys
 import threading
 import tkinter as tk
@@ -125,6 +126,7 @@ class MulticameraRuntime:
                 rtsp_open_timeout_ms=int(config.get("rtsp", {}).get("open_timeout_ms", 8000)),
                 frame_stall_timeout_s=float(config.get("rtsp", {}).get("frame_stall_timeout_s", 10.0))))
         self._pipeline = OperationalPipeline(config, self._manager)
+        self.review_target = QW04_REVIEW_TARGET
         self._qw04 = RuntimeQw04Integration.from_config(
             config,
             evidence_root=Path(self.evidence_root),
@@ -162,13 +164,81 @@ class MulticameraRuntime:
         risks = [panel.risk for panel in panels.values() if panel.risk]
         evidence = [panel.evidence for panel in panels.values() if panel.evidence]
         fps_values = [panel.fps for panel in panels.values() if panel.fps]
+        resolutions = [panel.resolution for panel in panels.values() if panel.resolution]
+        qw04 = self._qw04.summary()
         return {"status": "RUNNING" if running else "STOPPED", "source_path_display": "MULTICAMERA",
                 "source_kind": "MULTICAMERA", "source_state": "OPEN" if running else "CLOSED",
-                "resolution": "panel 420x245", "fps": sum(fps_values) / len(fps_values) if fps_values else 0.0,
+                "resolution": resolutions[0] if resolutions else "-",
+                "fps": sum(fps_values) / len(fps_values) if fps_values else 0.0,
                 "zone_id": "", "zone_name": "", "followed_track": tracks[-1] if tracks else None,
                 "permanence_seconds": 0.0, "risk_text": risks[-1] if risks else "",
                 "latest_risk_score": None, "alert_log": [], "evidence_paths": evidence[-8:],
+                "clips_available": int(qw04.get("clips_available", 0) or 0),
                 "error": "", "final_status": "STOPPED" if not running else ""}
+    def _resolve_artifact(self, ref):
+        """Absolute path of an evidence/clip artifact under evidence_root."""
+        if not ref:
+            return None
+        root = Path(self.evidence_root).resolve()
+        if Path(str(ref)).is_absolute():
+            candidate = Path(str(ref)).resolve()
+        else:
+            candidate = (root / str(ref)).resolve()
+            try:
+                candidate.relative_to(root)
+            except ValueError:
+                return None
+        return str(candidate) if candidate.is_file() else None
+
+    def _review_records(self):
+        target = Path(self.review_target)
+        if not target.is_file():
+            return ()
+        records = []
+        for line in target.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            try:
+                records.append(json.loads(line))
+            except ValueError:
+                continue
+        return tuple(records)
+
+    def latest_evidence(self):
+        """Exact JPEG of the most recent evidence artifact, or None."""
+        selected = None
+        for panel in self._controller.poll_multicamera().values():
+            ref = str(getattr(panel, "evidence", "") or "")
+            if not ref:
+                continue
+            candidate = self._resolve_artifact(ref)
+            if candidate is None:
+                continue
+            frame_index = int(getattr(panel, "frame_index", -1))
+            if selected is None or frame_index >= selected[0]:
+                selected = (frame_index, candidate)
+        return selected[1] if selected else None
+
+    def clip_target(self):
+        """Exact MP4 of the selected review case, or None when unavailable."""
+        records = self._review_records()
+        if not records:
+            return None
+        record = records[-1]
+        if not record.get("clip_available"):
+            return None
+        return self._resolve_artifact(record.get("clip_evidence_ref"))
+
+    def review_available(self):
+        """True when a QW-00 review case exists (with or without clip)."""
+        return bool(self._review_records())
+
+    def launch_review(self):
+        """Open the human review console for the resolvable QW-00 case."""
+        bat = BASE / "review_behavior_signals.bat"
+        if bat.is_file():
+            os.startfile(str(bat))
+
     def stop(self):
         self._stop.set()
         self._thread.join(timeout=15)

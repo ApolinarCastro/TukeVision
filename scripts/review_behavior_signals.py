@@ -48,6 +48,7 @@ def evidence_directories() -> tuple[Path, ...]:
         values.append(Path(explicit))
     values.extend((
         EVIDENCE,
+        BASE / "evidence" / "loop_0019a_qw04_r2",
         BASE / "evidence" / "loop_0019a" / "real_run",
         BASE / "evidence" / "loop_0018z",
     ))
