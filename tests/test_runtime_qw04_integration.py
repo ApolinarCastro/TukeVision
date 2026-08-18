@@ -168,6 +168,31 @@ class TestRuntimeQw04Integration(unittest.TestCase):
             self.assertEqual(len(rows), 1)
             self.assertEqual(rows[0]["signal_id"], "BS-CAM-001-1")
 
+    def test_pending_bound_skips_extra_signal_without_crowding_qw00(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            cfg = config()
+            cfg["clips"]["max_pending_per_camera"] = 1
+            dataset = Path(temporary) / "signal_review_records.jsonl"
+            integration = RuntimeQw04Integration.from_config(
+                cfg, evidence_root=Path(temporary) / "runtime", review_target=dataset
+            )
+            integration.ingest("CAM-001", 0.0, frame(1), 0, {})
+            integration.ingest(
+                "CAM-001", 1.0, frame(1), 1,
+                result_with_signal("CAM-001", 1),
+            )
+            integration.ingest(
+                "CAM-001", 1.1, frame(1), 2,
+                result_with_signal("CAM-001", 2),
+            )
+            summary = integration.close()
+
+            rows = [json.loads(line) for line in dataset.read_text(encoding="utf-8").splitlines()]
+            self.assertEqual([row["signal_id"] for row in rows], ["BS-CAM-001-1"])
+            self.assertTrue(rows[0]["clip_available"])
+            self.assertEqual(summary["signals_seen"], 2)
+            self.assertEqual(summary["clips_unavailable"], 0)
+
     def test_from_config_reuses_existing_coordinator_and_adapter(self):
         with tempfile.TemporaryDirectory() as temporary:
             integration = RuntimeQw04Integration.from_config(
