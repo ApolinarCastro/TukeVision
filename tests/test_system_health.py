@@ -6,7 +6,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 from scripts.run_multicamera import MulticameraRuntime
-from src.observability.system_health import SystemHealthSampler
+from src.observability.system_health import SystemHealthSampler, read_host_metrics
 from src.ui.tk_view import camera_health_text, health_header_text
 
 
@@ -77,6 +77,20 @@ def sampler(manager=None, reader=None, clock=None, interval=3.0):
 
 class TestHostHealth(unittest.TestCase):
     def test_cpu_metric_is_visible(self):
+        raw = read_host_metrics(".")
+        self.assertEqual(
+            set(raw),
+            {
+                "cpu_percent",
+                "ram_percent",
+                "ram_used_mb",
+                "ram_total_mb",
+                "disk_percent",
+                "disk_free_gb",
+            },
+        )
+        self.assertIsNotNone(raw["cpu_percent"])
+        self.assertIsNotNone(raw["disk_percent"])
         snapshot = sampler().snapshot(runtime_running=True)
         self.assertIn("CPU 12.5%", health_header_text(snapshot))
 
