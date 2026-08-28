@@ -33,3 +33,15 @@ Registrado como `PHYSICAL_EVIDENCE_PRE_CHECKPOINT`:
 `evidence/RUN-462B04/PHYSICAL_EVIDENCE_PRE_CHECKPOINT_MANIFEST.md` (hashes SHA-256 de los 4 JSON;
 clips ya rotados por retención — observación registrada). NO se reinterpreta como run reproducible
 sobre versión limpia; el run de certificación se ejecutará desde este checkpoint.
+
+---
+
+## RUN-2BF59D — CERTIFICACIÓN FÍSICA (2026-08-28)
+
+Registrado como **`PHASE_2_CERTIFICATION_RUN`** (PID 11372, 14:50:35, 3085 s hasta aceptación). Gates 1–4 **PASS** + GATE 5 **ACCEPTED** (operador) → **`PHASE_2 = CLOSED`**, veredicto **PASS**.
+
+- Veredicto completo: `evidence/RUN-2BF59D/PHASE_2_CERTIFICATION_VERDICT.md`
+- Cierre y `DO_NOT_TOUCH_BASELINE`: `docs/PHASE2_CERTIFICATION_CLOSURE.md`
+- Baseline promovida: tag **`v3-phase2-baseline-20260828`** = `8bf6b530d1f1590b8c89452c720b6c3fe73be928`
+- Observación pendiente trazable: **DEF-OBS-1** (cam_04, detección idle; LOW; para FASE 3)
+- `RUN-462B04` permanece como `PHYSICAL_EVIDENCE_PRE_CHECKPOINT` (sin cambios).
