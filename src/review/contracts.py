@@ -53,6 +53,8 @@ class SignalReviewRecord:
     clip_available: bool = False
     clip_sha256: Optional[str] = None
     clip_duration_seconds: Optional[float] = None
+    store_id: str = ""
+    organization_id: str = ""
 
     def __post_init__(self) -> None:
         if self.human_classification not in ALLOWED_CLASSIFICATIONS:
@@ -81,6 +83,8 @@ def record_from_signal(
     track_id: Optional[str] = None,
     trajectory_id: Optional[str] = None,
     thresholds: Optional[Mapping[str, Any]] = None,
+    store_id: str = "",
+    organization_id: str = "",
 ) -> SignalReviewRecord:
     """Create a review record without inventing absent evidence or conclusions."""
     matching = tuple(feature for feature in features if feature.feature_id in signal.feature_refs)
@@ -121,4 +125,6 @@ def record_from_signal(
         structured_explanation=explanation,
         created_at=created_at,
         evidence_available=bool(signal.evidence_refs),
+        store_id=store_id,
+        organization_id=organization_id,
     )

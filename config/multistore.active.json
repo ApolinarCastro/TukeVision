@@ -1,0 +1,399 @@
+{
+  "version": "2026.08.27",
+  "multistore": {
+    "enabled": true,
+    "organization": {
+      "organization_id": "org_nicopoly",
+      "organization_name": "Nicopoly Retail",
+      "created_at": "2026-08-19T00:00:00Z"
+    },
+    "stores": [
+      {
+        "store_id": "store_nicopoly_principal",
+        "organization_id": "org_nicopoly",
+        "store_name": "Nicopoly Tienda Central",
+        "location_address": "Av. Principal 123, Santiago",
+        "timezone": "America/Santiago",
+        "evidence_namespace": "data/evidence/store_nicopoly_principal/",
+        "recorders": [
+          {
+            "recorder_id": "dvr_principal",
+            "store_id": "store_nicopoly_principal",
+            "recorder_name": "DVR Principal 16CH",
+            "recorder_type": "DVR",
+            "host": "186.103.177.83",
+            "port": 554,
+            "vendor": "Dahua",
+            "username_default": "admin",
+            "credentials_ref": "ENV_DVR_PRINCIPAL_CREDS",
+            "stream_profile": "main",
+            "device_port": null,
+            "total_channels": 16,
+            "cameras": [
+              {
+                "camera_id": "cam_01",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 1,
+                "camera_name": "Cámara 01",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=1&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=1&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_01/"
+              },
+              {
+                "camera_id": "cam_02",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 2,
+                "camera_name": "Cámara 02",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=2&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=2&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_02/"
+              },
+              {
+                "camera_id": "cam_03",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 3,
+                "camera_name": "Cámara 03",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=3&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=3&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_03/"
+              },
+              {
+                "camera_id": "cam_04",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 4,
+                "camera_name": "Cámara 04",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=4&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=4&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_04/"
+              },
+              {
+                "camera_id": "cam_05",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 5,
+                "camera_name": "Cámara 05",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=5&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=5&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_05/"
+              },
+              {
+                "camera_id": "cam_06",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 6,
+                "camera_name": "Cámara 06",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=6&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=6&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_06/"
+              },
+              {
+                "camera_id": "cam_07",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 7,
+                "camera_name": "Cámara 07",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=7&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=7&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_07/"
+              },
+              {
+                "camera_id": "cam_08",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 8,
+                "camera_name": "Cámara 08",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=8&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=8&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_08/"
+              },
+              {
+                "camera_id": "cam_09",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 9,
+                "camera_name": "Cámara 09",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=9&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=9&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_09/"
+              },
+              {
+                "camera_id": "cam_10",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 10,
+                "camera_name": "Cámara 10",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=10&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=10&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_10/"
+              },
+              {
+                "camera_id": "cam_11",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 11,
+                "camera_name": "Cámara 11",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=11&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=11&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_11/"
+              },
+              {
+                "camera_id": "cam_12",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 12,
+                "camera_name": "Cámara 12",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=12&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=12&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_12/"
+              },
+              {
+                "camera_id": "cam_13",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 13,
+                "camera_name": "Cámara 13",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=13&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=13&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_13/"
+              },
+              {
+                "camera_id": "cam_14",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 14,
+                "camera_name": "Cámara 14",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=14&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=14&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_14/"
+              },
+              {
+                "camera_id": "cam_15",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 15,
+                "camera_name": "Cámara 15",
+                "source_type": "RTSP_STREAM",
+                "host": "186.103.177.83",
+                "stream_main": "rtsp://186.103.177.83:554/cam/realmonitor?channel=15&subtype=0",
+                "stream_sub": "rtsp://186.103.177.83:554/cam/realmonitor?channel=15&subtype=1",
+                "zone": "General",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_15/"
+              }
+            ]
+          }
+        ],
+        "direct_cameras": []
+      }
+    ]
+  },
+  "video": {
+    "max_width": 640,
+    "process_every_n_frames": 1
+  },
+  "rtsp": {
+    "backend": "ffmpeg_supervised",
+    "open_timeout_ms": 8000,
+    "read_timeout_ms": 4000,
+    "frame_stall_timeout_s": 10.0
+  },
+  "output": {
+    "save_processed_video": false,
+    "show_preview": true
+  },
+  "detection": {
+    "model": "yolo11n.pt",
+    "class_ids": [0],
+    "confidence_threshold": 0.35,
+    "device": "cpu",
+    "image_size": 640
+  },
+  "zone": {
+    "id": "ZONE-001",
+    "name": "Zona General",
+    "polygon": [[30,650],[450,650],[450,850],[30,850]]
+  },
+  "business": {
+    "store_id": "store_nicopoly_principal",
+    "camera_id": "cam_01",
+    "max_stay_seconds": 30.0,
+    "remain_interval_frames": 30
+  },
+  "alerts": {
+    "risk_threshold": 60
+  },
+  "observation": {
+    "default_profile": "BALANCED",
+    "profiles": {
+      "QUALITY": { "max_analysis_fps": 5.0 },
+      "BALANCED": { "max_analysis_fps": 2.0 },
+      "ECONOMY": { "max_analysis_fps": 1.0 }
+    }
+  },
+  "inference": {
+    "backend": "yolo",
+    "model": "models/yolo11n.pt",
+    "class_ids": [0],
+    "confidence_threshold": 0.35,
+    "device": "cpu",
+    "image_size": 640,
+    "event_queue_maxlen": 16,
+    "event_queue_overflow": "drop_oldest",
+    "events": [
+      { "type": "OBJECT_DETECTED", "min_confidence": 0.35 },
+      { "type": "PERSON_DETECTED", "min_confidence": 0.35, "class_name": "person" }
+    ]
+  },
+  "temporal": {
+    "association_window_ms": 2000,
+    "track_timeout_ms": 5000,
+    "iou_threshold": 0.05,
+    "max_active_tracks": 16,
+    "max_completed_history": 32,
+    "max_event_refs": 16,
+    "max_evidence_refs": 3
+  },
+  "evidence": {
+    "enabled": true,
+    "root": "data/runtime_evidence",
+    "max_per_camera": 32,
+    "jpeg_quality": 90
+  },
+  "clips": {
+    "enabled": true,
+    "pre_roll_seconds": 5,
+    "post_roll_seconds": 5,
+    "max_clip_duration_seconds": 10,
+    "buffer_fps": 5,
+    "max_frames_per_camera": 64,
+    "max_pending_per_camera": 8,
+    "max_clips_per_camera": 32,
+    "container": "mp4",
+    "codec": "mpeg4"
+  },
+  "correlation": {
+    "enabled": true,
+    "transitions": [],
+    "score_weights": {"temporal": 0.7, "topology": 0.3, "direction": 0.0},
+    "max_active_trajectories": 32,
+    "max_candidates_per_camera_pair": 16,
+    "candidate_ttl_seconds": 120,
+    "trajectory_ttl_seconds": 600,
+    "max_tracks": 256
+  },
+  "behavior": {
+    "enabled": true,
+    "retention": {"max_results": 64},
+    "rules": {
+      "prolonged_dwell": {"enabled": true, "min_seconds": 30, "score": 25},
+      "repeated_activity": {"enabled": true, "min_events": 3, "score": 20},
+      "multi_camera_sequence": {"enabled": true, "min_transitions": 2, "score": 30},
+      "repeated_zone_activity": {"enabled": true, "min_visits": 3, "score": 20}
+    },
+    "risk": {"min_signal_count": 2, "review_threshold": 60}
+  },
+  "review_export": {
+    "enabled": true,
+    "format": "jsonl",
+    "max_records_total": 8,
+    "max_records_per_camera": 2,
+    "max_records_per_signal_type": 4,
+    "max_records_per_rule": 4,
+    "max_candidates": 64,
+    "sampling_strategy": "deterministic_balanced",
+    "capture_window_seconds": 5
+  },
+  "system_health": {
+    "sample_interval_seconds": 3.0
+  }
+}

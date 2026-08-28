@@ -1,0 +1,311 @@
+{
+  "multistore": {
+    "enabled": true,
+    "organization": {
+      "organization_id": "org_nicopoly",
+      "organization_name": "Nicopoly Retail",
+      "created_at": "2026-08-19T00:00:00Z"
+    },
+    "stores": [
+      {
+        "store_id": "store_nicopoly_principal",
+        "organization_id": "org_nicopoly",
+        "store_name": "Nicopoly Tienda Central",
+        "location_address": "Av. Principal 123, Santiago",
+        "timezone": "America/Santiago",
+        "evidence_namespace": "data/evidence/store_nicopoly_principal/",
+        "recorders": [
+          {
+            "recorder_id": "dvr_cajas_1_8",
+            "store_id": "store_nicopoly_principal",
+            "recorder_name": "DVR HIKVision Cajas 1-8",
+            "recorder_type": "DVR",
+            "host": "192.168.10.10",
+            "port": 554,
+            "vendor": "Hikvision",
+            "credentials_ref": "ENV_NICOPOLY_DVR_CAJAS",
+            "total_channels": 8,
+            "cameras": [
+              {
+                "camera_id": "cam_caja_01",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 1,
+                "camera_name": "Cámara 01 - Caja Principal",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.10.10",
+                "stream_main": "rtsp://192.168.10.10/Streaming/Channels/101",
+                "stream_sub": "rtsp://192.168.10.10/Streaming/Channels/102",
+                "zone": "Cajas",
+                "role": "HYBRID",
+                "enabled": true,
+                "credentials_ref": "",
+                "ptz_capability": { "supported": false, "protocol": "NONE" },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_caja_01/"
+              },
+              {
+                "camera_id": "cam_caja_02",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 2,
+                "camera_name": "Cámara 02 - Caja Secundaria",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.10.10",
+                "stream_main": "rtsp://192.168.10.10/Streaming/Channels/201",
+                "stream_sub": "rtsp://192.168.10.10/Streaming/Channels/202",
+                "zone": "Cajas",
+                "role": "HYBRID",
+                "enabled": true,
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_caja_02/"
+              },
+              {
+                "camera_id": "cam_pasillo_01",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 3,
+                "camera_name": "Cámara 03 - Pasillo Central",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.10.10",
+                "stream_main": "rtsp://192.168.10.10/Streaming/Channels/301",
+                "stream_sub": "rtsp://192.168.10.10/Streaming/Channels/302",
+                "zone": "Pasillos",
+                "role": "MONITORING",
+                "enabled": true,
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_pasillo_01/"
+              },
+              {
+                "camera_id": "cam_acceso_01",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 4,
+                "camera_name": "Cámara 04 - Acceso Principal",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.10.10",
+                "stream_main": "rtsp://192.168.10.10/Streaming/Channels/401",
+                "stream_sub": "rtsp://192.168.10.10/Streaming/Channels/402",
+                "zone": "Accesos",
+                "role": "ANALYTICS",
+                "enabled": true,
+                "ptz_capability": {
+                  "supported": true,
+                  "protocol": "ONVIF",
+                  "pan_limits": [-180.0, 180.0],
+                  "tilt_limits": [-90.0, 90.0],
+                  "zoom_supported": true
+                },
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_acceso_01/"
+              }
+            ]
+          },
+          {
+            "recorder_id": "nvr_pasillos_9_16",
+            "store_id": "store_nicopoly_principal",
+            "recorder_name": "NVR Dahua Pasillos 9-16",
+            "recorder_type": "NVR",
+            "host": "192.168.10.11",
+            "port": 554,
+            "vendor": "Dahua",
+            "credentials_ref": "ENV_NICOPOLY_NVR_PASILLOS",
+            "total_channels": 8,
+            "cameras": [
+              {
+                "camera_id": "cam_pasillo_02",
+                "store_id": "store_nicopoly_principal",
+                "channel_number": 1,
+                "camera_name": "Cámara 05 - Pasillo Lateral",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.10.11",
+                "stream_main": "rtsp://192.168.10.11/cam/realmonitor",
+                "stream_sub": "rtsp://192.168.10.11/cam/realmonitor",
+                "zone": "Pasillos",
+                "role": "MONITORING",
+                "enabled": true,
+                "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_pasillo_02/"
+              }
+            ]
+          }
+        ],
+        "direct_cameras": [
+          {
+            "camera_id": "cam_ip_vitrina_01",
+            "store_id": "store_nicopoly_principal",
+            "camera_name": "IP Camera - Vitrina Alta Gama",
+            "source_type": "IP_CAMERA",
+            "host": "192.168.10.50",
+            "stream_main": "rtsp://192.168.10.50:554/stream1",
+            "stream_sub": "rtsp://192.168.10.50:554/stream2",
+            "zone": "Vitrinas",
+            "role": "ANALYTICS",
+            "enabled": true,
+            "credentials_ref": "ENV_NICOPOLY_IPCAM_VITRINA",
+            "ptz_capability": {
+              "supported": true,
+              "protocol": "ONVIF",
+              "pan_limits": [-170.0, 170.0],
+              "tilt_limits": [-30.0, 90.0],
+              "zoom_supported": true
+            },
+            "evidence_namespace": "data/evidence/store_nicopoly_principal/cam_ip_vitrina_01/"
+          }
+        ]
+      },
+      {
+        "store_id": "store_nicopoly_norte",
+        "organization_id": "org_nicopoly",
+        "store_name": "Nicopoly Sucursal Norte",
+        "location_address": "Av. Norte 456, Santiago",
+        "timezone": "America/Santiago",
+        "evidence_namespace": "data/evidence/store_nicopoly_norte/",
+        "recorders": [
+          {
+            "recorder_id": "dvr_norte_cajas",
+            "store_id": "store_nicopoly_norte",
+            "recorder_name": "DVR Hikvision Cajas Norte",
+            "recorder_type": "DVR",
+            "host": "192.168.20.10",
+            "port": 554,
+            "vendor": "Hikvision",
+            "credentials_ref": "ENV_NICOPOLY_NORTE_DVR",
+            "total_channels": 16,
+            "cameras": [
+              {
+                "camera_id": "cam_norte_caja_01",
+                "store_id": "store_nicopoly_norte",
+                "channel_number": 1,
+                "camera_name": "Norte - Caja 01",
+                "source_type": "RTSP_STREAM",
+                "host": "192.168.20.10",
+                "stream_main": "rtsp://192.168.20.10/Streaming/Channels/101",
+                "stream_sub": "rtsp://192.168.20.10/Streaming/Channels/102",
+                "zone": "Cajas",
+                "role": "HYBRID",
+                "enabled": true,
+                "evidence_namespace": "data/evidence/store_nicopoly_norte/cam_norte_caja_01/"
+              }
+            ]
+          }
+        ],
+        "direct_cameras": []
+      }
+    ]
+  },
+
+  "video": {
+    "max_width": 640,
+    "process_every_n_frames": 1
+  },
+  "rtsp": {
+    "open_timeout_ms": 8000,
+    "read_timeout_ms": 4000,
+    "frame_stall_timeout_s": 10.0
+  },
+  "output": {
+    "save_processed_video": false,
+    "show_preview": true
+  },
+  "detection": {
+    "model": "yolo11n.pt",
+    "class_ids": [0],
+    "confidence_threshold": 0.35,
+    "device": "cpu",
+    "image_size": 640
+  },
+  "zone": {
+    "id": "ZONE-001",
+    "name": "Zona piloto",
+    "polygon": [[30,650],[450,650],[450,850],[30,850]]
+  },
+  "business": {
+    "store_id": "store_nicopoly_principal",
+    "camera_id": "cam_caja_01",
+    "max_stay_seconds": 30.0,
+    "remain_interval_frames": 30
+  },
+  "alerts": {
+    "risk_threshold": 60
+  },
+  "observation": {
+    "default_profile": "BALANCED",
+    "profiles": {
+      "QUALITY": { "max_analysis_fps": 5.0 },
+      "BALANCED": { "max_analysis_fps": 2.0 },
+      "ECONOMY": { "max_analysis_fps": 1.0 }
+    }
+  },
+  "inference": {
+    "backend": "yolo",
+    "model": "models/yolo11n.pt",
+    "class_ids": [0],
+    "confidence_threshold": 0.35,
+    "device": "cpu",
+    "image_size": 640,
+    "event_queue_maxlen": 16,
+    "event_queue_overflow": "drop_oldest",
+    "events": [
+      { "type": "OBJECT_DETECTED", "min_confidence": 0.35 },
+      { "type": "PERSON_DETECTED", "min_confidence": 0.35, "class_name": "person" }
+    ]
+  },
+  "temporal": {
+    "association_window_ms": 2000,
+    "track_timeout_ms": 5000,
+    "iou_threshold": 0.05,
+    "max_active_tracks": 8,
+    "max_completed_history": 32,
+    "max_event_refs": 16,
+    "max_evidence_refs": 3
+  },
+  "evidence": {
+    "enabled": true,
+    "root": "data/runtime_evidence",
+    "max_per_camera": 32,
+    "jpeg_quality": 90
+  },
+  "clips": {
+    "enabled": true,
+    "pre_roll_seconds": 5,
+    "post_roll_seconds": 5,
+    "max_clip_duration_seconds": 10,
+    "buffer_fps": 5,
+    "max_frames_per_camera": 64,
+    "max_pending_per_camera": 8,
+    "max_clips_per_camera": 32,
+    "container": "mp4",
+    "codec": "mpeg4"
+  },
+  "correlation": {
+    "enabled": true,
+    "transitions": [
+      {"source_camera": "cam_caja_01", "target_camera": "cam_pasillo_01", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0},
+      {"source_camera": "cam_pasillo_01", "target_camera": "cam_acceso_01", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0},
+      {"source_camera": "cam_acceso_01", "target_camera": "cam_pasillo_02", "min_transition_seconds": 1, "max_transition_seconds": 30, "enabled": true, "weight": 1.0}
+    ],
+    "score_weights": {"temporal": 0.7, "topology": 0.3, "direction": 0.0},
+    "max_active_trajectories": 32,
+    "max_candidates_per_camera_pair": 16,
+    "candidate_ttl_seconds": 120,
+    "trajectory_ttl_seconds": 600,
+    "max_tracks": 256
+  },
+  "behavior": {
+    "enabled": true,
+    "retention": {"max_results": 64},
+    "rules": {
+      "prolonged_dwell": {"enabled": true, "min_seconds": 30, "score": 25},
+      "repeated_activity": {"enabled": true, "min_events": 3, "score": 20},
+      "multi_camera_sequence": {"enabled": true, "min_transitions": 2, "score": 30},
+      "repeated_zone_activity": {"enabled": true, "min_visits": 3, "score": 20}
+    },
+    "risk": {"min_signal_count": 2, "review_threshold": 60}
+  },
+  "review_export": {
+    "enabled": true,
+    "format": "jsonl",
+    "max_records_total": 8,
+    "max_records_per_camera": 2,
+    "max_records_per_signal_type": 4,
+    "max_records_per_rule": 4,
+    "max_candidates": 64,
+    "sampling_strategy": "deterministic_balanced",
+    "capture_window_seconds": 5
+  },
+  "system_health": {
+    "sample_interval_seconds": 3.0
+  }
+}

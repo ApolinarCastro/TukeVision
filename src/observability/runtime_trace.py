@@ -73,8 +73,6 @@ class BoundedRuntimeTrace:
             return {camera_id: dict(row) for camera_id, row in self._data.items()}
 
     def export(self, path):
+        from src.observability.logging_setup import atomic_write_text
         target = Path(path)
-        target.parent.mkdir(parents=True, exist_ok=True)
-        temp = target.with_suffix(target.suffix + ".tmp")
-        temp.write_text(json.dumps(self.snapshot(), indent=2, sort_keys=True), encoding="utf-8")
-        os.replace(temp, target)
+        return atomic_write_text(target, json.dumps(self.snapshot(), indent=2, sort_keys=True))

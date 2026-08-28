@@ -1,18 +1,17 @@
-"""Minimal four-slot operator view model.
+"""Dynamic N-slot operator view model (OC-01: no four-camera assumption).
 
 This adapter owns no capture, thread, pipeline, or frame history.  The
 certified SourceManager/OperationalPipeline path supplies latest snapshots.
+
+The camera set is configuration-driven: 1 -> 4 -> 16 -> N.  Layouts are
+computed by :mod:`src.ui.grid_layout` and never hardcoded to CAM-001..004.
 """
 
+import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 
-
-CAMERA_IDS: Tuple[str, ...] = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
-PANEL_LAYOUT: Tuple[Tuple[str, str], Tuple[str, str]] = (
-    ("CAM-001", "CAM-002"),
-    ("CAM-003", "CAM-004"),
-)
+from src.ui.grid_layout import grid_layout
 
 
 @dataclass(frozen=True)
@@ -22,6 +21,8 @@ class CameraPanelState:
     frame: Optional[Any] = None
     fps: float = 0.0
     frame_index: int = -1
+    generation: int = 0
+    last_updated_at: float = 0.0
     detections: int = 0
     track_id: Optional[str] = None
     track_status: str = ""
@@ -41,18 +42,61 @@ class CameraPanelState:
 
 
 class MultiCameraViewModel:
-    """Bounded latest-wins state for exactly four operator panels."""
+    """Bounded latest-wins state for N operator panels (config-driven).
 
-    def __init__(self, camera_ids: Tuple[str, ...] = CAMERA_IDS) -> None:
-        if tuple(camera_ids) != CAMERA_IDS:
-            raise ValueError("multicamera view requires CAM-001..CAM-004")
+    The model separates the CAMERA CATALOG (every known camera, e.g. all
+    stores' cameras in a multistore deployment) from the CURRENT VIEWPORT
+    (the subset currently rendered).  ``update``/``mark_state`` accept any
+    catalog camera, so late frames or state changes from a store that is no
+    longer in view never raise ``unsupported camera``; their panel state is
+    retained and re-enters the view when the store is selected again.
+    """
+
+    def __init__(
+        self,
+        camera_ids: Tuple[str, ...],
+        catalog_ids: Optional[Tuple[str, ...]] = None,
+    ) -> None:
+        ids = tuple(str(camera_id) for camera_id in camera_ids)
+        if not ids or len(set(ids)) != len(ids):
+            raise ValueError("camera_ids must be non-empty and unique")
+        if catalog_ids is None:
+            catalog_ids = ids
+        catalog = tuple(str(camera_id) for camera_id in catalog_ids)
+        if not catalog or len(set(catalog)) != len(catalog):
+            raise ValueError("catalog_ids must be non-empty and unique")
+        for camera_id in ids:
+            if camera_id not in catalog:
+                raise ValueError(f"viewport camera not in catalog: {camera_id}")
+        self._catalog_ids = catalog
+        self._viewport = ids
         self._panels: Dict[str, CameraPanelState] = {
-            camera_id: CameraPanelState(camera_id) for camera_id in CAMERA_IDS
+            camera_id: CameraPanelState(camera_id) for camera_id in catalog
         }
 
     @property
-    def layout(self) -> Tuple[Tuple[str, str], Tuple[str, str]]:
-        return PANEL_LAYOUT
+    def camera_ids(self) -> Tuple[str, ...]:
+        """Currently visible (viewport) camera set."""
+        return self._viewport
+
+    @property
+    def catalog_ids(self) -> Tuple[str, ...]:
+        """Full camera catalog (all known cameras, across stores)."""
+        return self._catalog_ids
+
+    def select_viewport(self, camera_ids: Tuple[str, ...]) -> None:
+        """Switch the visible set without discarding catalog panel state."""
+        ids = tuple(str(camera_id) for camera_id in camera_ids)
+        if not ids or len(set(ids)) != len(ids):
+            raise ValueError("camera_ids must be non-empty and unique")
+        for camera_id in ids:
+            if camera_id not in self._catalog_ids:
+                raise ValueError(f"unsupported camera: {camera_id}")
+        self._viewport = ids
+
+    @property
+    def layout(self) -> Tuple[Tuple[str, ...], ...]:
+        return tuple(tuple(row) for row in grid_layout(self._viewport))
 
     def update(self, camera_id: str, snapshot: Any) -> None:
         """Accept an existing manager snapshot; retain only the latest frame."""
@@ -60,7 +104,11 @@ class MultiCameraViewModel:
             raise ValueError(f"unsupported camera: {camera_id}")
         current = self._panels[camera_id]
         frame_index = int(getattr(snapshot, "frame_index", current.frame_index))
-        if frame_index < current.frame_index:
+        generation = int(getattr(snapshot, "generation", current.generation) or 0)
+        # Advance if generation increased (reconnect), or same generation with advancing/equal sequence
+        if generation < current.generation:
+            return
+        if generation == current.generation and frame_index < current.frame_index:
             return
         detections = getattr(snapshot, "detections", None)
         track_id = getattr(snapshot, "track_id", None)
@@ -88,6 +136,8 @@ class MultiCameraViewModel:
             frame=getattr(snapshot, "frame", None),
             fps=float(getattr(snapshot, "fps", 0.0) or 0.0),
             frame_index=frame_index,
+            generation=generation,
+            last_updated_at=time.monotonic() if getattr(snapshot, "frame", None) is not None else current.last_updated_at,
             detections=(int(detections) if detections is not None else current.detections),
             track_id=(track_id if track_id not in (None, "") else current.track_id),
             track_status=(str(track_status) if track_status not in (None, "") else current.track_status),
@@ -134,4 +184,5 @@ class MultiCameraViewModel:
         return self._panels[camera_id]
 
     def snapshot(self) -> Dict[str, CameraPanelState]:
-        return dict(self._panels)
+        """Panels for the current viewport (catalog state is preserved)."""
+        return {camera_id: self._panels[camera_id] for camera_id in self._viewport}

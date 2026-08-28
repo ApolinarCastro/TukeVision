@@ -5,9 +5,9 @@ from unittest.mock import patch
 
 from scripts.run_multicamera import (
     build_panel_snapshot,
-    camera_subtype,
-    prompt_connection_credentials,
 )
+from src.domain.catalog import StoreCatalog
+from src.domain.models import SourceType
 from src.observability.runtime_trace import BoundedRuntimeTrace
 from src.ui.tk_view import (
     annotate_frame,
@@ -28,22 +28,9 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertIn("run_multicamera.py", launcher)
         self.assertIn("SourceManager", entrypoint)
         self.assertIn("OperationalPipeline", entrypoint)
-        self.assertIn("getpass.getpass", entrypoint)
         self.assertNotIn("rtsp://", launcher.lower())
         self.assertNotIn("password=", launcher.lower())
         self.assertNotIn("VideoCapture", entrypoint)
-
-    def test_username_and_password_are_requested_locally_without_history(self):
-        with patch(
-            "scripts.run_multicamera.getpass.getpass",
-            side_effect=("operator", "secret"),
-        ) as prompt:
-            credentials = prompt_connection_credentials()
-
-        self.assertEqual(credentials, ("operator", "secret"))
-        self.assertEqual(prompt.call_count, 2)
-        entrypoint = Path("scripts/run_multicamera.py").read_text(encoding="utf-8")
-        self.assertNotIn('node.targets[0].id in {"HOST", "USER"}', entrypoint)
 
     def test_canonical_result_is_adapted_without_fabricating_values(self):
         event = SimpleNamespace(
@@ -100,7 +87,9 @@ class TestMulticameraEntrypoint(unittest.TestCase):
     def test_panel_selects_exact_analytics_frame_for_persistent_overlay(self):
         live_frame = np.zeros((100, 160, 3), dtype=np.uint8)
         analytics_frame = np.full((100, 160, 3), 17, dtype=np.uint8)
-        panel = SimpleNamespace(
+        # Case A: Live stream has advanced beyond analyzed frame (frame_index=10, analytics_frame_index=9)
+        # Operator screen must present fresh live frame without freezing on old analytics frame
+        panel_advancing = SimpleNamespace(
             frame=live_frame,
             frame_index=10,
             analytics_frame=analytics_frame,
@@ -109,24 +98,97 @@ class TestMulticameraEntrypoint(unittest.TestCase):
             track_id="TRK-7",
             track_bbox=(10, 20, 80, 90),
         )
+        selected, selected_index, mode = select_panel_frame(panel_advancing)
+        self.assertIs(selected, live_frame)
+        self.assertEqual(selected_index, 10)
+        self.assertEqual(mode, "VIVO")
 
-        selected, selected_index, mode = select_panel_frame(panel)
-        annotated = annotate_frame(
-            selected,
-            panel,
-            displayed_frame_index=selected_index,
+        # Case B: Current frame matches analytics frame (frame_index=9, analytics_frame_index=9)
+        # Exact analytics frame and overlays are displayed
+        panel_fresh = SimpleNamespace(
+            frame=live_frame,
+            frame_index=9,
+            analytics_frame=analytics_frame,
+            analytics_frame_index=9,
+            bboxes=((10, 20, 80, 90, 0.91, "person"),),
+            track_id="TRK-7",
+            track_bbox=(10, 20, 80, 90),
         )
-
-        self.assertIs(selected, analytics_frame)
-        self.assertEqual(selected_index, 9)
-        self.assertEqual(mode, "ANALITICA")
+        selected_fresh, selected_index_fresh, mode_fresh = select_panel_frame(panel_fresh)
+        annotated = annotate_frame(
+            selected_fresh,
+            panel_fresh,
+            displayed_frame_index=selected_index_fresh,
+        )
+        self.assertIs(selected_fresh, analytics_frame)
+        self.assertEqual(selected_index_fresh, 9)
+        self.assertEqual(mode_fresh, "ANALITICA")
         self.assertGreater(int(annotated.sum()), int(analytics_frame.sum()))
 
-    def test_all_authorized_channels_use_consistent_main_stream(self):
-        self.assertEqual([camera_subtype(channel) for channel in (7, 1, 5, 3)], [0, 0, 0, 0])
+    def test_recorder_cameras_resolve_main_stream_descriptor_subtype(self):
+        config = {
+            "multistore": {
+                "enabled": True,
+                "organization": {
+                    "organization_id": "ORG-TEST",
+                    "organization_name": "Test",
+                    "created_at": "2026-08-19T00:00:00Z",
+                },
+                "stores": [{
+                    "store_id": "STORE-001",
+                    "organization_id": "ORG-TEST",
+                    "store_name": "Tienda Test",
+                    "timezone": "UTC",
+                    "evidence_namespace": "data/runtime_evidence/STORE-001",
+                    "recorders": [{
+                        "recorder_id": "DVR-001",
+                        "store_id": "STORE-001",
+                        "recorder_name": "DVR Principal",
+                        "recorder_type": "DVR",
+                        "host": "192.168.10.20",
+                        "port": 554,
+                        "vendor": "Dahua",
+                        "credentials_ref": "TK_TEST_CREDS",
+                        "total_channels": 16,
+                        "cameras": [
+                            {
+                                "camera_id": "CAM-007",
+                                "store_id": "STORE-001",
+                                "channel_number": 7,
+                                "camera_name": "Camara 07",
+                                "source_type": "RTSP_STREAM",
+                                "host": "192.168.10.20",
+                                "stream_main": "rtsp://192.168.10.20/cam/realmonitor",
+                                "evidence_namespace": "data/runtime_evidence/STORE-001/CAM-007/",
+                            },
+                            {
+                                "camera_id": "CAM-001",
+                                "store_id": "STORE-001",
+                                "channel_number": 1,
+                                "camera_name": "Camara 01",
+                                "source_type": "RTSP_STREAM",
+                                "host": "192.168.10.20",
+                                "stream_sub": "rtsp://192.168.10.20/cam/realmonitor",
+                                "evidence_namespace": "data/runtime_evidence/STORE-001/CAM-001/",
+                            },
+                        ],
+                    }],
+                    "direct_cameras": [],
+                }],
+            }
+        }
+        catalog = StoreCatalog.from_dict(config)
+        entries = catalog.camera_descriptors(password_resolver=lambda ref: "s3cret")
+        by_id = {entry.camera_id: entry.descriptor for entry in entries}
+        self.assertEqual(by_id["CAM-007"].channel, 7)
+        self.assertEqual(by_id["CAM-007"].subtype, 0)
+        self.assertEqual(by_id["CAM-001"].subtype, 1)
+        self.assertEqual(by_id["CAM-007"].password, "s3cret")
+        self.assertNotIn("s3cret", repr(by_id["CAM-007"]))
 
     def test_panel_text_exposes_operator_verification_fields(self):
         panel = SimpleNamespace(
+            frame=object(),
             frame_index=11,
             analytics_frame=object(),
             source_state="OPEN", resolution="640x360", detections=2,
@@ -142,7 +204,7 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         text = panel_status_text(panel)
         self.assertIn("PERSON_DETECTED 91%", text)
         self.assertIn("Track: TRK-7 (ACTIVE)", text)
-        self.assertIn("Imagen: ANALITICA 9", text)
+        self.assertIn("Imagen: VIVO 11", text)
         self.assertIn("Video: 11", text)
         self.assertIn("Frame analítico: 9", text)
         self.assertIn("Evidencia: frame.jpg", text)

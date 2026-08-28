@@ -133,6 +133,8 @@ class EvidenceClipAdapter:
         container: str = "mp4",
         codec: str = "mpeg4",
         review_target: str | Path | None = None,
+        store_id: str = "",
+        organization_id: str = "",
     ) -> None:
         if max_clips_per_camera < 1 or max_clip_duration_seconds <= 0 or frame_rate <= 0:
             raise ValueError("invalid clip bounds")
@@ -143,6 +145,8 @@ class EvidenceClipAdapter:
         self.container = _component(container, "container")
         self.codec = _component(codec, "codec")
         self.review_target = None if review_target is None else Path(review_target)
+        self.store_id = str(store_id)
+        self.organization_id = str(organization_id)
         self._retention_status: Dict[str, str] = {}
         self._lock = threading.RLock()
 
@@ -159,6 +163,8 @@ class EvidenceClipAdapter:
         return {
             "clip_id": clip_id or f"CLP-{uuid.uuid4().hex.upper()}",
             "camera_id": str(camera_id),
+            "store_id": self.store_id,
+            "organization_id": self.organization_id,
             "signal_id": str(signal_id),
             "start_timestamp": float(start_timestamp),
             "end_timestamp": float(end_timestamp),
@@ -347,6 +353,8 @@ class EvidenceClipAdapter:
             metadata = {
                 "clip_id": clip_id,
                 "camera_id": camera_id,
+                "store_id": self.store_id,
+                "organization_id": self.organization_id,
                 "signal_id": signal_id,
                 "start_timestamp": start_timestamp,
                 "end_timestamp": end_timestamp,

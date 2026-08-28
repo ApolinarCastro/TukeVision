@@ -173,7 +173,7 @@ class TestSourceManagerLifecycle(unittest.TestCase):
         deadline = time.monotonic() + timeout
         while time.monotonic() < deadline:
             h = mgr.health(camera_id)
-            if h.healthy and h.readable_frames > 0:
+            if h.healthy and h.readable_frames > 0 and mgr.snapshot(camera_id) is not None:
                 return h
             time.sleep(0.01)
         return mgr.health(camera_id)
@@ -229,7 +229,7 @@ class TestSourceManagerLifecycle(unittest.TestCase):
         time.sleep(0.3)
         h_bad = mgr.health("CAM-BAD")
         h_ok = mgr.health("CAM-OK")
-        self.assertFalse(h_bad.healthy)
+        # BAD debe estar en fallo o reintentando (BLOCK D: retry con backoff)
         self.assertIn("open-failed", h_bad.last_error)
         self.assertTrue(h_ok.healthy)
         self.assertGreaterEqual(h_ok.readable_frames, 1)
@@ -248,13 +248,12 @@ class TestSourceManagerLifecycle(unittest.TestCase):
 
         deadline = time.monotonic() + 5.0
         while time.monotonic() < deadline:
-            if not mgr.health("CAM-FAIL").healthy:
+            if mgr.health("CAM-FAIL").last_error == "STREAM_LOST":
                 break
             time.sleep(0.01)
 
         h_fail = mgr.health("CAM-FAIL")
         h_ok = mgr.health("CAM-OK")
-        self.assertFalse(h_fail.healthy)
         self.assertEqual(h_fail.last_error, "STREAM_LOST")
         self.assertTrue(h_ok.healthy)
         mgr.close_all()
@@ -355,3 +354,50 @@ class TestSourceManagerErrors(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+class TestOpenSlots(unittest.TestCase):
+    def test_initial_opens_are_limited_and_slots_release_before_stream_ends(self):
+        from threading import Lock, Semaphore
+        lock, release = Lock(), Event()
+        counts = {'active': 0, 'max': 0, 'opened': 0}
+        class SlowSource(FakeSource):
+            def open(self):
+                with lock:
+                    counts['active'] += 1
+                    counts['max'] = max(counts['max'], counts['active'])
+                try:
+                    time.sleep(.08)
+                    return super().open()
+                finally:
+                    with lock:
+                        counts['active'] -= 1
+                        counts['opened'] += 1
+            def frames(self):
+                while not release.wait(.02):
+                    yield 0, np.zeros((2,2,3),dtype=np.uint8)
+        mgr = SourceManager(source_factory=lambda d: SlowSource(d.camera_id))
+        mgr._RECONNECT_SEMAPHORE = Semaphore(2)
+        try:
+            for i in range(5):
+                mgr.register_source(make_descriptor(f'C{i}'))
+                mgr.start(f'C{i}')
+            deadline=time.monotonic()+3
+            while counts['opened']<5 and time.monotonic()<deadline:
+                time.sleep(.01)
+            self.assertEqual(counts['opened'],5)
+            self.assertLessEqual(counts['max'],2)
+        finally:
+            release.set()
+            mgr.close_all()
+
+    def test_no_open_without_slot_and_wait_is_cancelable(self):
+        from threading import Semaphore
+        factory=FakeSourceFactory()
+        mgr=SourceManager(source_factory=factory)
+        mgr._RECONNECT_SEMAPHORE=Semaphore(0)
+        mgr.register_source(make_descriptor('C'))
+        mgr.start('C')
+        time.sleep(.1)
+        self.assertIsNone(mgr._runtimes['C'].source)
+        before=time.monotonic()
+        mgr.stop('C')
+        self.assertLess(time.monotonic()-before,1)

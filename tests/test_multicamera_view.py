@@ -3,13 +3,16 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from src.ui.multicamera import CAMERA_IDS, PANEL_LAYOUT, MultiCameraViewModel
 from src.ui.controller import UiController
+from src.ui.grid_layout import grid_layout
+from src.ui.multicamera import MultiCameraViewModel
+
+CAMERA_IDS = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
 
 
 class TestMultiCameraView(unittest.TestCase):
     def test_controller_orchestrates_four_snapshots_without_capture(self):
-        controller = UiController(config={})
+        controller = UiController(config={}, camera_ids=CAMERA_IDS)
         for index, camera_id in enumerate(CAMERA_IDS):
             controller.ingest_camera_snapshot(camera_id, SimpleNamespace(
                 frame_index=index + 1, frame=np.full((2, 2, 3), index),
@@ -19,13 +22,23 @@ class TestMultiCameraView(unittest.TestCase):
         self.assertEqual(tuple(panels), CAMERA_IDS)
         self.assertEqual(int(panels["CAM-003"].frame[0, 0, 0]), 2)
 
-    def test_fixed_layout_and_mapping(self):
-        view = MultiCameraViewModel()
-        self.assertEqual(view.layout, PANEL_LAYOUT)
+    def test_layout_is_computed_from_the_config_driven_camera_set(self):
+        view = MultiCameraViewModel(CAMERA_IDS)
+        self.assertEqual(
+            view.layout,
+            tuple(tuple(row) for row in grid_layout(CAMERA_IDS)),
+        )
         self.assertEqual(tuple(view.snapshot()), CAMERA_IDS)
 
+    def test_layout_supports_sixteen_cameras(self):
+        ids = tuple(f"CAM-{index:03d}" for index in range(1, 17))
+        view = MultiCameraViewModel(ids)
+        self.assertEqual(len(tuple(view.snapshot())), 16)
+        self.assertEqual(len(view.layout), 4)
+        self.assertTrue(all(len(row) == 4 for row in view.layout))
+
     def test_latest_wins_and_camera_isolation(self):
-        view = MultiCameraViewModel()
+        view = MultiCameraViewModel(CAMERA_IDS)
         frame = np.zeros((2, 2, 3), dtype=np.uint8)
         view.update("CAM-001", SimpleNamespace(frame_index=2, frame=frame, source_state="OPEN", fps=3))
         view.update("CAM-001", SimpleNamespace(frame_index=1, frame=None, source_state="FAILED", fps=0))
@@ -36,12 +49,12 @@ class TestMultiCameraView(unittest.TestCase):
         self.assertEqual(view.panel("CAM-002").source_state, "OFFLINE")
 
     def test_rejects_unknown_camera(self):
-        view = MultiCameraViewModel()
+        view = MultiCameraViewModel(CAMERA_IDS)
         with self.assertRaises(ValueError):
             view.mark_state("CAM-999", "FAILED")
 
     def test_sparse_analytics_survive_a_later_video_only_frame(self):
-        view = MultiCameraViewModel()
+        view = MultiCameraViewModel(CAMERA_IDS)
         analytics_frame = np.full((2, 2, 3), 7, dtype=np.uint8)
         live_frame = np.zeros((2, 2, 3), dtype=np.uint8)
         view.update("CAM-001", SimpleNamespace(
