@@ -212,7 +212,7 @@ class StoreEdgeRuntime:
             summary = self._pipeline.run(self._stop.is_set, on_result)
             self._processed = int(summary.frames_processed)
         except Exception as exc:
-            logger.error("EDGE_STORE_RUN_FAILED store_id=%s error=%s",
+            logger.exception("EDGE_STORE_RUN_FAILED store_id=%s error=%s",
                          self.store_id, type(exc).__name__)
 
     # ------------------------------------------------------------------

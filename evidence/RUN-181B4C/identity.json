@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-181B4C",
+  "pid": 24712,
+  "started_at": "2026-08-27T14:35:04",
+  "started_at_unix": 1787855704.2706711,
+  "version": "06d0e6a-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-67F2E5",
+  "pid": 19280,
+  "started_at": "2026-08-28T20:49:44",
+  "started_at_unix": 1787964584.3423696,
+  "version": "v3-phase3-openvino-stable-20260828-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

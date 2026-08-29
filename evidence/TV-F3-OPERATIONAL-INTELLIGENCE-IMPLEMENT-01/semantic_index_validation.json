@@ -1,0 +1,13 @@
+{
+  "gate": "PASS",
+  "component": "SEMANTIC_EVIDENCE_INDEX",
+  "execution_id": "TV-F3-OPERATIONAL-INTELLIGENCE-IMPLEMENT-01",
+  "tests_passed": 1,
+  "sqlite_relational_persistence": "verified",
+  "semantic_search_by_camera": "verified",
+  "semantic_search_by_time": "verified",
+  "semantic_search_by_tag": "verified",
+  "semantic_search_by_entity": "verified",
+  "test_script": "test_index.py",
+  "timestamp": "2026-08-28T20:31:30Z"
+}

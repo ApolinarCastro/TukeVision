@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-27T16:12:07.564188",
+  "git_branch": "product/loop-0018r-temporal-tracking",
+  "git_commit": "06d0e6a449a8af6eb9ce8610409632a1f9897a3b",
+  "python_version": "3.12.13",
+  "configured_streams": 15,
+  "frame_stall_timeout_s": 10.0,
+  "active_python_processes": 4,
+  "active_ffmpeg_processes": 0
+}

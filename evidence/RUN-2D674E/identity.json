@@ -1,0 +1,24 @@
+{
+  "run_id": "RUN-2D674E",
+  "pid": 26036,
+  "started_at": "2026-08-27T15:05:53",
+  "started_at_unix": 1787857553.0570068,
+  "version": "06d0e6a-dirty",
+  "camera_ids": [
+    "cam_01",
+    "cam_02",
+    "cam_03",
+    "cam_04",
+    "cam_05",
+    "cam_06",
+    "cam_07",
+    "cam_08",
+    "cam_09",
+    "cam_10",
+    "cam_11",
+    "cam_12",
+    "cam_13",
+    "cam_14",
+    "cam_15"
+  ]
+}

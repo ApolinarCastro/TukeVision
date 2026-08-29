@@ -21,6 +21,9 @@ from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional
+from pathlib import PurePosixPath
+from collections import deque
+import time
 
 from src.observations.activity import ActivityLayer
 
@@ -63,6 +66,15 @@ class AdvanceChain:
         self._correlator = correlator
         self._behavior = behavior_engine
         self._closed = False
+        
+        # SLICE 1: Frame Buffer & Bundle Selector
+        self._frame_buffer = {}
+        from src.evidence.bundle import EvidenceBundleStore, EvidenceSelector
+        self._bundle_store = None
+        self._bundle_selector = None
+        if self._evidence_store is not None:
+            self._bundle_store = EvidenceBundleStore(self._evidence_store)
+            self._bundle_selector = EvidenceSelector(self._bundle_store)
 
     # ------------------------------------------------------------------
     # Fábrica config-driven
@@ -141,6 +153,8 @@ class AdvanceChain:
         self._selective.register_from_source_manager(self._source_manager)
         for camera_id in registered:
             self._tracker.register_camera(camera_id)
+            if camera_id not in self._frame_buffer:
+                self._frame_buffer[camera_id] = deque(maxlen=30)  # 30 frames buffer
         logger.info("ADVANCE_CHAIN_CAMERAS registered=%d", len(registered))
         return registered
 
@@ -177,12 +191,35 @@ class AdvanceChain:
             frame=frame,
         )
 
+        # SLICE 1: Buffering frame
+        now_ts = time.time()
+        # Intentamos usar el timestamp real de la observación si es posible
+        if observation is not None and hasattr(observation, "timestamp"):
+            try:
+                from datetime import datetime, timezone
+                obs_ts = datetime.fromisoformat(observation.timestamp.replace("Z", "+00:00")).timestamp()
+                now_ts = obs_ts
+            except Exception:
+                pass
+        self._frame_buffer[camera_id].append((now_ts, frame))
+
         observation_ref = None
         evidence = None
         evidence_ref = None
         if observation is not None:
             observation_ref = getattr(observation, "observation_id", None)
-            if self._evidence_store is not None:
+            if self._bundle_selector is not None:
+                bundle = self._bundle_selector.select(
+                    camera_id=camera_id,
+                    frames_buffer=list(self._frame_buffer[camera_id]),
+                    detections=[],
+                    tracks=[],
+                    target_timestamp=now_ts
+                )
+                if bundle is not None:
+                    evidence_ref = PurePosixPath(bundle.key_frame_path).parent.as_posix() if bundle.key_frame_path else bundle.bundle_id
+            elif self._evidence_store is not None:
+                # Fallback to atomic if bundle fails or selector is none
                 evidence = self._evidence_store.persist_selected(
                     frame,
                     camera_id=camera_id,

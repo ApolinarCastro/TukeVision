@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-5C7835",
+  "pid": 4964,
+  "started_at": "2026-08-27T16:51:11",
+  "started_at_unix": 1787863871.7244747,
+  "version": "06d0e6a-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

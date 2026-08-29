@@ -1,0 +1,8 @@
+{
+  "timestamp": "2026-08-27T16:21:54",
+  "run_id": "RUN-40E149",
+  "pid": 6600,
+  "configured_streams": 15,
+  "accounted_streams": 15,
+  "first_frame_delivery_gate": "PASS"
+}
