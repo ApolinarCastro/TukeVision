@@ -1,0 +1,8 @@
+{
+  "gate": "PRODUCTION_PRIVACY",
+  "status": "PASS",
+  "role_based_access": "ENFORCED",
+  "biometric_identity": "PROHIBITED",
+  "face_recognition": "DISABLED",
+  "evidence_export_audit": "ENABLED"
+}

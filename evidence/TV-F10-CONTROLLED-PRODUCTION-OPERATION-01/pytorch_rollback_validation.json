@@ -1,0 +1,7 @@
+{
+  "gate": "PYTORCH_RUNTIME_ROLLBACK",
+  "status": "PASS",
+  "test_case": "test_pytorch_runtime_rollback",
+  "fallback_runtime": "PyTorch FP32",
+  "result": "Fallback path verified and capable of sustaining perception if OpenVINO encounters an isolated fault"
+}

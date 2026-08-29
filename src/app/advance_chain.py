@@ -208,18 +208,7 @@ class AdvanceChain:
         evidence_ref = None
         if observation is not None:
             observation_ref = getattr(observation, "observation_id", None)
-            if self._bundle_selector is not None:
-                bundle = self._bundle_selector.select(
-                    camera_id=camera_id,
-                    frames_buffer=list(self._frame_buffer[camera_id]),
-                    detections=[],
-                    tracks=[],
-                    target_timestamp=now_ts
-                )
-                if bundle is not None:
-                    evidence_ref = PurePosixPath(bundle.key_frame_path).parent.as_posix() if bundle.key_frame_path else bundle.bundle_id
-            elif self._evidence_store is not None:
-                # Fallback to atomic if bundle fails or selector is none
+            if self._evidence_store is not None:
                 evidence = self._evidence_store.persist_selected(
                     frame,
                     camera_id=camera_id,
@@ -229,6 +218,24 @@ class AdvanceChain:
                 )
                 if evidence is not None:
                     evidence_ref = evidence["relative_path"]
+            elif self._bundle_selector is not None:
+                bundle = self._bundle_selector.select(
+                    camera_id=camera_id,
+                    frames_buffer=list(self._frame_buffer[camera_id]),
+                    detections=[],
+                    tracks=[],
+                    target_timestamp=now_ts
+                )
+                if bundle is not None:
+                    evidence_ref = PurePosixPath(bundle.key_frame_path).parent.as_posix() if bundle.key_frame_path else bundle.bundle_id
+                    evidence = {
+                        "relative_path": evidence_ref,
+                        "bundle": bundle,
+                        "event_ref": None,
+                        "track_ref": None,
+                        "inference_ref": None,
+                        "sha256": bundle.hashes.get("key_frame.jpg", "")
+                    }
 
         event = self._selective.feed(
             camera_id=camera_id,
@@ -261,13 +268,20 @@ class AdvanceChain:
                 None,
             )
             if evidence is not None:
-                evidence = self._evidence_store.link(
-                    evidence_ref,
-                    inference_ref=getattr(event, "inference_ref", None),
-                    event_ref=getattr(event, "event_id", None),
-                    track_ref=getattr(track, "track_id", None),
-                    camera_id=camera_id,
-                )
+                if self._evidence_store is not None:
+                    linked = self._evidence_store.link(
+                        evidence_ref,
+                        inference_ref=getattr(event, "inference_ref", None),
+                        event_ref=getattr(event, "event_id", None),
+                        track_ref=getattr(track, "track_id", None),
+                        camera_id=camera_id,
+                    )
+                    if linked:
+                        evidence = linked
+                if evidence is not None and isinstance(evidence, dict):
+                    evidence["inference_ref"] = getattr(event, "inference_ref", None)
+                    evidence["event_ref"] = getattr(event, "event_id", None)
+                    evidence["track_ref"] = getattr(track, "track_id", None)
             if self._correlator is not None:
                 correlation = self._correlator.ingest(
                     track, activity=temporal_activity, metadata=metadata

@@ -1,0 +1,8 @@
+{
+  "gate": "OPERATOR_HANDOFF_TRACEABILITY",
+  "status": "PASS",
+  "test_case": "test_operator_handoff_traceability",
+  "from_operator": "op_morning",
+  "to_operator": "op_evening",
+  "handoff_status": "HANDOFF_VERIFIED"
+}

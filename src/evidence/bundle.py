@@ -104,7 +104,7 @@ class EvidenceBundleStore:
         import re
         import uuid
         safe_camera = re.sub(r'[^a-zA-Z0-9_]', '_', camera_id)
-        bundle_id = uuid.uuid4().hex
+        bundle_id = f"EVD-{uuid.uuid4().hex}"
         relative_dir = PurePosixPath(safe_camera, bundle_id)
         
         actual_store = self.store

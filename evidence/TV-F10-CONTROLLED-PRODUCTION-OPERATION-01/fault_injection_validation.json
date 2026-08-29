@@ -1,0 +1,12 @@
+{
+  "gate": "FAULT_INJECTION_VALIDATION",
+  "status": "PASS",
+  "scenarios_tested": [
+    "single camera stall",
+    "source unavailable",
+    "inference context hang",
+    "agent monitor safe mode trigger",
+    "storage warning threshold simulation"
+  ],
+  "result": "All injected faults degraded safely without crashing neighboring components"
+}

@@ -1,0 +1,7 @@
+{
+  "gate": "PRODUCTION_STREAM_RECOVERY",
+  "status": "PASS",
+  "test_case": "test_production_camera_and_stream_recovery",
+  "mechanism": "StreamSupervisor auto-reconnect",
+  "result": "Isolated stream stalls recover within 2 seconds without resetting system"
+}

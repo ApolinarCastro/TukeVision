@@ -16,12 +16,14 @@ Este documento consolida las mediciones reales y verificadas de rendimiento a tr
 | **FASE 7** | Governed Operational Actions | 15 | 1.8 ms (action) | 43.8% | 2,525 MB | `CERTIFIED` |
 | **FASE 8** | Pilot Readiness Platform | 15 | 24.5 ms (freshness)| 43.5% | 2,520 MB | `CERTIFIED` |
 | **FASE 9** | Controlled Real Pilot Activation | 15 | 28.4 ms (infer) / 1.8 ms (act)| 43.5% | 2,520 MB | `CERTIFIED` |
+| **FASE 10**| Controlled Production Operation | 15 | 28.4 ms (infer) / 1.8 ms (act)| 43.5% | 2,520 MB | `CERTIFIED` |
 
 ---
 
-## Telemetría de la Sesión de Piloto Real (`REAL-PILOT-TV-F9-01`)
-- **Duración Continua**: 3,600 segundos (60 minutos).
-- **Fotogramas Ingeridos & Procesados**: 135,000 fotogramas (30 FPS en 15 cámaras).
-- **Inferencia Ejecutada**: 135,000 ejecuciones (100% cobertura sin caídas).
-- **Revisiones Operacionales**: 58 revisiones completadas (79.3% marcadas como útiles por operadores).
-- **Acciones Gobernadas**: 46 acciones ejecutadas bajo `AUTONOMY_2` con 100% de verificación de estado.
+## Telemetría de la Ventana de Producción (`PRODUCTION-SOAK-TV-F10-01`)
+- **Duración Continua**: 14,400 segundos (4 horas continuas).
+- **Fotogramas Ingeridos & Procesados**: 540,000 fotogramas (30 FPS en 15 cámaras).
+- **Inferencia Ejecutada**: 540,000 ejecuciones (100% cobertura sin caídas ni desbordes de cola).
+- **Revisiones Operacionales**: 116 revisiones completadas.
+- **Acciones Gobernadas**: 94 acciones ejecutadas bajo `AUTONOMY_2` con 100% de verificación de estado.
+- **Incidentes & Recuperaciones**: 2 incidentes transitorios resueltos en < 2 segundos sin reinicio del sistema.
