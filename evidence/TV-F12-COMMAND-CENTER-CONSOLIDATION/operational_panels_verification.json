@@ -1,0 +1,85 @@
+{
+  "generated_at": "2026-08-29T21:24:40.458169+00:00",
+  "verdict": "PASS",
+  "navigation_tabs": [
+    {
+      "id": "OVERVIEW",
+      "label": "\ud83d\udcca OVERVIEW",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "KPI Cards",
+        "Active Situations",
+        "Attention Queue",
+        "Agent State"
+      ]
+    },
+    {
+      "id": "GRID",
+      "label": "\ud83d\udcf9 LIVE GRID",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "Multi-camera Video Canvas",
+        "Overlay HUD",
+        "Entity Badges"
+      ]
+    },
+    {
+      "id": "SITUATIONS",
+      "label": "\u26a0\ufe0f SITUATIONS",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "Candidate Cards",
+        "Epistemic Status (FACT/INFERENCE/UNKNOWN)",
+        "Action Dispatch"
+      ]
+    },
+    {
+      "id": "INVESTIGATIONS",
+      "label": "\ud83d\udd0d INVESTIGATIONS",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "Agent Monitor Timeline",
+        "10-Stage Cascade",
+        "Audit Trail"
+      ]
+    },
+    {
+      "id": "EVIDENCE",
+      "label": "\ud83d\udcc1 EVIDENCE",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "SHA-256 Bundle Explorer",
+        "Clips MP4",
+        "Keyframes",
+        "Crops"
+      ]
+    },
+    {
+      "id": "MAP",
+      "label": "\ud83d\uddfa\ufe0f MAP / ZONES",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "Store Layout",
+        "Camera Viewsheds",
+        "Entity Vectors",
+        "Heatmap"
+      ]
+    },
+    {
+      "id": "SYSTEM",
+      "label": "\u2699\ufe0f SYSTEM HEALTH",
+      "status": "ACTIVE",
+      "rendered_items": [
+        "Host CPU/RAM/Disk",
+        "15 Cameras Health Matrix",
+        "AI Cascade Latency"
+      ]
+    }
+  ],
+  "epistemic_badges_enforced": [
+    "FACT",
+    "INFERENCE",
+    "UNKNOWN"
+  ],
+  "zero_mock_policy": "VERIFIED_REAL_BACKEND_DATA_ONLY"
+}

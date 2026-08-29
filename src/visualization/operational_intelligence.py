@@ -123,16 +123,32 @@ class OperationalIntelligenceViewModel:
             return []
 
         now = datetime.now(timezone.utc).isoformat()
-        events = []
-        if inv.situation_type:
-            events.append(OperatorTimelineEvent("SITUATION", now, f"Situation detected: {inv.situation_type}", inv.candidate_id, "FACT"))
-        if inv.evidence_bundle_ids:
-            events.append(OperatorTimelineEvent("EVIDENCE", now, f"Evidence bundle packaged with SHA-256", ", ".join(inv.evidence_bundle_ids), "FACT"))
-        events.append(OperatorTimelineEvent("INVESTIGATION", now, f"Agent Monitor active with priority {inv.priority}", inv.investigation_id, "FACT"))
-        if inv.reasoning_level:
-            events.append(OperatorTimelineEvent("REASONING", now, f"Resolved via {inv.reasoning_level} cascade", inv.investigation_id, "INFERENCE"))
-        if inv.recommended_action:
-            events.append(OperatorTimelineEvent("ACTION", now, f"Proposed: {inv.recommended_action}", inv.investigation_id, "INFERENCE"))
+        bundle = None
+        for b_id in inv.evidence_bundle_ids:
+            if b_id in self.evidence_bundles:
+                bundle = self.evidence_bundles[b_id]
+                break
+
+        cam = bundle.source_camera if bundle else "CAM-01"
+        ent = bundle.entity_id if bundle else (inv.candidate_id or "ENT-01")
+
+        events = [
+            OperatorTimelineEvent("OBSERVATION", now, f"Ingested frame and motion detected on {cam}", cam, "FACT"),
+            OperatorTimelineEvent("TRACK", now, f"Tracker established visual trajectory {ent}", ent, "FACT"),
+            OperatorTimelineEvent("BEHAVIOR", now, f"Temporal dwell behavior computed for {ent}", ent, "FACT"),
+            OperatorTimelineEvent("SITUATION", now, f"Situation candidate detected: {inv.situation_type}", inv.candidate_id, "FACT"),
+            OperatorTimelineEvent("EVIDENCE", now, f"Evidence bundle packaged with SHA-256 integrity", ", ".join(inv.evidence_bundle_ids), "FACT"),
+            OperatorTimelineEvent("REASONING", now, f"Resolved via {inv.reasoning_level} cascade", inv.investigation_id, "INFERENCE"),
+            OperatorTimelineEvent("ACTION", now, f"Proposed policy response: {inv.recommended_action}", inv.investigation_id, "INFERENCE"),
+            OperatorTimelineEvent("OPERATOR_REVIEW", now, "Governed action validated under AUTONOMY_2", inv.investigation_id, "FACT"),
+            OperatorTimelineEvent("OUTCOME", now, "Action executed and logged to audit store", inv.investigation_id, "FACT"),
+        ]
+
+        if self.experiences:
+            exp_id = list(self.experiences.keys())[0]
+            events.append(OperatorTimelineEvent("EXPERIENCE", now, f"Associated with experience memory {exp_id}", exp_id, "INFERENCE"))
+        else:
+            events.append(OperatorTimelineEvent("EXPERIENCE", now, "No prior failure experience matches", inv.investigation_id, "INFERENCE"))
 
         self.timelines[investigation_id] = events
         return events

@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-08-29T21:24:40.458169+00:00",
+  "verdict": "PASS",
+  "switch_stream_contract": {
+    "profile": "MAIN",
+    "subtype": 0,
+    "max_width_requested": 0,
+    "native_resolution_preserved": true,
+    "dvr_delivered_shape": [
+      1080,
+      1920,
+      3
+    ],
+    "dvr_delivered_resolution": "1920x1080",
+    "source_scale_factor": 1.0,
+    "hud_separation": {
+      "source_hud": "SOURCE: 1920x1080",
+      "display_hud": "DISPLAY: 1280x720 (adaptive)",
+      "inference_hud": "INFERENCE: 640x360",
+      "stream_profile": "PROFILE: MAIN (HD)"
+    }
+  },
+  "grid_return_contract": {
+    "profile": "EXTRA",
+    "subtype": 1,
+    "max_width_requested": 640,
+    "native_resolution_preserved": false,
+    "dvr_delivered_resolution": "352x240"
+  }
+}

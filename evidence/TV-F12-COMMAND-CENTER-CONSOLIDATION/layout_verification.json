@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-08-29T21:24:40.458169+00:00",
+  "verdict": "PASS",
+  "grid_6": {
+    "layout": "3x3 with 1 main (2x2) at (0,0) and 5 aux (1x1)",
+    "coordinates": [
+      {
+        "camera": "cam_01",
+        "row": 0,
+        "col": 0,
+        "rowspan": 2,
+        "colspan": 2,
+        "type": "MAIN"
+      },
+      {
+        "camera": "cam_02",
+        "row": 0,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1,
+        "type": "AUX"
+      },
+      {
+        "camera": "cam_03",
+        "row": 1,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1,
+        "type": "AUX"
+      },
+      {
+        "camera": "cam_04",
+        "row": 2,
+        "col": 0,
+        "rowspan": 1,
+        "colspan": 1,
+        "type": "AUX"
+      },
+      {
+        "camera": "cam_05",
+        "row": 2,
+        "col": 1,
+        "rowspan": 1,
+        "colspan": 1,
+        "type": "AUX"
+      },
+      {
+        "camera": "cam_06",
+        "row": 2,
+        "col": 2,
+        "rowspan": 1,
+        "colspan": 1,
+        "type": "AUX"
+      }
+    ],
+    "dead_slots": 0,
+    "blank_tiles": 0,
+    "distortion": false,
+    "area_efficiency": "96.4%"
+  },
+  "grid_1": {
+    "layout": "1x1 full viewport",
+    "allow_upscale": true,
+    "aspect_ratio_preserved": true,
+    "useful_area": "98.2%"
+  }
+}

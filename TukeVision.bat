@@ -1,8 +1,29 @@
 @echo off
 setlocal
-cd /d "%~dp0"
-REM Launcher with secure credential dialog
-"%~dp0.venv\Scripts\python.exe" "%~dp0scripts\launcher.py"
+pushd "%~dp0"
+
+set "PYTHON=%~dp0.venv\Scripts\python.exe"
+set "LAUNCHER=%~dp0scripts\launcher.py"
+
+if not exist "%PYTHON%" (
+    echo ERROR: No existe %PYTHON%
+    pause
+    exit /b 1
+)
+
+if not exist "%LAUNCHER%" (
+    echo ERROR: No existe %LAUNCHER%
+    pause
+    exit /b 1
+)
+
+echo Iniciando TukeVision...
+"%PYTHON%" -u "%LAUNCHER%"
+
 set "CODE=%ERRORLEVEL%"
-if not "%CODE%"=="0" pause
-endlocal & exit /b %CODE%
+echo.
+echo TukeVision finalizo con codigo: %CODE%
+
+popd
+pause
+exit /b %CODE%

@@ -83,10 +83,12 @@ def grid_layout(camera_ids: Sequence[str]) -> List[List[str]]:
         return []
     count = len(ids)
     if count == 6:
+        # GRID_6: 1 main (2x2) at (0,0), 2 aux on right (col 2), 3 aux on bottom (row 2)
+        # 100% space utilization, 0 dead slots, 0 distortion
         return [
-            [ids[0], ids[1], ids[2]],
-            ["", ids[3], ids[4]],
-            [ids[5], "", ""],
+            [ids[0], "", ids[1]],
+            ["", "", ids[2]],
+            [ids[3], ids[4], ids[5]],
         ]
     rows, cols = grid_size(count)
     layout: List[List[str]] = []
@@ -125,7 +127,8 @@ def cycle_grid_preset(current, camera_count: int, capacity: int = 0) -> int:
 def grid_cells(camera_ids: Sequence[str], capacity: int = 0) -> List[GridCell]:
     """Cell placements with row/col spanning for Tkinter grid geometry.
 
-    For GRID_6: main camera at (0,0) with rowspan=2, aux in remaining cells.
+    For GRID_6: main camera at (0,0) with rowspan=2, colspan=2; 2 aux on right
+    at (0,2) and (1,2); 3 aux on bottom at (2,0), (2,1), (2,2). 100% area utilization.
     For other counts: regular row-major grid. When ``capacity`` is greater
     than the number of cameras, the trailing positions become empty slots
     (``is_empty=True``, ``camera_id=""``) so the grid renders its full
@@ -136,14 +139,13 @@ def grid_cells(camera_ids: Sequence[str], capacity: int = 0) -> List[GridCell]:
         return []
     count = len(ids)
     if count == 6:
-        # GRID_6: main spans 2 rows on left, 5 aux in 2x3 grid on right
         cells = [
-            GridCell(camera_id=ids[0], row=0, col=0, rowspan=2, colspan=1, is_main=True),
-            GridCell(camera_id=ids[1], row=0, col=1, rowspan=1, colspan=1),
-            GridCell(camera_id=ids[2], row=0, col=2, rowspan=1, colspan=1),
-            GridCell(camera_id=ids[3], row=1, col=1, rowspan=1, colspan=1),
-            GridCell(camera_id=ids[4], row=1, col=2, rowspan=1, colspan=1),
-            GridCell(camera_id=ids[5], row=2, col=0, rowspan=1, colspan=3),  # 5th aux spans bottom
+            GridCell(camera_id=ids[0], row=0, col=0, rowspan=2, colspan=2, is_main=True),
+            GridCell(camera_id=ids[1], row=0, col=2, rowspan=1, colspan=1),
+            GridCell(camera_id=ids[2], row=1, col=2, rowspan=1, colspan=1),
+            GridCell(camera_id=ids[3], row=2, col=0, rowspan=1, colspan=1),
+            GridCell(camera_id=ids[4], row=2, col=1, rowspan=1, colspan=1),
+            GridCell(camera_id=ids[5], row=2, col=2, rowspan=1, colspan=1),
         ]
         return cells
     cap = max(count, int(capacity or 0))

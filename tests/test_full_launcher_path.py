@@ -99,7 +99,7 @@ class TestFullLauncherPath(unittest.TestCase):
         """_spawn_runtime should pass RTSP_BACKEND in child env."""
         dialog = CredentialDialog(CONFIG_PATH)
         with mock.patch("subprocess.Popen") as popen:
-            popen.return_value = mock.Mock(pid=12345)
+            popen.return_value = mock.Mock(pid=12345, wait=mock.Mock(return_value=0))
             rc = dialog._spawn_runtime("store_nicopoly_principal", "admin", "password")
         self.assertEqual(rc, 0)
         args, kwargs = popen.call_args
@@ -108,6 +108,22 @@ class TestFullLauncherPath(unittest.TestCase):
         self.assertIn("RTSP_BACKEND_REQUESTED", env)
         self.assertIn("RTSP_BACKEND_SOURCE", env)
         self.assertEqual(env["RTSP_BACKEND_SOURCE"], "config.rtsp.backend")
+
+    def test_spawn_runtime_propagates_child_exit_0(self):
+        """CHILD_EXIT_0 -> LAUNCHER_EXIT_0."""
+        dialog = CredentialDialog(CONFIG_PATH)
+        with mock.patch("subprocess.Popen") as popen:
+            popen.return_value = mock.Mock(pid=12345, wait=mock.Mock(return_value=0))
+            rc = dialog._spawn_runtime("store_nicopoly_principal", "admin", "password")
+        self.assertEqual(rc, 0)
+
+    def test_spawn_runtime_propagates_child_exit_nonzero(self):
+        """CHILD_EXIT_NONZERO -> LAUNCHER_EXIT_NONZERO."""
+        dialog = CredentialDialog(CONFIG_PATH)
+        with mock.patch("subprocess.Popen") as popen:
+            popen.return_value = mock.Mock(pid=12345, wait=mock.Mock(return_value=42))
+            rc = dialog._spawn_runtime("store_nicopoly_principal", "admin", "password")
+        self.assertEqual(rc, 42)
 
     def test_child_instantiates_correct_source_class_ffmpeg(self):
         """Child process should instantiate FFmpegSupervisedSource when RTSP_BACKEND=ffmpeg_supervised."""

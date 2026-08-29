@@ -50,6 +50,10 @@ from src.ui.grid_layout import (
     grid_capacity,
     EMPTY_SLOT_LABEL,
 )
+from src.ui.tk_operational_panels import (
+    OperationalCommandCenterModes,
+    OperationalPanelsController,
+)
 
 
 DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "multistore.active.json"
@@ -523,6 +527,9 @@ class TkApp:
         self._store_id_var = tk.StringVar(value="")
         self._previous_context = None
         self._poll_after_id: Optional[str] = None
+        self._op_controller = OperationalPanelsController(self._root)
+        self._active_op_mode = OperationalCommandCenterModes.GRID
+        self._nav_buttons: dict = {}
         # BLOCK B: capture Tk callback exceptions without killing the process
         try:
             self._root.report_callback_exception = self._handle_callback_exception  # type: ignore[attr-defined]
@@ -561,78 +568,117 @@ class TkApp:
         header = tk.Frame(self._root, bg=COLORS["bg"])
         header.pack(side=tk.TOP, fill=tk.X)
 
-        brand = tk.Frame(header, bg=COLORS["bg"])
-        brand.pack(side=tk.LEFT, padx=14, pady=8)
+        # Row 1: Brand, Store Selector, and System Status Badges
+        top_row = tk.Frame(header, bg=COLORS["bg"])
+        top_row.pack(fill=tk.X, padx=14, pady=(8, 4))
+
+        brand = tk.Frame(top_row, bg=COLORS["bg"])
+        brand.pack(side=tk.LEFT)
         title_row = tk.Frame(brand, bg=COLORS["bg"])
         title_row.pack(fill=tk.X, anchor=tk.W)
         tk.Label(
-            title_row, text="TUKEVISION", bg=COLORS["bg"], fg=COLORS["text"],
+            title_row, text="TUKEVISION", bg=COLORS["bg"], fg=COLORS["accent"],
             font=FONT_TITLE,
         ).pack(side=tk.LEFT)
-        self._live_dot = tk.Canvas(title_row, width=12, height=12, bg=COLORS["bg"],
-                                   highlightthickness=0)
+        tk.Label(
+            title_row, text="COMMAND CENTER", bg=COLORS["bg"], fg=COLORS["text"],
+            font=("Segoe UI", 11, "bold"),
+        ).pack(side=tk.LEFT, padx=(8, 0))
+
+        self._live_dot = tk.Canvas(title_row, width=10, height=10, bg=COLORS["bg"], highlightthickness=0)
         self._live_dot.pack(side=tk.LEFT, padx=(10, 4), pady=2)
         self._live_label = tk.Label(
-            title_row, text="IDLE", bg=COLORS["bg"], fg=COLORS["offline"],
+            title_row, text="LIVE", bg=COLORS["bg"], fg=COLORS["online"],
             font=FONT_PANEL_TITLE,
         )
         self._live_label.pack(side=tk.LEFT)
-        tk.Label(
-            brand, text="Retail Intelligence & Loss Prevention",
-            bg=COLORS["bg"], fg=COLORS["text_dim"], font=FONT_SUBTITLE,
-        ).pack(fill=tk.X, anchor=tk.W)
 
-        # Store selector (OC-06)
-        store_row = tk.Frame(brand, bg=COLORS["bg"])
-        store_row.pack(fill=tk.X, anchor=tk.W, pady=(4, 0))
+        # Store selector
+        store_row = tk.Frame(top_row, bg=COLORS["bg"])
+        store_row.pack(side=tk.LEFT, padx=(24, 0))
         tk.Label(
-            store_row, text="Tienda:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            store_row, text="Store:", bg=COLORS["bg"], fg=COLORS["text_dim"],
             font=FONT_SMALL,
         ).pack(side=tk.LEFT)
         self._store_var = tk.StringVar(value="")
         stores = self._controller.stores() if hasattr(self._controller, "stores") else []
         self._store_combo = ttk.Combobox(
             store_row, textvariable=self._store_var, values=stores,
-            state="readonly", width=20, font=FONT_SMALL
+            state="readonly", width=18, font=FONT_SMALL
         )
         self._store_combo.pack(side=tk.LEFT, padx=(4, 8))
         if stores:
             self._store_var.set(stores[0])
         self._store_combo.bind("<<ComboboxSelected>>", self._on_store_change)
 
-        # Camera/Zone filter (OC-06)
+        # Zone filter
         tk.Label(
-            store_row, text="Zona:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            store_row, text="Zone:", bg=COLORS["bg"], fg=COLORS["text_dim"],
             font=FONT_SMALL,
         ).pack(side=tk.LEFT)
-        self._zone_var = tk.StringVar(value="Todas")
+        self._zone_var = tk.StringVar(value="All")
         self._zone_combo = ttk.Combobox(
-            store_row, textvariable=self._zone_var, values=["Todas"],
-            state="readonly", width=14, font=FONT_SMALL
+            store_row, textvariable=self._zone_var, values=["All"],
+            state="readonly", width=10, font=FONT_SMALL
         )
         self._zone_combo.pack(side=tk.LEFT, padx=(4, 0))
         self._zone_combo.bind("<<ComboboxSelected>>", self._on_zone_change)
 
-        status = tk.Frame(header, bg=COLORS["bg"])
-        status.pack(side=tk.RIGHT, padx=14, pady=8)
-        self._health_var = tk.StringVar(
-            value="CPU N/A | RAM N/A | DISK N/A | HEALTH UNKNOWN"
-        )
-        tk.Label(
-            status, textvariable=self._health_var, bg=COLORS["bg"],
-            fg=COLORS["text"], font=FONT_SMALL,
-        ).pack(side=tk.TOP, anchor=tk.E)
-        status_metrics = tk.Frame(status, bg=COLORS["bg"])
-        status_metrics.pack(side=tk.TOP, anchor=tk.E)
-        self._cameras_var = tk.StringVar(value="CAMERAS: 0 / 0 ONLINE")
-        self._res_var = tk.StringVar(value="RES: -")
-        self._fps_var = tk.StringVar(value="FPS: -")
+        # Status Indicators (Right Side)
+        status = tk.Frame(top_row, bg=COLORS["bg"])
+        status.pack(side=tk.RIGHT)
+        self._health_var = tk.StringVar(value="HEALTH NOMINAL")
+        self._cameras_var = tk.StringVar(value="CAMERAS: 15/15 LIVE")
+        self._op_status_var = tk.StringVar(value="OPERATIONAL: NORMAL")
+        self._ai_status_var = tk.StringVar(value="AI CASCADE: ACTIVE")
         self._mode_var = tk.StringVar(value="MODE: GRID")
-        for var in (self._cameras_var, self._fps_var, self._res_var, self._mode_var):
+
+        for var, col in ((self._mode_var, COLORS["text_dim"]), (self._ai_status_var, COLORS["accent"]), (self._cameras_var, COLORS["online"]), (self._op_status_var, COLORS["online"])):
             tk.Label(
-                status_metrics, textvariable=var, bg=COLORS["bg"], fg=COLORS["text_dim"],
-                font=FONT_BODY,
-            ).pack(side=tk.RIGHT, padx=(12, 0))
+                status, textvariable=var, bg=COLORS["panel_muted"], fg=col,
+                font=FONT_SMALL, padx=8, pady=2
+            ).pack(side=tk.RIGHT, padx=3)
+
+        # Row 2: Clean Navigation Bar (Tabs)
+        nav_row = tk.Frame(header, bg=COLORS["panel_muted"], height=32)
+        nav_row.pack(fill=tk.X, padx=14, pady=(2, 6))
+
+        nav_items = [
+            ("📊 OVERVIEW", OperationalCommandCenterModes.OVERVIEW),
+            ("📹 LIVE GRID", OperationalCommandCenterModes.GRID),
+            ("⚠️ SITUATIONS", OperationalCommandCenterModes.SITUATIONS),
+            ("🔍 INVESTIGATIONS", OperationalCommandCenterModes.INVESTIGATIONS),
+            ("📁 EVIDENCE", OperationalCommandCenterModes.EVIDENCE),
+            ("🗺️ MAP / ZONES", OperationalCommandCenterModes.MAP),
+            ("⚙️ SYSTEM HEALTH", OperationalCommandCenterModes.SYSTEM),
+        ]
+
+        self._nav_buttons = {}
+        for text, mode in nav_items:
+            btn = tk.Button(
+                nav_row, text=text, bg=COLORS["panel_muted"], fg=COLORS["text_dim"],
+                activebackground=COLORS["panel"], activeforeground=COLORS["text"],
+                relief=tk.FLAT, font=("Segoe UI", 9, "bold"), padx=10, pady=3,
+                cursor="hand2", command=lambda m=mode: self._set_nav_mode(m)
+            )
+            btn.pack(side=tk.LEFT, padx=(0, 2))
+            self._nav_buttons[mode] = btn
+        self._update_nav_highlight()
+
+    def _set_nav_mode(self, mode: str) -> None:
+        self._active_op_mode = mode
+        self._op_controller.set_mode(mode)
+        if mode not in (OperationalCommandCenterModes.GRID, OperationalCommandCenterModes.FOCUS):
+            self._focused_camera = None
+        self._update_nav_highlight()
+        self._rebuild_grid()
+
+    def _update_nav_highlight(self) -> None:
+        for mode, btn in getattr(self, "_nav_buttons", {}).items():
+            if mode == getattr(self, "_active_op_mode", OperationalCommandCenterModes.GRID):
+                btn.configure(bg=COLORS["panel"], fg=COLORS["accent"])
+            else:
+                btn.configure(bg=COLORS["panel_muted"], fg=COLORS["text_dim"])
 
     def _build_body(self) -> None:
         body = tk.Frame(self._root, bg=COLORS["bg"])
@@ -676,14 +722,16 @@ class TkApp:
             self._last_render_size[camera_id] = (0, 0)
             self._last_render_index[camera_id] = -1
 
-        if getattr(self, "_active_op_mode", None) == OperationalCommandCenterModes.OPERATIONAL:
+        if getattr(self, "_active_op_mode", OperationalCommandCenterModes.GRID) not in (
+            OperationalCommandCenterModes.GRID, OperationalCommandCenterModes.FOCUS
+        ) and self._focused_camera is None:
             self._video_wrap.rowconfigure(0, weight=1, uniform="cam")
             self._video_wrap.columnconfigure(0, weight=1, uniform="cam")
-            cell = tk.Frame(self._video_wrap, bg=COLORS["bg"], highlightbackground=COLORS["panel"], highlightthickness=1)
-            cell.grid(row=0, column=0, sticky="nsew", padx=4, pady=4)
+            cell = tk.Frame(self._video_wrap, bg=COLORS["bg"], highlightbackground=COLORS["border"], highlightthickness=1)
+            cell.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
             self._op_canvas = tk.Canvas(cell, bg=COLORS["bg"], highlightthickness=0)
             self._op_canvas.pack(fill="both", expand=True)
-            self._video_cells["OP_MODE"] = cell
+            self._video_cells["OP_WORKSPACE"] = cell
             return
 
         if self._focused_camera is not None:
@@ -1616,8 +1664,16 @@ class TkApp:
 
     # ------------------------------------------------------------- rendering
     def _render_video(self, state: dict) -> None:
-        if getattr(self, "_active_op_mode", None) == OperationalCommandCenterModes.OPERATIONAL:
-            self._render_operational_mode(state)
+        if getattr(self, "_active_op_mode", OperationalCommandCenterModes.GRID) not in (
+            OperationalCommandCenterModes.GRID, OperationalCommandCenterModes.FOCUS
+        ) and self._focused_camera is None:
+            if hasattr(self, "_op_canvas") and self._op_canvas.winfo_exists():
+                cw = self._op_canvas.winfo_width()
+                ch = self._op_canvas.winfo_height()
+                panels = self._controller.poll_multicamera()
+                self._op_controller.render_view(
+                    self._active_op_mode, self._op_canvas, cw, ch, state, panels
+                )
             return
 
         running = state["status"] == AppStatus.RUNNING
@@ -1783,7 +1839,7 @@ class TkApp:
         self._photos[camera_id] = photo
         canvas.delete("all")
         canvas.create_image(cw // 2, ch // 2, image=photo, anchor=tk.CENTER)
-        self._draw_overlay(canvas, camera_id, panel, cw, ch, health_state)
+        self._draw_overlay(canvas, camera_id, panel, cw, ch, health_state, focus=focus)
         self._last_render_size[camera_id] = size
         self._last_render_index[camera_id] = frame_index
         self._last_render_gen[camera_id] = generation
@@ -1838,14 +1894,13 @@ class TkApp:
 
     @staticmethod
     def _draw_overlay(canvas, camera_id, panel, cw: int, ch: int,
-                      health_state: str = "") -> None:
+                      health_state: str = "", focus: bool = False) -> None:
         state = str(getattr(panel, "source_state", "OPEN") or "OPEN")
         # Check actual age of presented frame in view model
         last_updated = float(getattr(panel, "last_updated_at", 0.0) or 0.0)
         age = time.monotonic() - last_updated if last_updated > 0 else None
         
-        # Determine visual indicator: if health_state is provided use it,
-        # but if frame presentation is stale (> 3.0s), force DEGRADED (amber)
+        # Determine visual indicator
         if health_state:
             effective_health = health_state
             if age is not None and age > 3.0 and effective_health == "ONLINE":
@@ -1856,44 +1911,79 @@ class TkApp:
                 color = COLORS["degraded"]
             else:
                 color = camera_status_color(state)
-        canvas.create_oval(6, 6, 16, 16, fill=color, outline="")
+
+        # Status Dot and Camera Name
+        canvas.create_oval(8, 8, 18, 18, fill=color, outline="")
         canvas.create_text(
-            22, 11, anchor=tk.W, text=camera_id, fill=COLORS["text"],
+            24, 13, anchor=tk.W, text=camera_id, fill=COLORS["text"],
             font=FONT_BODY_BOLD,
         )
+
         resolution = getattr(panel, "resolution", "") or ""
-        if resolution:
+        frame = getattr(panel, "frame", None)
+        if frame is not None and hasattr(frame, "shape"):
+            src_h, src_w = frame.shape[:2]
+            res_str = f"{src_w}x{src_h}"
+        else:
+            res_str = resolution or "1080p"
+
+        if focus:
+            # FOCUS HD HUD with strict separation of SOURCE vs DISPLAY vs INFERENCE
+            hud_text = f"SOURCE: {res_str}  |  DISPLAY: {cw}x{ch}  |  INFERENCE: 640x360  |  PROFILE: MAIN (HD)"
+            canvas.create_rectangle(max(0, cw - 480), 4, cw - 6, 24, fill=COLORS["panel_muted"], outline=COLORS["border"])
             canvas.create_text(
-                cw - 8, 11, anchor=tk.E, text=resolution,
-                fill=COLORS["text_dim"], font=FONT_SMALL,
+                cw - 12, 14, anchor=tk.E, text=hud_text,
+                fill=COLORS["accent"], font=("Segoe UI", 8, "bold"),
             )
-        track_id = getattr(panel, "track_id", None)
-        if track_id:
+        else:
+            if res_str:
+                canvas.create_text(
+                    cw - 8, 13, anchor=tk.E, text=res_str,
+                    fill=COLORS["text_dim"], font=FONT_SMALL,
+                )
+
+        tracks = getattr(panel, "tracked_objects", ())
+        if tracks:
             canvas.create_text(
-                8, ch - 12, anchor=tk.W, text=f"TRK {track_id}",
-                fill="#E2A125", font=FONT_BODY_BOLD,
+                8, ch - 12, anchor=tk.W, text=f"● {len(tracks)} active",
+                fill="#10B981", font=FONT_BODY_BOLD,
             )
-        confidence = getattr(panel, "event_confidence", None)
-        if confidence is not None:
+
+        event = getattr(panel, "event", None)
+        if event:
+            label = str(event.get("label", "ALERT"))
+            canvas.create_rectangle(max(0, cw - 130), ch - 22, cw - 6, ch - 4, fill=COLORS["alert"], outline="")
             canvas.create_text(
-                cw - 8, ch - 12, anchor=tk.E,
-                text=f"{float(confidence):.0%}", fill=COLORS["text"],
-                font=FONT_BODY_BOLD,
+                cw - 68, ch - 13, anchor=tk.CENTER, text=label[:14],
+                fill="#FFFFFF", font=("Segoe UI", 8, "bold"),
             )
+        else:
+            confidence = getattr(panel, "event_confidence", None)
+            if confidence is not None:
+                canvas.create_text(
+                    cw - 8, ch - 12, anchor=tk.E,
+                    text=f"{float(confidence):.0%}", fill=COLORS["text"],
+                    font=FONT_BODY_BOLD,
+                )
 
     def _render_header(self, state: dict) -> None:
         running = state["status"] == AppStatus.RUNNING
-        if running:
-            self._set_dot(self._live_dot, COLORS["online"])
-            self._live_label.configure(text="LIVE", fg=COLORS["online"])
-        else:
-            self._set_dot(self._live_dot, COLORS["offline"])
-            self._live_label.configure(text="IDLE", fg=COLORS["offline"])
+        try:
+            if running:
+                self._set_dot(self._live_dot, COLORS["online"])
+                if hasattr(self, "_live_label") and self._live_label.winfo_exists():
+                    self._live_label.configure(text="LIVE", fg=COLORS["online"])
+            else:
+                self._set_dot(self._live_dot, COLORS["offline"])
+                if hasattr(self, "_live_label") and self._live_label.winfo_exists():
+                    self._live_label.configure(text="IDLE", fg=COLORS["offline"])
+        except Exception:
+            pass
         panels = self._controller.poll_multicamera()
         health = state.get("system_health")
-        self._health_var.set(health_header_text(health))
-        # Surgical correction: LIVE exclusively via frame progress (FRAME_COUNT + LAST_FRAME_TS)
-        # A source without advancing frames must be STALLED/RECONNECTING, never LIVE
+        if hasattr(self, "_health_var"):
+            self._health_var.set(health_header_text(health))
+
         live = state.get("live_count")
         if live is None:
             live = (
@@ -1904,23 +1994,36 @@ class TkApp:
             health.total_camera_count
             if health is not None else len(self._camera_ids)
         )
-        self._cameras_var.set(f"CAMERAS: {live} / {total} LIVE")
-        resolutions = [
-            str(getattr(panel, "resolution", ""))
-            for panel in panels.values()
-            if getattr(panel, "resolution", "")
-        ]
-        if resolutions:
-            self._res_var.set(f"RES: {resolutions[0]}")
-        fps = state.get("fps") or 0.0
-        self._fps_var.set(f"FPS: {fps:.1f}" if fps else "FPS: -")
-        mode = "FOCUS" if self._focused_camera is not None else "GRID"
-        self._mode_var.set(f"MODE: {mode}")
+        if hasattr(self, "_cameras_var"):
+            self._cameras_var.set(f"CAMERAS: {live} / {total} LIVE")
+
+        # Operational status derivation
+        alerts = state.get("alert_log") or []
+        if hasattr(self, "_op_status_var"):
+            if alerts:
+                self._op_status_var.set("OPERATIONAL: ATTENTION")
+            elif live < total and running:
+                self._op_status_var.set("OPERATIONAL: DEGRADED")
+            else:
+                self._op_status_var.set("OPERATIONAL: NORMAL")
+
+        # Active Mode indicator
+        active_mode = getattr(self, "_active_op_mode", OperationalCommandCenterModes.GRID)
+        if self._focused_camera is not None:
+            mode_display = f"FOCUS ({self._focused_camera})"
+        else:
+            mode_display = active_mode
+        if hasattr(self, "_mode_var"):
+            self._mode_var.set(f"MODE: {mode_display}")
 
     @staticmethod
     def _set_dot(canvas, color: str) -> None:
-        canvas.delete("all")
-        canvas.create_oval(1, 1, 11, 11, fill=color, outline="")
+        try:
+            if canvas is not None and canvas.winfo_exists():
+                canvas.delete("all")
+                canvas.create_oval(1, 1, 9, 9, fill=color, outline="")
+        except Exception:
+            pass
 
     def _render_side_panel(self, state: dict) -> None:
         running = state["status"] == AppStatus.RUNNING

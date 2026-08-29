@@ -423,7 +423,6 @@ class CredentialDialog:
         venv_python = BASE / ".venv" / "Scripts" / "python.exe"
 
         try:
-            # Use Popen to not block launcher exit
             proc = subprocess.Popen(
                 [str(venv_python), str(multi_script)],
                 env=env,
@@ -431,8 +430,10 @@ class CredentialDialog:
             )
             # Verify backend was received by logging in child (child will log RTSP_BACKEND_REQUESTED)
             logger = logging.getLogger("tukevision.launcher")
-            logger.info("SPAWNED child_pid=%d RTSP_BACKEND=%s", proc.pid, requested_backend)
-            return 0
+            pid = getattr(proc, "pid", 0) or 0
+            logger.info("SPAWNED child_pid=%d RTSP_BACKEND=%s", pid, requested_backend)
+            res = proc.wait() if hasattr(proc, "wait") else 0
+            return res if isinstance(res, int) else 0
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo iniciar la aplicación:\n{e}")
             return 1
