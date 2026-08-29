@@ -1,0 +1,6 @@
+{
+  "gate": "SITE_CONFIGURATION",
+  "status": "PASS",
+  "test_case": "test_site_configuration",
+  "result": "Valid site configurations pass and malformed site configurations are rejected with structural issues identified"
+}

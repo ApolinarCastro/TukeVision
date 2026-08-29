@@ -1,0 +1,13 @@
+{
+  "gate": "PILOT_USE_CASES",
+  "status": "PASS",
+  "allowed_categories": [
+    "ZONE_ACTIVITY",
+    "PROLONGED_PRESENCE",
+    "CROSS_CAMERA_CONTINUITY",
+    "OPERATIONAL_FLOW",
+    "SOURCE_HEALTH_EVENT",
+    "OPERATOR_REVIEW_REQUIRED"
+  ],
+  "result": "Pilot use case definitions constrained strictly to verified capabilities"
+}

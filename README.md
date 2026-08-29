@@ -1,114 +1,40 @@
-# TukeVision
+# TukeVision — Operational Intelligence & Governed Video AI
 
-Prototipo local para transformar video en observaciones, eventos, riesgo, alertas y evidencia trazable.
+TukeVision es una plataforma integral de inteligencia operacional local y gobernada que transforma video en tiempo real en observaciones estructuradas, estado espacial, investigación agentica, razonamiento en cascada, aprendizaje continuo y respuestas operacionales limitadas y auditables.
 
-## Estado
+---
 
-Implementación del primer prototipo funcional (SPEC-0001) completada a nivel de módulos. Pendiente de ejecutar la prueba integral con un video real.
+## Estado del Producto por Nivel de Madurez
 
-## Requisitos
+### CERTIFIED & STABILIZED
+- **Percepción y Detección en Tiempo Real**: Ingesta RTSP multicámara (hasta 15 cámaras concurrentes) con aceleración OpenVINO (CPU/GPU) y fallback verificado a PyTorch.
+- **Seguimiento Temporal & Handoff Multicámara**: `TemporalEntityState`, homografía de planos de planta, viewshed y correlación espacial entre cámaras contiguas.
+- **Orquestación de Atención & Agent Monitor**: Priorización determinista de situaciones que merecen atención (`AttentionOrchestrator`) y sesiones de investigación estructurada.
+- **Cascade Intelligence**: Enrutamiento multinivel (`ReasoningRouter`): Determinista -> Local LLM (Qwen1.5-1.8B) -> Local VLM selectivo (Moondream2) con `AgentOutputValidator` (anti-alucinación, 0 hechos no soportados) y presupuesto adaptativo de CPU (`ReasoningBudget`).
+- **Experience & Continuous Learning**: Almacenamiento local persistente (`ExperienceStore`), grafo de relaciones (`ExperienceGraph`), reauditoría selectiva (`SelectiveReauditEngine`) y detección de fallos conocidos (`FailureExperience`).
+- **Acciones Operacionales Gobernadas**: Motor de políticas `ActionPolicyEngine` (default DENY, kill switches, safe mode), ejecución acotada `AUTONOMY_2` (alertas a operador, pinning de evidencia, tareas de revisión), aprobación humana obligatoria y anti-autoaprobación.
+- **Pilot Readiness & Site Configuration**: Configuración canónica por sitio (`PilotSite`), protección estricta contra credenciales en texto plano (`SiteConfigurationValidator`), roles de operador (`VIEWER`, `OPERATOR`, `SUPERVISOR`, `ADMIN`), monitoreo de cobertura de inferencia (`InferenceCoverageGuard`) y reportes de sesión (`PilotReport`).
 
-- Windows.
-- Python 3.12.9 (64 bits).
-- Entorno virtual en `.venv`.
+### PLANNED (Fuera de Alcance Fase 8)
+- `AUTONOMY_3` (acciones físicas o sensibles externas: control de cerraduras, llamadas a emergencias, etc.).
+- Reconocimiento facial y perfilamiento biométrico persistente.
+- Auto-entrenamiento descontrolado o mutación autónoma de código/políticas.
 
-## Activar el entorno virtual
+---
 
+## Requisitos del Sistema
+- **SO**: Windows 10/11 (64-bit).
+- **Python**: 3.12+ (entorno virtual `.venv`).
+- **Inferencia**: Intel CPU / iGPU con OpenVINO runtime.
+
+## Estructura del Código
+- `src/core/`: Ingesta, supervisión de streams, OpenVINO runtime y fallback PyTorch.
+- `src/spatial/`: Inteligencia espacial, homografías, zonas, viewshed y handoff.
+- `src/agent/`: Agent Monitor, Attention Orchestrator, Cascade Intelligence, Experience Layer y Governed Actions.
+- `src/pilot/`: Validación de sitios, guardias de cobertura, contratos de piloto y métricas.
+- `evidence/`: Trazabilidad formal, benchmarks, manifests de soak test y veredictos certificados.
+
+## Verificación y Tests
 ```powershell
-Set-Location "C:\ruta\a\TukeVision"
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\pytest.exe tests/ -v
 ```
-
-## Ejecutar el prototipo
-
-Coloque un video local en `data/input/` y ejecute:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\run_prototype.py "data\input\video.mp4"
-```
-
-## Interfaz operativa local
-
-Aplicación de escritorio Tkinter (biblioteca estándar) que muestra en una
-sola ventana fuente, conexión, zona, persona seguida, permanencia, riesgo,
-alertas y evidencia generada. OpenCV sigue siendo la tecnología de visión;
-no es el sistema de ventanas (ver `docs/LOCAL_INTERFACE.md`).
-
-```powershell
-.\.venv\Scripts\python.exe scripts\run_interface.py
-```
-
-La fuente (archivo, webcam o RTSP) se selecciona dentro de la aplicación.
-
-### Estructura de entrada y salida
-
-```text
-data/input/        Video local a procesar (uno a la vez).
-data/output/       Video procesado con anotaciones (processed.mp4).
-data/evidence/     Evidencia por alerta: frame.jpg y metadata.json.
-data/temp/         Archivos temporales (imágenes de prueba).
-models/            Peso del modelo yolo11n.pt (no se sube a Git).
-config/default.json Configuración: detección, zona, negocio y alertas.
-```
-
-### Salida esperada
-
-```text
-VIDEO_PATH:
-FRAMES_PROCESSED:
-PERSONS_DETECTED:
-TRACKS_CREATED:
-OBSERVATIONS_CREATED:
-EVENTS_CREATED:
-ALERTS_CREATED:
-EVIDENCE_CREATED:
-OUTPUT_VIDEO:
-FINAL_STATUS:
-```
-
-## Significado de las salidas
-
-- `PERSONS_DETECTED`: total de detecciones de personas (puede incluir la misma persona en varios fotogramas).
-- `TRACKS_CREATED`: trayectorias temporales únicas asignadas por seguimiento.
-- `OBSERVATIONS_CREATED`: hechos objetivos (entrada, permanencia, salida).
-- `EVENTS_CREATED`: eventos de permanencia prolongada (más de 30 segundos).
-- `ALERTS_CREATED`: alertas generadas cuando el riesgo es 60 o superior.
-- `EVIDENCE_CREATED`: carpetas con fotograma y metadatos por alerta.
-
-## Restricciones del prototipo
-
-- Sin reconocimiento facial.
-- Sin identificación de personas.
-- Sin cámaras en vivo.
-- Sin varias cámaras ni varias zonas.
-- Sin inteligencia artificial conversacional.
-- Sin servicios externos ni base de datos.
-- Procesamiento por CPU, un video a la vez.
-- Resolución máxima de 640 píxeles de ancho.
-- Procesamiento secuencial sin cargar el video completo en memoria.
-
-## Configuración
-
-`config/default.json` permite ajustar:
-
-- Modelo, umbral de confianza y dispositivo de detección.
-- Zona poligonal (identificador, nombre y vértices).
-- Tienda, cámara y tiempo máximo de permanencia.
-- Umbral de riesgo para generar alertas.
-
-## Solución de errores básicos
-
-- `El archivo de video no existe`: verifique que el video esté en `data/input/` y la ruta sea correcta.
-- `Modelo no encontrado`: descargue `yolo11n.pt` (modelo YOLO Nano) y colóquelo en `models/`.
-- `No se puede abrir el video`: el archivo puede estar dañado o no ser un formato compatible con OpenCV.
-- Errores de dependencias: ejecute `python -m pip install -r requirements.txt` dentro de `.venv`.
-
-## Pruebas
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
-```
-
-## Fuente de especificaciones
-
-Las decisiones y especificaciones oficiales viven en el Vault TES de Obsidian.

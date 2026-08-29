@@ -1,0 +1,21 @@
+{
+  "gate": "PILOT_E2E",
+  "status": "PASS",
+  "pipeline_stages_verified": [
+    "PilotSite Registration",
+    "Readiness Assessment (READY)",
+    "PilotSession Activation",
+    "15 Multicamera Ingestion",
+    "OpenVINO Perception",
+    "Spatial Intelligence & Tracking",
+    "Attention Orchestration",
+    "InvestigationSession Creation",
+    "Cascade Intelligence Reasoner",
+    "Governed Operational Action (AUTONOMY_2 Alert)",
+    "Action Verification & Audit",
+    "Operator Outcome Feedback Ingestion",
+    "Operational Experience Storage",
+    "PilotMetrics Live Aggregation",
+    "PilotReport Final Generation"
+  ]
+}
