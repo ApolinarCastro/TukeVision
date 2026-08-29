@@ -195,10 +195,19 @@ class PersistentEvidenceStore:
         camera_dir = self.root / safe_camera
         if not camera_dir.is_dir():
             return []
-        return sorted(
-            (p for p in camera_dir.iterdir() if p.is_dir()),
-            key=lambda p: (p.stat().st_mtime_ns, p.name),
-        )
+        items = []
+        try:
+            for p in camera_dir.iterdir():
+                if p.is_dir():
+                    try:
+                        mtime = p.stat().st_mtime_ns
+                        items.append((mtime, p.name, p))
+                    except (FileNotFoundError, OSError):
+                        continue
+        except (FileNotFoundError, OSError):
+            return []
+        items.sort(key=lambda x: (x[0], x[1]))
+        return [item[2] for item in items]
 
     def _entry_protected(
         self, entry: Path, state: ReviewRetentionState

@@ -43,6 +43,7 @@
   },
   "inference": {
     "backend": "yolo",
+    "runtime": "openvino",
     "model": "models/yolo11n.pt",
     "class_ids": [0],
     "confidence_threshold": 0.35,

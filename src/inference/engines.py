@@ -185,6 +185,7 @@ class YoloInferenceEngine(InferenceEngine):
         confidence_threshold: float = 0.35,
         device: str = "cpu",
         image_size: int = 640,
+        runtime: str = "pytorch",
         clock: Optional[Callable[[], str]] = None,
     ) -> None:
         self._model_path = model_path
@@ -192,6 +193,7 @@ class YoloInferenceEngine(InferenceEngine):
         self._confidence_threshold = confidence_threshold
         self._device = device
         self._image_size = image_size
+        self._runtime_name = (runtime or "pytorch").strip().lower()
         self._clock = clock or _default_clock
         self._detector = None
         self._seq = 0
@@ -199,7 +201,7 @@ class YoloInferenceEngine(InferenceEngine):
 
     @property
     def engine_name(self) -> str:
-        return "yolo"
+        return f"yolo_{self._runtime_name}"
 
     @property
     def model_name(self) -> str:
@@ -207,7 +209,7 @@ class YoloInferenceEngine(InferenceEngine):
 
     @property
     def producer(self) -> str:
-        return "yolo:person_detector"
+        return f"yolo:{self._runtime_name}_detector"
 
     def _load_detector(self):
         if self._detector is not None:
@@ -220,6 +222,7 @@ class YoloInferenceEngine(InferenceEngine):
             confidence_threshold=self._confidence_threshold,
             device=self._device,
             image_size=self._image_size,
+            runtime=self._runtime_name,
         )
         return self._detector
 
@@ -245,7 +248,7 @@ class YoloInferenceEngine(InferenceEngine):
         try:
             detection_result = detector.detect(frame)
         except Exception as exc:
-            raise InferenceError(f"Fallo del backend YOLO: {exc}") from exc
+            raise InferenceError(f"Fallo del backend YOLO ({self._runtime_name}): {exc}") from exc
 
         detections = tuple(
             InferenceDetection(
@@ -299,25 +302,30 @@ def build_engine(config: Optional[Dict[str, Any]]) -> InferenceEngine:
     """Construye el backend desde config `inference`.
 
     Reglas de fail-safe (G17/G18): backend ausente/inválido produce error
-    explícito (nunca silencio peligroso). Backend `yolo` reutiliza PersonDetector
-    si el modelo existe; si el backend solicitado no está disponible en runtime,
-    el error se propaga al aislarse por cámara (nunca silencioso).
+    explícito (nunca silencio peligroso). Backend `yolo` o `openvino` reutiliza
+    PersonDetector. Soporta selección explícita de runtime ('pytorch' vs 'openvino').
     """
     if not isinstance(config, dict):
         raise InferenceConfigError("Config de inferencia inválida: no es dict")
 
     backend = str(config.get("backend", "yolo")).strip().lower()
+    runtime = str(config.get("runtime", "pytorch")).strip().lower()
+
     if backend == "deterministic":
         return DeterministicInferenceEngine(
             confidence=float(config.get("confidence_threshold", 0.9)),
             simulated_latency_ms=float(config.get("simulated_latency_ms", 0.0)),
         )
-    if backend == "yolo":
+    if backend in ("yolo", "openvino", "pytorch"):
+        # Si backend es openvino explícito, runtime se deduce como openvino
+        if backend == "openvino":
+            runtime = "openvino"
         return YoloInferenceEngine(
             model_path=str(config.get("model", "models/yolo11n.pt")),
             class_ids=config.get("class_ids") or [0],
             confidence_threshold=float(config.get("confidence_threshold", 0.35)),
             device=str(config.get("device", "cpu")),
             image_size=int(config.get("image_size", 640)),
+            runtime=runtime,
         )
     raise InferenceConfigError(f"Backend de inferencia desconocido: {backend!r}")
