@@ -210,7 +210,7 @@ class SourceManager:
         self.stop(camera_id)
         self.start(camera_id)
 
-    def switch_stream(self, camera_id: str, subtype: int) -> bool:
+    def switch_stream(self, camera_id: str, subtype: int, max_width: Optional[int] = None) -> bool:
         """Cambia subtype (0 MAIN / 1 SUB) para una cámara y la reinicia.
 
         BLOCK B dual stream: GRID -> SUB, FOCUS -> MAIN. Retorna True si hubo
@@ -218,12 +218,14 @@ class SourceManager:
         """
         rt = self._get_runtime(camera_id)
         with self._lock:
-            cur = int(rt.descriptor.subtype)
-            if cur == int(subtype):
+            cur_subtype = int(rt.descriptor.subtype)
+            cur_width = int(rt.descriptor.max_width) if rt.descriptor.max_width else 0
+            req_width = max_width if max_width is not None else cur_width
+            if cur_subtype == int(subtype) and cur_width == req_width:
                 return False
-            rt.descriptor = replace(rt.descriptor, subtype=int(subtype))
+            rt.descriptor = replace(rt.descriptor, subtype=int(subtype), max_width=req_width)
         self.restart(camera_id)
-        logger.info("STREAM_SWITCH camera_id=%s subtype=%s", camera_id, subtype)
+        logger.info("STREAM_SWITCH camera_id=%s subtype=%s max_width=%s", camera_id, subtype, req_width)
         return True
 
     def start_all_staggered(self, delay_s: float = 0.35) -> None:

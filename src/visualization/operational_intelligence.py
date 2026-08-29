@@ -123,17 +123,16 @@ class OperationalIntelligenceViewModel:
             return []
 
         now = datetime.now(timezone.utc).isoformat()
-        events = [
-            OperatorTimelineEvent("OBSERVATION", now, "Camera frame captured with valid freshness", "OBS-001", "FACT"),
-            OperatorTimelineEvent("TRACK", now, "Local tracker maintained continuous bounding box", "TRK-001", "FACT"),
-            OperatorTimelineEvent("SITUATION", now, f"Situation detected: {inv.situation_type}", inv.candidate_id, "FACT"),
-            OperatorTimelineEvent("EVIDENCE", now, f"Evidence bundle packaged with SHA-256", ", ".join(inv.evidence_bundle_ids), "FACT"),
-            OperatorTimelineEvent("INVESTIGATION", now, f"Agent Monitor active with priority {inv.priority}", inv.investigation_id, "FACT"),
-            OperatorTimelineEvent("REASONING", now, f"Resolved via {inv.reasoning_level} cascade", inv.investigation_id, "INFERENCE"),
-            OperatorTimelineEvent("ACTION", now, f"Proposed: {inv.recommended_action} (AUTONOMY_3: DISABLED)", "ACT-001", "INFERENCE"),
-            OperatorTimelineEvent("OPERATOR_REVIEW", now, "Operator reviewed facts & confirmed outcome", "OP-01", "FACT"),
-            OperatorTimelineEvent("OUTCOME", now, "Governed action verified successfully", "ACT-001", "FACT"),
-            OperatorTimelineEvent("EXPERIENCE", now, "Engineering experience recorded into memory", "EXP-001", "FACT"),
-        ]
+        events = []
+        if inv.situation_type:
+            events.append(OperatorTimelineEvent("SITUATION", now, f"Situation detected: {inv.situation_type}", inv.candidate_id, "FACT"))
+        if inv.evidence_bundle_ids:
+            events.append(OperatorTimelineEvent("EVIDENCE", now, f"Evidence bundle packaged with SHA-256", ", ".join(inv.evidence_bundle_ids), "FACT"))
+        events.append(OperatorTimelineEvent("INVESTIGATION", now, f"Agent Monitor active with priority {inv.priority}", inv.investigation_id, "FACT"))
+        if inv.reasoning_level:
+            events.append(OperatorTimelineEvent("REASONING", now, f"Resolved via {inv.reasoning_level} cascade", inv.investigation_id, "INFERENCE"))
+        if inv.recommended_action:
+            events.append(OperatorTimelineEvent("ACTION", now, f"Proposed: {inv.recommended_action}", inv.investigation_id, "INFERENCE"))
+
         self.timelines[investigation_id] = events
         return events

@@ -361,6 +361,10 @@ class UiController:
             persons_detected=1 if event is not None else 0,
             alerts_total=0,
             evidence_total=1 if evidence is not None else 0,
+            timestamp=source_snapshot.get("timestamp", __import__("time").monotonic()),
+            generation=source_snapshot.get("generation", 0),
+            event=event,
+            evidence=evidence,
         )
         self._on_frame(snapshot)
 
@@ -439,6 +443,19 @@ class UiController:
             return self._visual_queue.get_nowait()
         except queue.Empty:
             return None
+
+    def set_focus(self, camera_id: Optional[str]) -> None:
+        """Cambia el foco visual y ajusta el perfil de stream RTSP."""
+        if not hasattr(self, "_manager") or self._manager is None:
+            return
+        
+        # DEF-F12-01: No hardcodear 1920. max_width=0 preserva resolución nativa (MAIN).
+        # max_width=640 para substream (GRID).
+        for cam in self.camera_ids:
+            if camera_id is not None and cam == camera_id:
+                self._manager.switch_stream(cam, 0, max_width=0)  # MAIN (HD Native)
+            else:
+                self._manager.switch_stream(cam, 1, max_width=640)  # SUB (Economy)
 
     def poll_state(self) -> dict:
         """Copia del estado actual para la vista (hilo principal)."""

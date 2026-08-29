@@ -676,6 +676,16 @@ class TkApp:
             self._last_render_size[camera_id] = (0, 0)
             self._last_render_index[camera_id] = -1
 
+        if getattr(self, "_active_op_mode", None) == OperationalCommandCenterModes.OPERATIONAL:
+            self._video_wrap.rowconfigure(0, weight=1, uniform="cam")
+            self._video_wrap.columnconfigure(0, weight=1, uniform="cam")
+            cell = tk.Frame(self._video_wrap, bg=COLORS["bg"], highlightbackground=COLORS["panel"], highlightthickness=1)
+            cell.grid(row=0, column=0, sticky="nsew", padx=4, pady=4)
+            self._op_canvas = tk.Canvas(cell, bg=COLORS["bg"], highlightthickness=0)
+            self._op_canvas.pack(fill="both", expand=True)
+            self._video_cells["OP_MODE"] = cell
+            return
+
         if self._focused_camera is not None:
             self._video_wrap.rowconfigure(0, weight=1, uniform="cam")
             self._video_wrap.columnconfigure(0, weight=1, uniform="cam")
@@ -1606,6 +1616,10 @@ class TkApp:
 
     # ------------------------------------------------------------- rendering
     def _render_video(self, state: dict) -> None:
+        if getattr(self, "_active_op_mode", None) == OperationalCommandCenterModes.OPERATIONAL:
+            self._render_operational_mode(state)
+            return
+
         running = state["status"] == AppStatus.RUNNING
         panels = self._controller.poll_multicamera()
         rendered_ids = (
@@ -1664,6 +1678,35 @@ class TkApp:
             canvas.bind("<Motion>", self._on_mouse_move)
         except tk.TclError:
             pass
+
+    def _render_operational_mode(self, state: dict) -> None:
+        if not hasattr(self, "_op_canvas") or not self._op_canvas.winfo_exists():
+            return
+        self._op_canvas.delete("all")
+        cw = self._op_canvas.winfo_width()
+        
+        # DEF-F12-04: Real Backend Data Only
+        has_events = False
+        y = 40
+        self._op_canvas.create_text(cw // 2, y, text="OPERATIONAL INTELLIGENCE", fill=COLORS["accent"], font=("Helvetica", 16, "bold"))
+        y += 40
+        
+        panels = self._controller.poll_multicamera()
+        for cam, panel in panels.items():
+            event = getattr(panel, "event", None)
+            evidence = getattr(panel, "evidence", None)
+            if event or evidence:
+                has_events = True
+                text = f"[{cam}] "
+                if event:
+                    text += f"SITUATION: {event.get('label', 'Detected')} ({event.get('confidence', 0):.2f}) "
+                if evidence:
+                    text += f"EVIDENCE: SHA-256 Bundle saved."
+                self._op_canvas.create_text(cw // 2, y, text=text, fill=COLORS["text"], font=("Consolas", 12))
+                y += 30
+                
+        if not has_events:
+            self._op_canvas.create_text(cw // 2, y + 40, text="NO ACTIVE SITUATIONS", fill=COLORS["dim"], font=("Helvetica", 14, "bold"))
 
     def _render_camera(self, camera_id, panel, canvas, health_state: str = "") -> None:
         frame, displayed_frame_index, _ = select_panel_frame(panel)
