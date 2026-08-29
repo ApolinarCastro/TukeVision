@@ -1,0 +1,21 @@
+{
+  "gate": "GOVERNED_ACTION_E2E",
+  "status": "PASS",
+  "case": "CREATE_OPERATOR_ALERT",
+  "provenance_chain": [
+    "Observation (Camera 01)",
+    "OpenVINO Detection (Person in Zone A)",
+    "Tracking & Spatial Entity State",
+    "Attention Orchestration",
+    "InvestigationSession (INV-E2E-01)",
+    "Cascade Intelligence Reasoner",
+    "ProposedAction (ACT-E2E-01)",
+    "Policy Allow (AUTONOMY_2)",
+    "Execution (CreateOperatorAlertHandler -> ALERT-ACT-E2E-01)",
+    "ActionVerifier (VERIFIED)",
+    "Audit Log Recorded",
+    "Operator Outcome Submitted",
+    "OperationalExperience Recorded (EXP-ACT-ACT-E2E-01)"
+  ],
+  "classification": "SYNTHETIC"
+}

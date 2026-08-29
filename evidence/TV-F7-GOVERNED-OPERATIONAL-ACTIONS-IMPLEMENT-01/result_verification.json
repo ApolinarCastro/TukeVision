@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_RESULT_VERIFICATION",
+  "status": "PASS",
+  "test_case": "test_action_result_verification",
+  "result": "Handler returning success without operational state detected as VERIFICATION_FAILED"
+}

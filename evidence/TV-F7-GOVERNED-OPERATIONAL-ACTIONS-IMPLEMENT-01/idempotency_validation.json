@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_IDEMPOTENCY",
+  "status": "PASS",
+  "test_case": "test_action_idempotency",
+  "result": "Duplicate action proposal caught via idempotency key and returned cached result"
+}

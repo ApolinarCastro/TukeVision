@@ -1,0 +1,7 @@
+{
+  "gate": "AUTONOMY_3_DISABLED",
+  "status": "PASS",
+  "test_case": "test_autonomy_3_disabled",
+  "autonomy_3_enabled": false,
+  "result": "Sensitive actions classified under AUTONOMY_3 blocked from autonomous execution"
+}

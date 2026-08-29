@@ -1,0 +1,14 @@
+{
+  "gate": "ACTION_PROVENANCE",
+  "status": "PASS",
+  "test_case": "test_action_provenance",
+  "lineage": [
+    "ProposedAction (ACT-011)",
+    "InvestigationSession (INV-011)",
+    "SupportingFacts (FACT-001, FACT-002)",
+    "EvidenceBundle (EV-108, EV-109)",
+    "Camera (cam_03)",
+    "Timestamp (2026-08-29T10:00:00Z)"
+  ],
+  "result": "Complete provenance chain traced without breaks"
+}

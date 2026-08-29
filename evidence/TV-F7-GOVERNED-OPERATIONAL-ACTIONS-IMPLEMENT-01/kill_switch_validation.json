@@ -1,0 +1,7 @@
+{
+  "gate": "ACTION_KILL_SWITCH",
+  "status": "PASS",
+  "test_case": "test_kill_switch",
+  "action_execution_enabled": false,
+  "result": "Proposals recorded but execution blocked with ACTION_KILL_SWITCH_ACTIVE"
+}

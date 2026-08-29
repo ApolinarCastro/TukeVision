@@ -1,0 +1,6 @@
+{
+  "gate": "NO_SELF_APPROVAL",
+  "status": "PASS",
+  "test_case": "test_no_self_approval",
+  "result": "Attempts by AI / AgentMonitor / LLM to self-approve blocked with SELF_APPROVAL_PROHIBITED"
+}
