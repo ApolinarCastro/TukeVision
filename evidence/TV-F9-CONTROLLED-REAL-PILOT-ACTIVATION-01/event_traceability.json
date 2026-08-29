@@ -1,0 +1,17 @@
+{
+  "gate": "REAL_PILOT_EVENT_TRACEABILITY",
+  "status": "PASS",
+  "trace_sequence": [
+    "Camera Observation (cam_01)",
+    "Tracking & TemporalEntityState (trk_01)",
+    "Spatial State & Floor Zone (zone_entrance)",
+    "Situation (PROLONGED_PRESENCE)",
+    "EvidenceBundle (EV-01)",
+    "InvestigationSession (INV-01)",
+    "Cascade Intelligence Reasoning",
+    "Governed Action Proposal (ACT-01)",
+    "Operator Review & Outcome",
+    "Experience Record"
+  ],
+  "result": "Full event lineage traced without gaps"
+}

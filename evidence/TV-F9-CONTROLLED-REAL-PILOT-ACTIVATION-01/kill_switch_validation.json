@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_ACTION_KILL_SWITCH",
+  "status": "PASS",
+  "action_execution_enabled": false,
+  "result": "Observation and investigation active; action execution strictly disabled"
+}

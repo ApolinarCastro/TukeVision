@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_NO_POLICY_MUTATION",
+  "status": "PASS",
+  "test_case": "test_real_pilot_no_policy_mutation",
+  "result": "Real operational feedback and outcomes do not automatically mutate policy allowlist or autonomy levels"
+}

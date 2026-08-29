@@ -9,10 +9,11 @@ from src.agent.actions.verifier import ActionVerifier
 
 logger = logging.getLogger("governed_action_executor")
 
-# Non-human actor signatures that cannot self-approve
-NON_HUMAN_APPROVERS = {
+# Non-human actor signatures and unauthorized roles that cannot approve actions
+UNAUTHORIZED_APPROVERS = {
     "agentmonitor", "agent_monitor", "reasoningprovider",
-    "llm", "vlm", "qwen", "moondream", "ai", "agent", "system", "auto"
+    "llm", "vlm", "qwen", "moondream", "ai", "agent", "system", "auto",
+    "viewer", "guest", "anonymous"
 }
 
 class BaseActionHandler:
@@ -205,17 +206,17 @@ class GovernedActionExecutor:
                 self._record_audit(action, policy_decision, policy_reason, approval, res)
                 return res
 
-            # Anti Self-Approval Gate (Rule 45)
+            # Anti Self-Approval and Unauthorized Approver Gate (Rule 45 & 51)
             approver = (approval.approved_by or "").strip().lower()
-            if not approver or approver in NON_HUMAN_APPROVERS:
+            if not approver or approver in UNAUTHORIZED_APPROVERS:
                 action.status = "POLICY_DENIED"
                 res = ActionResult(
                     action_id=action.action_id,
                     result_state="FAILED",
                     error_code="SELF_APPROVAL_PROHIBITED",
-                    error_message="AI models or automated agents cannot approve their own actions."
+                    error_message=f"Actor or role '{approver}' is not authorized to approve operational actions."
                 )
-                self._record_audit(action, policy_decision, "SELF_APPROVAL_REJECTED", approval, res)
+                self._record_audit(action, policy_decision, "UNAUTHORIZED_APPROVAL_REJECTED", approval, res)
                 return res
 
         # 4. Handler Allowlist Check

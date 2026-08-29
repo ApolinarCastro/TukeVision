@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_ACTION_DEFAULT_DENY",
+  "status": "PASS",
+  "test_case": "test_real_pilot_action_default_deny",
+  "result": "Unregistered action proposals rejected with POLICY_DENIED"
+}

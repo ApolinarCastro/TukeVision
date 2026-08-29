@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F9-001",
+    "component": "GovernedActionExecutor",
+    "symptom": "VIEWER role was not explicitly checked in unauthorized approvers set during human approval validation.",
+    "root_cause": "GovernedActionExecutor initially only checked automated actor strings.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "Added UNAUTHORIZED_APPROVERS set including 'viewer' and non-privileged role strings.",
+    "regression_test": "test_real_operator_role_and_authorization",
+    "result": "PASS"
+  }
+]

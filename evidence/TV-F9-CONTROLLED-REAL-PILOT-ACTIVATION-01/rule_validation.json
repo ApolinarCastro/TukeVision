@@ -1,0 +1,10 @@
+{
+  "gate": "REAL_RULE_VALIDATION",
+  "status": "PASS",
+  "test_case": "test_real_rule_validation",
+  "rules_validated": [
+    "PROLONGED_PRESENCE (duration >= 60s in zone_entrance)",
+    "ZONE_ACTIVITY (operating hours schedule 08:00-22:00)",
+    "CROSS_CAMERA_CONTINUITY (handoff window <= 15s)"
+  ]
+}
