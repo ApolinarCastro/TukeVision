@@ -1,0 +1,20 @@
+[
+  {
+    "DEFECT_ID": "DEF-F5-001",
+    "component": "ReasoningRouter",
+    "symptom": "AgentOutputValidator returned a validated_llm with empty facts when unsupported facts were found, instead of throwing an exception.",
+    "root_cause": "The validator was set to fallback only if unsupported_count > 1, so it swallowed single unsupported facts and returned silently.",
+    "patch": "Changed max_unsupported_facts_before_fallback from 1 to 0 in src/agent/validator.py.",
+    "regression_test": "test_case_b_llm_escalation_and_fallback",
+    "result": "PASS"
+  },
+  {
+    "DEFECT_ID": "DEF-F5-002",
+    "component": "ReasoningRouter",
+    "symptom": "VLM escalation was completely ignored when Visual Evidence was required.",
+    "root_cause": "The _is_structured_sufficient gate returned True for 'visual_ambiguity' by default, stopping execution at the Deterministic level before VLM was even considered.",
+    "patch": "Modified _is_structured_sufficient to return False if situation_type is 'visual_ambiguity' or 'complex_correlation'.",
+    "regression_test": "test_case_c_vlm_escalation",
+    "result": "PASS"
+  }
+]

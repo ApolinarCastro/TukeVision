@@ -1,0 +1,6 @@
+{
+  "test_suite": "tests/test_agent_router.py (implicit via Fallback)",
+  "status": "PASS",
+  "max_unsupported_facts": 0,
+  "behavior": "Rejects output and throws Exception -> triggers Fallback to Deterministic"
+}
