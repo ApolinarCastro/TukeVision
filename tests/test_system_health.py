@@ -1,7 +1,9 @@
 """LOOP-0021: bounded host/camera health visible in the certified UI."""
 
+import tempfile
 import threading
 import unittest
+from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import Mock
 
@@ -76,6 +78,14 @@ def sampler(manager=None, reader=None, clock=None, interval=3.0):
 
 
 class TestHostHealth(unittest.TestCase):
+    def test_disk_metric_uses_existing_ancestor_before_evidence_root_exists(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            missing_store_root = Path(tmp) / "evidence" / "store_a"
+            raw = read_host_metrics(missing_store_root)
+
+        self.assertIsNotNone(raw["disk_percent"])
+        self.assertIsNotNone(raw["disk_free_gb"])
+
     def test_cpu_metric_is_visible(self):
         raw = read_host_metrics(".")
         self.assertEqual(
@@ -141,6 +151,26 @@ class TestCameraHealth(unittest.TestCase):
         self.assertEqual(snapshot.online_camera_count, 4)
         self.assertEqual(snapshot.total_camera_count, 4)
         self.assertTrue(all(item.source_state == "OPEN" for item in snapshot.camera_health))
+
+    def test_empty_slot_is_not_a_camera_in_the_health_denominator(self):
+        # GRID16 has 15 physical cameras + 1 empty slot. The health
+        # denominator is the physical count (15), never the grid capacity (16).
+        ids = tuple(f"cam_{i:02d}" for i in range(1, 16))
+        states = {cam: camera(cam) for cam in ids}
+        observer = SystemHealthSampler(
+            FakeSourceManager(states), ids,
+            sample_interval_seconds=3.0,
+            host_metrics_reader=host_values,
+            clock=MutableClock(),
+            timestamp_factory=lambda: "2026-08-18T22:00:00+00:00",
+        )
+        snapshot = observer.snapshot(runtime_running=True)
+        self.assertEqual(snapshot.total_camera_count, 15)
+        self.assertEqual(snapshot.online_camera_count, 15)
+        self.assertEqual(
+            len(snapshot.camera_health), 15,
+            "empty slot must never appear in camera_health",
+        )
 
     def test_failed_camera_is_real_and_degraded(self):
         states = {item: camera(item) for item in CAMERAS}
@@ -210,20 +240,36 @@ class TestGlobalAndUiHealth(unittest.TestCase):
         from src.ui.tk_view import apply_stopped_state, select_panel_frame
 
         analytic = object()
+        live_frame = object()
         panel = SimpleNamespace(
             analytics_frame=analytic,
             analytics_frame_index=7,
             bboxes=((1, 2, 3, 4, 0.9),),
             track_bbox=None,
-            frame=object(),
+            frame=live_frame,
             frame_index=8,
             camera_id="CAM-001",
         )
         selected, frame_index, mode = select_panel_frame(panel)
         stopped = apply_stopped_state(panel)
-        self.assertIs(selected, analytic)
-        self.assertEqual((frame_index, mode), (7, "ANALITICA"))
+        # Advancing stream presents the latest live frame (never stuck on stale analytics)
+        self.assertIs(selected, live_frame)
+        self.assertEqual((frame_index, mode), (8, "VIVO"))
         self.assertEqual((stopped["source_state"], stopped["online"]), ("CLOSED", False))
+
+        # When frame is matching analytics frame
+        panel_matching = SimpleNamespace(
+            analytics_frame=analytic,
+            analytics_frame_index=7,
+            bboxes=((1, 2, 3, 4, 0.9),),
+            track_bbox=None,
+            frame=live_frame,
+            frame_index=7,
+            camera_id="CAM-001",
+        )
+        selected_m, frame_index_m, mode_m = select_panel_frame(panel_matching)
+        self.assertIs(selected_m, analytic)
+        self.assertEqual((frame_index_m, mode_m), (7, "ANALITICA"))
 
 
 if __name__ == "__main__":

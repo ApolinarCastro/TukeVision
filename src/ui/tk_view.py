@@ -17,6 +17,15 @@ archive/legacy/portable_migrate_0018u):
   - Overlays legibles sin tapar la escena; información técnica secundaria
     movida al panel lateral.
 
+Expansión OC-01 / OC-05 / OC-06 / OC-07 (integración MACRO-OC-01):
+
+  - El grid es config-driven: 1 -> 4 -> 16 -> N (sin supuestos de 4 cámaras).
+  - Modo FOCUS por doble clic / clic (navegación de operador), back-to-grid,
+    next/previous y fullscreen.
+  - Selector de tienda y cámara derivados del catálogo multitienda.
+  - Digital zoom sobre el frame ya existente (nunca PTZ físico).
+  - PTZ físico se expone SOLO cuando la cámara lo declara (ptz_capability).
+
 El frame de procesamiento nunca se modifica aquí; la presentación es una
 vista que NO reescribe el pipeline, RTSP, YOLO ni tracking.
 """
@@ -24,6 +33,7 @@ vista que NO reescribe el pipeline, RTSP, YOLO ni tracking.
 import io
 import os
 from pathlib import Path
+import time
 from tkinter import filedialog, messagebox, ttk
 from typing import Optional
 import tkinter as tk
@@ -33,11 +43,20 @@ from PIL import Image
 
 from src.capture.rtsp_url import build_rtsp_url
 from src.ui.state import AppStatus
-from src.ui.multicamera import CAMERA_IDS, PANEL_LAYOUT
+from src.ui.grid_layout import (
+    cycle_grid_preset,
+    grid_layout,
+    grid_cells,
+    grid_capacity,
+    EMPTY_SLOT_LABEL,
+)
+
+
+DEFAULT_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "multistore.active.json"
 
 
 # ---------------------------------------------------------------------------
-# Design System (recoverado del Command Center portable, LOOP-0017B)
+# Design System (recuperado del Command Center portable, LOOP-0017B)
 # ---------------------------------------------------------------------------
 COLORS = {
     "bg": "#0F172A",
@@ -52,6 +71,7 @@ COLORS = {
     "degraded": "#F59E0B",
     "alert": "#EF4444",
     "offline": "#64748B",
+    "focus": "#7C3AED",
 }
 
 FONT_TITLE = ("Segoe UI", 15, "bold")
@@ -61,23 +81,34 @@ FONT_BODY = ("Segoe UI", 9)
 FONT_BODY_BOLD = ("Segoe UI", 9, "bold")
 FONT_SMALL = ("Segoe UI", 8)
 
+# Digital zoom bounds (BLOCK F): zoom acts on the presented image only.
+MIN_ZOOM = 1.0
+MAX_ZOOM = 4.0
+ZOOM_STEP = 0.5
+ZOOM_TOGGLE = 2.0
+
 
 def multicamera_control_state(status: str) -> dict:
     return {"show_legacy": False, "stop_enabled": status == AppStatus.RUNNING}
 
 
 def fit_display_size(
-    src_w: int, src_h: int, max_w: int, max_h: int
+    src_w: int, src_h: int, max_w: int, max_h: int, *, allow_upscale: bool = False
 ):
     """Tamaño de presentación que llena el área máxima sin deformar.
 
-    Conserva la relación de aspecto y NUNCA escala por encima de la
-    resolución de la fuente (sin fake upscale): si el área es mayor que la
-    fuente, la imagen se muestra a resolución nativa y el Canvas la centra.
+    Conserva la relación de aspecto. En GRID nunca escala por encima de la
+    resolución de la fuente (sin fake upscale). En FOCUS (``allow_upscale``)
+    la vista expandida puede escalar proporcionalmente hasta llenar el área
+    disponible entre header y barra de controles, preservando el aspecto
+    (letterbox/pillarbox) y sin estirar el video (DEF-UI-FOCUS-SIZE-02).
     """
     if src_w <= 0 or src_h <= 0 or max_w <= 0 or max_h <= 0:
         return int(src_w), int(src_h)
-    scale = min(1.0, max_w / src_w, max_h / src_h)
+    if allow_upscale:
+        scale = min(max_w / src_w, max_h / src_h)
+    else:
+        scale = min(1.0, max_w / src_w, max_h / src_h)
     disp_w = max(1, int(round(src_w * scale)))
     disp_h = max(1, int(round(src_h * scale)))
     return disp_w, disp_h
@@ -88,18 +119,71 @@ def bgr_frame_to_rgb(frame):
     return cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
 
-def build_display_image(frame, max_w: int, max_h: int):
+def build_display_image(frame, max_w: int, max_h: int, *, allow_upscale: bool = False):
     """Construye la imagen de presentación sin modificar el frame original.
 
-    BGR -> RGB -> escala LANCZOS (solo presentación, nunca upscale). El
-    frame de entrada no se modifica: el pipeline sigue recibiendo el frame
-    real. Reutiliza el patrón probado del portable (LOOP-0017B).
+    BGR -> RGB -> escala LANCZOS (solo presentación; upscale solo si el modo
+    FOCUS lo permite explícitamente). El frame de entrada no se modifica: el
+    pipeline sigue recibiendo el frame real. Reutiliza el patrón probado del
+    portable (LOOP-0017B).
     """
     src_h, src_w = frame.shape[:2]
-    disp_w, disp_h = fit_display_size(src_w, src_h, max_w, max_h)
+    disp_w, disp_h = fit_display_size(
+        src_w, src_h, max_w, max_h, allow_upscale=allow_upscale
+    )
     rgb = bgr_frame_to_rgb(frame)
     image = Image.fromarray(rgb)
     if (disp_w, disp_h) != (src_w, src_h):
+        image = image.resize((disp_w, disp_h), Image.Resampling.LANCZOS)
+    return image
+
+
+def build_zoomed_display_image(
+    frame, max_w: int, max_h: int, zoom_factor: float, *, allow_upscale: bool = False
+):
+    """Digital zoom over the existing frame (OC-07) — centered variant."""
+    return build_viewport_display_image(
+        frame, max_w, max_h, zoom_factor, pan_x=0, pan_y=0, allow_upscale=allow_upscale
+    )
+
+
+def _clamp_pan(pan_x: float, pan_y: float, src_w: int, src_h: int, crop_w: int, crop_h: int):
+    max_x = max(0, (src_w - crop_w) / 2)
+    max_y = max(0, (src_h - crop_h) / 2)
+    return max(-max_x, min(max_x, float(pan_x))), max(-max_y, min(max_y, float(pan_y)))
+
+
+def build_viewport_display_image(
+    frame, max_w: int, max_h: int, zoom_factor: float, pan_x: float = 0, pan_y: float = 0, *, allow_upscale: bool = False
+):
+    """Viewport with scale + pan (BLOCK F/G/H).
+
+    Draw overlays in source frame -> crop viewport -> resize for presentation.
+    Pan is offset from center in source pixels, clamped to valid frame.
+    Scale >=1.0. When scale==1.0 pan is ignored.
+    """
+    src_h, src_w = frame.shape[:2]
+    factor = max(1.0, float(zoom_factor))
+    crop_w = max(1, int(round(src_w / factor)))
+    crop_h = max(1, int(round(src_h / factor)))
+    if factor == 1.0:
+        pan_x = 0
+        pan_y = 0
+    else:
+        pan_x, pan_y = _clamp_pan(pan_x, pan_y, src_w, src_h, crop_w, crop_h)
+    cx = src_w / 2 + pan_x
+    cy = src_h / 2 + pan_y
+    x0 = int(round(cx - crop_w / 2))
+    y0 = int(round(cy - crop_h / 2))
+    x0 = max(0, min(src_w - crop_w, x0))
+    y0 = max(0, min(src_h - crop_h, y0))
+    region = frame[y0:y0 + crop_h, x0:x0 + crop_w]
+    disp_w, disp_h = fit_display_size(
+        crop_w, crop_h, max_w, max_h, allow_upscale=allow_upscale
+    )
+    rgb = bgr_frame_to_rgb(region)
+    image = Image.fromarray(rgb)
+    if (disp_w, disp_h) != (crop_w, crop_h):
         image = image.resize((disp_w, disp_h), Image.Resampling.LANCZOS)
     return image
 
@@ -121,16 +205,27 @@ def fit_frame_to_panel(frame, width: int = 420, height: int = 245):
 
 
 def select_panel_frame(panel):
-    """Select a truthful display frame, preferring exact event analytics."""
+    """Select a truthful display frame.
+    
+    If analytics frame corresponds to the current frame sequence (fresh), display it.
+    If the stream has advanced beyond the analyzed frame, display the latest live frame
+    so that visual presentation is never frozen waiting for or retaining old analytics.
+    """
+    frame_index = int(getattr(panel, "frame_index", -1))
     analytics_frame = getattr(panel, "analytics_frame", None)
     analytics_frame_index = int(getattr(panel, "analytics_frame_index", -1))
     has_geometry = bool(
         tuple(getattr(panel, "bboxes", ()) or ())
         or getattr(panel, "track_bbox", None)
     )
-    if analytics_frame is not None and analytics_frame_index >= 0 and has_geometry:
+    if (
+        analytics_frame is not None
+        and analytics_frame_index >= 0
+        and has_geometry
+        and analytics_frame_index == frame_index
+    ):
         return analytics_frame, analytics_frame_index, "ANALITICA"
-    return getattr(panel, "frame", None), int(getattr(panel, "frame_index", -1)), "VIVO"
+    return getattr(panel, "frame", None), frame_index, "VIVO"
 
 
 def annotate_frame(frame, panel, displayed_frame_index=None):
@@ -211,6 +306,22 @@ def camera_status_color(status: str) -> str:
     }.get(status, COLORS["offline"])
 
 
+def health_state_color(health_state: str) -> str:
+    """Color del indicador derivado del health_state correlacionado (BLOCK G).
+
+    GREEN = ONLINE · AMBER = DEGRADED/RECONNECTING · GRAY = OFFLINE.
+    Un frame en caché nunca pinta verde: el indicador usa el MISMO
+    health_state que el header (single source of truth).
+    """
+    return {
+        "ONLINE": COLORS["online"],
+        "DEGRADED": COLORS["degraded"],
+        "RECONNECTING": COLORS["degraded"],
+        "OFFLINE": COLORS["offline"],
+        "UNKNOWN": COLORS["offline"],
+    }.get(str(health_state).upper(), COLORS["offline"])
+
+
 def camera_summary_line(panel, *, include_source_state: bool = True) -> str:
     """Línea compacta y factual del panel lateral (una por cámara)."""
     parts = []
@@ -280,6 +391,9 @@ def health_header_text(snapshot) -> str:
 def camera_health_text(health) -> str:
     """Factual per-camera line derived from SourceManager CameraHealth."""
     parts = [f"{health.camera_id} · RTSP {health.source_state}"]
+    health_state = str(getattr(health, "health_state", "") or "")
+    if health_state:
+        parts.append(health_state)
     if health.fps is not None and health.fps > 0:
         parts.append(f"{health.fps:.1f} FPS")
     if health.last_frame_age is not None:
@@ -337,9 +451,9 @@ def frozen_overlay_text() -> str:
 def apply_stopped_state(panel) -> dict:
     """Estado offline uniforme de un panel tras STOP.
 
-    Transición única centralizada para CAM-001..CAM-004: deriva SOLO del
-    estado global/runtime (STOPPED), nunca del último metadata/frame
-    retenido. Toda cámara termina gris, CLOSED, sin analytics activos.
+    Transición única centralizada para todas las cámaras del grid:
+    deriva SOLO del estado global/runtime (STOPPED), nunca del último
+    metadata/frame retenido.
     """
     return {
         "camera_id": str(getattr(panel, "camera_id", "")),
@@ -357,11 +471,7 @@ def apply_stopped_state(panel) -> dict:
 
 
 def frozen_render_required(rendered, camera_id, size_changed, index_changed) -> bool:
-    """¿Debe redibujarse el panel congelado? Por cámara, sin bandera global.
-
-    Evita el sesgo de orden: tras STOP los cuatro paneles se redibujan en el
-    primer pase aunque tamaño/índice no hayan cambiado (LOOP-0019B-R2).
-    """
+    """¿Debe redibujarse el panel congelado? Por cámara, sin bandera global."""
     if size_changed or index_changed:
         return True
     return not bool(rendered.get(camera_id, False))
@@ -378,9 +488,8 @@ def action_button_states(evidence_target, clip_target, review_available: bool) -
 class TkApp:
     """Ventana principal de la interfaz operativa local.
 
-    Centro 2x2 (paneles de video grandes y dinámicos), lateral consolidado
-    (seguimiento/temporal/behavior/riesgo/alertas/evidencia/clip) e
-    inferior con controles claros (Detener / Abrir evidencia / Abrir clip).
+    Grid config-driven (1/4/6/9/16 -> N), lateral consolidado e inferior
+    con controles (Detener / Evidencia / Clip / Grid / Foco / Fullscreen).
     """
 
     POLL_MS = 33
@@ -389,9 +498,20 @@ class TkApp:
         self._root = root
         self._controller = controller
         self._multicamera_mode = bool(getattr(controller, "is_multicamera", False))
-        self._photos = {camera_id: None for camera_id in CAMERA_IDS}
-        self._last_render_index = {camera_id: -1 for camera_id in CAMERA_IDS}
-        self._last_render_size = {camera_id: (0, 0) for camera_id in CAMERA_IDS}
+        self._camera_ids = tuple(getattr(controller, "camera_ids", ()) or ("CAM-001",))
+        self._visible_camera_ids = self._camera_ids
+        self._grid_preset: Optional[int] = None
+        self._focused_camera: Optional[str] = None
+        self._focus_index = 0
+        self._zoom_factor = 1.0  # compat alias, mirrored to viewport
+        self._viewports: dict = {
+            cid: {"scale": 1.0, "pan_x": 0.0, "pan_y": 0.0} for cid in self._camera_ids
+        }
+        self._drag_state: Optional[dict] = None
+        self._last_cursor_pos: Optional[tuple] = None
+        self._photos = {camera_id: None for camera_id in self._camera_ids}
+        self._last_render_index = {camera_id: -1 for camera_id in self._camera_ids}
+        self._last_render_size = {camera_id: (0, 0) for camera_id in self._camera_ids}
         self._last_frame = None
         self._last_frame_index = -1
         self._evidence_btn = None
@@ -399,24 +519,43 @@ class TkApp:
         self._evidence_target: Optional[str] = None
         self._clip_target: Optional[str] = None
         self._review_available = False
-        self._stopped_rendered = {camera_id: False for camera_id in CAMERA_IDS}
+        self._stopped_rendered = {camera_id: False for camera_id in self._camera_ids}
+        self._store_id_var = tk.StringVar(value="")
+        self._previous_context = None
+        self._poll_after_id: Optional[str] = None
+        # BLOCK B: capture Tk callback exceptions without killing the process
+        try:
+            self._root.report_callback_exception = self._handle_callback_exception  # type: ignore[attr-defined]
+        except Exception:
+            pass
         self._build()
 
     # ------------------------------------------------------------------ build
     def _build(self) -> None:
-        self._root.title("TukeVision - Interfaz operativa local")
+        self._root.title("TukeVision - Command Center")
         self._root.geometry("1280x720")
         self._root.minsize(1024, 640)
         self._root.configure(bg=COLORS["bg"])
         self._root.protocol("WM_DELETE_WINDOW", self._on_close)
 
         self._build_header()
-        self._build_body()
-        self._build_controls()
+        # Fixed bars are packed at the edges BEFORE the expanding video body,
+        # otherwise the body (expand=True, fill=BOTH) swallows all remaining
+        # vertical space and collapses the control bar to 1px off-viewport
+        # (ROOT_CAUSE_CONTROL_BAR_HIDDEN). Final layout is:
+        #   ROW 0 = HEADER | ROW 1 = VIDEO_WORKSPACE (weight=1) | CONTROL_BAR.
         self._build_settings()
+        self._build_controls()
+        self._build_body()
 
+        # ESC returns to the previous grid ONLY from FOCUS mode; it never
+        # closes the application (BLOCK I).
+        self._root.bind("<Escape>", self._on_escape)
+
+        # PTZ surface is hidden unless the focused camera declares support.
+        self._update_ptz_controls()
         self._on_source_change("FILE")
-        self._root.after(self.POLL_MS, self._poll)
+        self._poll_after_id = self._root.after(self.POLL_MS, self._poll)
 
     def _build_header(self) -> None:
         header = tk.Frame(self._root, bg=COLORS["bg"])
@@ -443,6 +582,37 @@ class TkApp:
             bg=COLORS["bg"], fg=COLORS["text_dim"], font=FONT_SUBTITLE,
         ).pack(fill=tk.X, anchor=tk.W)
 
+        # Store selector (OC-06)
+        store_row = tk.Frame(brand, bg=COLORS["bg"])
+        store_row.pack(fill=tk.X, anchor=tk.W, pady=(4, 0))
+        tk.Label(
+            store_row, text="Tienda:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            font=FONT_SMALL,
+        ).pack(side=tk.LEFT)
+        self._store_var = tk.StringVar(value="")
+        stores = self._controller.stores() if hasattr(self._controller, "stores") else []
+        self._store_combo = ttk.Combobox(
+            store_row, textvariable=self._store_var, values=stores,
+            state="readonly", width=20, font=FONT_SMALL
+        )
+        self._store_combo.pack(side=tk.LEFT, padx=(4, 8))
+        if stores:
+            self._store_var.set(stores[0])
+        self._store_combo.bind("<<ComboboxSelected>>", self._on_store_change)
+
+        # Camera/Zone filter (OC-06)
+        tk.Label(
+            store_row, text="Zona:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            font=FONT_SMALL,
+        ).pack(side=tk.LEFT)
+        self._zone_var = tk.StringVar(value="Todas")
+        self._zone_combo = ttk.Combobox(
+            store_row, textvariable=self._zone_var, values=["Todas"],
+            state="readonly", width=14, font=FONT_SMALL
+        )
+        self._zone_combo.pack(side=tk.LEFT, padx=(4, 0))
+        self._zone_combo.bind("<<ComboboxSelected>>", self._on_zone_change)
+
         status = tk.Frame(header, bg=COLORS["bg"])
         status.pack(side=tk.RIGHT, padx=14, pady=8)
         self._health_var = tk.StringVar(
@@ -454,10 +624,11 @@ class TkApp:
         ).pack(side=tk.TOP, anchor=tk.E)
         status_metrics = tk.Frame(status, bg=COLORS["bg"])
         status_metrics.pack(side=tk.TOP, anchor=tk.E)
-        self._cameras_var = tk.StringVar(value="CAMERAS: 0 / 4 ONLINE")
+        self._cameras_var = tk.StringVar(value="CAMERAS: 0 / 0 ONLINE")
         self._res_var = tk.StringVar(value="RES: -")
         self._fps_var = tk.StringVar(value="FPS: -")
-        for var in (self._cameras_var, self._fps_var, self._res_var):
+        self._mode_var = tk.StringVar(value="MODE: GRID")
+        for var in (self._cameras_var, self._fps_var, self._res_var, self._mode_var):
             tk.Label(
                 status_metrics, textvariable=var, bg=COLORS["bg"], fg=COLORS["text_dim"],
                 font=FONT_BODY,
@@ -470,25 +641,158 @@ class TkApp:
         self._build_side_panel(body)
 
     def _build_video_area(self, parent) -> None:
-        area = tk.Frame(parent, bg=COLORS["bg"])
-        area.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._video_wrap = tk.Frame(parent, bg=COLORS["bg"])
+        self._video_wrap.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self._video_canvases: dict = {}
+        self._video_cells: dict = {}
+        self._empty_cells: dict = {}
+        self._empty_canvases: list = []
+        self._rebuild_grid()
+
+    def _rebuild_grid(self) -> None:
+        """Rebuild the video canvas grid from the current camera set.
+
+        Focus mode renders a single large panel; otherwise the grid layout
+        (1/4/6/9/16 -> N) is built dynamically using grid_cells for proper
+        Tkinter row/col spanning (OC-05). GRID_6 uses 1 main + 5 aux layout.
+
+        ROOT_CAUSE DEF-UI-FOCUS-SIZE-02: the focused canvas retained the tile
+        dimensions because residual row/column weights (and uniform groups)
+        from the previous grid (e.g. 4x4) were never cleared when entering
+        FOCUS. With rows 1..3 still weighted, the single FOCUS row got only a
+        fraction of the workspace. All geometry weights are reset before the
+        new layout is configured.
+        """
+        self._reset_grid_geometry()
+        for cell in self._video_cells.values():
+            cell.destroy()
+        for cell in self._empty_cells.values():
+            cell.destroy()
         self._video_canvases = {}
-        for row, columns in enumerate(PANEL_LAYOUT):
-            area.rowconfigure(row, weight=1, uniform="cam")
-            for column, camera_id in enumerate(columns):
-                area.columnconfigure(column, weight=1, uniform="cam")
-                cell = tk.Frame(
-                    area, bg=COLORS["panel"],
-                    highlightbackground=COLORS["border"], highlightthickness=1,
-                )
-                cell.grid(row=row, column=column, sticky="nsew", padx=2, pady=2)
-                canvas = tk.Canvas(cell, bg="#0A0F1E", highlightthickness=0)
-                canvas.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
-                canvas.bind(
-                    "<Configure>", lambda e, c=camera_id: self._on_canvas_resize(c)
-                )
-                self._video_canvases[camera_id] = canvas
-                self._draw_placeholder(camera_id, canvas, "OFFLINE")
+        self._video_cells = {}
+        self._empty_cells = {}
+        self._empty_canvases = []
+        for camera_id in self._visible_camera_ids:
+            self._last_render_size[camera_id] = (0, 0)
+            self._last_render_index[camera_id] = -1
+
+        if self._focused_camera is not None:
+            self._video_wrap.rowconfigure(0, weight=1, uniform="cam")
+            self._video_wrap.columnconfigure(0, weight=1, uniform="cam")
+            cell = tk.Frame(
+                self._video_wrap, bg=COLORS["panel"],
+                highlightbackground=COLORS["focus"], highlightthickness=2,
+            )
+            cell.grid(row=0, column=0, sticky="nsew", padx=2, pady=2)
+            canvas = self._make_canvas(cell, self._focused_camera)
+            canvas.bind("<MouseWheel>", lambda e: self._on_wheel(e))
+            self._video_cells[self._focused_camera] = cell
+            self._video_canvases[self._focused_camera] = canvas
+            self._draw_placeholder(self._focused_camera, canvas, "OFFLINE")
+            return
+
+        # Use grid_cells for proper row/col spanning (especially GRID_6).
+        # The grid renders its full capacity: trailing positions become
+        # "SIN CÁMARA" empty slots (e.g. 15 physical cameras in a 4x4 grid).
+        cells = grid_cells(self._visible_camera_ids, capacity=self._grid_capacity())
+        max_row = max(c.row + c.rowspan for c in cells) if cells else 0
+        max_col = max(c.col + c.colspan for c in cells) if cells else 0
+        for r in range(max_row):
+            self._video_wrap.rowconfigure(r, weight=1, uniform="cam")
+        for c in range(max_col):
+            self._video_wrap.columnconfigure(c, weight=1, uniform="cam")
+
+        for gc in cells:
+            if gc.is_empty:
+                self._build_empty_slot(gc)
+                continue
+            cell = tk.Frame(
+                self._video_wrap, bg=COLORS["panel"],
+                highlightbackground=COLORS["focus"] if gc.is_main else COLORS["border"],
+                highlightthickness=2 if gc.is_main else 1,
+            )
+            cell.grid(
+                row=gc.row, column=gc.col,
+                rowspan=gc.rowspan, columnspan=gc.colspan,
+                sticky="nsew", padx=2, pady=2
+            )
+            canvas = self._make_canvas(cell, gc.camera_id)
+            self._video_cells[gc.camera_id] = cell
+            self._video_canvases[gc.camera_id] = canvas
+            self._draw_placeholder(gc.camera_id, canvas, "OFFLINE")
+
+    def _reset_grid_geometry(self) -> None:
+        """Clear residual grid row/col weights and uniform groups.
+
+        Tk distributes extra space proportionally to *every* configured row's
+        weight. After a 4x4 grid the FOCUS view must not inherit rows 1..3
+        (still weight=1), otherwise the single focused cell only occupies a
+        fraction of the workspace. Resetting to weight=0/uniform="" before
+        rebuilding makes FOCUS fill the whole area between header and bar.
+        """
+        for index in range(64):
+            try:
+                self._video_wrap.rowconfigure(index, weight=0, uniform="")
+            except tk.TclError:
+                pass
+            try:
+                self._video_wrap.columnconfigure(index, weight=0, uniform="")
+            except tk.TclError:
+                pass
+
+    def _grid_capacity(self) -> int:
+        """Visual capacity of the current grid (preset target or natural grid).
+
+        The capacity may exceed the physical camera count (15 physical
+        cameras render in a 16-cell grid with one empty slot).
+        """
+        if self._grid_preset is not None:
+            return self._grid_preset
+        return grid_capacity(len(self._visible_camera_ids))
+
+    def _build_empty_slot(self, gc) -> None:
+        """Render a controlled 'SIN CÁMARA' slot (never OFFLINE/RTSP CLOSED).
+
+        The slot frame is tracked in ``_empty_cells`` so a later rebuild
+        (e.g. entering FOCUS) destroys it: no ghost "SIN CÁMARA" may float
+        next to the focused camera (DEF-UI-FOCUS-EMPTY-01).
+        """
+        cell = tk.Frame(
+            self._video_wrap, bg=COLORS["panel_muted"],
+            highlightbackground=COLORS["border"], highlightthickness=1,
+        )
+        cell.grid(
+            row=gc.row, column=gc.col,
+            rowspan=gc.rowspan, columnspan=gc.colspan,
+            sticky="nsew", padx=2, pady=2
+        )
+        key = f"__empty__{gc.row}_{gc.col}"
+        self._empty_cells[key] = cell
+        canvas = tk.Canvas(cell, bg="#0A0F1E", highlightthickness=0)
+        canvas.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+        self._empty_canvases.append(canvas)
+        self._draw_empty_slot(canvas)
+
+    def _draw_empty_slot(self, canvas) -> None:
+        canvas.delete("all")
+        cw = max(canvas.winfo_width(), 64)
+        ch = max(canvas.winfo_height(), 64)
+        canvas.create_text(
+            cw // 2, ch // 2, anchor=tk.CENTER,
+            text=EMPTY_SLOT_LABEL, fill=COLORS["text_dim"], font=FONT_SMALL,
+        )
+
+    def _make_canvas(self, cell, camera_id: str) -> tk.Canvas:
+        canvas = tk.Canvas(cell, bg="#0A0F1E", highlightthickness=0)
+        canvas.pack(fill=tk.BOTH, expand=True, padx=1, pady=1)
+        canvas.bind(
+            "<Configure>", lambda e, c=camera_id: self._on_canvas_resize(c)
+        )
+        canvas.bind("<Button-1>", lambda e, c=camera_id: self._on_click_camera(c))
+        canvas.bind(
+            "<Double-Button-1>", lambda e, c=camera_id: self._on_double_click(c)
+        )
+        return canvas
 
     def _build_side_panel(self, parent) -> None:
         panel = tk.Frame(parent, bg=COLORS["panel"], width=292)
@@ -500,14 +804,16 @@ class TkApp:
             panel, text="SEGUIMIENTO", bg=COLORS["panel"], fg=COLORS["text_dim"],
             font=FONT_PANEL_TITLE,
         ).pack(fill=tk.X, padx=10, pady=(8, 2), anchor=tk.W)
+        self._cam_summary_frame = tk.Frame(panel, bg=COLORS["panel"])
+        self._cam_summary_frame.pack(fill=tk.X, padx=4)
         self._cam_summary_vars = {}
-        for camera_id in CAMERA_IDS:
+        for camera_id in self._visible_camera_ids:
             var = tk.StringVar(value=f"{camera_id} · OFFLINE")
             self._cam_summary_vars[camera_id] = var
             tk.Label(
-                panel, textvariable=var, bg=COLORS["panel"], fg=COLORS["text"],
-                font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
-            ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
+                self._cam_summary_frame, textvariable=var, bg=COLORS["panel"],
+                fg=COLORS["text"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+            ).pack(fill=tk.X, padx=6, pady=1, anchor=tk.W)
 
         tk.Frame(panel, bg=COLORS["border"], height=1).pack(fill=tk.X, padx=8, pady=6)
         tk.Label(
@@ -538,7 +844,9 @@ class TkApp:
 
     def _build_controls(self) -> None:
         controls = tk.Frame(self._root, bg=COLORS["bg"])
-        controls.pack(side=tk.TOP, fill=tk.X, padx=10, pady=(0, 8))
+        # side=BOTTOM keeps the control bar pinned inside the viewport while
+        # the video body (packed afterwards, expand=True) fills the middle.
+        controls.pack(side=tk.BOTTOM, fill=tk.X, padx=10, pady=(0, 8))
 
         def button(parent, text, command, accent=False):
             return tk.Button(
@@ -552,17 +860,176 @@ class TkApp:
 
         self._stop_btn = button(controls, "Detener", self._on_stop, accent=True)
         self._stop_btn.configure(state=tk.DISABLED)
+        if self._multicamera_mode:
+            self._stop_btn.configure(state=tk.NORMAL)
         self._stop_btn.pack(side=tk.LEFT, padx=(0, 6))
         self._evidence_btn = button(controls, "Abrir evidencia", self._on_open_evidence)
         self._evidence_btn.configure(state=tk.DISABLED)
         self._evidence_btn.pack(side=tk.LEFT, padx=(0, 6))
         self._clip_btn = button(controls, "Abrir clip / revisión", self._on_open_clips)
         self._clip_btn.configure(state=tk.DISABLED)
-        self._clip_btn.pack(side=tk.LEFT)
+        self._clip_btn.pack(side=tk.LEFT, padx=(0, 6))
+
+        self._back_btn = button(controls, "← VOLVER AL GRID", self._on_back_to_grid)
+        self._back_btn.configure(state=tk.DISABLED, fg=COLORS["accent"])
+        self._back_btn.pack(side=tk.LEFT, padx=(12, 6))
+        self._prev_btn = button(controls, "◀ Prev", self._on_prev_camera)
+        self._prev_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._next_btn = button(controls, "Next ▶", self._on_next_camera)
+        self._next_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._fullscreen_btn = button(controls, "Fullscreen", self._on_toggle_fullscreen)
+        self._fullscreen_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._grid_btn = button(controls, f"Grid {len(self._camera_ids)}", self._on_cycle_grid)
+        self._grid_btn.pack(side=tk.LEFT, padx=(0, 6))
+
+        # Digital zoom (BLOCK F): acts on the presented image only, never on
+        # the detection/tracking pipeline and never on the window geometry.
+        self._zoom_in_btn = button(controls, "ZOOM+", lambda: self._on_zoom(1))
+        self._zoom_in_btn.configure(state=tk.DISABLED)
+        self._zoom_in_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._zoom_out_btn = button(controls, "ZOOM-", lambda: self._on_zoom(-1))
+        self._zoom_out_btn.configure(state=tk.DISABLED)
+        self._zoom_out_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._zoom_reset_btn = button(controls, "RESET ZOOM", self._on_zoom_reset)
+        self._zoom_reset_btn.configure(state=tk.DISABLED)
+        self._zoom_reset_btn.pack(side=tk.LEFT, padx=(0, 6))
+
+        self._settings_btn = button(controls, "Configuración", self._open_device_settings)
+        self._settings_btn.pack(side=tk.LEFT, padx=(12, 6))
+
+        # PTZ controls (OC-07) - visible and enabled ONLY when the focused
+        # camera declares PTZ support (BLOCK M): NOT_SUPPORTED hides them so
+        # the mandatory surface (RETURN/CONFIG/ZOOM/GRID) always fits on
+        # operator resolutions without scrolling.
+        ptz_frame = tk.Frame(controls, bg=COLORS["bg"])
+        self._ptz_frame = ptz_frame
+        ptz_frame.pack(side=tk.LEFT, padx=(12, 0))
+        tk.Label(
+            ptz_frame, text="PTZ:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            font=FONT_SMALL,
+        ).pack(side=tk.LEFT, padx=(0, 4))
+        self._ptz_up_btn = button(ptz_frame, "▲", lambda: self._on_ptz("up"))
+        self._ptz_up_btn.configure(state=tk.DISABLED, width=3)
+        self._ptz_up_btn.pack(side=tk.LEFT, padx=1)
+        self._ptz_down_btn = button(ptz_frame, "▼", lambda: self._on_ptz("down"))
+        self._ptz_down_btn.configure(state=tk.DISABLED, width=3)
+        self._ptz_down_btn.pack(side=tk.LEFT, padx=1)
+        self._ptz_left_btn = button(ptz_frame, "◀", lambda: self._on_ptz("left"))
+        self._ptz_left_btn.configure(state=tk.DISABLED, width=3)
+        self._ptz_left_btn.pack(side=tk.LEFT, padx=1)
+        self._ptz_right_btn = button(ptz_frame, "▶", lambda: self._on_ptz("right"))
+        self._ptz_right_btn.configure(state=tk.DISABLED, width=3)
+        self._ptz_right_btn.pack(side=tk.LEFT, padx=1)
+        self._ptz_zoom_in_btn = button(ptz_frame, "Zoom+", lambda: self._on_ptz("zoom_in"))
+        self._ptz_zoom_in_btn.configure(state=tk.DISABLED, width=5)
+        self._ptz_zoom_in_btn.pack(side=tk.LEFT, padx=(4, 1))
+        self._ptz_zoom_out_btn = button(ptz_frame, "Zoom-", lambda: self._on_ptz("zoom_out"))
+        self._ptz_zoom_out_btn.configure(state=tk.DISABLED, width=5)
+        self._ptz_zoom_out_btn.pack(side=tk.LEFT, padx=1)
+
+    def _on_store_change(self, event=None) -> None:
+        """Handle store selection change (OC-06)."""
+        store_id = self._store_var.get()
+        if not store_id:
+            return
+        # Update zone combobox with zones for selected store
+        zones = ["Todas"]
+        if hasattr(self._controller, "store_zones"):
+            zones.extend(self._controller.store_zones(store_id))
+        self._zone_combo.configure(values=zones)
+        self._zone_var.set("Todas")
+        # Switch controller to selected store
+        if hasattr(self._controller, "select_store"):
+            self._controller.select_store(store_id)
+            self._apply_camera_set(self._controller.camera_ids)
+
+    def _on_zone_change(self, event=None) -> None:
+        """Handle zone filter change (OC-06)."""
+        store_id = self._store_var.get()
+        zone = self._zone_var.get()
+        if not store_id:
+            return
+        zone_filter = "" if zone == "Todas" else zone
+        if hasattr(self._controller, "select_store"):
+            self._controller.select_store(store_id, zone_filter)
+            self._apply_camera_set(self._controller.camera_ids)
+
+    def _apply_camera_set(self, camera_ids) -> None:
+        """Switch the rendered camera set, resetting grid preset & focus."""
+        self._camera_ids = tuple(camera_ids) or ("CAM-001",)
+        self._grid_preset = None
+        self._visible_camera_ids = self._camera_ids
+        self._focused_camera = None
+        self._zoom_factor = 1.0
+        self._rebuild_grid()
+        self._update_side_panel_cameras()
+        if self._grid_btn is not None:
+            self._grid_btn.configure(text=f"Grid {len(self._camera_ids)}")
+
+    def _update_side_panel_cameras(self) -> None:
+        """Rebuild side panel camera summary labels for the visible set."""
+        for widget in self._cam_summary_frame.winfo_children():
+            widget.destroy()
+        self._cam_summary_vars = {}
+        for camera_id in self._visible_camera_ids:
+            var = tk.StringVar(value=f"{camera_id} · OFFLINE")
+            self._cam_summary_vars[camera_id] = var
+            tk.Label(
+                self._cam_summary_frame, textvariable=var, bg=COLORS["panel"],
+                fg=COLORS["text"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
+            ).pack(fill=tk.X, padx=6, pady=1, anchor=tk.W)
+
+    def _on_ptz(self, action: str) -> None:
+        """Handle PTZ command (OC-07).
+
+        Commands are only sent when the runtime certifies the capability;
+        otherwise the control remains gated (CAPABILITY_GATED / NOT_CERTIFIED).
+        """
+        if self._focused_camera is None:
+            return
+        if hasattr(self._controller, "ptz_command"):
+            self._controller.ptz_command(self._focused_camera, action)
+
+    def _update_ptz_controls(self) -> None:
+        """Enable/disable PTZ controls based on focused camera capability (OC-07).
+
+        BLOCK M gating: the PTZ surface is shown ONLY when the focused camera
+        *declares* PTZ support (``ptz_capability.supported``). NOT_SUPPORTED /
+        UNKNOWN cameras hide the frame entirely, so the mandatory control
+        surface (RETURN / CONFIG / ZOOM / GRID) always fits on operator
+        resolutions. Buttons stay disabled unless the runtime certifies a real
+        physical implementation (with no certified PTZ there is never a silent
+        no-op button).
+        """
+        declared = False
+        if self._focused_camera is not None and hasattr(self._controller, "ptz_status"):
+            declared = bool(
+                self._controller.ptz_status(self._focused_camera).get("supported")
+            )
+        frame = getattr(self, "_ptz_frame", None)
+        if frame is not None:
+            if declared:
+                frame.pack(side=tk.LEFT, padx=(12, 0))
+            else:
+                frame.pack_forget()
+        if self._focused_camera is None:
+            for btn in (self._ptz_up_btn, self._ptz_down_btn, self._ptz_left_btn,
+                        self._ptz_right_btn, self._ptz_zoom_in_btn, self._ptz_zoom_out_btn):
+                if btn:
+                    btn.configure(state=tk.DISABLED)
+            return
+        certified = False
+        if hasattr(self._controller, "ptz_status"):
+            certified = bool(self._controller.ptz_status(self._focused_camera).get("certified"))
+        state = tk.NORMAL if certified else tk.DISABLED
+        for btn in (self._ptz_up_btn, self._ptz_down_btn, self._ptz_left_btn,
+                    self._ptz_right_btn, self._ptz_zoom_in_btn, self._ptz_zoom_out_btn):
+            if btn:
+                btn.configure(state=state)
 
     def _build_settings(self) -> None:
         wrap = tk.Frame(self._root, bg=COLORS["bg"])
-        wrap.pack(side=tk.TOP, fill=tk.X)
+        wrap.pack(side=tk.BOTTOM, fill=tk.X)
         controls = ttk.Frame(wrap, padding=(12, 2))
         controls.columnconfigure(1, weight=0)
 
@@ -618,14 +1085,18 @@ class TkApp:
             for widget in (self._source_label, self._source_menu, self._input_entry,
                            self._rtsp_frame, self._file_btn, self._start_btn):
                 widget.grid_remove()
-            self._stop_btn.configure(state=tk.NORMAL)
 
     # ------------------------------------------------------------- placeholders
-    def _draw_placeholder(self, camera_id, canvas, source_state: str) -> None:
+    def _draw_placeholder(
+        self, camera_id, canvas, source_state: str, health_state: str = ""
+    ) -> None:
         canvas.delete("all")
         cw = max(canvas.winfo_width(), 64)
         ch = max(canvas.winfo_height(), 64)
-        color = camera_status_color(source_state)
+        color = (
+            health_state_color(health_state)
+            if health_state else camera_status_color(source_state)
+        )
         canvas.create_oval(8, 8, 20, 20, fill=color, outline="")
         canvas.create_text(
             26, 14, anchor=tk.W, text=camera_id, fill=COLORS["text"],
@@ -640,7 +1111,278 @@ class TkApp:
     def _on_canvas_resize(self, camera_id: str) -> None:
         self._last_render_size[camera_id] = (0, 0)
 
+    # ------------------------------------------------------------- navigation
+    def _capture_focus_context(self) -> None:
+        """Save the full previous view state so FOCUS return is exact (BLOCK F)."""
+        self._previous_context = {
+            "camera_ids": tuple(self._camera_ids),
+            "visible_camera_ids": tuple(self._visible_camera_ids),
+            "grid_preset": self._grid_preset,
+            "focus_index": self._focus_index,
+            "store": self._store_var.get() if hasattr(self, "_store_var") else "",
+            "zone": self._zone_var.get() if hasattr(self, "_zone_var") else "",
+        }
+
+    def _viewport(self, camera_id: str) -> dict:
+        if camera_id not in self._viewports:
+            self._viewports[camera_id] = {"scale": 1.0, "pan_x": 0.0, "pan_y": 0.0}
+        return self._viewports[camera_id]
+
+    def _reset_viewport(self, camera_id: str) -> None:
+        self._viewports[camera_id] = {"scale": 1.0, "pan_x": 0.0, "pan_y": 0.0}
+        self._zoom_factor = 1.0
+        self._drag_state = None
+
+    def _on_click_camera(self, camera_id: str) -> None:
+        self._capture_focus_context()
+        self._focused_camera = camera_id
+        self._focus_index = self._index_of(camera_id)
+        self._reset_viewport(camera_id)
+        # BLOCK B: switch focused camera to MAIN, others remain SUB
+        try:
+            fn = getattr(self._controller, "set_focus", None)
+            if callable(fn):
+                fn(camera_id)
+        except Exception:
+            pass
+        self._rebuild_grid()
+        self._update_ptz_controls()
+        self._update_button_states()
+
+    def _on_double_click(self, camera_id: str) -> None:
+        """DOUBLE_CLICK contract (BLOCK G): grid tile -> FOCUS; FOCUS -> zoom.
+
+        In GRID a double click enters FOCUS on that camera. Already focused,
+        a double click toggles the digital zoom (1x <-> 2x), matching the
+        historical portable behavior (double click = zoom/focus toggle). It
+        never toggles fullscreen and never affects the pipeline.
+        """
+        if self._focused_camera == camera_id:
+            self._toggle_zoom()
+        else:
+            self._on_click_camera(camera_id)
+
+    def _toggle_zoom(self) -> None:
+        if self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        new_scale = 1.0 if vp["scale"] > 1.0 else ZOOM_TOGGLE
+        self._set_zoom_scale(new_scale, cursor_pos=self._last_cursor_pos)
+        self._last_render_size[self._focused_camera] = (0, 0)
+
+    def _set_zoom_scale(self, new_scale: float, cursor_pos=None) -> None:
+        if self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        old_scale = float(vp["scale"])
+        new_scale = min(MAX_ZOOM, max(MIN_ZOOM, float(new_scale)))
+        if cursor_pos is not None and old_scale != new_scale and old_scale > 1.0:
+            # Cursor-centered zoom (BLOCK G) — keep point under cursor fixed.
+            # For simplicity, maintain center if no valid cursor mapping yet;
+            # full mapping requires frame size. Defer to _render where size known.
+            # Store cursor for next render pass.
+            self._last_cursor_pos = cursor_pos
+        vp["scale"] = new_scale
+        self._zoom_factor = new_scale
+        if new_scale == 1.0:
+            vp["pan_x"] = 0.0
+            vp["pan_y"] = 0.0
+            self._drag_state = None
+
+    def _on_zoom(self, direction: int) -> None:
+        """Digital zoom in/out over the focused image (BLOCK F)."""
+        if self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        step = ZOOM_STEP if direction > 0 else -ZOOM_STEP
+        new_scale = min(MAX_ZOOM, max(MIN_ZOOM, vp["scale"] + step))
+        self._set_zoom_scale(new_scale, cursor_pos=self._last_cursor_pos)
+        self._last_render_size[self._focused_camera] = (0, 0)
+
+    def _on_zoom_reset(self) -> None:
+        """Reset digital zoom to 1.0x over the focused image."""
+        if self._focused_camera is None:
+            return
+        self._reset_viewport(self._focused_camera)
+        self._last_render_size[self._focused_camera] = (0, 0)
+
+    # --- Pan (BLOCK F: drag = PAN when zoom > 1.0) ---
+    def _on_pan_start(self, event) -> None:
+        if self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        if vp["scale"] <= 1.0:
+            return
+        self._drag_state = {
+            "start_x": event.x,
+            "start_y": event.y,
+            "pan_x": vp["pan_x"],
+            "pan_y": vp["pan_y"],
+        }
+
+    def _on_pan_move(self, event) -> None:
+        if self._drag_state is None or self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        if vp["scale"] <= 1.0:
+            return
+        dx = event.x - self._drag_state["start_x"]
+        dy = event.y - self._drag_state["start_y"]
+        # Convert canvas delta to source pan: pan moves opposite to drag
+        # Approximate: source pan delta = -dx * (scale factor adjusted)
+        # Use canvas size if available else direct
+        canvas = self._video_canvases.get(self._focused_camera)
+        cw = canvas.winfo_width() if canvas else 640
+        ch = canvas.winfo_height() if canvas else 480
+        # Estimate source size from last frame or fallback 640
+        scale = vp["scale"]
+        # Pan delta in source pixels: drag moves viewport opposite
+        pan_x = self._drag_state["pan_x"] - dx * (1.0 / scale) * 0.5
+        pan_y = self._drag_state["pan_y"] - dy * (1.0 / scale) * 0.5
+        # Clamp will be applied at render time with true src size; store raw
+        vp["pan_x"] = pan_x
+        vp["pan_y"] = pan_y
+        self._last_render_size[self._focused_camera] = (0, 0)
+
+    def _on_pan_end(self, event) -> None:
+        self._drag_state = None
+
+    def _on_mouse_move(self, event) -> None:
+        self._last_cursor_pos = (event.x, event.y)
+
+    def _on_back_to_grid(self) -> None:
+        """Return to the exact previous layout (grid/preset/order/store/zone).
+
+        Restoring the saved context guarantees GRID16 -> FOCUS -> GRID16 (and
+        the same for 9/4/6/1), never falling back to defaults (BLOCK H).
+        """
+        ctx = self._previous_context
+        self._previous_context = None
+        if ctx is not None:
+            self._camera_ids = tuple(ctx["camera_ids"]) or ("CAM-001",)
+            self._visible_camera_ids = tuple(ctx["visible_camera_ids"])
+            self._grid_preset = ctx["grid_preset"]
+            self._focus_index = ctx["focus_index"]
+            self._restore_store_zone(ctx.get("store", ""), ctx.get("zone", ""))
+        self._focused_camera = None
+        self._zoom_factor = 1.0
+        # BLOCK B: return focused camera to SUB
+        try:
+            fn = getattr(self._controller, "clear_focus", None)
+            if callable(fn):
+                fn()
+            else:
+                fn2 = getattr(self._controller, "set_focus", None)
+                if callable(fn2):
+                    fn2(None)
+        except Exception:
+            pass
+        self._rebuild_grid()
+        self._update_side_panel_cameras()
+        self._update_ptz_controls()
+        self._update_button_states()
+        if self._grid_btn is not None:
+            label = (
+                f"Grid {self._grid_preset}"
+                if self._grid_preset is not None else f"Grid {len(self._camera_ids)}"
+            )
+            self._grid_btn.configure(text=label)
+
+    def _restore_store_zone(self, store_id: str, zone: str) -> None:
+        """Re-apply the saved store/zone to the controller if it drifted."""
+        if not store_id:
+            return
+        if hasattr(self, "_store_var") and self._store_var.get() != store_id:
+            self._store_var.set(store_id)
+        if hasattr(self, "_zone_var") and self._zone_var.get() != zone:
+            self._zone_var.set(zone)
+        if not hasattr(self._controller, "select_store"):
+            return
+        current = str(getattr(self._controller, "store_id", "") or "")
+        if current != store_id:
+            zone_filter = "" if zone in ("", "Todas") else zone
+            self._controller.select_store(store_id, zone_filter)
+
+    def _on_escape(self, event=None):
+        """ESC returns to the previous grid ONLY in FOCUS mode (BLOCK I).
+
+        Outside FOCUS the key is ignored and never closes the application.
+        """
+        if self._focused_camera is not None:
+            self._on_back_to_grid()
+            return "break"
+        return None
+
+    def _on_prev_camera(self) -> None:
+        if not self._camera_ids:
+            return
+        self._focus_index = (self._focus_index - 1) % len(self._camera_ids)
+        self._focused_camera = self._camera_ids[self._focus_index]
+        self._zoom_factor = 1.0
+        self._rebuild_grid()
+        self._update_ptz_controls()
+
+    def _on_next_camera(self) -> None:
+        if not self._camera_ids:
+            return
+        self._focus_index = (self._focus_index + 1) % len(self._camera_ids)
+        self._focused_camera = self._camera_ids[self._focus_index]
+        self._zoom_factor = 1.0
+        self._rebuild_grid()
+        self._update_ptz_controls()
+
+    def _on_cycle_grid(self) -> None:
+        """Cycle grid presets (1/4/6/9/16 -> N) changing the rendered set.
+
+        The preset switch really changes which cameras are rendered and the
+        grid geometry (1/4/6/9/16 with GRID_6 as 1 MAIN + 5 AUX), not just
+        the button label. Navigating the full catalog happens via Prev/Next.
+        Presets are capped by the grid *capacity* (16), not the physical
+        camera count, so 15 cameras can still use the 16-cell grid.
+        """
+        self._focused_camera = None
+        self._zoom_factor = 1.0
+        count = len(self._camera_ids)
+        capacity = grid_capacity(count)
+        self._grid_preset = cycle_grid_preset(
+            self._grid_preset, count, capacity=capacity
+        )
+        self._visible_camera_ids = tuple(self._camera_ids)[: min(self._grid_preset, count)]
+        self._rebuild_grid()
+        self._update_side_panel_cameras()
+        self._grid_btn.configure(text=f"Grid {self._grid_preset}")
+
+    def _on_wheel(self, event) -> None:
+        if self._focused_camera is None:
+            return
+        vp = self._viewport(self._focused_camera)
+        new_scale = min(
+            MAX_ZOOM,
+            max(MIN_ZOOM, vp["scale"] + (ZOOM_STEP if event.delta > 0 else -ZOOM_STEP)),
+        )
+        self._set_zoom_scale(new_scale, cursor_pos=(event.x, event.y) if hasattr(event, "x") else None)
+        self._last_render_size[self._focused_camera] = (0, 0)
+
+    def _on_toggle_fullscreen(self) -> None:
+        current = bool(self._root.attributes("-fullscreen"))
+        self._root.attributes("-fullscreen", not current)
+
+    def _index_of(self, camera_id: str) -> int:
+        try:
+            return list(self._camera_ids).index(camera_id)
+        except ValueError:
+            return 0
+
     # ------------------------------------------------------------- actions
+    def _config_path(self) -> Path:
+        return Path(DEFAULT_CONFIG_PATH)
+
+    def _open_device_settings(self) -> None:
+        """Open CONFIGURACIÓN -> DISPOSITIVOS (BLOCK B)."""
+        from src.ui.device_settings_view import DeviceSettingsWindow
+
+        DeviceSettingsWindow(self._root, self._config_path())
+
     def _on_source_change(self, kind: str) -> None:
         if kind == "FILE":
             self._input_entry.configure(state=tk.NORMAL)
@@ -713,13 +1455,17 @@ class TkApp:
             messagebox.showerror("Recurso", "No se pudo abrir el recurso")
 
     def _launch_review(self) -> None:
-        launcher = getattr(self._controller, "launch_review", None)
-        if callable(launcher):
-            launcher()
-            return
-        bat = Path(__file__).resolve().parents[2] / "review_behavior_signals.bat"
-        if bat.is_file():
-            os.startfile(str(bat))
+        """Open the product review GUI (DEF-UI-REVIEW-01).
+
+        The review is a TukeVision modal window, never a CMD console. The
+        window adapts over the existing QW-00 review logic (JSONL dataset +
+        human_review_matrix.csv persistence); no second datastore is created.
+        """
+        from src.ui.review_view import TukeVisionReviewWindow
+
+        window = TukeVisionReviewWindow(self._root, provider=self._controller)
+        window.transient(self._root)
+        window.lift()
 
     def _on_open_evidence(self) -> None:
         target = self._evidence_target
@@ -738,8 +1484,24 @@ class TkApp:
             return
         messagebox.showinfo("Clip", "CLIP_REVIEW_UNAVAILABLE")
 
+    def _handle_callback_exception(self, exc, val, tb) -> None:
+        import logging as _logging
+        import traceback as _tb
+
+        _logging.getLogger("tukevision.ui").error(
+            "TK_CALLBACK_EXCEPTION %s: %s\n%s",
+            exc.__name__ if hasattr(exc, "__name__") else str(exc),
+            val,
+            "".join(_tb.format_exception(exc, val, tb)),
+        )
+
     def _on_close(self) -> None:
         try:
+            if self._poll_after_id is not None:
+                try:
+                    self._root.after_cancel(self._poll_after_id)
+                except tk.TclError:
+                    pass
             self._controller.close()
         finally:
             self._root.destroy()
@@ -750,9 +1512,14 @@ class TkApp:
             return
         try:
             self._poll_once()
+        except Exception as exc:
+            import logging as _logging
+            _logging.getLogger("tukevision.ui").error(
+                "POLL_ERROR %s", type(exc).__name__, exc_info=exc
+            )
         finally:
             try:
-                self._root.after(self.POLL_MS, self._poll)
+                self._poll_after_id = self._root.after(self.POLL_MS, self._poll)
             except tk.TclError:
                 pass
 
@@ -760,17 +1527,33 @@ class TkApp:
         state = self._controller.poll_state()
         if self._multicamera_mode:
             controls = multicamera_control_state(state["status"])
-            self._stop_btn.configure(
-                state=tk.NORMAL if controls["stop_enabled"] else tk.DISABLED
-            )
+            if hasattr(self, "_stop_btn") and self._stop_btn is not None:
+                try:
+                    if self._stop_btn.winfo_exists():
+                        self._stop_btn.configure(
+                            state=tk.NORMAL if controls["stop_enabled"] else tk.DISABLED
+                        )
+                except tk.TclError:
+                    pass
+        self._update_store_label(state)
         self._update_action_targets(state)
         self._render_video(state)
         self._render_header(state)
         self._render_side_panel(state)
         self._update_button_states()
 
+    def _update_store_label(self, state: dict) -> None:
+        store_id = str(state.get("store_id") or getattr(self._controller, "store_id", "") or "")
+        if store_id and self._store_id_var.get() != store_id:
+            self._store_id_var.set(store_id)
+
     def _update_action_targets(self, state: dict) -> None:
-        """Deriva los objetivos exactos de evidencia/clip desde el runtime."""
+        """Deriva los objetivos exactos de evidencia/clip desde el runtime.
+
+        Cada llamada está aislada: un fallo de IO (p.ej. PermissionError por
+        lock del archivo de review) no derriba el runtime global
+        (BLOCK B: SINGLE_CAMERA_FAILURE != GLOBAL_APPLICATION_EXIT).
+        """
         self._evidence_target = None
         self._clip_target = None
         self._review_available = False
@@ -779,11 +1562,20 @@ class TkApp:
             clip = getattr(self._controller, "clip_target", None)
             review = getattr(self._controller, "review_available", None)
             if callable(latest):
-                self._evidence_target = latest()
+                try:
+                    self._evidence_target = latest()
+                except Exception:
+                    self._evidence_target = None
             if callable(clip):
-                self._clip_target = clip()
+                try:
+                    self._clip_target = clip()
+                except Exception:
+                    self._clip_target = None
             if callable(review):
-                self._review_available = bool(review())
+                try:
+                    self._review_available = bool(review())
+                except Exception:
+                    self._review_available = False
         else:
             paths = state.get("evidence_paths") or []
             if paths:
@@ -801,54 +1593,146 @@ class TkApp:
             self._clip_btn.configure(
                 state=tk.NORMAL if states["clip_enabled"] else tk.DISABLED
             )
+        if self._back_btn is not None:
+            self._back_btn.configure(
+                state=tk.NORMAL if self._focused_camera is not None else tk.DISABLED
+            )
+        # Digital zoom buttons are visible always, enabled in FOCUS (BLOCK F).
+        for btn in (self._zoom_in_btn, self._zoom_out_btn, self._zoom_reset_btn):
+            if btn is not None:
+                btn.configure(
+                    state=tk.NORMAL if self._focused_camera is not None else tk.DISABLED
+                )
 
     # ------------------------------------------------------------- rendering
     def _render_video(self, state: dict) -> None:
         running = state["status"] == AppStatus.RUNNING
         panels = self._controller.poll_multicamera()
-        for camera_id in CAMERA_IDS:
-            panel = panels[camera_id]
-            canvas = self._video_canvases[camera_id]
-            frame = getattr(panel, "frame", None)
-            frame_index = int(getattr(panel, "frame_index", -1))
-            if running:
-                self._stopped_rendered[camera_id] = False
-                if frame is None or frame_index < 0:
-                    self._draw_placeholder(
-                        camera_id, canvas,
-                        str(getattr(panel, "source_state", "OFFLINE") or "OFFLINE"),
-                    )
+        rendered_ids = (
+            (self._focused_camera,)
+            if self._focused_camera is not None else tuple(self._visible_camera_ids)
+        )
+        health = state.get("system_health")
+        health_states = {}
+        if health is not None:
+            for item in getattr(health, "camera_health", ()):
+                health_states[item.camera_id] = str(
+                    getattr(item, "health_state", "") or ""
+                )
+        for camera_id in rendered_ids:
+            try:
+                panel = panels.get(camera_id)
+                canvas = self._video_canvases.get(camera_id)
+                if panel is None or canvas is None:
                     continue
-                self._render_camera(camera_id, panel, canvas)
-            else:
-                stopped = apply_stopped_state(panel)
-                if frame is None or frame_index < 0:
-                    self._draw_placeholder(
-                        camera_id, canvas, stopped["source_state"]
+                health_state = health_states.get(camera_id, "")
+                frame = getattr(panel, "frame", None)
+                frame_index = int(getattr(panel, "frame_index", -1))
+                if running:
+                    self._stopped_rendered[camera_id] = False
+                    if frame is None or frame_index < 0:
+                        self._draw_placeholder(
+                            camera_id, canvas,
+                            str(getattr(panel, "source_state", "OFFLINE") or "OFFLINE"),
+                            health_state,
+                        )
+                        continue
+                    self._render_camera(camera_id, panel, canvas, health_state)
+                else:
+                    stopped = apply_stopped_state(panel)
+                    if frame is None or frame_index < 0:
+                        self._draw_placeholder(
+                            camera_id, canvas, stopped["source_state"], health_state
+                        )
+                        continue
+                    self._render_frozen_camera(
+                        camera_id, canvas, frame, frame_index, stopped
                     )
-                    continue
-                self._render_frozen_camera(
-                    camera_id, canvas, frame, frame_index, stopped
+            except Exception as exc:
+                import logging as _logging
+                _logging.getLogger("tukevision.ui").error(
+                    "PANEL_RENDER_ERROR camera=%s error=%s: %s",
+                    camera_id, type(exc).__name__, exc, exc_info=True,
                 )
 
-    def _render_camera(self, camera_id, panel, canvas) -> None:
+    def _bind_focus_pan(self, canvas) -> None:
+        # Bind pan only once per canvas lifecycle
+        try:
+            canvas.bind("<ButtonPress-1>", self._on_pan_start)
+            canvas.bind("<B1-Motion>", self._on_pan_move)
+            canvas.bind("<ButtonRelease-1>", self._on_pan_end)
+            canvas.bind("<Motion>", self._on_mouse_move)
+        except tk.TclError:
+            pass
+
+    def _render_camera(self, camera_id, panel, canvas, health_state: str = "") -> None:
         frame, displayed_frame_index, _ = select_panel_frame(panel)
         frame_index = int(getattr(panel, "frame_index", -1))
         cw = canvas.winfo_width()
         ch = canvas.winfo_height()
         size = (cw, ch)
-        changed = (
+        focus = camera_id == self._focused_camera
+        vp = self._viewport(camera_id) if focus else {"scale": 1.0, "pan_x": 0, "pan_y": 0}
+        # Need re-render if size/frame/viewport changed
+        vp_key = (vp["scale"], round(vp["pan_x"], 1), round(vp["pan_y"], 1)) if focus else (1.0, 0, 0)
+        last_vp = getattr(self, "_last_viewport", {}).get(camera_id)
+        last_health = getattr(self, "_last_health_state", {}).get(camera_id, "")
+        
+        last_updated = float(getattr(panel, "last_updated_at", 0.0) or 0.0)
+        age = time.monotonic() - last_updated if last_updated > 0 else None
+        is_stale = age is not None and age > 3.0
+        last_stale = getattr(self, "_last_stale_state", {}).get(camera_id, False)
+
+        generation = int(getattr(panel, "generation", 0) or 0)
+        last_gen = getattr(self, "_last_render_gen", {}).get(camera_id, 0)
+
+        frame_changed = (
             size != self._last_render_size[camera_id]
             or frame_index != self._last_render_index[camera_id]
+            or generation != last_gen
+            or vp_key != last_vp
         )
-        if not changed or cw < 32 or ch < 32:
+        health_changed = (health_state != last_health or is_stale != last_stale)
+
+        if not hasattr(self, "_last_health_state"):
+            self._last_health_state = {}
+        if not hasattr(self, "_last_stale_state"):
+            self._last_stale_state = {}
+        if not hasattr(self, "_last_render_gen"):
+            self._last_render_gen = {}
+        self._last_health_state[camera_id] = health_state
+        self._last_stale_state[camera_id] = is_stale
+
+        if not frame_changed and not health_changed:
             return
+        if cw < 32 or ch < 32:
+            return
+
+        # If only health/stale changed but frame did not change, just refresh the overlay
+        if not frame_changed and camera_id in self._photos:
+            self._draw_overlay(canvas, camera_id, panel, cw, ch, health_state)
+            return
+
+        if not hasattr(self, "_last_viewport"):
+            self._last_viewport = {}
+        self._last_viewport[camera_id] = vp_key
         annotated = annotate_frame(
             frame, panel, displayed_frame_index=displayed_frame_index
         )
-        image = build_display_image(annotated, cw, ch)
+        if focus and vp["scale"] > 1.0:
+            zoomed = build_viewport_display_image(
+                annotated, cw, ch, vp["scale"], vp["pan_x"], vp["pan_y"], allow_upscale=True
+            )
+            # Ensure pan bindings on focused canvas
+            self._bind_focus_pan(canvas)
+        elif focus:
+            # Even at 1.0, keep bindings for future zoom
+            self._bind_focus_pan(canvas)
+            zoomed = build_display_image(annotated, cw, ch, allow_upscale=True)
+        else:
+            zoomed = build_display_image(annotated, cw, ch, allow_upscale=False)
         buf = io.BytesIO()
-        image.save(buf, format="PNG")
+        zoomed.save(buf, format="PNG")
         try:
             photo = tk.PhotoImage(data=buf.getvalue())
         except tk.TclError:
@@ -856,9 +1740,10 @@ class TkApp:
         self._photos[camera_id] = photo
         canvas.delete("all")
         canvas.create_image(cw // 2, ch // 2, image=photo, anchor=tk.CENTER)
-        self._draw_overlay(canvas, camera_id, panel, cw, ch)
+        self._draw_overlay(canvas, camera_id, panel, cw, ch, health_state)
         self._last_render_size[camera_id] = size
         self._last_render_index[camera_id] = frame_index
+        self._last_render_gen[camera_id] = generation
         marker = getattr(self._controller, "mark_ui_rendered", None)
         if marker is not None:
             marker(camera_id, frame_index)
@@ -866,11 +1751,7 @@ class TkApp:
     def _render_frozen_camera(
         self, camera_id, canvas, frame, frame_index, stopped
     ) -> None:
-        """Último frame congelado tras STOP, marcado como offline.
-
-        Mantiene la referencia visual pero elimina todo estado activo:
-        sin Track/Event/Temporal/Behavior y sin contadores verdes.
-        """
+        """Último frame congelado tras STOP, marcado como offline."""
         cw = canvas.winfo_width()
         ch = canvas.winfo_height()
         size = (cw, ch)
@@ -913,9 +1794,26 @@ class TkApp:
         self._stopped_rendered[camera_id] = True
 
     @staticmethod
-    def _draw_overlay(canvas, camera_id, panel, cw: int, ch: int) -> None:
+    def _draw_overlay(canvas, camera_id, panel, cw: int, ch: int,
+                      health_state: str = "") -> None:
         state = str(getattr(panel, "source_state", "OPEN") or "OPEN")
-        canvas.create_oval(6, 6, 16, 16, fill=camera_status_color(state), outline="")
+        # Check actual age of presented frame in view model
+        last_updated = float(getattr(panel, "last_updated_at", 0.0) or 0.0)
+        age = time.monotonic() - last_updated if last_updated > 0 else None
+        
+        # Determine visual indicator: if health_state is provided use it,
+        # but if frame presentation is stale (> 3.0s), force DEGRADED (amber)
+        if health_state:
+            effective_health = health_state
+            if age is not None and age > 3.0 and effective_health == "ONLINE":
+                effective_health = "DEGRADED"
+            color = health_state_color(effective_health)
+        else:
+            if age is not None and age > 3.0 and state in ("OPEN", "READING"):
+                color = COLORS["degraded"]
+            else:
+                color = camera_status_color(state)
+        canvas.create_oval(6, 6, 16, 16, fill=color, outline="")
         canvas.create_text(
             22, 11, anchor=tk.W, text=camera_id, fill=COLORS["text"],
             font=FONT_BODY_BOLD,
@@ -951,12 +1849,19 @@ class TkApp:
         panels = self._controller.poll_multicamera()
         health = state.get("system_health")
         self._health_var.set(health_header_text(health))
-        online = (
-            health.online_camera_count
-            if health is not None else online_camera_count(panels, running=running)
+        # Surgical correction: LIVE exclusively via frame progress (FRAME_COUNT + LAST_FRAME_TS)
+        # A source without advancing frames must be STALLED/RECONNECTING, never LIVE
+        live = state.get("live_count")
+        if live is None:
+            live = (
+                health.online_camera_count
+                if health is not None else online_camera_count(panels, running=running)
+            )
+        total = (
+            health.total_camera_count
+            if health is not None else len(self._camera_ids)
         )
-        total = health.total_camera_count if health is not None else 4
-        self._cameras_var.set(f"CAMERAS: {online} / {total} ONLINE")
+        self._cameras_var.set(f"CAMERAS: {live} / {total} LIVE")
         resolutions = [
             str(getattr(panel, "resolution", ""))
             for panel in panels.values()
@@ -966,6 +1871,8 @@ class TkApp:
             self._res_var.set(f"RES: {resolutions[0]}")
         fps = state.get("fps") or 0.0
         self._fps_var.set(f"FPS: {fps:.1f}" if fps else "FPS: -")
+        mode = "FOCUS" if self._focused_camera is not None else "GRID"
+        self._mode_var.set(f"MODE: {mode}")
 
     @staticmethod
     def _set_dot(canvas, color: str) -> None:
@@ -980,8 +1887,13 @@ class TkApp:
             {item.camera_id: item for item in health.camera_health}
             if health is not None else {}
         )
-        for camera_id in CAMERA_IDS:
-            panel = panels[camera_id]
+        for camera_id in self._visible_camera_ids:
+            panel = panels.get(camera_id)
+            if panel is None:
+                self._cam_summary_vars[camera_id].set(
+                    stopped_camera_line(camera_id)
+                )
+                continue
             if camera_id in camera_health:
                 text = camera_health_text(camera_health[camera_id])
                 details = camera_summary_line(panel, include_source_state=False)

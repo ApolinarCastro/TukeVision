@@ -1,114 +1,217 @@
 # TukeVision
 
-Prototipo local para transformar video en observaciones, eventos, riesgo, alertas y evidencia trazable.
+**Local-first Operational Intelligence for existing CCTV infrastructure.**
 
-## Estado
+TukeVision is a vendor-neutral computer vision platform designed to transform existing CCTV video streams into traceable observations, temporal entities, situations, evidence and governed operator workflows — without requiring replacement of the installed camera infrastructure.
 
-Implementación del primer prototipo funcional (SPEC-0001) completada a nivel de módulos. Pendiente de ejecutar la prueba integral con un video real.
+> **Español:**  
+> TukeVision es una plataforma local y neutral respecto del fabricante que agrega inteligencia operacional a infraestructuras CCTV existentes, transformando video en observaciones, seguimiento temporal, situaciones, evidencia trazable y flujos gobernados para operadores — sin necesidad de reemplazar las cámaras instaladas.
 
-## Requisitos
+---
 
-- Windows.
-- Python 3.12.9 (64 bits).
-- Entorno virtual en `.venv`.
+## What TukeVision is
 
-## Activar el entorno virtual
+TukeVision layers intelligent operational reasoning on top of existing commercial CCTV systems (DVR, NVR, IP cameras). It is designed to work in edge and on-premise environments, keeping video feeds and data strictly local.
 
-```powershell
-Set-Location "C:\ruta\a\TukeVision"
-.\.venv\Scripts\Activate.ps1
-```
+- **Non-Invasive Enhancement:** Does not replace cameras, DVRs, or VMS systems; connects to available streams (e.g., via RTSP).
+- **Local-First & Edge-Native:** Ingestion, inference, tracking, and evidence packaging run on local infrastructure without mandatory cloud connectivity.
+- **Vendor-Neutral:** Agnostic to camera manufacturers and recording hardware.
+- **Human-in-the-Loop Governance:** Autonomous monitoring investigates and flags situations, while critical and sensitive responses remain governed and subject to human oversight.
 
-## Ejecutar el prototipo
+### Conceptual Hierarchy
 
-Coloque un video local en `data/input/` y ejecute:
+TukeVision strictly separates perceptual facts from business situations:
 
-```powershell
-.\.venv\Scripts\python.exe scripts\run_prototype.py "data\input\video.mp4"
-```
+$$\text{Detection} \neq \text{Track} \neq \text{Entity} \neq \text{Behavior} \neq \text{Situation}$$
 
-## Interfaz operativa local
+- **Detection:** An instantaneous bounding box observation in a single video frame.
+- **Track:** A continuous kinematic trajectory across sequential frames in a specific camera.
+- **Entity:** A persistent temporal subject tracked across time, zones, and camera transitions.
+- **Behavior:** Temporal patterns, dwell times, directional flow, and interaction indicators.
+- **Situation:** A synthesized operational scenario (e.g., checkout congestion, unattended area, safety anomaly) supported by correlated evidence.
 
-Aplicación de escritorio Tkinter (biblioteca estándar) que muestra en una
-sola ventana fuente, conexión, zona, persona seguida, permanencia, riesgo,
-alertas y evidencia generada. OpenCV sigue siendo la tecnología de visión;
-no es el sistema de ventanas (ver `docs/LOCAL_INTERFACE.md`).
+---
 
-```powershell
-.\.venv\Scripts\python.exe scripts\run_interface.py
-```
+## Architecture
 
-La fuente (archivo, webcam o RTSP) se selecciona dentro de la aplicación.
-
-### Estructura de entrada y salida
+TukeVision follows a unidirectional pipeline from raw stream ingestion to governed operator action:
 
 ```text
-data/input/        Video local a procesar (uno a la vez).
-data/output/       Video procesado con anotaciones (processed.mp4).
-data/evidence/     Evidencia por alerta: frame.jpg y metadata.json.
-data/temp/         Archivos temporales (imágenes de prueba).
-models/            Peso del modelo yolo11n.pt (no se sube a Git).
-config/default.json Configuración: detección, zona, negocio y alertas.
+CCTV / Video Sources (RTSP / Local Feeds)
+        ↓
+Universal Ingestion & Stream Supervision (FFmpeg / OpenCV)
+        ↓
+Perception (YOLO / OpenVINO / Selective Inference)
+        ↓
+Tracking (ByteTrack / Spatiotemporal Association)
+        ↓
+Temporal Entity State (Multi-camera / Ground-plane reasoning)
+        ↓
+Behavior & Temporal Reasoning (Dwell time, zones, flow)
+        ↓
+Situation Candidates (Correlation & anomaly scoring)
+        ↓
+Evidence Selection (Frame clips, telemetry, audit hashes)
+        ↓
+Operational Intelligence Engine
+        ↓
+Agent Monitor (Autonomous multi-level investigation)
+        ↓
+Governed Operator Workflow (Human review & authorized actions)
 ```
 
-### Salida esperada
+---
+
+## Core Principles
+
+- **Local-First / Edge Processing:** Processing happens close to the source to minimize latency and bandwidth.
+- **Data Sovereignty:** Video and business metadata remain within the client's network boundary.
+- **Vendor Neutrality:** Standardized ingestion interfaces independent of proprietary hardware locks.
+- **Evidence-First Reasoning:** Every alert or situation is bound to reproducible timestamps, frame captures, and forensic metadata.
+- **Provenance & Confidence:** Explicit tracking of observation states, confidence levels, and model versions.
+- **Human Oversight:** High-stakes actions require human verification (*fail-closed* design).
+- **Source Isolation & Resource Bounds:** Camera feeds operate in supervised boundaries to prevent system-wide memory or CPU starvation.
+- **No Facial Recognition by Default:** No biometric identification or individual facial profiling.
+- **Auditability:** Tamper-evident logging for all generated evidence packages and operator decisions.
+
+---
+
+## Current Capabilities
+
+The repository contains concrete, code-implemented modules covering:
+
+- **RTSP & Video Ingestion:** Supervised multi-stream ingestion with reconnection policies and frame buffers (`src/capture/`).
+- **Inference Optimization:** CPU-optimized object and person detection using OpenVINO and PyTorch engines (`src/inference/`, `src/detection/`).
+- **Temporal Tracking & Entity State:** Trajectory management, ID persistence, and spatiotemporal association (`src/tracking/`, `src/temporal/`).
+- **Spatial & Zone Intelligence:** Polygonal ROI monitoring, dwell-time computation, and trajectory analysis (`src/spatial/`, `src/scene/`).
+- **Behavior & Situation Reasoning:** Rule-based and heuristic situation candidate generation (`src/behavior/`, `src/correlation/`).
+- **Evidence Packaging:** Structured bundles containing video clips, keyframes, telemetry, and SHA-256 manifests (`src/evidence/`).
+- **Agent Monitor:** Multi-level investigative monitor with read-only scene queries (`src/agent/`).
+- **Governed Operational Actions:** Policy-driven notification and action dispatch with human authorization gates (`src/operator/`, `src/alerts/`).
+- **Experience & Learning Store:** Local storage of operational patterns and feedback (`src/learning/`, `src/business/`).
+- **Operational UI:** Real-time desktop dashboard built in Tkinter for operators and field engineers (`src/ui/`, `src/visualization/`).
+- **Multi-Store Architecture:** Logical support for multi-branch environments (`src/multisite/`).
+
+---
+
+## Operational Intelligence
+
+TukeVision shifts monitoring from passive screen observation to active operational questioning:
+
+1. **What is happening?** — Identifies active events (e.g., dwell in restricted zone, customer queue formation).
+2. **Where is it happening?** — Maps detections to specific zones, cameras, and store coordinates.
+3. **Which entity is involved?** — Associates observations with persistent temporal entity IDs.
+4. **How long has it persisted?** — Measures duration, dwell times, and velocity profiles.
+5. **What evidence supports the situation?** — Packages synchronized video clips, bounding boxes, and sensor data.
+6. **What is known vs. inferred?** — Distinguishes directly observed optical detections from kinematic estimates.
+7. **Does the situation require operator attention?** — Calculates priority scores based on operational rules.
+8. **What governed response is allowed?** — Evaluates action policies (notify, log, prompt human review).
+
+---
+
+## Cascade Intelligence
+
+To operate efficiently on edge hardware, TukeVision employs selective computational escalation:
 
 ```text
-VIDEO_PATH:
-FRAMES_PROCESSED:
-PERSONS_DETECTED:
-TRACKS_CREATED:
-OBSERVATIONS_CREATED:
-EVENTS_CREATED:
-ALERTS_CREATED:
-EVIDENCE_CREATED:
-OUTPUT_VIDEO:
-FINAL_STATUS:
+Stream Metadata & Frame Differencing
+        ↓ (Motion detected)
+Lightweight Person / Object Detector
+        ↓ (Object confirmed)
+Temporal Tracker & Trajectory Filter
+        ↓ (Dwell or zone rule triggered)
+Temporal Reasoning & Spatial Analysis
+        ↓ (Anomaly threshold reached)
+Local Semantic & Situational Reasoning
+        ↓ (Ambiguity or high-priority risk)
+Agent Monitor Deep Investigation
 ```
 
-## Significado de las salidas
+*Note: Escalation levels are triggered on demand based on scene activity rather than running continuously on all channels simultaneously.*
 
-- `PERSONS_DETECTED`: total de detecciones de personas (puede incluir la misma persona en varios fotogramas).
-- `TRACKS_CREATED`: trayectorias temporales únicas asignadas por seguimiento.
-- `OBSERVATIONS_CREATED`: hechos objetivos (entrada, permanencia, salida).
-- `EVENTS_CREATED`: eventos de permanencia prolongada (más de 30 segundos).
-- `ALERTS_CREATED`: alertas generadas cuando el riesgo es 60 o superior.
-- `EVIDENCE_CREATED`: carpetas con fotograma y metadatos por alerta.
+---
 
-## Restricciones del prototipo
+## Safety and Governance
 
-- Sin reconocimiento facial.
-- Sin identificación de personas.
-- Sin cámaras en vivo.
-- Sin varias cámaras ni varias zonas.
-- Sin inteligencia artificial conversacional.
-- Sin servicios externos ni base de datos.
-- Procesamiento por CPU, un video a la vez.
-- Resolución máxima de 640 píxeles de ancho.
-- Procesamiento secuencial sin cargar el video completo en memoria.
+TukeVision enforces a strict autonomy policy for operational security:
 
-## Configuración
+| Level | Name | Description |
+| :--- | :--- | :--- |
+| **`AUTONOMY_0`** | **Observe** | Passive monitoring, stream ingestion, telemetry collection. |
+| **`AUTONOMY_1`** | **Investigate** | Automated scene inspection, correlation, and evidence extraction. |
+| **`AUTONOMY_2`** | **Limited Governed Action** | Low-risk automated logging, local metric updates, and routing alerts. |
+| **`AUTONOMY_3`** | **Sensitive Action (Human Approval)** | High-stakes dispatch, external notifications, and operational escalation. **Always requires explicit human confirmation.** |
 
-`config/default.json` permite ajustar:
+---
 
-- Modelo, umbral de confianza y dispositivo de detección.
-- Zona poligonal (identificador, nombre y vértices).
-- Tienda, cámara y tiempo máximo de permanencia.
-- Umbral de riesgo para generar alertas.
+## Privacy
 
-## Solución de errores básicos
+- **No Facial Recognition:** TukeVision does not extract facial embeddings or perform individual identity recognition in its core architecture.
+- **Non-Biometric Tracking:** People are tracked as anonymous temporal bounding boxes and spatial vectors within the store.
+- **Local Data Retention:** Video and audit trails reside on-premises under customer control.
+- **Privacy-Aware Evidence:** Evidence clips are strictly limited to relevant event time windows.
 
-- `El archivo de video no existe`: verifique que el video esté en `data/input/` y la ruta sea correcta.
-- `Modelo no encontrado`: descargue `yolo11n.pt` (modelo YOLO Nano) y colóquelo en `models/`.
-- `No se puede abrir el video`: el archivo puede estar dañado o no ser un formato compatible con OpenCV.
-- Errores de dependencias: ejecute `python -m pip install -r requirements.txt` dentro de `.venv`.
+---
 
-## Pruebas
+## Technology Stack
 
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
+- **Core Language:** Python 3.12 (64-bit)
+- **Computer Vision & Video:** OpenCV, FFmpeg, Ultralytics YOLO
+- **Inference Acceleration:** Intel OpenVINO Toolkit, ONNX Runtime, PyTorch
+- **Data & Persistence:** SQLite, JSONL, Local File Bundles
+- **Desktop Interface:** Python Tkinter (Native GUI)
+- **Scripting & Automation:** PowerShell, Bash
+
+---
+
+## Project Status
+
+TukeVision is under active engineering development.
+
+The repository contains an operational computer-vision and CCTV intelligence stack that has progressed well beyond the original single-video prototype. Multiple operational capabilities (multi-camera RTSP ingestion, OpenVINO inference, temporal entity tracking, situation synthesis, and governed evidence generation) are fully implemented and verified via automated test suites.
+
+Advanced multi-stream HD visualization and specific field runtime configurations remain under structured physical soak validation. Repository documentation strictly distinguishes implemented code capabilities from physically certified operational deployments.
+
+---
+
+## Development Philosophy
+
+TukeVision adheres to an evidence-driven, test-guided development methodology:
+
+$$\text{Observe} \longrightarrow \text{Trace} \longrightarrow \text{Identify Root Cause} \longrightarrow \text{Correct} \longrightarrow \text{Test} \longrightarrow \text{Validate Physically} \longrightarrow \text{Stabilize} \longrightarrow \text{Certify} \longrightarrow \text{Stop}$$
+
+- **Architecture before integration:** Clear contracts and data boundaries precede external integrations.
+- **Evidence before claims:** No capability is considered verified merely because a configuration or DTO declares it.
+- **Clean-room adaptation:** External patterns are studied methodically; third-party code is never integrated without explicit architectural justification and license compliance.
+
+---
+
+## Repository Structure
+
+```text
+├── src/            # Core platform implementation
+│   ├── agent/      # Autonomous Agent Monitor & tool interfaces
+│   ├── capture/    # RTSP, FFmpeg, and multi-camera stream ingestion
+│   ├── detection/  # Object and person detection modules
+│   ├── inference/  # OpenVINO / PyTorch inference execution engines
+│   ├── tracking/   # Multi-object tracking (ByteTrack & spatial filters)
+│   ├── temporal/   # Temporal entity states & trajectory persistence
+│   ├── behavior/   # Behavior and dwell-time reasoning
+│   ├── correlation/# Situation candidate generation & correlation
+│   ├── evidence/   # Evidence packaging, hashing & verification
+│   ├── operator/   # Governed actions & human review workflows
+│   ├── ui/         # Tkinter desktop operator interface
+│   └── ...
+├── config/         # Runtime configurations, zone definitions & schemas
+├── docs/           # Architecture design records, runbooks & technical specs
+├── evidence/       # Validation runs, forensic traces & certification artifacts
+├── models/         # Model weights directory (OpenVINO IR / ONNX / PT)
+├── scripts/        # Engineering, benchmarking & operational utility scripts
+└── tests/          # Automated unit, regression & integration test suite
 ```
 
-## Fuente de especificaciones
+---
 
-Las decisiones y especificaciones oficiales viven en el Vault TES de Obsidian.
+## Disclaimer
+
+TukeVision is an actively developed operational-intelligence platform. Capabilities, integrations, and certification states evolve through structured phases. Refer to repository validation artifacts and tagged release baselines for the exact verified state of any given build.

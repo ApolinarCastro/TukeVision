@@ -219,7 +219,7 @@ class TestOperationalRuntimeWiring(unittest.TestCase):
                 return_value=bridge,
             ) as bridge_factory,
         ):
-            runtime = MulticameraRuntime(config(), "password", "host", "user")
+            runtime = MulticameraRuntime(config(), "password", "user")
 
         self.assertIs(runtime._manager, manager)
         self.assertEqual(manager_type.call_count, 1)

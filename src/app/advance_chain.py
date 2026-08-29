@@ -229,6 +229,7 @@ class AdvanceChain:
                     inference_ref=getattr(event, "inference_ref", None),
                     event_ref=getattr(event, "event_id", None),
                     track_ref=getattr(track, "track_id", None),
+                    camera_id=camera_id,
                 )
             if self._correlator is not None:
                 correlation = self._correlator.ingest(

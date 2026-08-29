@@ -21,13 +21,15 @@ Invariantes (PRODUCT_CORE.md / FIRST_PRODUCT_DELIVERY.md):
 """
 
 import logging
+import random
 import threading
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable, Deque, Dict, List, Optional
 
 from src.capture.rtsp_url import build_rtsp_url
+from src.capture.video_source import VideoSourceError
 from src.observability.logging_setup import redact_rtsp_url
 
 logger = logging.getLogger("tukevision.multicamera")
@@ -97,6 +99,7 @@ class _CameraRuntime:
     queue: Deque[tuple] = field(default_factory=deque)
     last_snapshot: Optional[dict] = None
     last_error: str = ""
+    generation: int = 0
 
 
 class SourceManagerError(Exception):
@@ -118,6 +121,7 @@ class SourceManager:
 
     _QUEUE_MAX = 8
     _WORKER_JOIN_TIMEOUT_S = 5.0
+    _RECONNECT_SEMAPHORE = threading.Semaphore(2)  # BLOCK E: max 2 simultaneous reconnects
 
     def __init__(self, source_factory: Optional[Callable[..., object]] = None) -> None:
         self._lock = threading.RLock()
@@ -206,6 +210,34 @@ class SourceManager:
         self.stop(camera_id)
         self.start(camera_id)
 
+    def switch_stream(self, camera_id: str, subtype: int) -> bool:
+        """Cambia subtype (0 MAIN / 1 SUB) para una cámara y la reinicia.
+
+        BLOCK B dual stream: GRID -> SUB, FOCUS -> MAIN. Retorna True si hubo
+        cambio, False si ya estaba en ese subtype. Reinicio aislado.
+        """
+        rt = self._get_runtime(camera_id)
+        with self._lock:
+            cur = int(rt.descriptor.subtype)
+            if cur == int(subtype):
+                return False
+            rt.descriptor = replace(rt.descriptor, subtype=int(subtype))
+        self.restart(camera_id)
+        logger.info("STREAM_SWITCH camera_id=%s subtype=%s", camera_id, subtype)
+        return True
+
+    def start_all_staggered(self, delay_s: float = 0.35) -> None:
+        """Arranca todas las cámaras con delay escalonado (BLOCK H)."""
+        with self._lock:
+            ids = sorted(self._runtimes.keys())
+        for idx, cid in enumerate(ids):
+            if idx > 0:
+                time.sleep(max(0.0, float(delay_s)))
+            try:
+                self.start(cid)
+            except SourceManagerError as exc:
+                logger.warning("STAGGERED_START_FAILED camera_id=%s err=%s", cid, exc)
+
     def isolate_failure(self, camera_id: str) -> None:
         """Aísla la cámara fallida deteniéndola sin afectar a las demás."""
         self.stop(camera_id)
@@ -244,8 +276,12 @@ class SourceManager:
         if source is not None:
             state = getattr(source, "state", "OPEN") or "OPEN"
             meta = getattr(source, "metadata", None)
-            if meta is not None:
+            source_fps = getattr(source, "fps", None)
+            if source_fps is not None and float(source_fps) > 0:
+                fps = float(source_fps)
+            elif meta is not None:
                 fps = float(getattr(meta, "fps", 0.0) or 0.0)
+            if meta is not None:
                 resolution = f"{getattr(meta, 'width', 0)}x{getattr(meta, 'height', 0)}"
             last_age_ms = int(getattr(source, "last_valid_frame_age_ms", 0) or 0)
             stall_count = int(getattr(source, "stall_count", 0) or 0)
@@ -290,41 +326,104 @@ class SourceManager:
 
         El SourceManager consume source.frames() (supervisor) y publica en una
         cola FIFO acotada por cámara con política drop-oldest. Un fallo marca
-        la salud de esta cámara y termina este hilo; el resto de cámaras no se
-        ven afectadas (NO_SHARED_MUTABLE_CAPTURE).
+        la salud de esta cámara pero NO derriba el runtime global ni a las
+        demás cámaras (NO_SHARED_MUTABLE_CAPTURE). Tras una pérdida de stream
+        (FAILED / STREAM_LOST) el worker reintenta con backoff acotado y jitter
+        para evitar tormentas de reconexión (BLOCK D), en lugar de abandonar
+        la cámara para siempre (ROOT_CAUSE_STREAM_STABILITY).
         """
-        source = None
-        try:
-            source = self._source_factory(rt.descriptor)
-            with self._lock:
-                rt.source = source
-                rt.last_error = ""
-            metadata = source.open()
+        attempt = 0
+        while not stop_event.is_set():
+            source = None
+            cleanup_failed = False
+            # BLOCK E: central limit for simultaneous reconnects (max 2)
+            # Acquire slot for the open attempt; staggered start already spaces initial opens
+            acquired = False
+            while not stop_event.is_set() and not acquired:
+                acquired = self._RECONNECT_SEMAPHORE.acquire(timeout=0.25)
+            if not acquired:
+                break
+            try:
+                source = self._source_factory(rt.descriptor)
+                with self._lock:
+                    rt.source = source
+                    rt.generation += 1
+                    rt.last_error = ""
+                metadata = source.open()
+                self._RECONNECT_SEMAPHORE.release()
+                acquired = False
+                attempt = 0
 
-            for frame_index, frame in source.frames():
+                for frame_index, frame in source.frames():
+                    if stop_event.is_set():
+                        break
+                    state = getattr(source, "state", None)
+                    if state in ("FAILED", "STALLED"):
+                        rt.last_error = "STREAM_LOST"
+                        break
+                    self._publish(rt, camera_id, frame_index, frame, source, metadata)
+
                 if stop_event.is_set():
                     break
-                if getattr(source, "state", None) == "FAILED":
+                # Si la fuente terminó el generador en FAILED o STALLED, registrar la pérdida
+                source_state = getattr(source, "state", None)
+                if rt.last_error == "" and source_state in ("FAILED", "STALLED"):
                     rt.last_error = "STREAM_LOST"
+                # Salida limpia (stop) sin error -> terminar.
+                if stop_event.is_set() or rt.last_error == "":
+                    with self._lock:
+                        self._running[camera_id] = False
+                    logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                     break
-                self._publish(rt, camera_id, frame_index, frame, source, metadata)
-
-            # Si la fuente terminó el generador en FAILED (reconexiones
-            # agotadas), registrar la pérdida aunque no se entregó otro frame.
-            if rt.last_error == "" and getattr(source, "state", None) == "FAILED":
-                rt.last_error = "STREAM_LOST"
-        except Exception as exc:  # aislar: el fallo no propaga a otras cámaras
-            rt.last_error = f"{type(exc).__name__}: {exc}"
-            logger.error("SOURCE_FAILED camera_id=%s err=%s", camera_id, exc)
-        finally:
-            try:
-                source.close()  # type: ignore[union-attr]
-            except Exception:
-                pass
-            with self._lock:
-                rt.source = None
-                self._running[camera_id] = False
-            logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+            except Exception as exc:  # aislar: el fallo no propaga a otras cámaras
+                if stop_event.is_set():
+                    break
+                rt.last_error = f"{type(exc).__name__}: {exc}"
+                logger.error("SOURCE_FAILED camera_id=%s err=%s", camera_id, exc)
+            finally:
+                try:
+                    if source is not None:
+                        source.close()  # type: ignore[union-attr]
+                except Exception as exc:
+                    cleanup_failed = True
+                    rt.last_error = f"SOURCE_CLEANUP_FAILED: {type(exc).__name__}"
+                    logger.error("SOURCE_CLEANUP_FAILED camera_id=%s", camera_id)
+                with self._lock:
+                    if not cleanup_failed:
+                        rt.source = None
+                if acquired:
+                    try:
+                        self._RECONNECT_SEMAPHORE.release()
+                    except Exception:
+                        pass
+            if cleanup_failed:
+                with self._lock:
+                    self._running[camera_id] = False
+                break  # never start a second generation while cleanup is unconfirmed
+            if stop_event.is_set():
+                with self._lock:
+                    self._running[camera_id] = False
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
+            if rt.last_error == "":
+                # Salida limpia sin error (p.ej. frames agotados sin fallo) -> terminar
+                with self._lock:
+                    self._running[camera_id] = False
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
+            attempt += 1
+            base = min(30.0, 2.0 * (1.5 ** min(attempt, 6)))
+            jitter = random.uniform(0.0, 1.0)
+            delay = base + jitter
+            logger.info(
+                "SOURCE_RETRY camera_id=%s attempt=%s delay_s=%.1f",
+                camera_id, attempt, delay,
+            )
+            if stop_event.wait(timeout=delay):
+                with self._lock:
+                    self._running[camera_id] = False
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
 
     def _publish(
         self,
@@ -341,13 +440,19 @@ class SourceManager:
             if len(rt.queue) >= self._QUEUE_MAX:
                 rt.queue.popleft()
             rt.queue.append((frame_index, frame))
+            source_fps = getattr(source, "fps", None)
+            if source_fps is not None and float(source_fps) > 0:
+                fps = float(source_fps)
+            else:
+                fps = float(getattr(metadata, "fps", 0.0) or 0.0)
             rt.last_snapshot = {
                 "camera_id": camera_id,
                 "frame_index": frame_index,
+                "generation": rt.generation,
                 "frame": frame,
                 "state": getattr(source, "state", "OPEN"),
                 "source_path": redact_rtsp_url(getattr(metadata, "path", "")),
-                "fps": float(getattr(metadata, "fps", 0.0) or 0.0),
+                "fps": fps,
                 "resolution": (
                     f"{getattr(metadata, 'width', 0)}x{getattr(metadata, 'height', 0)}"
                 ),
@@ -356,13 +461,50 @@ class SourceManager:
 
 
 def _default_rtsp_source(descriptor: CameraDescriptor):
-    """Fábrica por defecto: compone RTSPSource E01_COMPAT sin modificarlo."""
-    from src.capture.live_sources import RTSPSource
+    """Fábrica por defecto: compone RTSPSource E01_COMPAT sin modificarlo.
 
-    return RTSPSource(
+    Si RTSP_BACKEND=ffmpeg_supervised (env o config), usa FFmpegSupervisedSource
+    con supervisión de proceso (ClearCam/Frigate pattern, no GPL copy).
+    
+    NO silent fallback: if FFmpeg backend requested but instantiation fails,
+    startup fails with identifiable error. Logs effective class per camera.
+    """
+    import os as _os
+    backend = _os.environ.get("RTSP_BACKEND", "").strip().lower()
+    import logging as _lg
+    logger = _lg.getLogger("tukevision.capture")
+    
+    if backend in ("ffmpeg", "ffmpeg_supervised", "ffmpeg-supervised"):
+        try:
+            from src.capture.ffmpeg_supervised import FFmpegSupervisedSource
+            source = FFmpegSupervisedSource(
+                rtsp_url=descriptor.build_url(),
+                max_width=descriptor.max_width,
+                process_every_n_frames=descriptor.process_every_n_frames,
+                frame_stall_timeout_s=descriptor.frame_stall_timeout_s,
+                rtsp_open_timeout_ms=descriptor.rtsp_open_timeout_ms,
+                username=descriptor.username,
+                password=descriptor.password,
+            )
+            logger.info("SOURCE_CLASS camera_id=%s class=FFmpegSupervisedSource backend=%s", 
+                       descriptor.camera_id, backend)
+            return source
+        except Exception as exc:
+            logger.error("FFMPEG_SOURCE_INSTANTIATION_FAILED camera_id=%s err=%s", 
+                        descriptor.camera_id, exc)
+            raise VideoSourceError(
+                f"FFmpeg backend requested but failed to instantiate: {exc}"
+            )
+    
+    # OpenCV backend (default if no RTSP_BACKEND or explicitly opencv)
+    from src.capture.live_sources import RTSPSource
+    source = RTSPSource(
         rtsp_url=descriptor.build_url(),
         max_width=descriptor.max_width,
         process_every_n_frames=descriptor.process_every_n_frames,
         frame_stall_timeout_s=descriptor.frame_stall_timeout_s,
         rtsp_open_timeout_ms=descriptor.rtsp_open_timeout_ms,
     )
+    logger.info("SOURCE_CLASS camera_id=%s class=RTSPSource backend=opencv", 
+               descriptor.camera_id)
+    return source

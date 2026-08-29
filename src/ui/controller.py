@@ -21,7 +21,7 @@ from src.capture.source_manager import CameraDescriptor, SourceManager
 from src.app.operational_pipeline import OperationalPipeline
 from src.observability.logging_setup import redact_rtsp_url
 from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
-from src.ui.multicamera import CAMERA_IDS, MultiCameraViewModel
+from src.ui.multicamera import MultiCameraViewModel
 
 logger = logging.getLogger("tukevision.ui")
 
@@ -35,9 +35,13 @@ class StopRequested(BaseException):
 
 
 def build_source(source_kind: str, source_input: str, config: dict):
-    """Construye la fuente según la selección de la interfaz."""
+    """Construye la fuente según la selección de la interfaz.
+
+    max_width=0 preserva la resolución original de la fuente.
+    El pipeline configura su propio max_width para procesamiento analítico.
+    """
     video_cfg = config.get("video", {})
-    max_width = video_cfg.get("max_width", 640)
+    max_width = video_cfg.get("max_width", 0)
     every_n = video_cfg.get("process_every_n_frames", 1)
 
     if source_kind == "FILE":
@@ -78,6 +82,7 @@ class UiController:
         config: Optional[dict] = None,
         pipeline_factory: Optional[Callable[[], Pipeline]] = None,
         source_builder: Optional[Callable] = None,
+        camera_ids: Optional[tuple] = None,
     ) -> None:
         self._config = config or load_config()
         self._pipeline_factory = pipeline_factory or (lambda: Pipeline(config=self._config))
@@ -93,12 +98,145 @@ class UiController:
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
         # Presentation-only orchestration for snapshots produced upstream.
-        self._multicamera = MultiCameraViewModel()
+        # Camera set is config-driven (OC-01): 1 -> 4 -> 16 -> N.
+        # The view model holds the FULL CAMERA CATALOG (every store's
+        # cameras) as ``catalog_ids`` and a CURRENT VIEWPORT subset; store
+        # switching only changes the viewport, so late frames from a store
+        # that is no longer visible are accepted and retained (MACRO-OC-02-A).
+        if camera_ids is None:
+            catalog = self._catalog_camera_ids()
+            camera_ids = tuple(catalog) if catalog else ("CAM-001",)
+        camera_ids = tuple(str(camera_id) for camera_id in camera_ids) or ("CAM-001",)
+        self._multicamera = MultiCameraViewModel(
+            camera_ids, catalog_ids=camera_ids
+        )
+
+    def _catalog_camera_ids(self) -> list:
+        """Derive the operator camera set from the multistore catalog."""
+        try:
+            from src.domain.catalog import StoreCatalog
+
+            catalog = StoreCatalog.from_dict(self._config)
+            return catalog.camera_ids()
+        except Exception:
+            return []
 
     @property
     def status(self) -> str:
         with self._lock:
             return self._state.status
+
+    @property
+    def camera_ids(self) -> tuple:
+        """Operator camera set (config-driven, N >= 1)."""
+        return self._multicamera.camera_ids
+
+    @property
+    def store_id(self) -> str:
+        return str(self._config.get("business", {}).get("store_id", "") or "")
+
+    # --- Multistore selection (OC-06) ---
+    def stores(self) -> list[str]:
+        """Return list of available store IDs from the catalog."""
+        try:
+            from src.domain.catalog import StoreCatalog
+            catalog = StoreCatalog.from_dict(self._config)
+            return [store.store_id for store in catalog.stores()]
+        except Exception:
+            return [self.store_id] if self.store_id else []
+
+    def store_cameras(self, store_id: str, zone: str = "") -> tuple[str, ...]:
+        """Return camera IDs for a given store, optionally filtered by zone."""
+        try:
+            from src.domain.catalog import StoreCatalog
+            catalog = StoreCatalog.from_dict(self._config)
+            store = catalog.store(store_id)
+            cameras = [
+                cam.camera_id
+                for cam in store.all_cameras()
+                if cam.enabled and (not zone or cam.zone == zone)
+            ]
+            return tuple(cameras)
+        except Exception:
+            return ()
+
+    def store_zones(self, store_id: str) -> list[str]:
+        """Return unique zone names for a store."""
+        try:
+            from src.domain.catalog import StoreCatalog
+            catalog = StoreCatalog.from_dict(self._config)
+            store = catalog.store(store_id)
+            zones = set()
+            for cam in store.all_cameras():
+                if cam.enabled and cam.zone:
+                    zones.add(cam.zone)
+            return sorted(zones)
+        except Exception:
+            return []
+
+    def select_store(self, store_id: str, zone: str = "") -> None:
+        """Switch the operator viewport to a different store/zone.
+
+        The underlying view model keeps the full camera catalog: only the
+        visible subset changes, so frames already flowing from the previous
+        store remain valid (never ``unsupported camera``).
+        """
+        camera_ids = self.store_cameras(store_id, zone)
+        if not camera_ids:
+            # Unknown store or empty zone: keep the current viewport instead
+            # of crashing on a synthetic fallback camera (MACRO-OC-02-A).
+            logger.warning("STORE_SELECT_UNKNOWN store_id=%s zone=%s", store_id, zone)
+            self._store_id = store_id
+            self._selected_zone = zone
+            return
+        self._multicamera.select_viewport(camera_ids)
+        self._store_id = store_id
+        self._selected_zone = zone
+
+    @property
+    def current_store(self) -> str:
+        return getattr(self, "_store_id", self.store_id)
+
+    @property
+    def current_zone(self) -> str:
+        return getattr(self, "_selected_zone", "")
+
+    # --- PTZ support (OC-07) ---
+    def ptz_capability(self, camera_id: str):
+        """Return PTZConfig for a camera if available."""
+        try:
+            from src.domain.catalog import StoreCatalog
+            catalog = StoreCatalog.from_dict(self._config)
+            cam = catalog.camera(camera_id)
+            return cam.ptz_capability
+        except Exception:
+            from src.domain.models import PTZConfig
+            return PTZConfig()
+
+    def ptz_status(self, camera_id: str) -> dict:
+        """PTZ capability status (Block 8, MACRO-OC-01-R).
+
+        Without a real physical PTZ implementation the capability is gated:
+        the camera may *declare* PTZ support in config, but the runtime does
+        not certify it (``certified=False``) and will never send commands.
+        """
+        cap = self.ptz_capability(camera_id)
+        return {
+            "camera_id": camera_id,
+            "supported": bool(getattr(cap, "supported", False)),
+            "certified": False,
+            "status": "NOT_CERTIFIED" if not getattr(cap, "supported", False)
+            else "CAPABILITY_GATED",
+        }
+
+    def ptz_command(self, camera_id: str, action: str) -> bool:
+        """Send PTZ command to camera. Returns True if implemented.
+
+        There is no physical PTZ implementation (ONVIF/vendor SDK absent),
+        so this is CAPABILITY_GATED and always returns False: the UI never
+        shows the operator a control that silently does nothing.
+        """
+        return False
 
     def is_running(self) -> bool:
         with self._lock:
@@ -116,7 +254,7 @@ class UiController:
         self._multicamera.mark_state(camera_id, source_state)
 
     def poll_multicamera(self):
-        """Return the four logical panel states for a 2×2 view."""
+        """Return the N logical panel states for the current grid."""
         return self._multicamera.snapshot()
 
     def start(self, source_kind: str, source_input: str) -> None:
