@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_EXPERIENCE_ISOLATION",
+  "status": "PASS",
+  "site_local_experiences_isolated": true,
+  "global_engineering_accessible": true,
+  "result": "Site A operational outcomes are stored locally and only historical engineering context is shared"
+}

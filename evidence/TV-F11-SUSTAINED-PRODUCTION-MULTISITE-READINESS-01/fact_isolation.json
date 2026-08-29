@@ -1,0 +1,6 @@
+{
+  "gate": "MULTISITE_FACT_ISOLATION",
+  "status": "PASS",
+  "principle": "SITE A EXPERIENCE != SITE B FACT",
+  "violations_detected": 0
+}

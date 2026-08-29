@@ -1,0 +1,7 @@
+{
+  "gate": "SOURCE_SECURITY_ISOLATION",
+  "status": "PASS",
+  "isolated_sources_quarantined": true,
+  "cross_site_security_contamination": false,
+  "result": "Quarantined camera on Site A does not impair Site B"
+}

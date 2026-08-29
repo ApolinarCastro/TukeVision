@@ -1,0 +1,8 @@
+{
+  "gate": "MULTISITE_RESOURCE_FAIRNESS",
+  "status": "PASS",
+  "budget_model": "SiteResourceBudget",
+  "site_a_budget_fps": 30.0,
+  "site_b_budget_fps": 30.0,
+  "monopolization_prevented": true
+}
