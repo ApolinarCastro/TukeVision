@@ -1,0 +1,10 @@
+{
+  "gate": "SOURCE_PROFILE_DISCOVERY",
+  "status": "PASS",
+  "native_profiles": {
+    "CAM-01_to_CAM-15": {
+      "main_stream": "1920x1080 @ 30fps",
+      "sub_stream": "352x240 @ 15fps"
+    }
+  }
+}

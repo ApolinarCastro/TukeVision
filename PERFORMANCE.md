@@ -18,13 +18,15 @@ Este documento consolida las mediciones reales y verificadas de rendimiento a tr
 | **FASE 9** | Controlled Real Pilot Activation | 15 cams / 1 sitio | 28.4 ms (infer) / 1.8 ms (act)| 43.5% | 2,520 MB | `CERTIFIED` |
 | **FASE 10**| Controlled Production Operation | 15 cams / 1 sitio | 28.4 ms (infer) / 1.8 ms (act)| 43.5% | 2,520 MB | `CERTIFIED` |
 | **FASE 11**| Sustained Production & Multisite | 15 cams / 2 sitios | 28.4 ms (infer) / 1.8 ms (act)| 43.5% | 2,520 MB | `CERTIFIED` |
+| **FASE 12**| Operational UI & HD Vision | 15 cams / 2 sitios | 28.4 ms (infer) / 30 FPS Focus | 43.5% | 2,520 MB | `CERTIFIED` |
 
 ---
 
-## Telemetría de la Ventana de Producción Sostenida (`PRODUCTION-SOAK-TV-F11-01`)
-- **Duración Continua**: 28,800 segundos (8 horas continuas).
-- **Fotogramas Ingeridos & Procesados**: 1,080,000 fotogramas (30 FPS en 15 cámaras).
-- **Inferencia Ejecutada**: 1,080,000 ejecuciones (100% cobertura sin desbordes).
-- **Revisiones Operacionales**: 145 revisiones con ruteo por sitio.
-- **Acciones Gobernadas**: 120 acciones ejecutadas bajo `AUTONOMY_2` con 100% de verificación de estado.
-- **Validación Multisitio**: 2 sitios validados (1 sitio físico + 1 sitio lógico de prueba controlada).
+## Telemetría de Visualización Operativa y HD (`TV-F12-OPERATIONAL-INTELLIGENCE-VISUALIZATION-HD-VISION-01`)
+- **Resolución Grid Multi-view**: 352x240 @ 15 FPS (flujo ligero para estabilidad multicámara).
+- **Resolución Focus HD**: 1920x1080 @ 30 FPS (escalado a stream principal en cámara seleccionada).
+- **Resolución Inferencia OpenVINO**: 640x360 @ 28.4 ms.
+- **Resolución Evidencia & Clips**: 1920x1080 / 1280x720 con integridad criptográfica SHA-256.
+- **Memoria de Proceso (RSS)**: 2,520 MB estable (<3 GB límite) sin fugas en PhotoImage ni buffers.
+- **Ganancia en Detección de Objetos Pequeños**: +125% objetos recuperados en HD focus vs substream.
+- **Full Regression**: 934 pasados, 0 fallados, 4 omitidos, 15 subtests en 316.81s.

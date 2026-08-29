@@ -1,0 +1,7 @@
+{
+  "gate": "EVIDENCE_SELECTOR_VISIBILITY",
+  "status": "PASS",
+  "bundle_components_inspected": ["pre_frame", "key_frame", "post_frame", "roi_crop"],
+  "integrity": "SHA-256 hashes verified on all frames",
+  "search_capability": "Local Evidence Search (SQLite FTS5)"
+}

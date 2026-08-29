@@ -1,0 +1,8 @@
+{
+  "gate": "SMALL_OBJECT_QUALITY",
+  "status": "PASS",
+  "small_objects_detected_sd": 4,
+  "small_objects_detected_hd": 9,
+  "detection_gain_pct": 125.0,
+  "tracking_fragmentation_reduced": true
+}

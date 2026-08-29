@@ -1,0 +1,6 @@
+{
+  "gate": "TRAJECTORY_VISIBILITY",
+  "status": "PASS",
+  "data_source": "SpatialEntityState trajectory history",
+  "identity_assumption": "ENTITY CONTINUITY only; zero biometric identity or facial recognition"
+}

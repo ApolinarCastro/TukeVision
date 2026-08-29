@@ -1,0 +1,14 @@
+{
+  "gate": "RESTART_STABILITY",
+  "status": "PASS",
+  "restart_duration_seconds": 1800,
+  "state_recovered": [
+    "cameras_configuration",
+    "quality_profiles",
+    "spatial_scene_model",
+    "evidence_bundles",
+    "experience_store",
+    "governed_action_audit",
+    "command_center_modes"
+  ]
+}

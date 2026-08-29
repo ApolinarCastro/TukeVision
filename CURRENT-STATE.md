@@ -1,32 +1,28 @@
-# TukeVision — Estado Operacional y Técnico Actual (Phase 11)
+# TukeVision — Estado Operacional y Técnico Actual (Phase 12)
 
-**Execution ID**: `TV-F11-SUSTAINED-PRODUCTION-MULTISITE-READINESS-01`  
-**Baseline F10 Certified Commit**: `a23749d509fc4650bc6d48f5cf7298b5e4f8ec1c`  
-**Baseline F10 Certified Tag**: `v3-phase10-controlled-production-stable-20260829`  
-**Branch**: `phase11/sustained-production-multisite-readiness`  
-**Certification Status**: `SUSTAINED_PRODUCTION_STABLE_MULTISITE_LOGICALLY_READY`
+**Execution ID**: `TV-F12-OPERATIONAL-INTELLIGENCE-VISUALIZATION-HD-VISION-01`  
+**Baseline F11 Certified Commit**: `276c6b724141b57636b6264d4663b7eeb78c2e94`  
+**Baseline F11 Certified Tag**: `v3-phase11-sustained-production-multisite-logical-ready-20260829`  
+**Branch**: `phase12/operational-intelligence-visualization-hd`  
+**Certification Status**: `OPERATIONAL_INTELLIGENCE_VISUALIZED_HD_STABLE`
 
 ---
 
-## Capacidades Certificadas en Producción Sostenida y Multisitio
+## Capacidades Certificadas en Visualización de Inteligencia Operativa y Visión HD
 
-1. **Despliegue Repetible & Multisitio (`SiteDeploymentProfile`, `RepeatableDeploymentPackage`)**:
-   - Validación determinista con `DeploymentValidator` (rechazo fail-closed de secretos en texto plano).
-   - Bootstrap de nuevos sitios desde `SiteTemplate` sin duplicación de código core.
-   - Detección de drift de configuración (`ConfigurationDriftState`) y rollback de versión.
-2. **Aislamiento Multisitio & Fail-Closed**:
-   - Aislamiento estricto de eventos, evidencias, acciones e incidentes por `site_id`.
-   - Denegación automática de accesos y acciones cruzadas entre sitios (`MultiSiteSecurityError`).
-   - Ruteo dinámico de operadores según `allowed_site_ids`.
-3. **Mantenimiento Controlado, Actualizaciones & Recuperación ante Desastres**:
-   - Ventanas de mantenimiento planificadas (`MaintenanceWindow`).
-   - Actualizaciones de software con verificación de salud y rollback automático (`UpgradeRecord`).
-   - Generación y restauración de backups verificables con SHA-256 (`BackupManifest`).
-4. **Percepción Continua & Edge Ingestion**:
-   - Ingesta RTSP concurrente con OpenVINO y supervisión de cobertura (`InferenceCoverageGuard`).
-   - DEF-OBS-1 condición `NOT_REPRODUCED`.
-5. **Acciones Gobernadas (Governed Actions)**:
-   - Allowlist estricta con default DENY.
-   - Autonomía 2 limitada y verificada.
-   - Autonomía 3 deshabilitada (`AUTONOMY_3_ENABLED=false`).
-   - 0 acciones sensibles, 0 autoaprobaciones, 0 fugas de secretos.
+1. **Gestión de Calidad de Video HD Adaptativa (`VideoQualityProfile`)**:
+   - Desacoplamiento explícito de resoluciones: `SOURCE`, `DECODE`, `DISPLAY`, `INFERENCE`, `EVIDENCE`, `CLIP`.
+   - Modos adaptativos: multi-view ligero (`GRID` 352x240) vs foco y evidencia en alta resolución (`FOCUS` / `EVIDENCE` 1920x1080).
+   - Degradación controlada bajo restricción de recursos sin pérdida de evidencia crítica.
+2. **Command Center V2 & Modos Operativos**:
+   - Modos principales integrados: `GRID`, `FOCUS`, `OPERATIONAL`, `MAP`, `INVESTIGATIONS`, `EVIDENCE`, `SYSTEM`.
+   - Overlays limpios separando detecciones YOLO (`DET 0.xx`) de tracking (`TRK id`).
+3. **Mapa Operativo Espacial 2D (`SpatialMapModel`)**:
+   - Proyección métrica 2D en Canvas/SVG de tiendas, zonas y cámaras calibradas.
+   - Visualización de viewsheds/cobertura, trayectorias continuas de entidades y vectores de handoff multicámara.
+4. **Explicabilidad de Salud del Sistema (`HealthExplainer`)**:
+   - Desglose granular de diagnósticos en `HEALTH DEGRADED` (Cámaras, Inferencia OpenVINO, CPU/RAM, Storage, Seguridad).
+5. **Agent Monitor, Cascade Reasoning & Governed Actions**:
+   - Trazabilidad total de investigaciones: `FACT`, `INFERENCE`, `UNKNOWN`.
+   - Exposición visual del nivel de resolución (`STRUCTURED`, `DETERMINISTIC`, `LOCAL_LLM`, `LOCAL_VLM`).
+   - Auditoría de acciones gobernadas, retención de experiencia histórica y Autonomía 3 deshabilitada.
