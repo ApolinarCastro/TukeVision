@@ -1,0 +1,58 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "tested_at": "2026-08-30T19:17:51.884779+00:00",
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": true,
+      "frame_observed": true,
+      "frame_sequence": 0,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": false,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    },
+    {
+      "camera_id": "cam_06",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": true,
+      "frame_observed": true,
+      "frame_sequence": 0,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": false,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    },
+    {
+      "camera_id": "cam_09",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": true,
+      "frame_observed": true,
+      "frame_sequence": 0,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": false,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    }
+  ],
+  "overall_focus_main_pass": false,
+  "overall_focus_hd_pass": false,
+  "status": "FAIL"
+}

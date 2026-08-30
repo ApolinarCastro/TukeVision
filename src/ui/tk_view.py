@@ -1869,9 +1869,27 @@ class TkApp:
         self._last_render_size[camera_id] = size
         self._last_render_index[camera_id] = frame_index
         self._last_render_gen[camera_id] = generation
+
+        if not hasattr(self, "_presented_frame_sequence"):
+            self._presented_frame_sequence = {}
+        if not hasattr(self, "_presented_at"):
+            self._presented_at = {}
+        self._presented_frame_sequence[camera_id] = self._presented_frame_sequence.get(camera_id, 0) + 1
+        self._presented_at[camera_id] = time.time()
+
         marker = getattr(self._controller, "mark_ui_rendered", None)
         if marker is not None:
             marker(camera_id, frame_index)
+
+    def get_presentation_liveness(self) -> dict:
+        """Return dictionary of {camera_id: {'presented_sequence': int, 'presented_at': float}}."""
+        res = {}
+        for cid in self._camera_ids:
+            res[cid] = {
+                "presented_sequence": getattr(self, "_presented_frame_sequence", {}).get(cid, 0),
+                "presented_at": getattr(self, "_presented_at", {}).get(cid, 0.0),
+            }
+        return res
 
     def _render_frozen_camera(
         self, camera_id, canvas, frame, frame_index, stopped
@@ -1947,16 +1965,22 @@ class TkApp:
 
         resolution = getattr(panel, "resolution", "") or ""
         frame = getattr(panel, "frame", None)
+        is_hd = False
         if frame is not None and hasattr(frame, "shape"):
             src_h, src_w = frame.shape[:2]
             res_str = f"{src_w}x{src_h}"
+            is_hd = bool(src_w >= 1280 and src_h >= 720)
         else:
             res_str = resolution or "1080p"
+            is_hd = bool("1080" in res_str or "720" in res_str)
 
         if focus:
-            # FOCUS HD HUD con estricta separación de FUENTE vs PRESENTACIÓN vs INFERENCIA
-            hud_text = f"FUENTE: {res_str}  |  PRESENTACIÓN: {cw}x{ch}  |  INFERENCIA: 640x360  |  PERFIL: PRINCIPAL (HD)"
-            canvas.create_rectangle(max(0, cw - 520), 4, cw - 6, 24, fill=COLORS["panel_muted"], outline=COLORS["border"])
+            # FOCUS HUD con estricta separación de FUENTE vs PRESENTACIÓN vs INFERENCIA
+            # Solo añadir (HD) si la resolución física observada cumple gate HD (>=1280x720)
+            hd_tag = " (HD)" if is_hd else ""
+            hud_text = f"FUENTE: {res_str}  |  PRESENTACIÓN: {cw}x{ch}  |  INFERENCIA: 640x360  |  PERFIL: PRINCIPAL{hd_tag}"
+            box_w = 540 if is_hd else 500
+            canvas.create_rectangle(max(0, cw - box_w), 4, cw - 6, 24, fill=COLORS["panel_muted"], outline=COLORS["border"])
             canvas.create_text(
                 cw - 12, 14, anchor=tk.E, text=hud_text,
                 fill=COLORS["accent"], font=("Segoe UI", 8, "bold"),

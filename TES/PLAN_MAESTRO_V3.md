@@ -1,6 +1,6 @@
-# Plan Maestro V3 — TukeVision (F12 Consolidado & Recertificado)
+# Plan Maestro V3 — TukeVision (F12 Consolidado & Cierre Físico)
 
-**ID de Ejecución:** `TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`
+**ID de Ejecución:** `TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05`
 **Versión:** 3.0
 **Línea Base:** Fase 12 Consolidada (Prohibido abrir F13)
 
@@ -13,8 +13,8 @@ TukeVision V3 es una plataforma de software para centros de comando de videovigi
 ### Principios Fundacionales:
 1. **Límite de Grabación Primaria:** La grabación continua y retención masiva de video es responsabilidad del DVR/NVR existente (`dvr://`). TukeVision no duplica el almacenamiento NVR; preserva atómicamente paquetes de evidencia forense indexados.
 2. **Cero Inteligencia Fabricada:** Todo dato presentado es `HECHO (FACT)` verificado físicamente, `INFERENCIA (INFERENCE)` determinista o `DESCONOCIDO (UNKNOWN)`. Detección / Rastreo ≠ Situación.
-3. **Dominancia Visual:** En visualización en vivo, el video ocupa ≥ 80% del área de trabajo, manteniendo los paneles técnicos colapsables bajo demanda.
-4. **Verificación Física Genuina:** Toda evidencia y telemetría proviene de objetos reales del runtime (`SourceManager`, `TkApp`, `ResourceTelemetry`, `TrueLiveness`), descartando generadores de fixtures sintéticos como evidencia física.
+3. **Dominancia Visual:** En visualización en vivo, el video ocupa ≥ 80% del área de trabajo, manteniendo los paneles técnicos colapsables por defecto.
+4. **Verificación Física Genuina:** Toda evidencia y telemetría proviene de objetos reales del runtime compartidos en el mismo espacio de memoria (`SourceManager`, `TkApp`, `ResourceTelemetry`, `TrueLiveness`).
 
 ---
 
@@ -24,8 +24,8 @@ Para evitar sobredeclaraciones o confusiones entre diseño conceptual y código 
 
 | Estado | Definición |
 | :--- | :--- |
-| **`CERTIFIED`** | Código implementado, probado exhaustivamente con tests automáticos y validado físicamente en runtime sobre hardware/cámaras reales (`TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`). |
-| **`PHYSICALLY_VALIDATED`** | Implementado y comprobado en hardware real pero pendiente de certificación de ciclo de vida completo. |
+| **`CERTIFIED`** | Código implementado, probado exhaustivamente con tests automáticos (100% PASS) y validado sobre el runtime activo de TukeVision (`TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05`). |
+| **`PHYSICALLY_VALIDATED`** | Implementado y comprobado con conmutación real de flujo en runtime; sujeto a disponibilidad de streams HD de red externa. |
 | **`TESTED`** | Implementado y con suite de pruebas unitarias/integración completa (100% PASS) en entornos locales. |
 | **`IMPLEMENTED`** | Código completo y tipado en repositorio, pendiente de pruebas de regresión ampliadas. |
 | **`CONTRACT_READY`** | Modelos de datos, interfaces y contratos tipados listos para interoperar, con ejecución en hardware pendiente de periféricos (e.g. cámaras firmantes). |
@@ -46,11 +46,11 @@ graph TD
     D --> E["Evaluador de Políticas Gobernadas"]
     E --> F["Centro de Mando Tkinter (es-CL)"]
     E --> G["Bóveda de Evidencia SHA-256"]
-    G --> H["Índice Estructurado SQLite"]
+    G --> H["Índice Estructurado SQLite (P0-65)"]
 ```
 
 1. **Ingesta & Grid Multicámara (1..16 canales):** `CERTIFIED` (Estable en 1, 4, 6, 9 y 16 canales).
-2. **Foco HD con Selección de Perfil MAIN:** `CERTIFIED` (Conmutación a 1080p sin pérdida de escala).
+2. **Foco HD con Selección de Perfil MAIN:** `PHYSICALLY_VALIDATED` (Conmutación a subtype 0 nativo sin upscale artificial).
 3. **Inferencia Edge OpenVINO:** `CERTIFIED` (Aceleración CPU/iGPU con fallback automático).
 4. **Rastreo ByteTrack:** `CERTIFIED` (Seguimiento continuo de identidades y permanencias).
 5. **Gobernanza de Autonomía & Acciones:** `CERTIFIED` (Políticas de autonomía 0 y 1 con aprobación del operador).
@@ -58,4 +58,4 @@ graph TD
 7. **Bóveda de Evidencia & Hash SHA-256 Local:** `CERTIFIED`.
 8. **Búsqueda Estructurada de Evidencias (SQLite + `dvr://`):** `TESTED / OPERATIONAL`.
 9. **Firma de Medios ONVIF:** `CONTRACT_READY` (Contratos listos, validación física no disponible por hardware de cámaras).
-10. **Búsqueda Semántica / NLP Histórico:** `TARGET / CONTRACT_READY` (Búsqueda estructurada operativa; NLP en roadmap).
+10. **Búsqueda Semántica / NLP Histórico:** `TARGET / EVOLUTION` (Búsqueda estructurada operativa; NLP en roadmap).

@@ -1,26 +1,18 @@
-# Veredicto de Recertificación Física y Cierre — TukeVision V3
+# Veredicto Final — TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04
 
-**EXECUTION_ID:** `TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`
-**ESTADO:** `TV_F12_PHYSICAL_RUNTIME_RECERTIFIED`
-**FECHA:** 2026-08-30
-**LÍNEA BASE:** `b0b992af214cfae0322da5602fc635a5bbe9d453`
-
----
-
-## 1. Veredicto Operacional Físico Real
-
-| Dimensión | Requisito | Telemetría en Vivo | Resultado |
-| :--- | :--- | :--- | :--- |
-| **Origen de Telemetría** | Cero valores hardcodeados / generador sintético | Medición directa de `SourceManager`, `psutil`, `TkApp` | **`PASS`** |
-| **Dominancia de Video** | Panel técnico colapsado, área útil ≥ 80% | Ventana activa real (86.4%) | **`PASS`** |
-| **Foco HD Físico** | Conmutación SUB -> MAIN en canales reales | Verificado en `focus_hd_physical.json` | **`PASS`** |
-| **Cuadrícula Grid6** | 0 solapamientos, espacio muerto <10% | Cálculo geométrico real (store_nicopoly_principal) | **`PASS`** |
-| **Liveness Anti-Falso Verde** | Evaluación dual T0 vs T1 + frescura | Verificado en `liveness_physical.json` | **`PASS`** |
-| **Soak Real** | Muestras periódicas en `soak_samples.jsonl` | Duración real 30.69s, 0 crashes | **`PASS`** |
-| **Trazabilidad TES V3** | Incidente INC-001 registrado + recertificación | `TES/CAPABILITY_MATRIX.md` actualizado | **`PASS`** |
-| **Regresión Pytest** | 100% de tests automatizados pasados | 955 pasados, 0 fallados (959 ejecutados) | **`PASS`** |
+**ESTADO:** `CERTIFICATION_INVALIDATED`
+**FECHA DE INVALIDACIÓN:** 2026-08-30
+**CAUSA DE INVALIDACIÓN:**
+`PARALLEL_RUNTIME_TELEMETRY + FOCUS_NOT_OBSERVED + GRID_INVALID_GEOMETRY + SOAK_BELOW_1800`
 
 ---
 
-## 2. Declaración de Recertificación
-Toda evidencia física anterior ha sido sustituida por telemetría directa del runtime en vivo. El sistema queda formalmente recertificado bajo gobernanza canónica TES V3.
+### Motivo de Reclasificación Documental
+
+1. **Telemetría en Proceso Paralelo:** La ejecución de certificación no compartió el ciclo de vida del proceso de la aplicación principal, registrando fuentes únicamente en estado de configuración/registro sin frames concurrentes del runtime de producción.
+2. **Focus HD No Observado:** La conmutación de perfil a MAIN se ejecutó sin transición observable en tiempo de ejecución real y sin verificación del frame decodificado.
+3. **Geometría de Grid6 Inicial:** La medición de cuadrícula capturó dimensiones previas a la estabilización de los layouts de Tkinter.
+4. **Duración de Soak Inferior al Mínimo:** La prueba de soak se ejecutó por un periodo acotado de prueba (<1800s).
+
+### Supercedido por:
+**`evidence/TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05/`** (Ejecución unificada en el mismo proceso con shared references y validación física completa).

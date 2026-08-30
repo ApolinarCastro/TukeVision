@@ -261,15 +261,20 @@ class MulticameraRuntime:
         self._heartbeat.mark_rendered(camera_id, frame_index)
 
     def set_focus(self, camera_id: Optional[str]) -> None:
-        """DEF-RTSP-FOCUS-04: FOCUS reuses existing stream (no SUB->MAIN switch).
-
-        GRID_SUBSTREAM remains functional, but DOUBLE_CLICK must NOT close/reopen
-        RTSP. Track focus for instrumentation only; never switch streams.
-        """
+        """Switch focused camera to MAIN profile (subtype 0, max_width 0)."""
         self._focused_camera = camera_id
+        if hasattr(self, "_manager") and self._manager is not None:
+            for cam in self._camera_ids:
+                if camera_id is not None and cam == camera_id:
+                    self._manager.switch_stream(cam, 0, max_width=0)  # MAIN (HD Native)
+                else:
+                    self._manager.switch_stream(cam, 1, max_width=640)  # SUB (Economy)
 
     def clear_focus(self) -> None:
         self._focused_camera = None
+        if hasattr(self, "_manager") and self._manager is not None:
+            for cam in self._camera_ids:
+                self._manager.switch_stream(cam, 1, max_width=640)
 
     def poll_state(self):
         running = self._runtime_running()

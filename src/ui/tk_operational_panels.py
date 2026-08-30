@@ -339,9 +339,14 @@ class OperationalPanelsController:
         canvas.create_text(cw - 24, 25, anchor=tk.E, text=f"Total: {len(situations)} Activas", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
 
         if not situations:
-            canvas.create_rectangle(24, 60, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_active_situations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
-            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            card_w = 380
+            card_h = 130
+            cx = cw // 2
+            cy = ch // 2
+            canvas.create_rectangle(cx - card_w // 2, cy - card_h // 2, cx + card_w // 2, cy + card_h // 2, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border_light"], width=1)
+            canvas.create_text(cx, cy - 28, anchor=tk.CENTER, text="✓", fill=DesignTokens.COLORS["normal"], font=("Segoe UI", 20, "bold"))
+            canvas.create_text(cx, cy + 4, anchor=tk.CENTER, text=_("no_active_situations"), fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cx, cy + 30, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
             return
 
         y = 65
@@ -379,9 +384,14 @@ class OperationalPanelsController:
         
         invs = list(self.view_model.investigations.values())
         if not invs:
-            canvas.create_rectangle(24, 60, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_open_investigations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
-            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_open_investigations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            card_w = 380
+            card_h = 130
+            cx = cw // 2
+            cy = ch // 2
+            canvas.create_rectangle(cx - card_w // 2, cy - card_h // 2, cx + card_w // 2, cy + card_h // 2, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border_light"], width=1)
+            canvas.create_text(cx, cy - 28, anchor=tk.CENTER, text="✓", fill=DesignTokens.COLORS["normal"], font=("Segoe UI", 20, "bold"))
+            canvas.create_text(cx, cy + 4, anchor=tk.CENTER, text=_("no_open_investigations"), fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cx, cy + 30, anchor=tk.CENTER, text=_("no_open_investigations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
             return
 
         y = 65

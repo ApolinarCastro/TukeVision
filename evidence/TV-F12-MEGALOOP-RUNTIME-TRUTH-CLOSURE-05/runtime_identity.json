@@ -1,0 +1,18 @@
+{
+  "execution_id": "TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "commit_sha": "bf41aa1c4f7ab459769aa9167b9e23bbaf21301b",
+  "runtime_pid": 27392,
+  "collector_pid": 27392,
+  "same_process": true,
+  "source_manager_object_id": "0x210cb6f58e0",
+  "tk_app_object_id": "0x210c48f24b0",
+  "runtime_start_actual": "2026-08-30T19:17:42.905230+00:00",
+  "capture_start_actual": "2026-08-30T19:17:43.766449+00:00",
+  "site_id_from_runtime": "store_nicopoly_principal",
+  "camera_count_configured_from_runtime": 15,
+  "camera_count_registered_from_runtime": 15,
+  "camera_count_available_from_runtime": 3,
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false
+}

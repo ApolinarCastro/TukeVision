@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evaluados para el ecosistema TukeVision.
+El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evaluados para el ecosistema TukeVision bajo la gobernanza TES V3.
 
 ---
 
@@ -11,17 +11,17 @@ El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evalu
                │   • PyAV / H.264 / H.265
                │   • ByteTrack
                │   • Tkinter + DesignTokens
-               │   • SQLite Indexing
+               │   • SQLite Structured Indexing (P0-65)
                │
     ADAPT      │      EVALUATE
- • Ambient.ai UX│   • ONVIF Profile T Hardware
+ • Ambient.ai UX│   • ONVIF Profile T / Media Signing (CONTRACT_READY)
  • IntelliSeek │   • ONNX Runtime secondary
- • God's Eye   │
+ • God's Eye   │   • Attention Orchestrator Metrics (P0-66)
 ───────────────┼────────────────►
     WATCH      │      RESERVE
  • Local VLM   │   • Radar mmWave
- • WebRTC Aux  │   • Cámaras Térmicas
-               │   • Audio Anómalo
+ • Semantic NLP│   • Cámaras Térmicas
+ • WebRTC Aux  │   • Audio Anómalo
                │
                │      REJECT
                │   • Detectron2 (Edge)
@@ -33,13 +33,13 @@ El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evalu
 
 ## 1. Tecnologías en `ADOPT` (Adoptadas en Producción)
 
-| Tecnología | Justificación | Impacto en TukeVision | Estado Actual |
+| Tecnología / Capacidad | Justificación | Impacto en TukeVision | Estado Actual |
 | :--- | :--- | :--- | :--- |
 | **OpenVINO Edge Runtime** | Inferencia de alta eficiencia en hardware Intel x86_64 y gráficos integrados Iris Xe. | Permite 25+ FPS en 16 streams sin GPUs dedicadas. | `ADOPTED / CERTIFIED` |
 | **PyAV (FFmpeg C-bindings)** | Decodificación y multiplexación de bajo nivel en streaming RTSP. | Baja latencia, selección exacta de perfiles MAIN/SUB. | `ADOPTED / CERTIFIED` |
 | **ByteTrack** | Algoritmo de asociación multi-objeto basado en similitud espacial y de movimiento. | Mantiene identidades estables sin sobrecarga de cómputo. | `ADOPTED / CERTIFIED` |
 | **DesignTokens (Tkinter Nativo)** | Sistema de diseño declarativo con paleta de alto contraste y temas oscuros. | Cero dependencias pesadas, arranque instantáneo (<1s). | `ADOPTED / CERTIFIED` |
-| **SQLite Estructurado** | Motor relacional local embebido para eventos, políticas e índices. | Trazabilidad local-first sin servidores externos. | `ADOPTED / CERTIFIED` |
+| **Recuperación Estructurada SQLite (P0-65)** | Motor relacional local embebido para eventos, políticas e índices multidimensionales. | Búsqueda estructurada operativa con enlaces `dvr://`. | `IMPLEMENTED / OPERATIONAL` |
 
 ---
 
@@ -53,21 +53,23 @@ El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evalu
 
 ---
 
-## 3. Tecnologías en `EVALUATE` (En Evaluación Técnica)
+## 3. Tecnologías en `EVALUATE` (En Evaluación Técnica & Contratos Listos)
 
-| Tecnología | Justificación | Condición de Reevaluación |
-| :--- | :--- | :--- |
-| **ONVIF Profile T Hardware Signing** | Verificación criptográfica de origen directamente en la cámara. | Disponibilidad física de cámaras con firmware compatible en sitio piloto. |
-| **ONNX Runtime (Fallback)** | Compatibilidad con procesadores AMD y GPUs alternativas. | Requerimiento de despliegue en hardware no-Intel. |
+| Tecnología / Capacidad | Justificación | Condición de Reevaluación / Validación | Estado |
+| :--- | :--- | :--- | :--- |
+| **ONVIF Media Signing (Profile T / G)** | Verificación criptográfica de origen directamente en la cámara. | Contrato 100% tipado en código; validación física pendiente de hardware firmante. | `CONTRACT_READY / DEVICE_VALIDATION=PENDING HARDWARE` |
+| **Métricas de Orquestador de Atención (P0-66)** | Medición de reducción de carga cognitiva sobre el operador. | Monitoreo de: `ATTENTION_REDUCTION`, `MISSED_RELEVANT_EVENTS`, `FALSE_ESCALATION_RATE`, `TIME_TO_OPERATOR_ATTENTION`, `TIME_TO_INVESTIGATION`. | `EVALUATE / TELEMETRY_ACTIVE` |
+| **ONNX Runtime (Fallback)** | Compatibilidad con procesadores AMD y GPUs alternativas. | Requerimiento de despliegue en hardware no-Intel. | `EVALUATE` |
 
 ---
 
-## 4. Tecnologías en `WATCH` (En Observación)
+## 4. Tecnologías en `WATCH` (En Observación y Evolución Estratégica)
 
-| Tecnología | Justificación | Condición de Reevaluación |
-| :--- | :--- | :--- |
-| **Modelos VLM Locales (Vision-Language)** | Búsqueda semántica en lenguaje natural sobre clips históricos. | Modelos cuantizados (<2B parámetros) con latencia <500ms en CPU. |
-| **WebRTC Gateway Auxiliar** | Visualización remota en navegadores de supervisores. | Requerimiento de acceso web fuera del host físico de mando. |
+| Tecnología / Capacidad | Justificación | Condición de Reevaluación | Estado Roadmap (P0-65) |
+| :--- | :--- | :--- | :--- |
+| **Investigación Semántica / NLP Histórico** | Búsqueda semántica en lenguaje natural sobre eventos grabados. | Modelos cuantizados (<2B parámetros) con latencia <500ms en CPU edge. | `TARGET / EVOLUTION` |
+| **Analítica de IA On-Demand sobre DVR/NVR** | Extracción e inferencia diferida sobre histórico de video del DVR. | Requiere integración con API de exportación DVR/NVR (`dvr://`). | `TARGET` |
+| **WebRTC Gateway Auxiliar** | Visualización remota en navegadores de supervisores. | Requerimiento de acceso web fuera del host físico de mando. | `WATCH` |
 
 ---
 

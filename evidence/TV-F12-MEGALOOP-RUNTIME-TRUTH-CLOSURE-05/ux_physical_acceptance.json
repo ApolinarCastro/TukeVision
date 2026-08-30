@@ -1,0 +1,11 @@
+{
+  "source": "LIVE_APPLICATION_WINDOW",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:17:51.891712+00:00",
+  "technical_panel_collapsed_by_default": true,
+  "video_area_percent_measured": 96.9,
+  "situations_empty_state": "COMPACT_CARD_CENTERED",
+  "investigations_empty_state": "COMPACT_CARD_CENTERED",
+  "locale": "es-CL",
+  "status": "PASS"
+}

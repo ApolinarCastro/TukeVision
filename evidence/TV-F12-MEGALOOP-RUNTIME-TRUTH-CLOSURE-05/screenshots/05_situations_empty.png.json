@@ -1,0 +1,14 @@
+{
+  "source": "LIVE_APPLICATION_WINDOW",
+  "synthetic": false,
+  "runtime_pid": 27392,
+  "commit_sha": "bf41aa1c4f7ab459769aa9167b9e23bbaf21301b",
+  "view": "SITUACIONES_OPERACIONALES_EMPTY",
+  "captured_at": "2026-08-30T19:17:51.951344+00:00",
+  "window_bbox": [
+    86,
+    109,
+    1366,
+    829
+  ]
+}
