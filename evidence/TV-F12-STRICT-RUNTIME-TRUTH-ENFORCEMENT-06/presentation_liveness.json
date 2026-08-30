@@ -1,0 +1,97 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:38:44.033255+00:00",
+  "cameras": {
+    "cam_01": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_02": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_03": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_04": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_05": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_06": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_07": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_08": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_09": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_10": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_11": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_12": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_13": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_14": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    },
+    "cam_15": {
+      "presented_sequence_T0": 0,
+      "presented_sequence_T1": 0,
+      "delta_presented": 0,
+      "presentation_active": false
+    }
+  }
+}

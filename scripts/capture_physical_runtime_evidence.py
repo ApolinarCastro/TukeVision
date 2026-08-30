@@ -1,7 +1,7 @@
-"""Physical Runtime Telemetry & Acceptance Evidence Collector for TukeVision.
+"""Strict Physical Runtime Telemetry & Acceptance Evidence Collector for TukeVision.
 
-EXECUTION_ID: TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05
-Attached directly to the MAIN MulticameraRuntime and TkApp in the SAME process.
+EXECUTION_ID: TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06
+Mode: ZERO FALLBACK, REAL 1800s SOAK, DERIVED GATES ONLY.
 """
 
 from __future__ import annotations
@@ -25,12 +25,11 @@ from src.ui.tk_view import TkApp
 
 
 def main() -> int:
-    print("[*] Starting TukeVision live runtime for physical recertification...")
+    print("[*] Starting TukeVision STRICT live runtime for physical recertification...")
     config_path = BASE / "config" / "multistore.active.json"
     with open(config_path, "r", encoding="utf-8") as f:
         config = json.load(f)
 
-    # Resolve credentials from env if available
     creds_json = os.environ.get("ENV_DVR_PRINCIPAL_CREDS", "{}")
     try:
         creds = json.loads(creds_json)
@@ -40,22 +39,22 @@ def main() -> int:
         user = ""
         password = ""
 
-    run_id = "TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05"
+    run_id = "TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06"
     start_time = time.time()
 
-    # 1. Initialize the real MulticameraRuntime
+    # 1. Initialize MulticameraRuntime
     runtime = MulticameraRuntime(config, password=password, user=user, run_id=run_id)
     runtime.start()
     if hasattr(runtime, "_telemetry") and runtime._telemetry is not None:
         runtime._telemetry.start()
 
-    # 2. Initialize the real TkApp window
+    # 2. Initialize TkApp window
     root = tk.Tk()
     app = TkApp(root, runtime)
     root.update_idletasks()
     root.update()
 
-    # 3. Construct the RuntimeContext with shared live references
+    # 3. Construct RuntimeContext
     context = RuntimeContext(
         source_manager=runtime._manager,
         tk_app=app,
@@ -67,34 +66,35 @@ def main() -> int:
         pid=os.getpid(),
     )
 
-    # 4. Attach the Evidence Collector
+    # 4. Attach Evidence Collector
     collector = RuntimeEvidenceCollector(context)
 
     try:
-        # Collect runtime identity (same_process=YES, live source_manager)
+        # Runtime identity & precheck
         collector.collect_runtime_identity()
 
-        # Collect physical camera health & liveness ($T_0$ vs $T_1$)
+        # Physical camera health & liveness (T0 vs T1)
         collector.collect_physical_camera_health_and_liveness()
 
-        # Collect Focus HD on real cameras
+        # Focus HD testing & RTSP tracing
         collector.collect_focus_hd(["cam_01", "cam_06", "cam_09"])
 
-        # Measure Grid6 geometry and UX acceptance
+        # Grid6 geometry & UX acceptance
         collector.collect_grid6_and_ux_acceptance()
 
-        # Capture real application window screenshots
+        # Real window screenshots (zero synthetic fallback)
         collector.capture_real_screenshots()
 
-        # Execute soak sampling (1800s in certification mode or TUKEVISION_SOAK_SECONDS env override)
+        # Soak execution: 1800s strictly in certification mode
         soak_target = int(os.environ.get("TUKEVISION_SOAK_SECONDS", 1800))
-        collector.execute_soak_sampling(target_duration_seconds=soak_target)
+        cert_mode = bool(os.environ.get("TUKEVISION_CERTIFICATION_MODE", "1") == "1")
+        collector.execute_soak_sampling(target_duration_seconds=soak_target, certification_mode=cert_mode)
 
-        # Execute complete regression test suite and parse output
+        # Full test regression
         collector.run_regression_and_parse()
 
-        # Finalize truth gates and TES reconciliation
-        collector.write_truth_gates_and_tes()
+        # Build all truth gates, TES reconciliation, and integrity check
+        collector.build_all_closure_artifacts()
 
         print(f"[OK] Physical runtime evidence collection complete. Artifacts in: {collector.evidence_dir}")
         return 0

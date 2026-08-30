@@ -1,7 +1,7 @@
 # Matriz de Capacidades y Madurez del Producto — TukeVision
 
-**Versión:** 3.0 (F12 Consolidado · TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05)
-**Filosofía:** Cero Inteligencia Fabricada · Local-First · Mismo Proceso Runtime
+**Versión:** 3.0 (F12 Cierre Estricto · TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06)
+**Filosofía:** Cero Inteligencia Fabricada · Local-First · Mismo Proceso Runtime · Soak Real 1800s
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Capacidad / Subsistema | Implementada | Tests | Física | Certificada | Estado |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Grid Multicámara (1..16 Canales)** | Sí | Sí (963 tests) | Sí (Telemetría directa SourceManager) | Sí | `OPERATIONAL_STABLE` |
-| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 en runtime) | Condicional | `PHYSICALLY_VALIDATED` |
+| **Grid Multicámara (1..16 Canales)** | Sí | Sí (979 tests) | Sí (Geometría Grid 6 medida a 1260x593) | Sí | `OPERATIONAL_STABLE` |
+| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 validada) | Condicional | `PHYSICALLY_VALIDATED / EXTERNAL_LIMITATION` |
 | **Aceleración Edge OpenVINO / CPU** | Sí | Sí | Sí (Intel Iris Xe / CPU) | Sí | `OPERATIONAL_STABLE` |
 | **Rastreo ByteTrack Multi-Target** | Sí | Sí | Sí (Flujo real multi-cámara) | Sí | `OPERATIONAL_STABLE` |
 | **Sistema de Diseño (DesignTokens)** | Sí | Sí | Sí (Tkinter Enterprise Dark) | Sí | `OPERATIONAL_STABLE` |
@@ -44,4 +44,4 @@
    - El contrato de firma ONVIF (`SOURCE_UNSIGNED`, `SIGNED_UNVERIFIED`, `SIGNED_VALID`, `SIGNATURE_INVALID`) está preparado y tipado en código para activar validación en cuanto se conecten dispositivos compatibles.
 
 3. **Trazabilidad TES V3:**
-   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05/`.
+   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06/`.

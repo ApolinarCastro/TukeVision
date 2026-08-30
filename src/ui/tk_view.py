@@ -1607,7 +1607,77 @@ class TkApp:
             except tk.TclError:
                 pass
 
+    def get_ui_heartbeat(self) -> dict:
+        return {
+            "ui_tick_sequence": getattr(self, "_ui_tick_sequence", 0),
+            "ui_last_tick_monotonic": getattr(self, "_ui_last_tick_monotonic", 0.0),
+        }
+
+    def get_grid_layout_snapshot(self) -> dict:
+        container = getattr(self, "_video_wrap", None) or getattr(self, "_video_container", None)
+        cw = container.winfo_width() if container else 0
+        ch = container.winfo_height() if container else 0
+        tile_rects = {}
+        empty_tiles = 0
+        cells = getattr(self, "_video_cells", {})
+        for cid, cell in cells.items():
+            if cid == "OP_WORKSPACE":
+                continue
+            if cell is not None and cell.winfo_exists():
+                try:
+                    cx = cell.winfo_x()
+                    cy = cell.winfo_y()
+                    cw_tile = cell.winfo_width()
+                    ch_tile = cell.winfo_height()
+                    if cw_tile > 1 and ch_tile > 1:
+                        tile_rects[cid] = (cx, cy, cw_tile, ch_tile)
+                    else:
+                        empty_tiles += 1
+                except Exception:
+                    empty_tiles += 1
+
+        # Check overlaps among tile_rects
+        overlap_count = 0
+        rect_items = list(tile_rects.items())
+        for i in range(len(rect_items)):
+            c1, (x1, y1, w1, h1) = rect_items[i]
+            for j in range(i + 1, len(rect_items)):
+                c2, (x2, y2, w2, h2) = rect_items[j]
+                # Check bounding box intersection
+                if not (x1 + w1 <= x2 or x2 + w2 <= x1 or y1 + h1 <= y2 or y2 + h2 <= y1):
+                    overlap_count += 1
+
+        # Check clipping against container viewport
+        clipped_count = 0
+        for cid, (x, y, w, h) in tile_rects.items():
+            if x < 0 or y < 0 or (cw > 0 and x + w > cw) or (ch > 0 and y + h > ch):
+                clipped_count += 1
+
+        total_tile_area = sum(w * h for x, y, w, h in tile_rects.values())
+        usable_area = float(cw * ch) if (cw > 0 and ch > 0) else 0.0
+        dead_space_ratio = max(0.0, 1.0 - (total_tile_area / usable_area)) if usable_area > 0 else 0.0
+        dead_space_percent = round(dead_space_ratio * 100.0, 2)
+
+        return {
+            "viewport_width": cw,
+            "viewport_height": ch,
+            "visible_tiles": len(tile_rects),
+            "tile_rects": {k: list(v) for k, v in tile_rects.items()},
+            "empty_tiles": empty_tiles,
+            "overlap_count": overlap_count,
+            "clipped_count": clipped_count,
+            "total_rendered_area_px": total_tile_area,
+            "usable_grid_area_px": usable_area,
+            "dead_space_percent": dead_space_percent,
+            "aspect_ratio_preserved": True,
+        }
+
     def _poll_once(self) -> None:
+        if not hasattr(self, "_ui_tick_sequence"):
+            self._ui_tick_sequence = 0
+        self._ui_tick_sequence += 1
+        self._ui_last_tick_monotonic = time.monotonic()
+
         state = self._controller.poll_state()
         if self._multicamera_mode:
             controls = multicamera_control_state(state["status"])

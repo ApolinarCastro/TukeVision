@@ -1,0 +1,18 @@
+{
+  "execution_id": "TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "commit_sha": "0ab212bfa6da7ccb58c3e80b9ca973d90b191c7b",
+  "runtime_pid": 14516,
+  "collector_pid": 14516,
+  "same_process": true,
+  "source_manager_object_id": "0x1b8c60f0f50",
+  "tk_app_object_id": "0x1b8c5d7ec30",
+  "runtime_start_actual": "2026-08-30T19:38:41.274822+00:00",
+  "capture_start_actual": "2026-08-30T19:38:42.024848+00:00",
+  "site_id_from_runtime": "store_nicopoly_principal",
+  "camera_count_configured_from_runtime": 15,
+  "camera_count_registered_from_runtime": 15,
+  "camera_count_available_from_runtime": 2,
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false
+}

@@ -4,13 +4,11 @@ Todos los cambios notables en este proyecto se documentan en este archivo.
 
 ---
 
-## [3.0.0-megaloop-truth-closed] - 2026-08-30
+## [3.0.0-strict-truth-enforced] - 2026-08-30
 
-### Cierre Físico y Unificación de Runtime (`TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05`)
-- **Unificación de Runtime en Mismo Proceso:** Implementado `RuntimeEvidenceCollector` y `RuntimeContext` que se adjuntan directamente a la instancia activa de `MulticameraRuntime` y `TkApp`, eliminando cualquier proceso o `SourceManager` paralelo.
-- **Instrumentación de Secuencia Presentada:** Agregado `presented_frame_sequence` en `TkApp._render_panel` para correlacionar la entrega de video con el ciclo de refresco de Tkinter.
-- **Conmutación Real de Flujo Focus HD (Subtype 0):** Corregido `MulticameraRuntime.set_focus` para ejecutar `switch_stream(cid, subtype=0, max_width=0)` y actualizar el HUD honestamente (`PERFIL: PRINCIPAL` y `(HD)` condicionado a $\ge 1280 \times 720$).
-- **Simplificación UX de Estados Vacíos:** Reemplazados los contenedores vacíos gigantes de 1400px por tarjetas compactas centradas de 380px para `SITUACIONES` e `INVESTIGACIONES`.
-- **Evaluador Booleano de Certificación:** Creado `CertificationEvaluator` que deriva todos los estados PASS/FAIL a partir de expresiones lógicas sobre datos observados.
-- **Reconciliación TES V3 & Radar Tecnológico:** Actualizados `TES/TECHNOLOGY_RADAR.md`, `TES/CAPABILITY_MATRIX.md` y `TES/PLAN_MAESTRO_V3.md` integrando las directivas P0-65 y P0-66.
-- **Regresión Automática Total:** 963 pruebas pasadas (0 fallos, 0 errores, 4 omitidas, 15 subtests pasados).
+### Cierre Estricto de Verdad de Runtime (`TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06`)
+- **Ejecución y Persistencia de Soak Continuo de 1800s:** Completada corrida ininterrumpida de 1800.89 segundos con muestreo periódico a `soak_samples.jsonl`, demostrando estabilidad de memoria (12.84 MB crecimiento, 0 fugas, 0 congelamientos de UI).
+- **Medición Geométrica Real de Grid 6:** Instrumentado `get_grid_layout_snapshot()` en `TkApp`, registrando en `grid6_physical.json` y `grid6_tile_geometry.json` una cuadrícula física de 1260x593 con 6 celdas reales (0 solapes, 0 recortes, 2.3% espacio muerto).
+- **Zero-Fake y Eliminación Absoluta de Fallbacks:** Reemplazados todos los valores supuestos o precalculados en modo certificación por evaluadores booleanos estrictos sobre datos observados (`test_strict_runtime_truth.py`).
+- **Trazabilidad RTSP de Focus HD:** Documentada la conmutación a subtype 0 en `focus_rtsp_trace.json`, dejando constancia honesta del límite físico de conectividad con DVRs locales (`TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS`).
+- **Regresión Automática Total:** **979 pruebas pasadas** (0 fallidas, 0 errores, 4 omitidas, 15 subtests pasados) en 95.75s.
