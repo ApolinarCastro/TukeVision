@@ -1,40 +1,64 @@
-# TukeVision — Operational Intelligence & Governed Video AI
+# TukeVision — Centro de Mando & Inteligencia Visual Gobernada
 
-TukeVision es una plataforma integral de inteligencia operacional local y gobernada que transforma video en tiempo real en observaciones estructuradas, estado espacial, investigación agentica, razonamiento en cascada, aprendizaje continuo y respuestas operacionales limitadas y auditables.
-
----
-
-## Estado del Producto por Nivel de Madurez
-
-### CERTIFIED & STABILIZED
-- **Percepción y Detección en Tiempo Real**: Ingesta RTSP multicámara (hasta 15 cámaras concurrentes) con aceleración OpenVINO (CPU/GPU) y fallback verificado a PyTorch.
-- **Seguimiento Temporal & Handoff Multicámara**: `TemporalEntityState`, homografía de planos de planta, viewshed y correlación espacial entre cámaras contiguas.
-- **Orquestación de Atención & Agent Monitor**: Priorización determinista de situaciones que merecen atención (`AttentionOrchestrator`) y sesiones de investigación estructurada.
-- **Cascade Intelligence**: Enrutamiento multinivel (`ReasoningRouter`): Determinista -> Local LLM (Qwen1.5-1.8B) -> Local VLM selectivo (Moondream2) con `AgentOutputValidator` (anti-alucinación, 0 hechos no soportados) y presupuesto adaptativo de CPU (`ReasoningBudget`).
-- **Experience & Continuous Learning**: Almacenamiento local persistente (`ExperienceStore`), grafo de relaciones (`ExperienceGraph`), reauditoría selectiva (`SelectiveReauditEngine`) y detección de fallos conocidos (`FailureExperience`).
-- **Acciones Operacionales Gobernadas**: Motor de políticas `ActionPolicyEngine` (default DENY, kill switches, safe mode), ejecución acotada `AUTONOMY_2` (alertas a operador, pinning de evidencia, tareas de revisión), aprobación humana obligatoria y anti-autoaprobación.
-- **Pilot Readiness & Site Configuration**: Configuración canónica por sitio (`PilotSite`), protección estricta contra credenciales en texto plano (`SiteConfigurationValidator`), roles de operador (`VIEWER`, `OPERATOR`, `SUPERVISOR`, `ADMIN`), monitoreo de cobertura de inferencia (`InferenceCoverageGuard`) y reportes de sesión (`PilotReport`).
-
-### PLANNED (Fuera de Alcance Fase 8)
-- `AUTONOMY_3` (acciones físicas o sensibles externas: control de cerraduras, llamadas a emergencias, etc.).
-- Reconocimiento facial y perfilamiento biométrico persistente.
-- Auto-entrenamiento descontrolado o mutación autónoma de código/políticas.
+TukeVision es una plataforma de software para centros de comando de videovigilancia, analítica de comportamiento retail y prevención de pérdidas en tiempo real. Opera bajo una arquitectura **local-first** en hardware estándar (CPU x86_64, Windows/Linux), sin requerir servidores en la nube ni conexión obligatoria a internet.
 
 ---
 
-## Requisitos del Sistema
-- **SO**: Windows 10/11 (64-bit).
+## 1. Capacidades Principales del Producto
+
+### 1.1 Monitoreo Multicámara en Vivo (HD Focus & Cuadrículas Dinámicas)
+- Ingesta simultánea de hasta 16 cámaras concurrentes (RTSP H.264/H.265 o archivos locales).
+- Cuadrículas simétricas automáticas: 1, 4, 6 (1 principal + 5 auxiliares), 9 y 16 cámaras.
+- Modo **Foco HD**: Ampliación con preservación de resolución nativa (1080p/4K), zoom digital interactivo (1x a 4x) y HUD técnico con separación explícita de `FUENTE`, `PRESENTACIÓN` e `INFERENCIA`.
+
+### 1.2 Inferencia Visual Edge & Cascada de Inteligencia
+- Aceleración en el borde mediante OpenVINO (CPU/iGPU/GPU) con fallback automático.
+- Cascada estructurada: Detección de Movimiento → Inferencia Edge → ByteTrack → Análisis Temporal de Permanencia → Evaluación de Políticas Gobernadas.
+
+### 1.3 Cero Inteligencia Fabricada (Zero Fake Data)
+- Todo dato visible es `HECHO (FACT)` verificado físicamente, `INFERENCIA (INFERENCE)` determinista o `DESCONOCIDO (UNKNOWN)`.
+- Eliminación total de datos sintéticos o confianzas arbitrarias cuando no provienen del runtime.
+
+### 1.4 Bóveda de Evidencia Forense & Preparación para Firma ONVIF
+- Empaquetado atómico de clips de video MP4 (PyAV) con cuadros clave y metadatos sidecar JSON.
+- Integridad garantizada mediante hashes criptográficos SHA-256 inmutables.
+- Trazabilidad de origen y preparación para firma de medios ONVIF (`SOURCE_UNSIGNED` para DVRs estándar).
+
+### 1.5 Interfaz de Usuario Unificada en Español (`es-CL`)
+- Vistas operacionales integradas:
+  - 📊 **RESUMEN**: Panel ejecutivo con métricas en vivo, situaciones activas y cola de atención.
+  - 📹 **EN VIVO**: Cuadrícula de cámaras con interacción en tiempo real.
+  - ⚠️ **SITUACIONES**: Detalle de eventos con desglose epistémico.
+  - 🔍 **INVESTIGACIONES**: Registro de auditoría y razonamiento del agente.
+  - 📁 **EVIDENCIA**: Bóveda de paquetes forenses con verificación SHA-256.
+  - 🗺️ **MAPA / ZONAS**: Vista espacial de cobertura de tienda.
+  - ⚙️ **ESTADO DEL SISTEMA**: Telemetría de host (CPU, RAM, Disco) y salud de flujos.
+
+---
+
+## 2. Requisitos del Sistema
+- **Sistema Operativo**: Windows 10/11 (64-bit) o Linux x86_64.
 - **Python**: 3.12+ (entorno virtual `.venv`).
-- **Inferencia**: Intel CPU / iGPU con OpenVINO runtime.
+- **Hardware Recomendado**: Intel Core i5/i7 (8va gen o superior) / AMD Ryzen 5/7, 8 GB RAM mínimo (16 GB recomendado para 15+ cámaras), almacenamiento SSD.
 
-## Estructura del Código
-- `src/core/`: Ingesta, supervisión de streams, OpenVINO runtime y fallback PyTorch.
-- `src/spatial/`: Inteligencia espacial, homografías, zonas, viewshed y handoff.
-- `src/agent/`: Agent Monitor, Attention Orchestrator, Cascade Intelligence, Experience Layer y Governed Actions.
-- `src/pilot/`: Validación de sitios, guardias de cobertura, contratos de piloto y métricas.
-- `evidence/`: Trazabilidad formal, benchmarks, manifests de soak test y veredictos certificados.
+---
 
-## Verificación y Tests
+## 3. Inicio Rápido
+
+Ejecutar la aplicación completa con:
 ```powershell
-.\.venv\Scripts\pytest.exe tests/ -v
+.\TukeVision.bat
+```
+
+O directamente mediante el launcher de Python:
+```powershell
+.\.venv\Scripts\python.exe scripts/launcher.py
+```
+
+---
+
+## 4. Ejecución de Pruebas Automatizadas
+
+```powershell
+.\.venv\Scripts\pytest.exe -v
 ```

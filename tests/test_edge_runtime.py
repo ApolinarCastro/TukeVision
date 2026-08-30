@@ -261,7 +261,7 @@ class TestFullVerticalIntegration(unittest.TestCase):
         # wall-clock guard against hangs; under full-suite CPU load the runs
         # finish slower than in isolation, so keep a generous bound.
         self.assertTrue(wait_until(
-            lambda: not runtime_a.running and not runtime_b.running, timeout=90.0
+            lambda: not runtime_a.running and not runtime_b.running, timeout=120.0
         ), "16-source run did not finish in time")
 
         summary_a = runtime_a.store_summary()

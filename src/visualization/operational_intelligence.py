@@ -55,6 +55,12 @@ class EvidenceBundleViewItem:
     key_frame_path: Optional[str]
     roi_crop_path: Optional[str]
     freshness_ms: float = 24.5
+    # ONVIF Media Signing Contract Readiness (P0)
+    signing_status: str = "SOURCE_UNSIGNED"
+    signature_scheme: Optional[str] = None
+    source_identity: Optional[str] = None
+    verification_status: str = "NOT_APPLICABLE"
+    provenance_chain: List[str] = field(default_factory=list)
 
 
 @dataclass

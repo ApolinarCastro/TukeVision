@@ -50,6 +50,8 @@ from src.ui.grid_layout import (
     grid_capacity,
     EMPTY_SLOT_LABEL,
 )
+from src.localization.i18n import I18n, _
+from src.ui.design_tokens import DesignTokens
 from src.ui.tk_operational_panels import (
     OperationalCommandCenterModes,
     OperationalPanelsController,
@@ -568,7 +570,7 @@ class TkApp:
         header = tk.Frame(self._root, bg=COLORS["bg"])
         header.pack(side=tk.TOP, fill=tk.X)
 
-        # Row 1: Brand, Store Selector, and System Status Badges
+        # Fila 1: Marca, Selector de Tienda y Estado Operacional
         top_row = tk.Frame(header, bg=COLORS["bg"])
         top_row.pack(fill=tk.X, padx=14, pady=(8, 4))
 
@@ -577,27 +579,27 @@ class TkApp:
         title_row = tk.Frame(brand, bg=COLORS["bg"])
         title_row.pack(fill=tk.X, anchor=tk.W)
         tk.Label(
-            title_row, text="TUKEVISION", bg=COLORS["bg"], fg=COLORS["accent"],
+            title_row, text=_("app_title"), bg=COLORS["bg"], fg=COLORS["accent"],
             font=FONT_TITLE,
         ).pack(side=tk.LEFT)
         tk.Label(
-            title_row, text="COMMAND CENTER", bg=COLORS["bg"], fg=COLORS["text"],
+            title_row, text="CENTRO DE MANDO", bg=COLORS["bg"], fg=COLORS["text"],
             font=("Segoe UI", 11, "bold"),
         ).pack(side=tk.LEFT, padx=(8, 0))
 
         self._live_dot = tk.Canvas(title_row, width=10, height=10, bg=COLORS["bg"], highlightthickness=0)
         self._live_dot.pack(side=tk.LEFT, padx=(10, 4), pady=2)
         self._live_label = tk.Label(
-            title_row, text="LIVE", bg=COLORS["bg"], fg=COLORS["online"],
+            title_row, text=_("live_status_live"), bg=COLORS["bg"], fg=COLORS["online"],
             font=FONT_PANEL_TITLE,
         )
         self._live_label.pack(side=tk.LEFT)
 
-        # Store selector
+        # Selector de Tienda
         store_row = tk.Frame(top_row, bg=COLORS["bg"])
         store_row.pack(side=tk.LEFT, padx=(24, 0))
         tk.Label(
-            store_row, text="Store:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            store_row, text=_("store_label"), bg=COLORS["bg"], fg=COLORS["text_dim"],
             font=FONT_SMALL,
         ).pack(side=tk.LEFT)
         self._store_var = tk.StringVar(value="")
@@ -611,27 +613,27 @@ class TkApp:
             self._store_var.set(stores[0])
         self._store_combo.bind("<<ComboboxSelected>>", self._on_store_change)
 
-        # Zone filter
+        # Filtro de Zona
         tk.Label(
-            store_row, text="Zone:", bg=COLORS["bg"], fg=COLORS["text_dim"],
+            store_row, text=_("zone_label"), bg=COLORS["bg"], fg=COLORS["text_dim"],
             font=FONT_SMALL,
         ).pack(side=tk.LEFT)
-        self._zone_var = tk.StringVar(value="All")
+        self._zone_var = tk.StringVar(value=_("all_zones"))
         self._zone_combo = ttk.Combobox(
-            store_row, textvariable=self._zone_var, values=["All"],
+            store_row, textvariable=self._zone_var, values=[_("all_zones")],
             state="readonly", width=10, font=FONT_SMALL
         )
         self._zone_combo.pack(side=tk.LEFT, padx=(4, 0))
         self._zone_combo.bind("<<ComboboxSelected>>", self._on_zone_change)
 
-        # Status Indicators (Right Side)
+        # Indicadores de Estado (Lado Derecho)
         status = tk.Frame(top_row, bg=COLORS["bg"])
         status.pack(side=tk.RIGHT)
-        self._health_var = tk.StringVar(value="HEALTH NOMINAL")
-        self._cameras_var = tk.StringVar(value="CAMERAS: 15/15 LIVE")
-        self._op_status_var = tk.StringVar(value="OPERATIONAL: NORMAL")
-        self._ai_status_var = tk.StringVar(value="AI CASCADE: ACTIVE")
-        self._mode_var = tk.StringVar(value="MODE: GRID")
+        self._health_var = tk.StringVar(value=_("system_nominal"))
+        self._cameras_var = tk.StringVar(value="CÁMARAS: 15 / 15 EN VIVO")
+        self._op_status_var = tk.StringVar(value=_("status_operational_normal"))
+        self._ai_status_var = tk.StringVar(value=_("status_ai_active"))
+        self._mode_var = tk.StringVar(value="MODO: EN VIVO")
 
         for var, col in ((self._mode_var, COLORS["text_dim"]), (self._ai_status_var, COLORS["accent"]), (self._cameras_var, COLORS["online"]), (self._op_status_var, COLORS["online"])):
             tk.Label(
@@ -639,18 +641,18 @@ class TkApp:
                 font=FONT_SMALL, padx=8, pady=2
             ).pack(side=tk.RIGHT, padx=3)
 
-        # Row 2: Clean Navigation Bar (Tabs)
+        # Fila 2: Barra de Navegación (Pestañas)
         nav_row = tk.Frame(header, bg=COLORS["panel_muted"], height=32)
         nav_row.pack(fill=tk.X, padx=14, pady=(2, 6))
 
         nav_items = [
-            ("📊 OVERVIEW", OperationalCommandCenterModes.OVERVIEW),
-            ("📹 LIVE GRID", OperationalCommandCenterModes.GRID),
-            ("⚠️ SITUATIONS", OperationalCommandCenterModes.SITUATIONS),
-            ("🔍 INVESTIGATIONS", OperationalCommandCenterModes.INVESTIGATIONS),
-            ("📁 EVIDENCE", OperationalCommandCenterModes.EVIDENCE),
-            ("🗺️ MAP / ZONES", OperationalCommandCenterModes.MAP),
-            ("⚙️ SYSTEM HEALTH", OperationalCommandCenterModes.SYSTEM),
+            (_("tab_overview"), OperationalCommandCenterModes.OVERVIEW),
+            (_("tab_grid"), OperationalCommandCenterModes.GRID),
+            (_("tab_situations"), OperationalCommandCenterModes.SITUATIONS),
+            (_("tab_investigations"), OperationalCommandCenterModes.INVESTIGATIONS),
+            (_("tab_evidence"), OperationalCommandCenterModes.EVIDENCE),
+            (_("tab_map"), OperationalCommandCenterModes.MAP),
+            (_("tab_system"), OperationalCommandCenterModes.SYSTEM),
         ]
 
         self._nav_buttons = {}
@@ -916,43 +918,42 @@ class TkApp:
                 highlightbackground=COLORS["border"],
             )
 
-        self._stop_btn = button(controls, "Detener", self._on_stop, accent=True)
+        self._stop_btn = button(controls, _("btn_stop"), self._on_stop, accent=True)
         self._stop_btn.configure(state=tk.DISABLED)
         if self._multicamera_mode:
             self._stop_btn.configure(state=tk.NORMAL)
         self._stop_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._evidence_btn = button(controls, "Abrir evidencia", self._on_open_evidence)
+        self._evidence_btn = button(controls, _("btn_export_evidence"), self._on_open_evidence)
         self._evidence_btn.configure(state=tk.DISABLED)
         self._evidence_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._clip_btn = button(controls, "Abrir clip / revisión", self._on_open_clips)
+        self._clip_btn = button(controls, _("btn_review"), self._on_open_clips)
         self._clip_btn.configure(state=tk.DISABLED)
         self._clip_btn.pack(side=tk.LEFT, padx=(0, 6))
 
-        self._back_btn = button(controls, "← VOLVER AL GRID", self._on_back_to_grid)
+        self._back_btn = button(controls, f"← {_('btn_back_grid')}", self._on_back_to_grid)
         self._back_btn.configure(state=tk.DISABLED, fg=COLORS["accent"])
         self._back_btn.pack(side=tk.LEFT, padx=(12, 6))
-        self._prev_btn = button(controls, "◀ Prev", self._on_prev_camera)
+        self._prev_btn = button(controls, "◀ Anterior", self._on_prev_camera)
         self._prev_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._next_btn = button(controls, "Next ▶", self._on_next_camera)
+        self._next_btn = button(controls, "Siguiente ▶", self._on_next_camera)
         self._next_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._fullscreen_btn = button(controls, "Fullscreen", self._on_toggle_fullscreen)
+        self._fullscreen_btn = button(controls, _("btn_fullscreen"), self._on_toggle_fullscreen)
         self._fullscreen_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._grid_btn = button(controls, f"Grid {len(self._camera_ids)}", self._on_cycle_grid)
+        self._grid_btn = button(controls, f"Cuadrícula {len(self._camera_ids)}", self._on_cycle_grid)
         self._grid_btn.pack(side=tk.LEFT, padx=(0, 6))
 
-        # Digital zoom (BLOCK F): acts on the presented image only, never on
-        # the detection/tracking pipeline and never on the window geometry.
-        self._zoom_in_btn = button(controls, "ZOOM+", lambda: self._on_zoom(1))
+        # Digital zoom
+        self._zoom_in_btn = button(controls, _("btn_zoom_in"), lambda: self._on_zoom(1))
         self._zoom_in_btn.configure(state=tk.DISABLED)
         self._zoom_in_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._zoom_out_btn = button(controls, "ZOOM-", lambda: self._on_zoom(-1))
+        self._zoom_out_btn = button(controls, _("btn_zoom_out"), lambda: self._on_zoom(-1))
         self._zoom_out_btn.configure(state=tk.DISABLED)
         self._zoom_out_btn.pack(side=tk.LEFT, padx=(0, 6))
-        self._zoom_reset_btn = button(controls, "RESET ZOOM", self._on_zoom_reset)
+        self._zoom_reset_btn = button(controls, _("btn_zoom_reset"), self._on_zoom_reset)
         self._zoom_reset_btn.configure(state=tk.DISABLED)
         self._zoom_reset_btn.pack(side=tk.LEFT, padx=(0, 6))
 
-        self._settings_btn = button(controls, "Configuración", self._open_device_settings)
+        self._settings_btn = button(controls, _("btn_settings"), self._open_device_settings)
         self._settings_btn.pack(side=tk.LEFT, padx=(12, 6))
 
         # PTZ controls (OC-07) - visible and enabled ONLY when the focused
@@ -1928,9 +1929,9 @@ class TkApp:
             res_str = resolution or "1080p"
 
         if focus:
-            # FOCUS HD HUD with strict separation of SOURCE vs DISPLAY vs INFERENCE
-            hud_text = f"SOURCE: {res_str}  |  DISPLAY: {cw}x{ch}  |  INFERENCE: 640x360  |  PROFILE: MAIN (HD)"
-            canvas.create_rectangle(max(0, cw - 480), 4, cw - 6, 24, fill=COLORS["panel_muted"], outline=COLORS["border"])
+            # FOCUS HD HUD con estricta separación de FUENTE vs PRESENTACIÓN vs INFERENCIA
+            hud_text = f"FUENTE: {res_str}  |  PRESENTACIÓN: {cw}x{ch}  |  INFERENCIA: 640x360  |  PERFIL: PRINCIPAL (HD)"
+            canvas.create_rectangle(max(0, cw - 520), 4, cw - 6, 24, fill=COLORS["panel_muted"], outline=COLORS["border"])
             canvas.create_text(
                 cw - 12, 14, anchor=tk.E, text=hud_text,
                 fill=COLORS["accent"], font=("Segoe UI", 8, "bold"),
@@ -1945,13 +1946,13 @@ class TkApp:
         tracks = getattr(panel, "tracked_objects", ())
         if tracks:
             canvas.create_text(
-                8, ch - 12, anchor=tk.W, text=f"● {len(tracks)} active",
+                8, ch - 12, anchor=tk.W, text=f"● {len(tracks)} activos",
                 fill="#10B981", font=FONT_BODY_BOLD,
             )
 
         event = getattr(panel, "event", None)
         if event:
-            label = str(event.get("label", "ALERT"))
+            label = str(event.get("label", "ALERTA"))
             canvas.create_rectangle(max(0, cw - 130), ch - 22, cw - 6, ch - 4, fill=COLORS["alert"], outline="")
             canvas.create_text(
                 cw - 68, ch - 13, anchor=tk.CENTER, text=label[:14],
@@ -1972,11 +1973,11 @@ class TkApp:
             if running:
                 self._set_dot(self._live_dot, COLORS["online"])
                 if hasattr(self, "_live_label") and self._live_label.winfo_exists():
-                    self._live_label.configure(text="LIVE", fg=COLORS["online"])
+                    self._live_label.configure(text=_("live_status_live"), fg=COLORS["online"])
             else:
                 self._set_dot(self._live_dot, COLORS["offline"])
                 if hasattr(self, "_live_label") and self._live_label.winfo_exists():
-                    self._live_label.configure(text="IDLE", fg=COLORS["offline"])
+                    self._live_label.configure(text=_("live_status_idle"), fg=COLORS["offline"])
         except Exception:
             pass
         panels = self._controller.poll_multicamera()
@@ -1995,26 +1996,35 @@ class TkApp:
             if health is not None else len(self._camera_ids)
         )
         if hasattr(self, "_cameras_var"):
-            self._cameras_var.set(f"CAMERAS: {live} / {total} LIVE")
+            self._cameras_var.set(f"CÁMARAS: {live} / {total} EN VIVO")
 
         # Operational status derivation
         alerts = state.get("alert_log") or []
         if hasattr(self, "_op_status_var"):
             if alerts:
-                self._op_status_var.set("OPERATIONAL: ATTENTION")
+                self._op_status_var.set(_("status_operational_attention"))
             elif live < total and running:
-                self._op_status_var.set("OPERATIONAL: DEGRADED")
+                self._op_status_var.set(_("status_operational_degraded"))
             else:
-                self._op_status_var.set("OPERATIONAL: NORMAL")
+                self._op_status_var.set(_("status_operational_normal"))
 
         # Active Mode indicator
         active_mode = getattr(self, "_active_op_mode", OperationalCommandCenterModes.GRID)
         if self._focused_camera is not None:
-            mode_display = f"FOCUS ({self._focused_camera})"
+            mode_display = f"FOCO ({self._focused_camera})"
         else:
-            mode_display = active_mode
+            mode_map = {
+                OperationalCommandCenterModes.OVERVIEW: "RESUMEN",
+                OperationalCommandCenterModes.GRID: "EN VIVO",
+                OperationalCommandCenterModes.SITUATIONS: "SITUACIONES",
+                OperationalCommandCenterModes.INVESTIGATIONS: "INVESTIGACIONES",
+                OperationalCommandCenterModes.EVIDENCE: "EVIDENCIA",
+                OperationalCommandCenterModes.MAP: "MAPA",
+                OperationalCommandCenterModes.SYSTEM: "ESTADO SISTEMA",
+            }
+            mode_display = mode_map.get(active_mode, active_mode)
         if hasattr(self, "_mode_var"):
-            self._mode_var.set(f"MODE: {mode_display}")
+            self._mode_var.set(f"MODO: {mode_display}")
 
     @staticmethod
     def _set_dot(canvas, color: str) -> None:

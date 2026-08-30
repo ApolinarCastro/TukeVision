@@ -288,7 +288,7 @@ class TestDigitalZoom(RealWindowBase):
         self.app._on_zoom_reset()
         self.assertEqual(self.app._zoom_factor, MIN_ZOOM)
         self.assertEqual(
-            self.app._zoom_reset_btn.cget("text"), "RESET ZOOM"
+            self.app._zoom_reset_btn.cget("text"), "Restablecer"
         )
 
 
@@ -302,7 +302,7 @@ class TestHealthHeader(RealWindowBase):
             total_camera_count=15,
         )
         self.app._render_header({"status": "RUNNING", "system_health": health, "fps": 0.0})
-        self.assertEqual(self.app._cameras_var.get(), "CAMERAS: 7 / 15 LIVE")
+        self.assertEqual(self.app._cameras_var.get(), "CÁMARAS: 7 / 15 EN VIVO")
 
     def test_online_never_inflated_above_online_count(self):
         self._map(1366, 768)
@@ -313,7 +313,7 @@ class TestHealthHeader(RealWindowBase):
             total_camera_count=15,
         )
         self.app._render_header({"status": "RUNNING", "system_health": health, "fps": 0.0})
-        self.assertEqual(self.app._cameras_var.get(), "CAMERAS: 15 / 15 LIVE")
+        self.assertEqual(self.app._cameras_var.get(), "CÁMARAS: 15 / 15 EN VIVO")
 
 
 if __name__ == "__main__":

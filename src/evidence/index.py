@@ -149,3 +149,49 @@ class SemanticEvidenceIndex:
             rows = cursor.fetchall()
             
             return [dict(row) for row in rows]
+
+
+class SemanticInvestigationEngine:
+    """Semantic investigation coordinator for Live & On-Demand Historical Analysis.
+
+    Path A: Live Operation -> Situation -> Evidence Selector -> Representative Evidence -> Index.
+    Path B: Historical Query -> Scoped (Site/Camera/Time) -> DVR/NVR -> On-Demand Analysis -> Source Link.
+    """
+
+    def __init__(self, index: Optional[SemanticEvidenceIndex] = None):
+        self.index = index or SemanticEvidenceIndex()
+
+    def query_historical_scope(
+        self,
+        site_id: str,
+        camera_id: Optional[str] = None,
+        start_time: Optional[str] = None,
+        end_time: Optional[str] = None,
+        entity_id: Optional[str] = None,
+        tags: Optional[Dict[str, str]] = None,
+    ) -> List[Dict[str, Any]]:
+        """Query bounded historical scope without scanning entire video archives."""
+        tags_query = dict(tags or {})
+        if site_id:
+            tags_query["site_id"] = site_id
+
+        results = self.index.search_bundles(
+            start_time=start_time,
+            end_time=end_time,
+            camera_id=camera_id,
+            tags=tags_query if tags_query else None,
+            entity_id=entity_id,
+        )
+
+        formatted = []
+        for r in results:
+            formatted.append({
+                "bundle_id": r["bundle_id"],
+                "observed_at": r["observed_at"],
+                "source_camera": r["camera_id"],
+                "source_link": f"dvr://{site_id}/{r['camera_id']}?t={r['observed_at']}",
+                "evidence_path": r["path_to_json"],
+                "provenance": "ON_DEMAND_HISTORICAL_MATCH",
+            })
+        return formatted
+
