@@ -1,0 +1,9 @@
+{
+  "execution_id": "TV-F12-FINAL-PASSIVE-CERTIFIER-CLOSURE-09",
+  "capabilities_evaluated": 13,
+  "capabilities_certified": 11,
+  "false_certifications": 0,
+  "status": "PASS",
+  "source": "TES_RECONCILIATION",
+  "synthetic": false
+}

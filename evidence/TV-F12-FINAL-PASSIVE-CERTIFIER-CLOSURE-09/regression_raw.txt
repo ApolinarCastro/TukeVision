@@ -1,0 +1,103 @@
+........................................................................ [  7%]
+........................................................................ [ 14%]
+........................................................................ [ 21%]
+........................................................................ [ 29%]
+........................................................................ [ 36%]
+.................................................ssss................... [ 43%]
+......................................................... [ 49%]
+........................................................................ [ 56%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 78%]
+..................................................................FFF... [ 85%]
+.....F...F.............................................................. [ 93%]
+...................................................................      [100%]
+================================== FAILURES ===================================
+________________ test_focus_cannot_pass_from_camera_live_only _________________
+
+    def test_focus_cannot_pass_from_camera_live_only():
+        # evaluate_focus returns False if profile observed is SUB
+>       main_pass, hd_pass, status = CertificationEvaluator.evaluate_focus(
+            profile_requested="MAIN",
+            profile_observed="SUB",
+            frame_shape=(240, 352, 3),
+            frame_sequence_after=105,
+            frame_sequence_before=100,
+            source_resolution_observed=True,
+        )
+E       TypeError: CertificationEvaluator.evaluate_focus() got an unexpected keyword argument 'profile_requested'. Did you mean 'profile_observed'?
+
+tests\test_strict_runtime_truth.py:99: TypeError
+__________________ test_focus_requires_observed_main_profile __________________
+
+    def test_focus_requires_observed_main_profile():
+        # profile_observed must be MAIN
+>       main_pass, hd_pass, status = CertificationEvaluator.evaluate_focus(
+            profile_requested="MAIN",
+            profile_observed="MAIN",
+            frame_shape=(1080, 1920, 3),
+            frame_sequence_after=200,
+            frame_sequence_before=100,
+            source_resolution_observed=True,
+        )
+E       TypeError: CertificationEvaluator.evaluate_focus() got an unexpected keyword argument 'profile_requested'. Did you mean 'profile_observed'?
+
+tests\test_strict_runtime_truth.py:114: TypeError
+___________________ test_focus_requires_observed_resolution ___________________
+
+    def test_focus_requires_observed_resolution():
+        # Frame shape must be provided
+>       main_pass, hd_pass, _ = CertificationEvaluator.evaluate_focus(
+            profile_requested="MAIN",
+            profile_observed="MAIN",
+            frame_shape=None,
+            frame_sequence_after=200,
+            frame_sequence_before=100,
+            source_resolution_observed=False,
+        )
+E       TypeError: CertificationEvaluator.evaluate_focus() got an unexpected keyword argument 'profile_requested'. Did you mean 'profile_observed'?
+
+tests\test_strict_runtime_truth.py:129: TypeError
+___________ test_physical_defaults_scan_detects_forbidden_fallbacks ___________
+
+    def test_physical_defaults_scan_detects_forbidden_fallbacks():
+        # Scanner detects if forbidden patterns are present
+        collector = RuntimeEvidenceCollector()
+        scan_res = collector.scan_certifier_for_forbidden_fallbacks()
+>       assert scan_res["scan_passed"] is True
+E       assert False is True
+
+tests\test_strict_runtime_truth.py:215: AssertionError
+___________________ test_final_verdict_cannot_be_hardcoded ____________________
+
+    def test_final_verdict_cannot_be_hardcoded():
+        # Recommended verdict is dynamically evaluated
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            (tmp_path / "soak_reuse_reference.json").write_text(
+                json.dumps({"reuse_allowed": True, "actual_duration": 1800.89}), encoding="utf-8"
+            )
+            (tmp_path / "regression_summary.json").write_text(json.dumps({"clean_regression": True}), encoding="utf-8")
+            (tmp_path / "zero_fake_runtime_gate.json").write_text(json.dumps({"zero_fake_passed_derived": True}), encoding="utf-8")
+            (tmp_path / "liveness_physical.json").write_text(json.dumps({"gate_liveness_all_derived": True}), encoding="utf-8")
+            (tmp_path / "presentation_liveness.json").write_text(json.dumps({"gate_presentation_all_derived": True}), encoding="utf-8")
+            (tmp_path / "grid6_physical.json").write_text(json.dumps({"grid6_pass_derived": True}), encoding="utf-8")
+            (tmp_path / "focus_hd_physical.json").write_text(json.dumps({"overall_focus_main_pass": False, "overall_focus_hd_pass": False}), encoding="utf-8")
+            (tmp_path / "certifier_default_scan.json").write_text(json.dumps({"scan_passed": True, "forbidden_fallbacks_found": 0}), encoding="utf-8")
+    
+            check = CertificationEvaluator.evaluate_certification_integrity(tmp_path)
+>           assert check["recommended_verdict"] == "TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS"
+E           AssertionError: assert 'TV_F12_RUNTI...EFECTS_REMAIN' == 'TV_F12_RUNTI...L_LIMITATIONS'
+E             
+E             - TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS
+E             + TV_F12_RUNTIME_TRUTH_DEFECTS_REMAIN
+
+tests\test_strict_runtime_truth.py:261: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_strict_runtime_truth.py::test_focus_cannot_pass_from_camera_live_only
+FAILED tests/test_strict_runtime_truth.py::test_focus_requires_observed_main_profile
+FAILED tests/test_strict_runtime_truth.py::test_focus_requires_observed_resolution
+FAILED tests/test_strict_runtime_truth.py::test_physical_defaults_scan_detects_forbidden_fallbacks
+FAILED tests/test_strict_runtime_truth.py::test_final_verdict_cannot_be_hardcoded
+5 failed, 979 passed, 4 skipped, 15 subtests passed in 72.86s (0:01:12)
+

@@ -1,0 +1,7 @@
+{
+  "grid6_pass_derived": false,
+  "status": "NOT_VALIDATED",
+  "reason": "grid_snapshot missing from runtime telemetry",
+  "source": "LIVE_APPLICATION_WINDOW_GEOMETRY",
+  "synthetic": false
+}

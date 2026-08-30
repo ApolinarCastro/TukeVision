@@ -380,6 +380,8 @@ class MulticameraRuntime:
             "technical_gate": "NOT_CERTIFIED",
             "trace": self._trace.snapshot(),
         }
+        if getattr(self, "current_grid_snapshot", None):
+            payload["grid_snapshot"] = self.current_grid_snapshot
         atomic_write_text(base / "live_status.json", json.dumps(payload, indent=2))
         self._trace.export(base / "runtime_trace.json")
 
@@ -578,7 +580,7 @@ def _generate_physical_report(runtime, forensics):
         try:
             for e in runtime._entries:
                 if e.camera_id == cid:
-                    profile = f"subtype={int(e.descriptor.subtype)}"
+                    profile = f"subtype={int(e.descriptor.subtype or 0)}"
                     break
         except Exception:
             pass
@@ -598,6 +600,7 @@ def _generate_physical_report(runtime, forensics):
             last_ts = tl.last_frame_monotonic
         # reconnects/timeouts/errors from health
         reconnects = getattr(h, "stall_count", 0) if h else 0
+        if reconnects is None: reconnects = 0
         timeouts = reconnects
         errors = getattr(h, "last_error", "") if h else ""
         final_state = tl.liveness_state if tl else (getattr(h, "health_state", "UNKNOWN") if h else "UNKNOWN")
@@ -610,11 +613,11 @@ def _generate_physical_report(runtime, forensics):
         cameras.append({
             "CAMERA_ID": cid,
             "START_OK": h is not None and getattr(h, "state", "") not in ("FAILED","CLOSED") if h else False,
-            "FRAME_COUNT": int(fc),
+            "FRAME_COUNT": int(fc or 0),
             "LAST_FRAME_TS": last_ts,  # Keep as None if no frame received (unknown/unavailable)
             "NO_FIRST_FRAME": no_first_frame,  # True if zero frames ever received
-            "RECONNECTS": int(reconnects),
-            "TIMEOUTS": int(timeouts),
+            "RECONNECTS": int(reconnects or 0),
+            "TIMEOUTS": int(timeouts or 0),
             "ERRORS": str(errors)[:200],
             "FINAL_STATE": str(final_state),
             "STREAM_PROFILE": profile,
@@ -622,8 +625,8 @@ def _generate_physical_report(runtime, forensics):
             "SOURCE_STATE_AFTER": str(final_state),
             "FRAME_TIMESTAMP_BEFORE": last_ts,  # Keep as None if unknown
             "FRAME_TIMESTAMP_AFTER": last_ts,   # Keep as None if unknown
-            "RECONNECT_COUNT_BEFORE": int(reconnects),
-            "RECONNECT_COUNT_AFTER": int(reconnects),
+            "RECONNECT_COUNT_BEFORE": int(reconnects or 0),
+            "RECONNECT_COUNT_AFTER": int(reconnects or 0),
             "READER_THREAD_ID_BEFORE": tid_before,
             "READER_THREAD_ID_AFTER": tid_before,
             "FRAME_FREEZE": freeze,

@@ -1695,6 +1695,12 @@ class TkApp:
         self._render_header(state)
         self._render_side_panel(state)
         self._update_button_states()
+        
+        if hasattr(self, "_runtime") and self._runtime:
+            try:
+                self._runtime.current_grid_snapshot = self.get_grid_layout_snapshot()
+            except Exception:
+                pass
 
     def _update_store_label(self, state: dict) -> None:
         store_id = str(state.get("store_id") or getattr(self._controller, "store_id", "") or "")
@@ -1947,9 +1953,12 @@ class TkApp:
         self._presented_frame_sequence[camera_id] = self._presented_frame_sequence.get(camera_id, 0) + 1
         self._presented_at[camera_id] = time.time()
 
-        marker = getattr(self._controller, "mark_ui_rendered", None)
-        if marker is not None:
-            marker(camera_id, frame_index)
+        def _on_drawn():
+            marker = getattr(self._controller, "mark_ui_rendered", None)
+            if marker is not None:
+                marker(camera_id, frame_index)
+                
+        self._root.after_idle(_on_drawn)
 
     def get_presentation_liveness(self) -> dict:
         """Return dictionary of {camera_id: {'presented_sequence': int, 'presented_at': float}}."""
@@ -2205,5 +2214,82 @@ class TkApp:
         else:
             self._clip_var.set("Clip: -")
 
+    def _test_automation_macro(self):
+        """
+        CERTIFICATION_ELIGIBLE=false
+        Only for TEST_AUTOMATION.
+        """
+        pass
+
     def run(self) -> None:
         self._root.mainloop()
+
+    def get_grid_layout_snapshot(self):
+        try:
+            self._video_wrap.update_idletasks()
+        except Exception:
+            pass
+        viewport_rect = {
+            "x": self._video_wrap.winfo_rootx(),
+            "y": self._video_wrap.winfo_rooty(),
+            "width": self._video_wrap.winfo_width(),
+            "height": self._video_wrap.winfo_height(),
+        }
+        tiles = []
+        for camera_id, cell in self._video_cells.items():
+            if camera_id == "OP_WORKSPACE": continue
+            canvas = self._video_canvases.get(camera_id)
+            if not canvas: continue
+            tile = {
+                "tile_id": f"tile_{camera_id}",
+                "camera_id": camera_id,
+                "widget_rect": {
+                    "x": cell.winfo_rootx(),
+                    "y": cell.winfo_rooty(),
+                    "width": cell.winfo_width(),
+                    "height": cell.winfo_height(),
+                },
+                "content_rect": {
+                    "x": canvas.winfo_rootx(),
+                    "y": canvas.winfo_rooty(),
+                    "width": canvas.winfo_width(),
+                    "height": canvas.winfo_height(),
+                },
+                "visible": bool(cell.winfo_viewable()),
+                "has_presented_frame": bool(self._last_render_index.get(camera_id, -1) >= 0),
+                "frame_aspect_ratio": None,
+            }
+            size = self._last_render_size.get(camera_id, (0, 0))
+            if size[0] > 0 and size[1] > 0:
+                tile["frame_aspect_ratio"] = round(size[0] / size[1], 3)
+            tiles.append(tile)
+            
+        for idx, cell in self._empty_cells.items():
+            tiles.append({
+                "tile_id": f"empty_{idx}",
+                "camera_id": None,
+                "widget_rect": {
+                    "x": cell.winfo_rootx(),
+                    "y": cell.winfo_rooty(),
+                    "width": cell.winfo_width(),
+                    "height": cell.winfo_height(),
+                },
+                "content_rect": None,
+                "visible": bool(cell.winfo_viewable()),
+                "has_presented_frame": False,
+                "frame_aspect_ratio": None,
+            })
+            
+        layout_mode = "GRID"
+        if self._focused_camera is not None:
+            layout_mode = "FOCUS"
+        elif getattr(self, "_active_op_mode", None) not in (
+            OperationalCommandCenterModes.GRID, OperationalCommandCenterModes.FOCUS
+        ) and self._focused_camera is None:
+            layout_mode = "OP_MODE"
+
+        return {
+            "layout_mode": layout_mode,
+            "viewport_rect": viewport_rect,
+            "tiles": tiles,
+        }

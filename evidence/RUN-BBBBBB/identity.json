@@ -1,9 +1,9 @@
 {
   "run_id": "RUN-BBBBBB",
-  "pid": 29296,
-  "started_at": "2026-08-30T18:03:02",
-  "started_at_unix": 1788127382.2008705,
-  "version": "v3-phase12-hyperstrict-live-closed-stable-20260830-dirty",
+  "pid": 25408,
+  "started_at": "2026-08-30T19:28:26",
+  "started_at_unix": 1788132506.6339164,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
   "camera_ids": [
     "cam_01",
     "cam_02",

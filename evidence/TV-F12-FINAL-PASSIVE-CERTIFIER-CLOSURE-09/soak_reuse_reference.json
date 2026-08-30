@@ -1,0 +1,11 @@
+{
+  "source_execution": "TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06",
+  "actual_duration": 1800.89,
+  "source_commit": "2e902da249f972851431d540ca9bd36abe21b875",
+  "runtime_code_changed_since_soak": false,
+  "new_soak_required": false,
+  "reuse_allowed": true,
+  "status": "PASS_BY_VALIDATED_REUSE",
+  "source": "SOAK_VALIDATED_REUSE_EVALUATION",
+  "synthetic": false
+}

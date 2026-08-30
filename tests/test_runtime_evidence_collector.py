@@ -55,34 +55,27 @@ def test_collector_does_not_create_parallel_source_manager():
         pid=os.getpid(),
     )
     collector = RuntimeEvidenceCollector(ctx)
-    # Ensure collector holds the exact same reference
     assert collector.ctx.source_manager is sm_mock
 
 
 def test_focus_hd_fails_if_frame_not_observed():
     main_pass, hd_pass, status = CertificationEvaluator.evaluate_focus(
-        profile_requested="MAIN",
-        profile_observed="MAIN",
-        frame_shape=None,
-        frame_sequence=-1,
-        source_resolution_observed=False,
+        profile_observed="NOT_OBSERVED",
+        resolution_observed="NOT_OBSERVED",
     )
     assert not main_pass
     assert not hd_pass
-    assert status == "MAIN_SWITCH_FAILED"
+    assert status == "NOT_VALIDATED"
 
 
 def test_focus_hd_fails_if_resolution_352x240():
     main_pass, hd_pass, status = CertificationEvaluator.evaluate_focus(
-        profile_requested="MAIN",
         profile_observed="MAIN",
-        frame_shape=(240, 352, 3),
-        frame_sequence=10,
-        source_resolution_observed=True,
+        resolution_observed="352x240",
     )
     assert main_pass is True
     assert hd_pass is False  # 352x240 is not HD!
-    assert status == "MAIN_PROFILE_VALIDATED_SUB_HD_SOURCE"
+    assert status == "MAIN_VALIDATED_NON_HD_OBSERVED_352x240"
 
 
 def test_grid6_fails_if_viewport_1x1():
@@ -109,25 +102,29 @@ def test_soak_certification_fails_below_1800():
 
 
 def test_registered_source_is_not_live():
-    # If session is not open or capture is not advancing, evaluate_liveness must return False
-    is_live = CertificationEvaluator.evaluate_liveness(
-        session_open=False,
-        capture_advancing=False,
-        presentation_advancing=False,
-        freshness_valid=False,
-    )
+    # evaluate_liveness must return False if window counts are 0
+    is_live, status = CertificationEvaluator.evaluate_liveness([
+        {
+            "session_open": False,
+            "capture_advancing": False,
+            "presentation_advancing": False,
+            "freshness_valid": False,
+        }
+    ])
     assert not is_live
 
 
 def test_pass_status_is_derived():
-    # Pass occurs only when all boolean criteria hold
-    liveness_ok = CertificationEvaluator.evaluate_liveness(
-        session_open=True,
-        capture_advancing=True,
-        presentation_advancing=True,
-        freshness_valid=True,
-    )
-    assert liveness_ok is True
+    # Pass occurs only when all boolean criteria hold across windows
+    is_live, status = CertificationEvaluator.evaluate_liveness([
+        {
+            "session_open": True,
+            "capture_advancing": True,
+            "presentation_advancing": True,
+            "freshness_valid": True,
+        }
+    ])
+    assert is_live is True
 
     grid6_ok = CertificationEvaluator.evaluate_grid6(
         viewport_valid=True,
