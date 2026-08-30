@@ -1,0 +1,13 @@
+{
+  "ui_generated_situations": 0,
+  "ui_generated_ids": 0,
+  "ui_generated_severity": 0,
+  "ui_generated_epistemic_class": 0,
+  "ui_generated_health": 0,
+  "track_only_not_situation": "PASS",
+  "event_only_not_situation": "PASS",
+  "agent_state_truthful": "PASS",
+  "autonomy_truthful": "PASS",
+  "system_health_truthful": "PASS",
+  "status": "PASS"
+}

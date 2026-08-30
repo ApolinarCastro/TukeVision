@@ -1,13 +1,17 @@
-# SISTEMA DE DISEÑO Y EXPERIENCIA DE USUARIO (UI_UX_SYSTEM)
+# Sistema de Diseño y Experiencia de Usuario (UI_UX_SYSTEM)
 
-**TukeVision Command Center V2**  
-**ID:** `TV-F12-PRODUCTION-PRODUCTIZATION-01`  
+**TukeVision Command Center V3**
+**ID de Ejecución:** `TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03`
 
 ---
 
-## 1. Fundamentos de Diseño
+## 1. Fundamentos de Diseño y Dominancia del Video
 
 La interfaz de usuario está optimizada para operadores de centros de control, salas de seguridad y monitoreo retail continuo. Su diseño prioriza la reducción de fatiga visual, el contraste inmediato de incidentes críticos y la claridad epistémica.
+
+### Principio de Dominancia del Video:
+- El área de visualización de video ocupa entre el **80% y el 100%** del espacio de trabajo en modo EN VIVO.
+- El panel lateral de detalles técnicos (`DETALLES TÉCNICOS`) está **colapsado por defecto** (`self._side_panel_visible = False`) y puede alternarse interactivamente mediante el control `Detalles Técnicos ⮞` / `⮜` en la barra inferior.
 
 ---
 
@@ -44,9 +48,9 @@ La interfaz de usuario está optimizada para operadores de centros de control, s
 ## 4. Clasificación Epistémica Visual
 
 Cada evento en las vistas operacionales se desglosa claramente en:
-1. **HECHO (`FACT` - Verde `#10B981`):** Observación física comprobada (e.g. persona en cámara X, cruce de línea).
+1. **HECHO (`FACT` - Verde `#10B981`):** Observación física comprobada (e.g. persona en cámara X, telemetría de hardware).
 2. **INFERENCIA (`INFERENCE` - Azul/Índigo `#6366F1`):** Deducción por regla de negocio o modelo de IA (e.g. posible merodeo).
-3. **DESCONOCIDO (`UNKNOWN` - Gris `#9CA3AF`):** Elementos que la IA no puede afirmar (e.g. intención del sujeto).
+3. **DESCONOCIDO (`UNKNOWN` - Gris `#9CA3AF`):** Elementos no afirmados o no calibrados (e.g. zona desconocida, intención).
 
 ---
 

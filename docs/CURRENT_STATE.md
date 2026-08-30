@@ -1,9 +1,10 @@
 # Estado Actual del Sistema — TukeVision (F12 Consolidado)
 
-**ID de Ejecución:** `TV-F12-SURGICAL-TRUTH-UX-CORRECTION-02`  
-**Rama:** `phase12/operational-intelligence-visualization-hd`  
-**Idioma Primario:** Español (`es-CL`)  
-**Arquitectura:** Local-First / Edge-First (Grabación Primaria en DVR/NVR)  
+**ID de Ejecución:** `TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03`
+**Rama:** `phase12/operational-intelligence-visualization-hd`
+**Idioma Primario:** Español (`es-CL`)
+**Arquitectura:** Local-First / Edge-First (Grabación Primaria en DVR/NVR)
+**Marco de Gobernanza:** TES V3 (`TES/`)
 
 ---
 
@@ -12,10 +13,11 @@
 TukeVision opera como un Centro de Mando local de alta fidelidad, integrando hasta 16 canales de video en tiempo real, detección y rastreo perimetral/comercial acelerado por OpenVINO/CPU, y visualización operativa estructurada.
 
 ### Principios Operacionales Aplicados:
-1. **Verdad Epistémica:** Todo dato operacional distingue explícitamente entre `HECHO` (detección validada, telemetría física), `INFERENCIA` (clasificación algorítmica probabilística) y `DESCONOCIDO` (parámetros no determinados).
-2. **Cero Datos Falsos:** Se eliminó cualquier generación artificial de situaciones o zonas en capas de renderizado.
-3. **UX Simplificada y Dominancia del Video:** El panel lateral técnico es colapsable por defecto, garantizando que el área de video ocupe ≥ 80% del espacio visual.
+1. **Verdad Epistémica Absoluta:** Todo dato operacional distingue explícitamente entre `HECHO` (detección validada, telemetría física), `INFERENCIA` (clasificación algorítmica probabilística) y `DESCONOCIDO` (parámetros no determinados).
+2. **Cero Datos Falsos (Zero-Fake Absolute):** Se eliminó cualquier generación artificial de situaciones, IDs, severidades, tipos o diagnósticos globales de salud no justificados en capas de renderizado.
+3. **UX Simplificada y Dominancia del Video:** El panel lateral técnico es colapsable por defecto (`self._side_panel_visible = False`), garantizando que el área de video ocupe ≥ 80% del espacio visual.
 4. **Trazabilidad Forense Local:** Paquetes de evidencia con cálculo de integridad SHA-256 e indicación honesta de estado de firma de origen.
+5. **Reconciliación TES V3:** Cada componente cuenta con trazabilidad formal `CÓDIGO ↔ PRUEBA ↔ EVIDENCIA FÍSICA ↔ TES`.
 
 ---
 
@@ -30,10 +32,11 @@ TukeVision opera como un Centro de Mando local de alta fidelidad, integrando has
 | **Indexación SQLite** | `src/evidence/index.py` | `OPERACIONAL / CONTRACT_READY` |
 | **Modelos Forenses** | `src/evidence/models.py` | `OPERACIONAL / ONVIF_CONTRACT_READY` |
 | **Aceleración Inferencia**| `src/pipeline/` | `OPERACIONAL / OPENVINO VALIDATED` |
+| **Gobernanza TES V3** | `TES/` | `CONSOLIDADO / RECONCILIADO` |
 
 ---
 
 ## 3. Pruebas de Regresión
 
 - Suite completa de pruebas unitarias, de integración y visuales sin fallos.
-- Pruebas negativas dedicadas garantizan que el rastreo no genera falsas alarmas y que campos ausentes se presentan como no disponibles.
+- Pruebas negativas dedicadas garantizan que el rastreo o eventos genéricos no generan situaciones y que campos ausentes se presentan como no disponibles.

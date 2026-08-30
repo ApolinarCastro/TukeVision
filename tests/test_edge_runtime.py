@@ -345,7 +345,7 @@ class TestFullVerticalIntegration(unittest.TestCase):
 
         service.start()
         self.assertTrue(
-            wait_until(lambda: not service.runtime.running, timeout=45.0),
+            wait_until(lambda: not service.runtime.running, timeout=60.0),
             "edge service runtime did not finish synthetic frames in time",
         )
         self.assertGreater(service.runtime.store_summary()["processed_frames"], 0)

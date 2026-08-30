@@ -125,22 +125,28 @@ class OperationalPanelsController:
     # Real Data Extraction (Zero-Fabrication Contract)
     # -------------------------------------------------------------------------
     def _extract_real_situations(self, panels: dict, state: Optional[dict] = None) -> List[dict]:
-        """Extract only genuine SituationRecords backed by backend policy or event pipeline.
+        """Extract only genuine SituationRecords backed by backend policy or situation engine.
         
-        Strict Zero-Fake Rule:
-        - Mere detection/tracking is NOT a situation.
-        - ZONES: if not present in backend -> 'No determinada' (UNKNOWN).
-        - SEVERITY: if not delivered by situation engine -> 'UNKNOWN'.
-        - ACTION: only if produced by GovernedActionRecord.
+        Strict Zero-Fake Rule (TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03):
+        - Mere detection/tracking/event/label is NEVER a situation.
+        - UI never fabricates situation_id (f"SIT-...", f"EVT-...").
+        - UI never defaults or invents situation_type ("ALERTA", "DETECCIÓN", etc.).
+        - UI never assigns severity (HIGH/MEDIUM derived in UI). If missing in record -> 'UNKNOWN'.
+        - UI never infers epistemic class by confidence (>=0.9 -> FACT). If missing in record -> 'UNKNOWN'.
+        - ZONES: if not present in backend -> 'No determinada'.
+        - ACTION: only if produced by GovernedActionRecord / PolicyDecision.
         """
         situations: List[dict] = []
         
-        # 1. Situations from ViewModel or State
+        # 1. Situations from ViewModel
         if self.view_model and self.view_model.active_situations:
             for sit_id, item in self.view_model.active_situations.items():
+                if not item.situation_id or not item.situation_type:
+                    continue
                 zone_str = ", ".join(item.zone_ids) if item.zone_ids else _("zone_not_determined")
                 cam_str = ", ".join(item.camera_ids) if item.camera_ids else _("data_unknown")
                 entity_str = ", ".join(item.entity_ids) if item.entity_ids else None
+                epistemic_state = getattr(item, "epistemic_state", None) or "UNKNOWN"
                 situations.append({
                     "id": item.situation_id,
                     "camera": cam_str,
@@ -152,72 +158,58 @@ class OperationalPanelsController:
                     "entity_id": entity_str,
                     "evidence": item.evidence_bundle_ref,
                     "action": None,
-                    "epistemic_class": "FACT" if item.confidence and item.confidence >= 0.9 else "INFERENCE",
+                    "epistemic_class": epistemic_state,
                 })
 
-        # 2. Check per-panel explicit situation contracts (never infer purely from tracks)
+        # 2. Check per-panel explicit situation contracts (NEVER infer from tracks or generic event labels)
         for cam, p in panels.items():
             sit = getattr(p, "situation", None) or getattr(p, "situation_record", None)
-            ev = getattr(p, "event", None)
-            
-            # Explicit Situation object on panel
-            has_valid_sit = False
-            if isinstance(sit, dict) and ("situation_type" in sit or "situation_id" in sit):
-                has_valid_sit = True
-            elif sit is not None and isinstance(getattr(sit, "situation_type", None), str):
-                has_valid_sit = True
+            if sit is None:
+                continue
 
-            if has_valid_sit:
-                if isinstance(sit, dict):
-                    sit_id = str(sit.get("situation_id", f"SIT-{cam}-{getattr(p, 'frame_index', 0)}"))
-                    sit_type = str(sit.get("situation_type", "ALERTA"))
-                    sev = str(sit.get("severity", "UNKNOWN"))
-                    conf = sit.get("confidence")
-                    ent = sit.get("entity_id")
-                    dur = float(sit.get("duration_seconds", 0.0))
-                    action = sit.get("action")
-                else:
-                    sit_id = str(getattr(sit, "situation_id", f"SIT-{cam}-{getattr(p, 'frame_index', 0)}"))
-                    sit_type = str(getattr(sit, "situation_type", "ALERTA"))
-                    sev = str(getattr(sit, "severity", "UNKNOWN"))
-                    conf = getattr(sit, "confidence", None)
-                    ent = getattr(sit, "entity_id", None)
-                    dur = float(getattr(sit, "duration_seconds", 0.0))
-                    action = getattr(sit, "action", None)
-                zone = getattr(p, "zone", None) or _("zone_not_determined")
+            # Dict representation of Situation
+            if isinstance(sit, dict):
+                sit_id = sit.get("situation_id")
+                sit_type = sit.get("situation_type")
+                if not sit_id or not sit_type:
+                    # Missing explicit ID or TYPE -> do NOT render as situation
+                    continue
+                sev = str(sit.get("severity") or "UNKNOWN")
+                conf = sit.get("confidence")
+                ent = sit.get("entity_id")
+                dur = float(sit.get("duration_seconds", 0.0))
+                action = sit.get("action")
+                epistemic_state = str(sit.get("epistemic_state") or "UNKNOWN")
+            # Object representation of Situation (e.g. SituationRecord / SituationViewItem)
+            else:
+                sit_id = getattr(sit, "situation_id", None)
+                sit_type = getattr(sit, "situation_type", None)
+                if not isinstance(sit_id, str) or not isinstance(sit_type, str) or not sit_id or not sit_type:
+                    # Missing explicit ID or TYPE -> do NOT render as situation
+                    continue
+                sev = str(getattr(sit, "severity", None) or "UNKNOWN")
+                conf = getattr(sit, "confidence", None)
+                if not isinstance(conf, (int, float)):
+                    conf = None
                 ent = getattr(sit, "entity_id", None)
-                dur = getattr(sit, "duration_seconds", 0.0)
-                situations.append({
-                    "id": sit_id,
-                    "camera": cam,
-                    "zone": zone,
-                    "type": sit_type,
-                    "severity": sev,
-                    "confidence": conf,
-                    "duration": f"{int(dur // 60):02d}:{int(dur % 60):02d}",
-                    "entity_id": ent,
-                    "evidence": getattr(p, "evidence", None),
-                    "action": getattr(sit, "action", None),
-                    "epistemic_class": "FACT",
-                })
-            # Explicit high-level security alert in event dict (e.g. ALERT_LOITERING, INTRUSION)
-            elif ev and isinstance(ev, dict) and any(k in str(ev.get("label", "")).upper() for k in ("ALERT", "INTRUSION", "LOITERING", "ANOMALY")):
-                label = str(ev.get("label", "ALERTA"))
-                conf = float(ev.get("confidence", 0.0)) if "confidence" in ev else None
-                zone = getattr(p, "zone", None) or _("zone_not_determined")
-                situations.append({
-                    "id": f"EVT-{cam}-{getattr(p, 'frame_index', 0)}",
-                    "camera": cam,
-                    "zone": zone,
-                    "type": label,
-                    "severity": "HIGH" if "ALERT" in label.upper() else "MEDIUM",
-                    "confidence": conf,
-                    "duration": "00:00",
-                    "entity_id": None,
-                    "evidence": getattr(p, "evidence", None),
-                    "action": None,
-                    "epistemic_class": "INFERENCE",
-                })
+                dur = float(getattr(sit, "duration_seconds", 0.0) or 0.0)
+                action = getattr(sit, "action", None)
+                epistemic_state = str(getattr(sit, "epistemic_state", None) or "UNKNOWN")
+
+            zone = getattr(p, "zone", None) or _("zone_not_determined")
+            situations.append({
+                "id": str(sit_id),
+                "camera": cam,
+                "zone": zone,
+                "type": str(sit_type),
+                "severity": sev,
+                "confidence": conf,
+                "duration": f"{int(dur // 60):02d}:{int(dur % 60):02d}",
+                "entity_id": ent,
+                "evidence": getattr(p, "evidence", None),
+                "action": action,
+                "epistemic_class": epistemic_state,
+            })
 
         return situations
 
@@ -242,16 +234,26 @@ class OperationalPanelsController:
             fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"]
         )
 
+        # System Health Truth: Never derive "SALUDABLE" purely from live_count > 0
+        raw_health = state.get("system_health")
+        if raw_health is not None:
+            health_status_val = getattr(raw_health, "overall_health", None) or getattr(raw_health, "status", None)
+            health_display = str(health_status_val).upper() if health_status_val else "NO DETERMINADO"
+            health_color = DesignTokens.get_status_color(health_display)
+        else:
+            health_display = "NO DETERMINADO"
+            health_color = DesignTokens.COLORS["text_dim"]
+
         # 4 Summary KPI Cards
         cards_y = 48
         card_w = (cw - 48 - 36) // 4
         card_h = 64
 
         kpis = [
-            (_("kpi_active_cameras"), f"{live_count} / {total_count}", DesignTokens.COLORS["normal"] if live_count == total_count else DesignTokens.COLORS["attention"], "Supervisión activa"),
+            (_("kpi_active_cameras"), f"{live_count} / {total_count}", DesignTokens.COLORS["normal"] if live_count == total_count and live_count > 0 else DesignTokens.COLORS["attention"], "Supervisión activa"),
             (_("kpi_active_situations"), str(len(situations)), DesignTokens.COLORS["critical"] if situations else DesignTokens.COLORS["normal"], "Eventos validados"),
             ("INVESTIGACIONES", str(len(self.view_model.investigations)), DesignTokens.COLORS["info"] if self.view_model.investigations else DesignTokens.COLORS["text_dim"], "Casos abiertos"),
-            ("ESTADO DEL SISTEMA", "SALUDABLE" if live_count > 0 else "SIN SEÑAL", DesignTokens.COLORS["normal"] if live_count > 0 else DesignTokens.COLORS["critical"], "Runtime local"),
+            ("ESTADO DEL SISTEMA", health_display, health_color, "Runtime local"),
         ]
 
         for i, (title, val, color, desc) in enumerate(kpis):

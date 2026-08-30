@@ -101,7 +101,7 @@ class TestUXProductization(unittest.TestCase):
         self.assertTrue(any("PERFIL: PRINCIPAL (HD)" in t for t in all_text))
 
     # -------------------------------------------------------------------------
-    # Negative Tests (Zero Fake Intelligence Gate)
+    # Negative Tests (Zero Fake Intelligence Gate - Macro Loop 03)
     # -------------------------------------------------------------------------
     def test_tracks_alone_do_not_create_situations(self):
         """Detection / Track != Situation: mere tracks must NEVER produce a fake situation."""
@@ -117,6 +117,34 @@ class TestUXProductization(unittest.TestCase):
         situations = controller._extract_real_situations({"cam_01": panel_mock})
         self.assertEqual(len(situations), 0, "Tracking data must NOT be elevated to fake situation")
 
+    def test_event_alone_does_not_create_situations(self):
+        """Event/Label != Situation: generic events or alarm strings must NEVER produce a situation."""
+        controller = OperationalPanelsController()
+        for alert_label in ("ALERT", "INTRUSION", "LOITERING", "ANOMALY", "ALERT_LOITERING"):
+            panel_mock = mock.MagicMock()
+            panel_mock.situation = None
+            panel_mock.situation_record = None
+            panel_mock.event = {"label": alert_label, "confidence": 0.95}
+            panel_mock.evidence = None
+            situations = controller._extract_real_situations({"cam_01": panel_mock})
+            self.assertEqual(len(situations), 0, f"Event {alert_label} must NOT be converted to situation by UI")
+
+    def test_missing_situation_id_does_not_render_situation(self):
+        """UI must never fabricate situation_id."""
+        controller = OperationalPanelsController()
+        panel_mock = mock.MagicMock()
+        panel_mock.situation = {"situation_type": "PERMANENCIA_PROLONGADA"}  # No situation_id
+        situations = controller._extract_real_situations({"cam_01": panel_mock})
+        self.assertEqual(len(situations), 0, "Missing situation_id must prevent situation extraction")
+
+    def test_missing_situation_type_does_not_render_situation(self):
+        """UI must never invent situation_type."""
+        controller = OperationalPanelsController()
+        panel_mock = mock.MagicMock()
+        panel_mock.situation = {"situation_id": "SIT-999"}  # No situation_type
+        situations = controller._extract_real_situations({"cam_01": panel_mock})
+        self.assertEqual(len(situations), 0, "Missing situation_type must prevent situation extraction")
+
     def test_genuine_situation_record_is_rendered(self):
         """Genuine SituationRecord from backend IS properly extracted."""
         controller = OperationalPanelsController()
@@ -129,13 +157,32 @@ class TestUXProductization(unittest.TestCase):
             entity_id="TRK-42",
             duration_seconds=95.0,
             action=None,
+            epistemic_state="FACT",
         )
         panel_mock.zone = "Cajas y Salida"
         situations = controller._extract_real_situations({"cam_09": panel_mock})
         self.assertEqual(len(situations), 1)
+        self.assertEqual(situations[0]["id"], "SIT-001")
         self.assertEqual(situations[0]["type"], "PERMANENCIA_PROLONGADA")
         self.assertEqual(situations[0]["severity"], "HIGH")
         self.assertEqual(situations[0]["zone"], "Cajas y Salida")
+        self.assertEqual(situations[0]["epistemic_class"], "FACT")
+
+    def test_missing_severity_and_epistemic_state_defaults_to_unknown(self):
+        """Missing severity or epistemic state must yield 'UNKNOWN' without synthetic guessing."""
+        controller = OperationalPanelsController()
+        panel_mock = mock.MagicMock()
+        panel_mock.situation = {
+            "situation_id": "SIT-003",
+            "situation_type": "EVENTO_TEST",
+            "confidence": 0.99,  # High confidence must NOT be auto-converted to FACT in UI
+        }
+        panel_mock.zone = None
+        situations = controller._extract_real_situations({"cam_03": panel_mock})
+        self.assertEqual(len(situations), 1)
+        self.assertEqual(situations[0]["severity"], "UNKNOWN")
+        self.assertEqual(situations[0]["epistemic_class"], "UNKNOWN")
+        self.assertEqual(situations[0]["zone"], "No determinada")
 
     def test_zone_missing_yields_no_determinada(self):
         """Missing zone must yield 'No determinada', never 'Zona 01'."""
@@ -149,6 +196,7 @@ class TestUXProductization(unittest.TestCase):
             entity_id=None,
             duration_seconds=10.0,
             action=None,
+            epistemic_state="INFERENCE",
         )
         panel_mock.zone = None  # No zone configured
         situations = controller._extract_real_situations({"cam_02": panel_mock})
@@ -191,6 +239,30 @@ class TestUXProductization(unittest.TestCase):
         )
         all_text = [canvas.itemcget(item, "text") for item in canvas.find_all() if canvas.type(item) == "text"]
         self.assertTrue(any("NO CERTIFICADA" in t for t in all_text), "Must display 'NO CERTIFICADA'")
+
+    def test_live_cameras_without_system_health_displays_no_determinado(self):
+        """Active camera streams do NOT imply healthy system: missing health must display 'NO DETERMINADO'."""
+        controller = OperationalPanelsController()
+        canvas = tk.Canvas(self.root, width=800, height=600)
+        canvas.pack()
+        self.root.update_idletasks()
+
+        class MockP:
+            source_state = "OPEN"
+            situation = None
+
+        panels = {f"cam_{i:02d}": MockP() for i in range(1, 16)}
+        controller.render_view(
+            OperationalCommandCenterModes.OVERVIEW,
+            canvas,
+            800,
+            600,
+            {"system_health": None},  # No aggregated health report
+            panels,
+        )
+        all_text = [canvas.itemcget(item, "text") for item in canvas.find_all() if canvas.type(item) == "text"]
+        self.assertTrue(any("NO DETERMINADO" in t for t in all_text), "Must display 'NO DETERMINADO'")
+        self.assertFalse(any("SALUDABLE" in t for t in all_text), "Must NOT infer 'SALUDABLE' from camera count alone")
 
     def test_side_panel_collapsed_by_default(self):
         """Technical side panel must be collapsed by default for video dominance."""
