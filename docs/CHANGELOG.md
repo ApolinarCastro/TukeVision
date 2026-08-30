@@ -1,36 +1,23 @@
-# REGISTRO DE CAMBIOS DE TUKEVISION (CHANGELOG)
+# Registro de Cambios — TukeVision
 
-Todos los cambios notables de esta versión están documentados aquí.
+Todos los cambios notables en este proyecto se documentan en este archivo.
 
 ---
 
-## [3.0.0-phase12-production] - 2026-08-30
+## [3.0.0-truth-ux-corrected] - 2026-08-30
 
-### Productización y Consolidación de Producción (`TV-F12-PRODUCTION-PRODUCTIZATION-01`)
+### Corregido (Eliminación de Datos Falsos y Verdad Operacional)
+- **Eliminación de Situaciones Fabricadas (`src/ui/tk_operational_panels.py`):** Las detecciones y rastreos de objetos ya no se convierten sintéticamente en situaciones o alarmas. Solo se renderizan situaciones si existe un `SituationRecord` formal del backend.
+- **Zonas Honestas:** Si una cámara o situación no tiene zona física configurada, se presenta como `No determinada`, eliminando identificadores sintéticos (`Zona 01`).
+- **Estado del Agente y Autonomía:** Si el controlador de agente no está activo, se muestra formalmente `ESTADO DEL AGENTE: NO DISPONIBLE` y `AUTONOMÍA: NO CERTIFICADA`.
+- **Integridad Local vs. Firma de Origen:** Evidencia local claramente rotulada con `● SHA-256 LOCAL VERIFICADO` y `FUENTE NO FIRMADA (DVR LOCAL)`.
 
-#### Agregado
-- **Módulo de Localización Centralizado (`src/localization/i18n.py`):**
-  - Soporte completo para español (`es-CL`) por defecto.
-  - Traducción exhaustiva de pestañas de navegación (`RESUMEN`, `EN VIVO`, `SITUACIONES`, `INVESTIGACIONES`, `EVIDENCIA`, `MAPA / ZONAS`, `ESTADO DEL SISTEMA`), controles, HUD y mensajes de alerta.
-- **Sistema de Diseño Unificado (`src/ui/design_tokens.py`):**
-  - Paleta de colores enterprise slate dark, constantes tipográficas, espaciados y funciones helper para estados semánticos y epistémicos.
-- **Preparación de Firma de Medios ONVIF (`src/evidence/models.py`):**
-  - Soporte para `signing_status` (`SOURCE_UNSIGNED`, `SIGNED_UNVERIFIED`, `SIGNED_VALID`, `SIGNATURE_INVALID`) y metadatos de procedencia.
-- **Motor de Búsqueda Semántica Bajo Demanda (`src/evidence/index.py`):**
-  - Clase `SemanticInvestigationEngine` para búsquedas históricas acotadas y enlaces fuente tipo `dvr://site/camera?t=timestamp`.
-- **Pruebas Unitarias de Productización y Hardening:**
-  - `tests/test_ux_productization.py` y `tests/test_production_hardening.py`.
+### Mejorado (UX Simplificada y Productización Visual)
+- **Panel Técnico Colapsable (`src/ui/tk_view.py`):** El panel lateral de detalles técnicos está colapsado por defecto, permitiendo que la cuadrícula de video ocupe el 100% del ancho del espacio de trabajo (área útil de video ≥ 80%).
+- **Botón de Alternancia de Detalles:** Añadido control `Detalles Técnicos ⮞` en la barra inferior para acceder a telemetría técnica bajo demanda.
+- **Espaciado y Visualización Compacta:** Botones y tarjetas operacionales compactadas con `DesignTokens` para garantizar visibilidad sin recortes en resoluciones desde 1024x640 hasta 1920x1080.
+- **Localización Completa (`es-CL`):** Estados nominales concisos y etiquetas operacionales estandarizadas en español.
 
-#### Modificado
-- **`src/ui/tk_operational_panels.py`:**
-  - Refactorizado para utilizar `DesignTokens` e `I18n`.
-  - Eliminados todos los valores sintéticos o inventados (`0.88`, `Zone-XX`, etc.), reemplazados por estados nominales limpios (`SIN SITUACIONES ACTIVAS`, `COLA DE ATENCIÓN VACÍA`).
-- **`src/ui/tk_view.py`:**
-  - Integración de `DesignTokens` y localización completa `es-CL`.
-  - HUD de Focus HD en español con distinción estricta entre `FUENTE`, `PRESENTACIÓN`, `INFERENCIA` y `PERFIL: PRINCIPAL (HD)`.
-- **`src/visualization/operational_intelligence.py`:**
-  - Extendido `EvidenceBundleViewItem` con atributos de firma ONVIF.
-
-#### Corregido
-- Eliminación de falsos estados "ONLINE" en cuadros congelados mediante verificación de avance de secuencia.
-- Consistencia del layout de cuadrícula 6 (1 principal 2x2 + 5 auxiliares 1x1).
+### Pruebas y Fixtures
+- **Reclasificación de Fixtures Visuales:** Movido generador de capturas sintéticas a `tests/fixtures/ui/generate_ui_fixture_screenshots.py` clasificado como `UI_GOLDEN (synthetic=true)`.
+- **Nuevas Pruebas Negativas:** Agregadas pruebas en `tests/test_ux_productization.py` que validan formalmente la ausencia de inteligencia fabricada.

@@ -38,8 +38,17 @@ class TestRealPilotActivation(unittest.TestCase):
 
     def tearDown(self):
         self.exp_store.close()
+        del self.exp_service
+        del self.exp_store
+        import gc
+        gc.collect()
         if os.path.exists(self.db_path):
-            os.remove(self.db_path)
+            for _ in range(5):
+                try:
+                    os.remove(self.db_path)
+                    break
+                except PermissionError:
+                    time.sleep(0.05)
 
     def test_client_operational_input_validation(self):
         # 7. CLIENT_OPERATIONAL_INPUT_VALIDATION

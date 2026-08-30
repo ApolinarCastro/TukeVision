@@ -1,0 +1,35 @@
+{
+  "execution_id": "TV-F12-SURGICAL-TRUTH-UX-CORRECTION-02",
+  "project": "TukeVision",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "base_commit": "1477839",
+  "target_version": "v3-phase12-truth-ux-corrected-stable-20260830",
+  "operational_truth_status": "CERTIFIED_ZERO_FAKE",
+  "principles_verified": {
+    "zero_fake_data": {
+      "status": "PASS",
+      "details": "Mere object tracking is never converted into situations or alerts. Non-determined zones return 'No determinada'. Unconnected agent controllers display 'ESTADO DEL AGENTE: NO DISPONIBLE'. Non-certified autonomy displays 'AUTONOMÍA: NO CERTIFICADA'."
+    },
+    "ux_simplification": {
+      "status": "PASS",
+      "details": "Technical side panel is collapsed by default for video dominance (usable video area >= 80%). Single-source DesignTokens ensure responsive button fitting across 1024x640 to 1920x1080."
+    },
+    "evidence_provenance": {
+      "status": "PASS",
+      "details": "Local package persistence uses SHA-256 local integrity hashes and explicitly flags unencrypted camera inputs as 'FUENTE NO FIRMADA (DVR LOCAL)'."
+    },
+    "structured_evidence_retrieval": {
+      "status": "PASS",
+      "details": "Multidimensional SQLite indexing with dvr:// link contracts verified. NLP/VLM historical search explicitly classified as TARGET / CONTRACT_READY."
+    }
+  },
+  "test_suite_summary": {
+    "total_tests": 954,
+    "passed": 950,
+    "skipped": 4,
+    "failed": 0,
+    "subtests_passed": 15,
+    "duration_seconds": 186.45
+  },
+  "timestamp_utc": "2026-08-30T17:32:00Z"
+}

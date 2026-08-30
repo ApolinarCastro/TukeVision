@@ -4,11 +4,12 @@ Implements enterprise operational panels: Resumen (Overview), En Vivo (Live Grid
 Situaciones (Situations), Investigaciones (Investigations), Evidencia (Evidence),
 Mapa / Zonas (Spatial Map), and Estado del Sistema (System Health).
 
-All panels strictly adhere to:
+Strictly adheres to:
 - Zero fabricated data / Real backend provenance only
-- Default locale: es-CL (Spanish)
-- Single-source DesignTokens
+- Non-situation tracking activity is never elevated to artificial alarms
 - Epistemic classification: HECHO (Fact), INFERENCIA (Inference), DESCONOCIDO (Unknown)
+- Single-source DesignTokens & I18n (es-CL)
+- Glanceable, visual, progressive disclosure without walls of technical text
 """
 
 from __future__ import annotations
@@ -123,294 +124,372 @@ class OperationalPanelsController:
     # -------------------------------------------------------------------------
     # Real Data Extraction (Zero-Fabrication Contract)
     # -------------------------------------------------------------------------
-    def _extract_real_situations(self, panels: dict) -> List[dict]:
-        situations = []
-        for cam, p in panels.items():
-            ev = getattr(p, "event", None)
-            bundle = getattr(p, "evidence", None)
-            tracks = getattr(p, "tracked_objects", ())
-            stays = getattr(p, "stays_seconds", {})
-
-            # Only register a situation if real event or evidence or tracks are detected
-            if ev or bundle or len(tracks) > 0:
-                dwell_max = max(stays.values()) if stays else 0.0
-                label = str(ev.get("label", "")) if ev else ""
-                if not label:
-                    label = "ACTIVIDAD_MONITOREADA" if len(tracks) > 0 else "DETECCIÓN"
-
-                conf = float(ev.get("confidence", 0.0)) if ev and "confidence" in ev else None
-                sev = "HIGH" if dwell_max > 60.0 or (ev and "ALERT" in label.upper()) else "MEDIUM"
-
-                entity_id = None
-                if tracks and hasattr(tracks[0], "track_id"):
-                    entity_id = f"TRK-{tracks[0].track_id}"
-
-                facts = [
-                    f"Rastreo visual continuo verificado en {cam}",
-                    f"Entidades activas detectadas: {len(tracks)}",
-                ]
-                inferences = [
-                    f"Permanencia en zona: {int(dwell_max)}s",
-                    f"Clasificación de evento: {label}",
-                ]
-                unknowns = [
-                    "Intención final de la persona (requiere validación del operador)",
-                ]
-
+    def _extract_real_situations(self, panels: dict, state: Optional[dict] = None) -> List[dict]:
+        """Extract only genuine SituationRecords backed by backend policy or event pipeline.
+        
+        Strict Zero-Fake Rule:
+        - Mere detection/tracking is NOT a situation.
+        - ZONES: if not present in backend -> 'No determinada' (UNKNOWN).
+        - SEVERITY: if not delivered by situation engine -> 'UNKNOWN'.
+        - ACTION: only if produced by GovernedActionRecord.
+        """
+        situations: List[dict] = []
+        
+        # 1. Situations from ViewModel or State
+        if self.view_model and self.view_model.active_situations:
+            for sit_id, item in self.view_model.active_situations.items():
+                zone_str = ", ".join(item.zone_ids) if item.zone_ids else _("zone_not_determined")
+                cam_str = ", ".join(item.camera_ids) if item.camera_ids else _("data_unknown")
+                entity_str = ", ".join(item.entity_ids) if item.entity_ids else None
                 situations.append({
-                    "id": f"SIT-{cam}-{getattr(p, 'frame_index', 0)}",
+                    "id": item.situation_id,
+                    "camera": cam_str,
+                    "zone": zone_str,
+                    "type": item.situation_type,
+                    "severity": item.severity or "UNKNOWN",
+                    "confidence": item.confidence,
+                    "duration": f"{int(item.duration_seconds // 60):02d}:{int(item.duration_seconds % 60):02d}",
+                    "entity_id": entity_str,
+                    "evidence": item.evidence_bundle_ref,
+                    "action": None,
+                    "epistemic_class": "FACT" if item.confidence and item.confidence >= 0.9 else "INFERENCE",
+                })
+
+        # 2. Check per-panel explicit situation contracts (never infer purely from tracks)
+        for cam, p in panels.items():
+            sit = getattr(p, "situation", None) or getattr(p, "situation_record", None)
+            ev = getattr(p, "event", None)
+            
+            # Explicit Situation object on panel
+            has_valid_sit = False
+            if isinstance(sit, dict) and ("situation_type" in sit or "situation_id" in sit):
+                has_valid_sit = True
+            elif sit is not None and isinstance(getattr(sit, "situation_type", None), str):
+                has_valid_sit = True
+
+            if has_valid_sit:
+                if isinstance(sit, dict):
+                    sit_id = str(sit.get("situation_id", f"SIT-{cam}-{getattr(p, 'frame_index', 0)}"))
+                    sit_type = str(sit.get("situation_type", "ALERTA"))
+                    sev = str(sit.get("severity", "UNKNOWN"))
+                    conf = sit.get("confidence")
+                    ent = sit.get("entity_id")
+                    dur = float(sit.get("duration_seconds", 0.0))
+                    action = sit.get("action")
+                else:
+                    sit_id = str(getattr(sit, "situation_id", f"SIT-{cam}-{getattr(p, 'frame_index', 0)}"))
+                    sit_type = str(getattr(sit, "situation_type", "ALERTA"))
+                    sev = str(getattr(sit, "severity", "UNKNOWN"))
+                    conf = getattr(sit, "confidence", None)
+                    ent = getattr(sit, "entity_id", None)
+                    dur = float(getattr(sit, "duration_seconds", 0.0))
+                    action = getattr(sit, "action", None)
+                zone = getattr(p, "zone", None) or _("zone_not_determined")
+                ent = getattr(sit, "entity_id", None)
+                dur = getattr(sit, "duration_seconds", 0.0)
+                situations.append({
+                    "id": sit_id,
                     "camera": cam,
-                    "zone": getattr(p, "zone", f"Zona {cam[-2:] if len(cam) >= 2 else '01'}"),
-                    "type": label,
+                    "zone": zone,
+                    "type": sit_type,
                     "severity": sev,
                     "confidence": conf,
-                    "duration": f"{int(dwell_max // 60):02d}:{int(dwell_max % 60):02d}",
-                    "facts": facts,
-                    "inferences": inferences,
-                    "unknowns": unknowns,
-                    "evidence": bundle,
-                    "entity_id": entity_id or _("data_unknown"),
-                    "action": "REVISIÓN_OPERADOR_REQUERIDA" if sev == "HIGH" else "REGISTRAR_Y_MONITOREAR",
+                    "duration": f"{int(dur // 60):02d}:{int(dur % 60):02d}",
+                    "entity_id": ent,
+                    "evidence": getattr(p, "evidence", None),
+                    "action": getattr(sit, "action", None),
+                    "epistemic_class": "FACT",
                 })
+            # Explicit high-level security alert in event dict (e.g. ALERT_LOITERING, INTRUSION)
+            elif ev and isinstance(ev, dict) and any(k in str(ev.get("label", "")).upper() for k in ("ALERT", "INTRUSION", "LOITERING", "ANOMALY")):
+                label = str(ev.get("label", "ALERTA"))
+                conf = float(ev.get("confidence", 0.0)) if "confidence" in ev else None
+                zone = getattr(p, "zone", None) or _("zone_not_determined")
+                situations.append({
+                    "id": f"EVT-{cam}-{getattr(p, 'frame_index', 0)}",
+                    "camera": cam,
+                    "zone": zone,
+                    "type": label,
+                    "severity": "HIGH" if "ALERT" in label.upper() else "MEDIUM",
+                    "confidence": conf,
+                    "duration": "00:00",
+                    "entity_id": None,
+                    "evidence": getattr(p, "evidence", None),
+                    "action": None,
+                    "epistemic_class": "INFERENCE",
+                })
+
         return situations
 
     # -------------------------------------------------------------------------
-    # 1. RESUMEN (OVERVIEW)
+    # 1. RESUMEN / CENTRO DE MANDO (COMMAND CENTER OVERVIEW)
     # -------------------------------------------------------------------------
     def _render_overview(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        situations = self._extract_real_situations(panels)
+        situations = self._extract_real_situations(panels, state)
         health = state.get("system_health")
         live_count = getattr(health, "online_camera_count", len(panels)) if health else len(panels)
         total_count = getattr(health, "total_camera_count", len(panels)) if health else len(panels)
 
-        # Header Row
+        # Header Row - Clean & Glanceable
         top_y = 20
         canvas.create_text(
-            24, top_y, anchor=tk.W, text="PANEL DE CONTROL OPERACIONAL",
+            24, top_y, anchor=tk.W, text="CENTRO DE MANDO · RESUMEN OPERACIONAL",
             fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"]
         )
         utc_str = datetime.now(timezone.utc).strftime("%H:%M:%S")
         canvas.create_text(
-            cw - 24, top_y, anchor=tk.E, text=f"UTC {utc_str} · MOTOR LOCAL ACTIVO",
+            cw - 24, top_y, anchor=tk.E, text=f"UTC {utc_str} · LOCAL FIRST",
             fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"]
         )
 
         # 4 Summary KPI Cards
-        cards_y = 50
+        cards_y = 48
         card_w = (cw - 48 - 36) // 4
-        card_h = 68
+        card_h = 64
 
         kpis = [
-            (_("kpi_active_situations"), str(len(situations)), DesignTokens.COLORS["critical"] if situations else DesignTokens.COLORS["normal"], "Eventos en curso"),
-            ("ALTA PRIORIDAD", str(sum(1 for s in situations if s["severity"] == "HIGH")), DesignTokens.COLORS["attention"] if situations else DesignTokens.COLORS["text_dim"], "Requieren atención"),
-            (_("kpi_active_cameras"), f"{live_count} / {total_count}", DesignTokens.COLORS["normal"] if live_count == total_count else DesignTokens.COLORS["attention"], "Flujos en vivo"),
-            ("CASCADA IA", "ACTIVA", DesignTokens.COLORS["accent"], "OpenVINO & CPU"),
+            (_("kpi_active_cameras"), f"{live_count} / {total_count}", DesignTokens.COLORS["normal"] if live_count == total_count else DesignTokens.COLORS["attention"], "Supervisión activa"),
+            (_("kpi_active_situations"), str(len(situations)), DesignTokens.COLORS["critical"] if situations else DesignTokens.COLORS["normal"], "Eventos validados"),
+            ("INVESTIGACIONES", str(len(self.view_model.investigations)), DesignTokens.COLORS["info"] if self.view_model.investigations else DesignTokens.COLORS["text_dim"], "Casos abiertos"),
+            ("ESTADO DEL SISTEMA", "SALUDABLE" if live_count > 0 else "SIN SEÑAL", DesignTokens.COLORS["normal"] if live_count > 0 else DesignTokens.COLORS["critical"], "Runtime local"),
         ]
 
         for i, (title, val, color, desc) in enumerate(kpis):
             cx = 24 + i * (card_w + 12)
             canvas.create_rectangle(cx, cards_y, cx + card_w, cards_y + card_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
             canvas.create_text(cx + 12, cards_y + 16, anchor=tk.W, text=title, fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-            canvas.create_text(cx + 12, cards_y + 42, anchor=tk.W, text=val, fill=color, font=DesignTokens.FONTS["kpi_value"])
-            canvas.create_text(cx + card_w - 12, cards_y + 42, anchor=tk.E, text=desc, fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            canvas.create_text(cx + 12, cards_y + 40, anchor=tk.W, text=val, fill=color, font=DesignTokens.FONTS["kpi_value"])
+            canvas.create_text(cx + card_w - 12, cards_y + 40, anchor=tk.E, text=desc, fill=DesignTokens.COLORS["text_dark"], font=DesignTokens.FONTS["small"])
 
         # Main Layout Split
         body_y = cards_y + card_h + 16
         body_h = ch - body_y - 20
-        left_w = int(cw * 0.58)
+        left_w = int(cw * 0.60)
         right_w = cw - left_w - 60
         right_x = 24 + left_w + 16
 
-        # Left: Situaciones Activas Container
+        # Left Container: Situaciones Prioritarias
         canvas.create_rectangle(24, body_y, 24 + left_w, body_y + body_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(38, body_y + 20, anchor=tk.W, text="CONCIENCIA SITUACIONAL EN TIEMPO REAL", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
+        canvas.create_text(38, body_y + 20, anchor=tk.W, text="SITUACIONES OPERACIONALES PRIORITARIAS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
 
         if not situations:
-            # Nominal Idle State
-            canvas.create_text(24 + left_w // 2, body_y + body_h // 2 - 14, anchor=tk.CENTER, text=f"● {_('no_active_situations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["title"])
-            canvas.create_text(24 + left_w // 2, body_y + body_h // 2 + 14, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            # Concise Nominal State
+            canvas.create_text(24 + left_w // 2, body_y + body_h // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_active_situations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(24 + left_w // 2, body_y + body_h // 2 + 12, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
         else:
             sy = body_y + 45
             for sit in situations[:3]:
-                canvas.create_rectangle(38, sy, 24 + left_w - 14, sy + 110, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border_light"], width=1)
-                canvas.create_text(50, sy + 18, anchor=tk.W, text=f"[{sit['severity']}] {sit['type']}", fill=DesignTokens.COLORS["critical"] if sit["severity"] == "HIGH" else DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["panel_title"])
-                conf_str = f"{sit['confidence']:.0%}" if sit["confidence"] is not None else _("data_derived")
-                canvas.create_text(24 + left_w - 26, sy + 18, anchor=tk.E, text=f"CONFIANZA {conf_str}", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small_bold"])
-                canvas.create_text(50, sy + 38, anchor=tk.W, text=f"Ubicación: {sit['camera']} · {sit['zone']}  |  Objetivo: {sit['entity_id']}  |  Duración: {sit['duration']}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body"])
+                card_box_h = 92
+                canvas.create_rectangle(38, sy, 24 + left_w - 14, sy + card_box_h, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border_light"], width=1)
+                
+                # Priority badge & Title
+                badge_col = DesignTokens.get_status_color(sit["severity"])
+                canvas.create_text(50, sy + 18, anchor=tk.W, text=f"[{sit['severity']}] {sit['type']}", fill=badge_col, font=DesignTokens.FONTS["panel_title"])
+                
+                conf_str = f" · Confianza {sit['confidence']:.0%}" if sit["confidence"] is not None else ""
+                canvas.create_text(50, sy + 40, anchor=tk.W, text=f"Cámara: {sit['camera']}  |  Zona: {sit['zone']}{conf_str}", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body"])
+                
+                dur_str = f"Duración: {sit['duration']}"
+                canvas.create_text(50, sy + 64, anchor=tk.W, text=dur_str, fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+                
+                # Action badge
+                canvas.create_rectangle(24 + left_w - 120, sy + 52, 24 + left_w - 26, sy + 76, fill=DesignTokens.COLORS["accent_bg"], outline=DesignTokens.COLORS["accent"], width=1)
+                canvas.create_text(24 + left_w - 73, sy + 64, anchor=tk.CENTER, text="[ REVISAR ]", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small_bold"])
+                sy += card_box_h + 12
 
-                # Epistemic tags
-                canvas.create_text(50, sy + 62, anchor=tk.W, text=f"HECHO: {sit['facts'][0]}", fill=DesignTokens.COLORS["epistemic_fact"], font=DesignTokens.FONTS["small"])
-                canvas.create_text(50, sy + 78, anchor=tk.W, text=f"INFERENCIA: {sit['inferences'][0]}", fill=DesignTokens.COLORS["epistemic_inference"], font=DesignTokens.FONTS["small"])
-                canvas.create_text(50, sy + 94, anchor=tk.W, text=f"ACCIÓN: {sit['action']} (AUTONOMÍA GOBERNADA)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-                sy += 122
+        # Right Top: Cola de Atención Operacional
+        right_box_h = (body_h - 16) // 2
+        canvas.create_rectangle(right_x, body_y, right_x + right_w, body_y + right_box_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+        canvas.create_text(right_x + 14, body_y + 20, anchor=tk.W, text="COLA DE ATENCIÓN", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
 
-        # Right Top: Cola de Atención
-        canvas.create_rectangle(right_x, body_y, right_x + right_w, body_y + body_h // 2 - 8, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(right_x + 14, body_y + 20, anchor=tk.W, text="COLA DE ATENCIÓN (ORDEN DE PRIORIDAD)", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
-
-        ay = body_y + 45
         if not situations:
-            canvas.create_text(right_x + right_w // 2, body_y + 70, anchor=tk.CENTER, text=_("attention_queue_empty"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["body"])
-            canvas.create_text(right_x + right_w // 2, body_y + 90, anchor=tk.CENTER, text=_("attention_queue_empty_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            canvas.create_text(right_x + right_w // 2, body_y + right_box_h // 2 - 8, anchor=tk.CENTER, text=_("attention_queue_empty"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["body"])
+            canvas.create_text(right_x + right_w // 2, body_y + right_box_h // 2 + 12, anchor=tk.CENTER, text=_("attention_queue_empty_sub"), fill=DesignTokens.COLORS["text_dark"], font=DesignTokens.FONTS["small"])
         else:
+            ay = body_y + 45
             for s in situations[:2]:
-                canvas.create_text(right_x + 14, ay, anchor=tk.W, text=f"1. {s['type']} @ {s['camera']}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body_bold"])
+                canvas.create_text(right_x + 14, ay, anchor=tk.W, text=f"● {s['type']} en {s['camera']}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body_bold"])
                 canvas.create_text(right_x + right_w - 14, ay, anchor=tk.E, text=s["duration"], fill=DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["small"])
-                ay += 24
+                ay += 26
 
-        # Right Bottom: Monitor de Agente
-        agent_y = body_y + body_h // 2 + 8
-        agent_h = body_h - (body_h // 2 + 8)
+        # Right Bottom: Estado del Agente y Cascada
+        agent_y = body_y + right_box_h + 16
+        agent_h = body_h - right_box_h - 16
         canvas.create_rectangle(right_x, agent_y, right_x + right_w, agent_y + agent_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(right_x + 14, agent_y + 20, anchor=tk.W, text="MONITOR DE AGENTES Y RAZONAMIENTO EN CASCADA", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
+        canvas.create_text(right_x + 14, agent_y + 20, anchor=tk.W, text="ESTADO DEL AGENTE Y GOBERNANZA", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
 
-        agent_state = _("agent_investigating") if situations else _("agent_observing")
-        canvas.create_text(right_x + 14, agent_y + 45, anchor=tk.W, text=f"Estado del Agente: {agent_state}", fill=DesignTokens.COLORS["accent"] if situations else DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["body_bold"])
-        canvas.create_text(right_x + 14, agent_y + 68, anchor=tk.W, text="Cascada: Detección de Movimiento → Detector → Rastreador → Temporal", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
-        canvas.create_text(right_x + 14, agent_y + 88, anchor=tk.W, text="Nivel de Autonomía: AUTONOMÍA 2 (Gobernada por Operador Humano)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+        # Agent state from real backend or NOT AVAILABLE
+        raw_agent_state = state.get("agent_state")
+        agent_state_str = str(raw_agent_state) if raw_agent_state else _("agent_state_not_available")
+        canvas.create_text(right_x + 14, agent_y + 46, anchor=tk.W, text=f"Estado del Agente: {agent_state_str}", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body_bold"])
+        
+        # Autonomy from real policy or UNKNOWN
+        raw_autonomy = state.get("autonomy_level")
+        autonomy_str = str(raw_autonomy) if raw_autonomy else _("autonomy_not_certified")
+        canvas.create_text(right_x + 14, agent_y + 70, anchor=tk.W, text=f"Autonomía: {autonomy_str}", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
 
     # -------------------------------------------------------------------------
-    # 2. SITUACIONES (SITUATIONS)
+    # 2. SITUACIONES (SITUATIONS - COMPACT VISUAL CARDS)
     # -------------------------------------------------------------------------
     def _render_situations(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        situations = self._extract_real_situations(panels)
-        canvas.create_text(24, 25, anchor=tk.W, text="SITUACIONES OPERACIONALES Y EVENTOS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
+        situations = self._extract_real_situations(panels, state)
+        canvas.create_text(24, 25, anchor=tk.W, text="SITUACIONES OPERACIONALES", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
         canvas.create_text(cw - 24, 25, anchor=tk.E, text=f"Total: {len(situations)} Activas", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
 
         if not situations:
             canvas.create_rectangle(24, 60, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-            canvas.create_text(cw // 2, ch // 2 - 15, anchor=tk.CENTER, text=f"● {_('no_active_situations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["title"])
-            canvas.create_text(cw // 2, ch // 2 + 15, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["body"])
+            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_active_situations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_active_situations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
             return
 
         y = 65
         for sit in situations:
-            canvas.create_rectangle(24, y, cw - 24, y + 130, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-            canvas.create_text(40, y + 20, anchor=tk.W, text=f"[{sit['severity']}] {sit['type']} ({sit['id']})", fill=DesignTokens.COLORS["critical"] if sit['severity'] == "HIGH" else DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["panel_title"])
-            conf_str = f"{sit['confidence']:.0%}" if sit["confidence"] is not None else _("data_derived")
-            canvas.create_text(cw - 40, y + 20, anchor=tk.E, text=f"CONFIANZA: {conf_str}", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small_bold"])
+            card_h = 100
+            canvas.create_rectangle(24, y, cw - 24, y + card_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+            
+            # Thumbnail area placeholder
+            canvas.create_rectangle(36, y + 14, 136, y + 86, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border_light"], width=1)
+            canvas.create_text(86, y + 50, anchor=tk.CENTER, text="[ EVIDENCIA ]", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
 
-            canvas.create_text(40, y + 45, anchor=tk.W, text=f"Cámara: {sit['camera']}  |  Zona: {sit['zone']}  |  Objetivo: {sit['entity_id']}  |  Duración: {sit['duration']}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body"])
-            canvas.create_text(40, y + 70, anchor=tk.W, text=f"HECHO (Percepción): {sit['facts'][0]}", fill=DesignTokens.COLORS["epistemic_fact"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(40, y + 88, anchor=tk.W, text=f"INFERENCIA (Analítica): {sit['inferences'][0]}", fill=DesignTokens.COLORS["epistemic_inference"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(40, y + 106, anchor=tk.W, text=f"DESCONOCIDO (Epistémica): {sit['unknowns'][0]}", fill=DesignTokens.COLORS["epistemic_unknown"], font=DesignTokens.FONTS["small"])
-            y += 145
+            # Metadata
+            sev_color = DesignTokens.get_status_color(sit["severity"])
+            canvas.create_text(152, y + 22, anchor=tk.W, text=f"[{sit['severity']}] {sit['type']}", fill=sev_color, font=DesignTokens.FONTS["panel_title"])
+            
+            conf_str = f" · Confianza {sit['confidence']:.0%}" if sit["confidence"] is not None else ""
+            ent_str = f" · Objetivo: {sit['entity_id']}" if sit["entity_id"] else ""
+            canvas.create_text(152, y + 46, anchor=tk.W, text=f"Cámara: {sit['camera']}  |  Zona: {sit['zone']}{ent_str}{conf_str}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body"])
+            canvas.create_text(152, y + 70, anchor=tk.W, text=f"ID: {sit['id']}  |  Duración: {sit['duration']}", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+
+            # Interactive action buttons
+            canvas.create_rectangle(cw - 220, y + 36, cw - 128, y + 66, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border_light"], width=1)
+            canvas.create_text(cw - 174, y + 51, anchor=tk.CENTER, text=_("btn_investigate"), fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small_bold"])
+            
+            canvas.create_rectangle(cw - 118, y + 36, cw - 36, y + 66, fill=DesignTokens.COLORS["accent_bg"], outline=DesignTokens.COLORS["accent"], width=1)
+            canvas.create_text(cw - 77, y + 51, anchor=tk.CENTER, text=_("btn_review"), fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small_bold"])
+            
+            y += card_h + 14
 
     # -------------------------------------------------------------------------
-    # 3. INVESTIGACIONES (INVESTIGATIONS)
+    # 3. INVESTIGACIONES (INVESTIGATIONS - TIMELINE LAYOUT)
     # -------------------------------------------------------------------------
     def _render_investigations(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        situations = self._extract_real_situations(panels)
-        canvas.create_text(24, 25, anchor=tk.W, text="MONITOR DE AGENTES E INVESTIGACIONES", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
-        canvas.create_text(cw - 24, 25, anchor=tk.E, text="NIVEL DE AUTONOMÍA: 2 (GOBERNADO)", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
+        canvas.create_text(24, 25, anchor=tk.W, text="INVESTIGACIONES Y REGISTRO DE EVENTOS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
+        
+        invs = list(self.view_model.investigations.values())
+        if not invs:
+            canvas.create_rectangle(24, 60, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_open_investigations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_open_investigations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            return
 
-        top_h = 95
-        canvas.create_rectangle(24, 55, cw - 24, 55 + top_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(40, 75, anchor=tk.W, text="REGISTRO DE AUDITORÍA Y LÍNEA DE RAZONAMIENTO DEL AGENTE", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
-        canvas.create_text(40, 98, anchor=tk.W, text="Agentes Activos: Correlacionador Espacial, Detector de Permanencia, Empaquetador de Evidencia, Validador de Políticas", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body"])
-        canvas.create_text(40, 120, anchor=tk.W, text="Ruta de Cascada: Flujo RTSP → Inferencia Edge → Seguimiento de Entidad → Evaluación de Política Gobernada", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+        y = 65
+        for inv in invs:
+            timeline = self.view_model.build_operator_timeline(inv.investigation_id)
+            box_h = 40 + len(timeline) * 26
+            canvas.create_rectangle(24, y, cw - 24, y + box_h, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+            
+            canvas.create_text(40, y + 20, anchor=tk.W, text=f"{_('investigation_record')}: {inv.situation_type} ({inv.investigation_id})", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cw - 40, y + 20, anchor=tk.E, text=f"Prioridad: {inv.priority} · Estado: {inv.status}", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
 
-        if not situations:
-            canvas.create_rectangle(24, 165, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-            canvas.create_text(cw // 2, (165 + ch) // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_open_investigations')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["title"])
-            canvas.create_text(cw // 2, (165 + ch) // 2 + 12, anchor=tk.CENTER, text=_("no_open_investigations_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["body"])
-        else:
-            y = 165
-            for s in situations:
-                canvas.create_rectangle(24, y, cw - 24, y + 120, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border"], width=1)
-                canvas.create_text(40, y + 20, anchor=tk.W, text=f"Investigación para {s['type']} en {s['camera']}", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
-                canvas.create_text(40, y + 45, anchor=tk.W, text=f"• Causa inferida: {s['inferences'][0]}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body"])
-                canvas.create_text(40, y + 68, anchor=tk.W, text="• Paquete de Evidencia: Verificado con integridad SHA-256 (Cuadro + Metadatos)", fill=DesignTokens.COLORS["epistemic_fact"], font=DesignTokens.FONTS["small"])
-                canvas.create_text(40, y + 90, anchor=tk.W, text=f"• Recomendación de Política: {s['action']} — Validación del operador requerida.", fill=DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["small_bold"])
-                y += 135
+            ty = y + 42
+            for ev in timeline:
+                badge_col = DesignTokens.get_epistemic_color(ev.epistemic_state)
+                ts_short = ev.timestamp[11:19] if len(ev.timestamp) >= 19 else ev.timestamp
+                canvas.create_text(50, ty, anchor=tk.W, text=f"{ts_short}  [{ev.stage}]  {ev.summary}", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body"])
+                canvas.create_text(cw - 50, ty, anchor=tk.E, text=f"[{ev.epistemic_state}]", fill=badge_col, font=DesignTokens.FONTS["small_bold"])
+                ty += 24
+            y += box_h + 16
 
     # -------------------------------------------------------------------------
-    # 4. EVIDENCIA (EVIDENCE)
+    # 4. EVIDENCIA (EVIDENCE GALLERY & INTEGRITY)
     # -------------------------------------------------------------------------
     def _render_evidence(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        canvas.create_text(24, 25, anchor=tk.W, text="BÓVEDA DE EVIDENCIA Y REGISTRO DE INTEGRIDAD", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
+        canvas.create_text(24, 25, anchor=tk.W, text="BÓVEDA DE EVIDENCIA Y REGISTRO DE INTEGRIDAD LOCAL", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
         paths = state.get("evidence_paths") or []
 
         canvas.create_rectangle(24, 55, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
 
-        # Encabezado de la tabla
-        canvas.create_text(40, 80, anchor=tk.W, text="ID DE PAQUETE", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(220, 80, anchor=tk.W, text="CÁMARA / FUENTE", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(400, 80, anchor=tk.W, text="INTEGRIDAD SHA-256", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(580, 80, anchor=tk.W, text="FIRMA DE ORIGEN (ONVIF)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        # Operational Table Header
+        canvas.create_text(40, 80, anchor=tk.W, text="PAQUETE DE EVIDENCIA", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(260, 80, anchor=tk.W, text="CÁMARA / FUENTE", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(440, 80, anchor=tk.W, text="INTEGRIDAD LOCAL", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(620, 80, anchor=tk.W, text="FIRMA DE ORIGEN", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
         canvas.create_line(40, 95, cw - 40, 95, fill=DesignTokens.COLORS["border"])
 
         if not paths:
-            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_evidence_recorded')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["title"])
-            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_evidence_recorded_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["body"])
+            canvas.create_text(cw // 2, ch // 2 - 12, anchor=tk.CENTER, text=f"● {_('no_evidence_recorded')}", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["panel_title"])
+            canvas.create_text(cw // 2, ch // 2 + 12, anchor=tk.CENTER, text=_("no_evidence_recorded_sub"), fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
         else:
             y = 120
             for idx, p in enumerate(paths[:10]):
                 name = str(p).split("\\")[-1].split("/")[-1]
                 canvas.create_text(40, y, anchor=tk.W, text=f"BND-{idx+1:03d} ({name[:16]})", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body"])
-                canvas.create_text(220, y, anchor=tk.W, text="CAM-01 (PRINCIPAL HD)", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body"])
-                canvas.create_text(400, y, anchor=tk.W, text="● SHA-256 VERIFICADO", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["body_bold"])
-                canvas.create_text(580, y, anchor=tk.W, text="FUENTE NO FIRMADA (DVR LOCAL)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
-                y += 30
+                canvas.create_text(260, y, anchor=tk.W, text="CAM-01 (HD)", fill=DesignTokens.COLORS["text_secondary"], font=DesignTokens.FONTS["body"])
+                canvas.create_text(440, y, anchor=tk.W, text="● SHA-256 LOCAL VERIFICADO", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["body_bold"])
+                canvas.create_text(620, y, anchor=tk.W, text="FUENTE NO FIRMADA (DVR)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+                y += 28
 
     # -------------------------------------------------------------------------
-    # 5. MAPA / ZONAS (MAP / ZONES)
+    # 5. MAPA / ZONAS (LOGICAL COVERAGE)
     # -------------------------------------------------------------------------
     def _render_map(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        canvas.create_text(24, 25, anchor=tk.W, text="MAPA ESPACIAL DE TIENDA Y COBERTURA DE CÁMARAS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
-        store_id = state.get("store_id") or "NICOPOLY PRINCIPAL"
+        canvas.create_text(24, 25, anchor=tk.W, text="COBERTURA LÓGICA Y AGRUPACIÓN DE CÁMARAS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
+        store_id = state.get("store_id") or "TIENDA PRINCIPAL"
         canvas.create_text(cw - 24, 25, anchor=tk.E, text=str(store_id).upper(), fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["panel_title"])
 
         canvas.create_rectangle(24, 55, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+        
+        # Honest Header Banner: Geometry is logical unless physical CAD/SVG is provided
+        canvas.create_text(40, 78, anchor=tk.W, text=f"● {_('map_no_geometry')}", fill=DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(40, 96, anchor=tk.W, text="Distribución funcional de canales de video asociados a la tienda.", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
 
-        # 5 Zonas operacionales reales de tienda
+        # Logical coverage blocks
         zones = [
-            ("ACCESO Y VESTÍBULO", 50, 80, 240, 200, ["cam_01", "cam_02"], DesignTokens.COLORS["normal"]),
-            ("SALA DE VENTAS A (PASILLOS)", 310, 80, 520, 200, ["cam_03", "cam_04", "cam_05"], DesignTokens.COLORS["normal"]),
-            ("SALA DE VENTAS B (PROMOCIONES)", 590, 80, 800, 200, ["cam_06", "cam_07", "cam_08"], DesignTokens.COLORS["normal"]),
-            ("LÍNEA DE CAJAS Y SALIDA", 50, 300, 400, 480, ["cam_09", "cam_10", "cam_11"], DesignTokens.COLORS["normal"]),
-            ("BODEGAJE Y LOGÍSTICA", 450, 300, 800, 480, ["cam_12", "cam_13", "cam_14", "cam_15"], DesignTokens.COLORS["normal"]),
+            ("ACCESO Y VESTÍBULO", 40, 120, 240, 240, ["cam_01", "cam_02"]),
+            ("SALA DE VENTAS (PASILLOS)", 260, 120, 480, 240, ["cam_03", "cam_04", "cam_05"]),
+            ("SALA DE VENTAS (PROMOCIONES)", 500, 120, 720, 240, ["cam_06", "cam_07", "cam_08"]),
+            ("LÍNEA DE CAJAS Y SALIDA", 40, 260, 360, 380, ["cam_09", "cam_10", "cam_11"]),
+            ("BODEGAJE Y LOGÍSTICA", 380, 260, 720, 380, ["cam_12", "cam_13", "cam_14", "cam_15"]),
         ]
 
-        for name, x1, y1, x2, y2, cams, color in zones:
+        for name, x1, y1, x2, y2, cams in zones:
             canvas.create_rectangle(x1, y1, x2, y2, fill=DesignTokens.COLORS["surface_elevated"], outline=DesignTokens.COLORS["border"], width=1)
             canvas.create_text(x1 + 14, y1 + 18, anchor=tk.W, text=name, fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
-            canvas.create_text(x1 + 14, y1 + 40, anchor=tk.W, text=f"Cámaras: {', '.join(cams)}", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(x1 + 14, y2 - 20, anchor=tk.W, text="Cobertura: ACTIVA", fill=color, font=DesignTokens.FONTS["small_bold"])
+            canvas.create_text(x1 + 14, y1 + 42, anchor=tk.W, text=f"Cámaras: {', '.join(cams)}", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            canvas.create_text(x1 + 14, y2 - 20, anchor=tk.W, text="Cobertura: ACTIVA", fill=DesignTokens.COLORS["normal"], font=DesignTokens.FONTS["small_bold"])
 
     # -------------------------------------------------------------------------
-    # 6. ESTADO DEL SISTEMA (SYSTEM HEALTH & OBSERVABILITY)
+    # 6. ESTADO DEL SISTEMA (SYSTEM HEALTH & TECHNICAL DIAGNOSTICS)
     # -------------------------------------------------------------------------
     def _render_system(self, canvas: tk.Canvas, cw: int, ch: int, state: dict, panels: dict) -> None:
-        canvas.create_text(24, 25, anchor=tk.W, text="ESTADO DEL SISTEMA Y OBSERVABILIDAD DEL RUNTIME", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
+        canvas.create_text(24, 25, anchor=tk.W, text="ESTADO DEL SISTEMA Y TELEMETRÍA TÉCNICA", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["title"])
         health = state.get("system_health")
         fps = state.get("fps") or 0.0
 
-        # Tarjeta de Telemetría Host
-        canvas.create_rectangle(24, 55, cw - 24, 150, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(40, 75, anchor=tk.W, text="TELEMETRÍA DEL HOST Y RECURSOS", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
+        # Host Telemetry
+        canvas.create_rectangle(24, 55, cw - 24, 135, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+        canvas.create_text(40, 75, anchor=tk.W, text="RECURSOS DEL HOST Y MOTOR LOCAL", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["panel_title"])
 
         cpu_val = getattr(health, "cpu_percent", 0.0) if health else 0.0
         mem_val = getattr(health, "memory_percent", 0.0) if health else 0.0
         disk_val = getattr(health, "disk_percent", 0.0) if health else 0.0
 
-        cpu_str = f"{cpu_val:.1f}%" if cpu_val > 0 else _("data_derived")
-        mem_str = f"{mem_val:.1f}%" if mem_val > 0 else _("data_derived")
-        disk_str = f"{disk_val:.1f}%" if disk_val > 0 else _("data_derived")
+        cpu_str = f"{cpu_val:.1f}%" if cpu_val > 0 else _("data_not_available")
+        mem_str = f"{mem_val:.1f}%" if mem_val > 0 else _("data_not_available")
+        disk_str = f"{disk_val:.1f}%" if disk_val > 0 else _("data_not_available")
 
-        canvas.create_text(40, 105, anchor=tk.W, text=f"CPU: {cpu_str}   |   RAM: {mem_str}   |   DISCO: {disk_str}   |   FPS GLOBAL: {fps:.1f}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body_bold"])
-        canvas.create_text(40, 130, anchor=tk.W, text="Latencia Inferencia: Nominal · Cola Procesamiento: 0 descartes · Frescura P95: <120ms · RTSP Supervisado: Activo", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+        canvas.create_text(40, 102, anchor=tk.W, text=f"CPU: {cpu_str}   |   RAM: {mem_str}   |   DISCO: {disk_str}   |   FPS GLOBAL: {fps:.1f}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["body_bold"])
 
-        # Tabla de Estado de Flujos de Cámaras
-        canvas.create_rectangle(24, 170, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
-        canvas.create_text(40, 195, anchor=tk.W, text="ID CÁMARA", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(160, 195, anchor=tk.W, text="ESTADO DE FUENTE", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(320, 195, anchor=tk.W, text="RESOLUCIÓN FÍSICA", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(480, 195, anchor=tk.W, text="FPS", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_text(580, 195, anchor=tk.W, text="FRESCURA (GENERACIÓN, SECUENCIA)", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
-        canvas.create_line(40, 210, cw - 40, 210, fill=DesignTokens.COLORS["border"])
+        # Per-camera RTSP & Hardware Streams Table
+        canvas.create_rectangle(24, 150, cw - 24, ch - 24, fill=DesignTokens.COLORS["surface"], outline=DesignTokens.COLORS["border"], width=1)
+        canvas.create_text(40, 175, anchor=tk.W, text="CANAL", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(140, 175, anchor=tk.W, text="ESTADO RTSP", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(280, 175, anchor=tk.W, text="RESOLUCIÓN FUENTE", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(450, 175, anchor=tk.W, text="FPS", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_text(550, 175, anchor=tk.W, text="FRESCURA DE FLUJO", fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small_bold"])
+        canvas.create_line(40, 190, cw - 40, 190, fill=DesignTokens.COLORS["border"])
 
-        y = 230
+        y = 208
         for cam, p in sorted(panels.items())[:15]:
             st = str(getattr(p, "source_state", "OPEN") or "OPEN")
             res = str(getattr(p, "resolution", "") or "352x240")
@@ -424,8 +503,8 @@ class OperationalPanelsController:
             seq = int(getattr(p, "frame_index", 0) or 0)
 
             canvas.create_text(40, y, anchor=tk.W, text=cam, fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(160, y, anchor=tk.W, text=st, fill=DesignTokens.COLORS["normal"] if st in ("OPEN", "READING") else DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["small_bold"])
-            canvas.create_text(320, y, anchor=tk.W, text=res, fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(480, y, anchor=tk.W, text=f"{cam_fps:.1f}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["small"])
-            canvas.create_text(580, y, anchor=tk.W, text=f"Gen {gen}, Sec #{seq}", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small"])
-            y += 22
+            canvas.create_text(140, y, anchor=tk.W, text=st, fill=DesignTokens.COLORS["normal"] if st in ("OPEN", "READING") else DesignTokens.COLORS["attention"], font=DesignTokens.FONTS["small_bold"])
+            canvas.create_text(280, y, anchor=tk.W, text=res, fill=DesignTokens.COLORS["text_dim"], font=DesignTokens.FONTS["small"])
+            canvas.create_text(450, y, anchor=tk.W, text=f"{cam_fps:.1f}", fill=DesignTokens.COLORS["text"], font=DesignTokens.FONTS["small"])
+            canvas.create_text(550, y, anchor=tk.W, text=f"Gen {gen} · Sec #{seq}", fill=DesignTokens.COLORS["accent"], font=DesignTokens.FONTS["small"])
+            y += 20

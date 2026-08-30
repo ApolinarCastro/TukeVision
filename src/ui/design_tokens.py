@@ -69,7 +69,7 @@ class DesignTokens:
         "xl": 24,
     }
 
-    # Component Dimensions
+    # Component Dimensions & Layout Metrics
     SIZES = {
         "header_height": 72,
         "nav_bar_height": 34,
@@ -77,6 +77,21 @@ class DesignTokens:
         "kpi_card_width": 160,
         "kpi_card_height": 64,
         "border_width": 1,
+        "card_padding": 12,
+        "thumbnail_width": 120,
+        "thumbnail_height": 72,
+        "tech_panel_width": 290,
+    }
+
+    # UX Density and Disclosure Controls
+    CONTENT_DENSITY = "COMPACT"  # COMPACT | COMFORTABLE
+    MAX_TEXT_LINES = 3
+    CARD_PADDING = 12
+    THUMBNAIL_SIZE = (120, 72)
+    PANEL_COLLAPSE_DEFAULT = True
+    NAV_HIERARCHY = {
+        "primary": ["COMMAND_CENTER", "INVESTIGATE", "EVIDENCE", "SYSTEM"],
+        "views": ["OVERVIEW", "GRID", "SITUATIONS", "INVESTIGATIONS", "EVIDENCE", "MAP", "SYSTEM"],
     }
 
     @classmethod

@@ -65,23 +65,30 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "kpi_stored_evidence": "EVIDENCIAS SHA-256",
         "kpi_agent_status": "ESTADO DEL AGENTE",
 
-        # Empty / Nominal States (Zero-Fake Data)
+        # Empty / Nominal States (Zero-Fake Data, Concise)
         "no_active_situations": "SIN SITUACIONES ACTIVAS",
-        "no_active_situations_sub": "Todas las zonas operando bajo parámetros nominales.",
+        "no_active_situations_sub": "No hay situaciones priorizadas en este momento.",
         "attention_queue_empty": "COLA DE ATENCIÓN VACÍA",
-        "attention_queue_empty_sub": "No hay eventos que requieran intervención del operador.",
-        "no_open_investigations": "SIN INVESTIGACIONES PENDIENTES",
-        "no_open_investigations_sub": "El monitor de agentes no registra incidentes abiertos.",
+        "attention_queue_empty_sub": "Sin solicitudes de intervención pendientes.",
+        "no_open_investigations": "SIN INVESTIGACIONES ABIERTAS",
+        "no_open_investigations_sub": "Sin incidentes bajo revisión.",
         "no_evidence_recorded": "SIN PAQUETES DE EVIDENCIA",
-        "no_evidence_recorded_sub": "Los paquetes de evidencia se generan ante eventos validados.",
-        "map_no_geometry": "GEOMETRÍA NO CALIBRADA",
-        "map_no_geometry_sub": "Se requiere plano de tienda para renderizar vista de planta.",
+        "no_evidence_recorded_sub": "Evidencia local registrada ante situaciones validadas.",
+        "map_no_geometry": "GEOMETRÍA NO CALIBRADA (COBERTURA LÓGICA)",
+        "map_no_geometry_sub": "Plano físico 2D no cargado para esta tienda.",
         "system_nominal": "SISTEMA OPERACIONALMENTE SALUDABLE",
 
-        # Epistemic Badges
+        # Epistemic Badges & Truthful Provenance
         "epistemic_fact": "HECHO",
         "epistemic_inference": "INFERENCIA",
         "epistemic_unknown": "DESCONOCIDO",
+        "zone_not_determined": "No determinada",
+        "autonomy_not_certified": "AUTONOMÍA: NO CERTIFICADA",
+        "agent_state_not_available": "ESTADO DEL AGENTE: NO DISPONIBLE",
+        "investigation_record": "REGISTRO DE INVESTIGACIÓN",
+        "btn_tech_details": "Detalles Técnicos",
+        "btn_investigate": "Investigar",
+        "btn_preserve": "Preservar",
 
         # Agent States
         "agent_observing": "OBSERVANDO",
@@ -92,6 +99,7 @@ TRANSLATIONS: Dict[str, Dict[str, str]] = {
         "agent_escalated": "ESCALADO",
         "agent_idle": "INACTIVO",
         "agent_safe_mode": "MODO SEGURO",
+        "agent_not_available": "NO DISPONIBLE",
 
         # Data Status / Provenance
         "data_real": "DATO REAL",

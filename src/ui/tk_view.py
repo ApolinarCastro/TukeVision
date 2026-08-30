@@ -532,6 +532,9 @@ class TkApp:
         self._op_controller = OperationalPanelsController(self._root)
         self._active_op_mode = OperationalCommandCenterModes.GRID
         self._nav_buttons: dict = {}
+        self._side_panel_visible = False
+        self._side_panel = None
+        self._tech_panel_btn = None
         # BLOCK B: capture Tk callback exceptions without killing the process
         try:
             self._root.report_callback_exception = self._handle_callback_exception  # type: ignore[attr-defined]
@@ -856,12 +859,14 @@ class TkApp:
 
     def _build_side_panel(self, parent) -> None:
         panel = tk.Frame(parent, bg=COLORS["panel"], width=292)
-        panel.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
+        self._side_panel = panel
         panel.pack_propagate(False)
         panel.configure(highlightbackground=COLORS["border"], highlightthickness=1)
+        if getattr(self, "_side_panel_visible", False):
+            panel.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
 
         tk.Label(
-            panel, text="SEGUIMIENTO", bg=COLORS["panel"], fg=COLORS["text_dim"],
+            panel, text="DETALLES TÉCNICOS", bg=COLORS["panel"], fg=COLORS["text_dim"],
             font=FONT_PANEL_TITLE,
         ).pack(fill=tk.X, padx=10, pady=(8, 2), anchor=tk.W)
         self._cam_summary_frame = tk.Frame(panel, bg=COLORS["panel"])
@@ -902,6 +907,18 @@ class TkApp:
             fg=COLORS["accent"], font=FONT_SMALL, wraplength=262, justify=tk.LEFT,
         ).pack(fill=tk.X, padx=10, pady=1, anchor=tk.W)
 
+    def _toggle_side_panel(self) -> None:
+        self._side_panel_visible = not getattr(self, "_side_panel_visible", False)
+        if hasattr(self, "_side_panel") and self._side_panel:
+            if self._side_panel_visible:
+                self._side_panel.pack(side=tk.RIGHT, fill=tk.Y, padx=(8, 0))
+                if hasattr(self, "_tech_panel_btn") and self._tech_panel_btn:
+                    self._tech_panel_btn.configure(text=f"{_('btn_tech_details')} ⮜", bg=COLORS["accent_dim"], fg=COLORS["accent"])
+            else:
+                self._side_panel.pack_forget()
+                if hasattr(self, "_tech_panel_btn") and self._tech_panel_btn:
+                    self._tech_panel_btn.configure(text=f"{_('btn_tech_details')} ⮞", bg=COLORS["panel"], fg=COLORS["text"])
+
     def _build_controls(self) -> None:
         controls = tk.Frame(self._root, bg=COLORS["bg"])
         # side=BOTTOM keeps the control bar pinned inside the viewport while
@@ -914,7 +931,7 @@ class TkApp:
                 relief=tk.FLAT, bg=COLORS["accent_dim"] if accent else COLORS["panel"],
                 fg=COLORS["accent"] if accent else COLORS["text"],
                 activebackground=COLORS["panel_muted"], activeforeground=COLORS["text"],
-                font=FONT_BODY_BOLD, padx=14, pady=4, cursor="hand2", borderwidth=1,
+                font=FONT_BODY_BOLD, padx=8, pady=3, cursor="hand2", borderwidth=1,
                 highlightbackground=COLORS["border"],
             )
 
@@ -922,39 +939,39 @@ class TkApp:
         self._stop_btn.configure(state=tk.DISABLED)
         if self._multicamera_mode:
             self._stop_btn.configure(state=tk.NORMAL)
-        self._stop_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._stop_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._evidence_btn = button(controls, _("btn_export_evidence"), self._on_open_evidence)
         self._evidence_btn.configure(state=tk.DISABLED)
-        self._evidence_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._evidence_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._clip_btn = button(controls, _("btn_review"), self._on_open_clips)
         self._clip_btn.configure(state=tk.DISABLED)
-        self._clip_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._clip_btn.pack(side=tk.LEFT, padx=(0, 4))
 
         self._back_btn = button(controls, f"← {_('btn_back_grid')}", self._on_back_to_grid)
         self._back_btn.configure(state=tk.DISABLED, fg=COLORS["accent"])
-        self._back_btn.pack(side=tk.LEFT, padx=(12, 6))
+        self._back_btn.pack(side=tk.LEFT, padx=(6, 4))
         self._prev_btn = button(controls, "◀ Anterior", self._on_prev_camera)
-        self._prev_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._prev_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._next_btn = button(controls, "Siguiente ▶", self._on_next_camera)
-        self._next_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._next_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._fullscreen_btn = button(controls, _("btn_fullscreen"), self._on_toggle_fullscreen)
-        self._fullscreen_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._fullscreen_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._grid_btn = button(controls, f"Cuadrícula {len(self._camera_ids)}", self._on_cycle_grid)
-        self._grid_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._grid_btn.pack(side=tk.LEFT, padx=(0, 4))
 
         # Digital zoom
         self._zoom_in_btn = button(controls, _("btn_zoom_in"), lambda: self._on_zoom(1))
         self._zoom_in_btn.configure(state=tk.DISABLED)
-        self._zoom_in_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._zoom_in_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._zoom_out_btn = button(controls, _("btn_zoom_out"), lambda: self._on_zoom(-1))
         self._zoom_out_btn.configure(state=tk.DISABLED)
-        self._zoom_out_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._zoom_out_btn.pack(side=tk.LEFT, padx=(0, 4))
         self._zoom_reset_btn = button(controls, _("btn_zoom_reset"), self._on_zoom_reset)
         self._zoom_reset_btn.configure(state=tk.DISABLED)
-        self._zoom_reset_btn.pack(side=tk.LEFT, padx=(0, 6))
+        self._zoom_reset_btn.pack(side=tk.LEFT, padx=(0, 4))
 
         self._settings_btn = button(controls, _("btn_settings"), self._open_device_settings)
-        self._settings_btn.pack(side=tk.LEFT, padx=(12, 6))
+        self._settings_btn.pack(side=tk.LEFT, padx=(6, 4))
 
         # PTZ controls (OC-07) - visible and enabled ONLY when the focused
         # camera declares PTZ support (BLOCK M): NOT_SUPPORTED hides them so
@@ -985,6 +1002,14 @@ class TkApp:
         self._ptz_zoom_out_btn = button(ptz_frame, "Zoom-", lambda: self._on_ptz("zoom_out"))
         self._ptz_zoom_out_btn.configure(state=tk.DISABLED, width=5)
         self._ptz_zoom_out_btn.pack(side=tk.LEFT, padx=1)
+
+        # Technical Details Toggle
+        self._tech_panel_btn = button(
+            controls,
+            f"{_('btn_tech_details')} ⮞",
+            self._toggle_side_panel,
+        )
+        self._tech_panel_btn.pack(side=tk.RIGHT, padx=(6, 0))
 
     def _on_store_change(self, event=None) -> None:
         """Handle store selection change (OC-06)."""
