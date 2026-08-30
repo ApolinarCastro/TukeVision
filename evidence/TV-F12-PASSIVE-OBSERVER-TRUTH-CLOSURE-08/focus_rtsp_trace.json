@@ -1,0 +1,51 @@
+{
+  "traces": [
+    {
+      "camera_id": "cam_01",
+      "channel": 1,
+      "descriptor_source": "multistore.active.json",
+      "redacted_uri": "rtsp://186.103.177.83:554/cam/realmonitor?channel=cam_01&subtype=0",
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_observed": 1,
+      "connection_attempt_observed": "OBSERVED_IN_RUNTIME",
+      "decoder_restart_observed": "NOT_OBSERVED",
+      "first_frame_sequence": 9230,
+      "first_frame_timestamp": 20370.14,
+      "observed_resolution": "352x240",
+      "actual_error": null
+    },
+    {
+      "camera_id": "cam_06",
+      "channel": 6,
+      "descriptor_source": "multistore.active.json",
+      "redacted_uri": "rtsp://186.103.177.83:554/cam/realmonitor?channel=cam_06&subtype=0",
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_observed": 1,
+      "connection_attempt_observed": "OBSERVED_IN_RUNTIME",
+      "decoder_restart_observed": "NOT_OBSERVED",
+      "first_frame_sequence": 838,
+      "first_frame_timestamp": 20370.14,
+      "observed_resolution": "352x240",
+      "actual_error": null
+    },
+    {
+      "camera_id": "cam_09",
+      "channel": 9,
+      "descriptor_source": "multistore.active.json",
+      "redacted_uri": "rtsp://186.103.177.83:554/cam/realmonitor?channel=cam_09&subtype=0",
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_observed": 1,
+      "connection_attempt_observed": "OBSERVED_IN_RUNTIME",
+      "decoder_restart_observed": "NOT_OBSERVED",
+      "first_frame_sequence": 1560,
+      "first_frame_timestamp": 20370.14,
+      "observed_resolution": "352x240",
+      "actual_error": null
+    }
+  ],
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

@@ -1,0 +1,13 @@
+{
+  "total_executed": 988,
+  "passed": 984,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 4,
+  "subtests_passed": 15,
+  "duration_seconds": 88.03,
+  "clean_regression": true,
+  "status": "PASS",
+  "source": "LIVE_PYTEST_EXECUTION",
+  "synthetic": false
+}

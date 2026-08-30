@@ -1,11 +1,11 @@
-# Estado Actual del Sistema — TukeVision (Cierre Hiperestricto F12)
+# Estado Actual del Sistema — TukeVision (Cierre Pasivo Puro F12)
 
-**ID de Ejecución:** `TV-F12-HYPERSTRICT-LIVE-CLOSURE-07`
+**ID de Ejecución:** `TV-F12-PASSIVE-OBSERVER-TRUTH-CLOSURE-08`
 **Rama:** `phase12/operational-intelligence-visualization-hd`
 **Idioma Primario:** Español (`es-CL`)
 **Arquitectura:** Local-First / Edge-First (Grabación Primaria en DVR/NVR)
 **Marco de Gobernanza:** TES V3 (`TES/`)
-**Estado Final de Certificación:** `TV_F12_RUNTIME_TRUTH_CLOSED`
+**Estado Final de Certificación:** `TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS`
 
 ---
 
@@ -16,8 +16,8 @@ TukeVision opera como un Centro de Mando local de alta fidelidad, integrando 15 
 ### Principios Operacionales Aplicados:
 1. **Verdad Epistémica Absoluta:** Todo dato operacional distingue explícitamente entre `HECHO` (detección validada, telemetría física), `INFERENCIA` (clasificación algorítmica probabilística) y `DESCONOCIDO` (parámetros no determinados).
 2. **Cero Datos Falsos (Zero-Fake Absolute):** Se eliminó cualquier generación artificial de situaciones, IDs, severidades o diagnósticos globales no justificados en capas de renderizado.
-3. **Telemetría Directa en Mismo Proceso:** Certificación física acoplada al proceso operador activo (PID 21032) con 15 cámaras transmitiendo en vivo.
-4. **Validación Completa de Liveness y Presentación:** 15/15 cámaras en estado `ONLINE` con secuencias de avance y pintado en interfaz demostrados.
+3. **Observador Pasivo de Telemetría Real:** Certificación acoplada pasivamente a los artefactos y estado del proceso operador activo (PID 21032) sin inyectar fallbacks.
+4. **Validación Factual de Liveness:** Cámaras observadas en estado `ONLINE` en sub-stream (352x240) con secuencias de avance y pintado continuo en interfaz.
 5. **Geometría Grid 6 Verificada Físicamente:** Viewport medido a 1260x593 con 6 celdas reales, 0 solapamiento, 0 recorte y 2.3% de espacio muerto.
 6. **UX Simplificada y Dominancia del Video:** El panel lateral técnico es colapsable por defecto (`self._side_panel_visible = False`), garantizando que el área de video ocupe ≥ 80% del espacio visual. Los estados vacíos presentan tarjetas compactas y elegantes de 380px con iconografía nominal.
 7. **Trazabilidad Forense Local:** Paquetes de evidencia con cálculo de integridad SHA-256 e indicación honesta de estado de firma de origen.
@@ -41,5 +41,5 @@ TukeVision opera como un Centro de Mando local de alta fidelidad, integrando 15 
 
 ## 3. Pruebas de Regresión
 
-- **979 pruebas pasadas** (0 fallidas, 0 errores, 4 omitidas, 15 subtests pasados) en 109.23 segundos.
+- **984 pruebas pasadas** (0 fallidas, 0 errores, 4 omitidas, 15 subtests pasados) en 88.03 segundos.
 - Suite automatizada cubre `test_strict_runtime_truth.py` validando la prohibición de fallbacks y la derivación booleana estricta de estados PASS/FAIL.

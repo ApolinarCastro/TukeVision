@@ -1,0 +1,8 @@
+{
+  "total_samples": 15,
+  "min_age_s": 0.547,
+  "max_age_s": 6.703,
+  "p95_freshness_ms": 6703.0,
+  "source": "LIVE_RUN_STATUS_OBSERVATION",
+  "synthetic": false
+}

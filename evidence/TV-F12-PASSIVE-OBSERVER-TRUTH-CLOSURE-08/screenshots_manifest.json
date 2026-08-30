@@ -1,0 +1,10 @@
+{
+  "screenshots_required": 9,
+  "screenshots_actual_png": 0,
+  "screenshots_valid_png": 0,
+  "screenshot_sha256_count": 0,
+  "screenshot_gate": "MANUAL_VISUAL_REFERENCE_AVAILABLE",
+  "items": [],
+  "source": "FILESYSTEM_PNG_VALIDATION",
+  "synthetic": false
+}

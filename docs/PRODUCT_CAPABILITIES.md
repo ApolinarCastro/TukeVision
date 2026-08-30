@@ -1,7 +1,7 @@
 # Matriz de Capacidades y Madurez del Producto — TukeVision
 
-**Versión:** 3.0 (F12 Cierre Hiperestricto · TV-F12-HYPERSTRICT-LIVE-CLOSURE-07)
-**Filosofía:** Cero Inteligencia Fabricada · Local-First · Mismo Proceso Runtime · 15 Cámaras Live
+**Versión:** 3.0 (F12 Cierre Pasivo Puro · TV-F12-PASSIVE-OBSERVER-TRUTH-CLOSURE-08)
+**Filosofía:** Cero Inteligencia Fabricada · Local-First · Observador Pasivo · Fail-Closed
 
 ---
 
@@ -9,8 +9,8 @@
 
 | Capacidad / Subsistema | Implementada | Tests | Física | Certificada | Estado |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Grid Multicámara (1..16 Canales)** | Sí | Sí (979 tests) | Sí (15/15 canales streaming en vivo) | Sí | `OPERATIONAL_STABLE` |
-| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 a 1920x1080) | Sí | `OPERATIONAL_STABLE` |
+| **Grid Multicámara (1..16 Canales)** | Sí | Sí (984 tests) | Sí (Fuentes observadas en SUB 352x240) | Sí | `OPERATIONAL_STABLE` |
+| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 tipada) | Condicional | `PHYSICALLY_VALIDATED` |
 | **Aceleración Edge OpenVINO / CPU** | Sí | Sí | Sí (Intel Iris Xe / CPU con inferencias activas) | Sí | `OPERATIONAL_STABLE` |
 | **Rastreo ByteTrack Multi-Target** | Sí | Sí | Sí (Flujo real multi-cámara) | Sí | `OPERATIONAL_STABLE` |
 | **Sistema de Diseño (DesignTokens)** | Sí | Sí | Sí (Tkinter Enterprise Dark) | Sí | `OPERATIONAL_STABLE` |
@@ -44,4 +44,4 @@
    - El contrato de firma ONVIF (`SOURCE_UNSIGNED`, `SIGNED_UNVERIFIED`, `SIGNED_VALID`, `SIGNATURE_INVALID`) está preparado y tipado en código para activar validación en cuanto se conecten dispositivos compatibles.
 
 3. **Trazabilidad TES V3:**
-   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-HYPERSTRICT-LIVE-CLOSURE-07/`.
+   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-PASSIVE-OBSERVER-TRUTH-CLOSURE-08/`.

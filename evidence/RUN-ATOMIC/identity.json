@@ -1,9 +1,9 @@
 {
   "run_id": "RUN-ATOMIC",
-  "pid": 19280,
-  "started_at": "2026-08-28T20:49:17",
-  "started_at_unix": 1787964557.2440155,
-  "version": "v3-phase3-openvino-stable-20260828-dirty",
+  "pid": 29296,
+  "started_at": "2026-08-30T18:03:02",
+  "started_at_unix": 1788127382.279737,
+  "version": "v3-phase12-hyperstrict-live-closed-stable-20260830-dirty",
   "camera_ids": [
     "cam_01",
     "cam_02",

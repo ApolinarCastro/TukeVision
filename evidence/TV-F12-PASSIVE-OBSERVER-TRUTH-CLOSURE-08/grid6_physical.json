@@ -1,0 +1,17 @@
+{
+  "viewport_width": 1260,
+  "viewport_height": 593,
+  "visible_tiles": 6,
+  "empty_tiles": 0,
+  "overlap_count": 0,
+  "clipped_count": 0,
+  "aspect_ratio_preserved": true,
+  "total_rendered_area_px": 729984,
+  "usable_grid_area_px": 747180.0,
+  "dead_space_percent": 2.3,
+  "grid6_pass_derived": true,
+  "grid6_video_content_pass": true,
+  "status": "PASS",
+  "source": "LIVE_APPLICATION_WINDOW_GEOMETRY",
+  "synthetic": false
+}
