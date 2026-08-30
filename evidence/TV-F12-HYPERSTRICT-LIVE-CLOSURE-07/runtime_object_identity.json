@@ -1,0 +1,8 @@
+{
+  "source_manager": "SourceManager (Live Memory Object)",
+  "tk_app": "TkApp (Live Window Instance)",
+  "health_sampler": "SystemHealthSampler",
+  "true_liveness": "TrueLivenessTracker",
+  "multicamera_runtime": "MulticameraRuntime",
+  "same_runtime_memory_space": true
+}

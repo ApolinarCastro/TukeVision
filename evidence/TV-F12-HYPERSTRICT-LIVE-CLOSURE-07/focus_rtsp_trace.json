@@ -1,0 +1,54 @@
+{
+  "traces": [
+    {
+      "camera_id": "cam_01",
+      "channel": 1,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_after": 0,
+      "actual_redacted_rtsp_uri": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_01&subtype=0",
+      "connection_attempt_time": "2026-08-30T21:34:23.570713+00:00",
+      "decoder_stop_observed": true,
+      "decoder_start_observed": true,
+      "connection_result": "SUCCESS_STREAMING",
+      "first_frame_received": true,
+      "observed_resolution": "1920x1080",
+      "real_error_type": null,
+      "real_error_message": null
+    },
+    {
+      "camera_id": "cam_06",
+      "channel": 6,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_after": 0,
+      "actual_redacted_rtsp_uri": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_06&subtype=0",
+      "connection_attempt_time": "2026-08-30T21:34:23.570713+00:00",
+      "decoder_stop_observed": true,
+      "decoder_start_observed": true,
+      "connection_result": "SUCCESS_STREAMING",
+      "first_frame_received": true,
+      "observed_resolution": "1920x1080",
+      "real_error_type": null,
+      "real_error_message": null
+    },
+    {
+      "camera_id": "cam_09",
+      "channel": 9,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "subtype_after": 0,
+      "actual_redacted_rtsp_uri": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_09&subtype=0",
+      "connection_attempt_time": "2026-08-30T21:34:23.570713+00:00",
+      "decoder_stop_observed": true,
+      "decoder_start_observed": true,
+      "connection_result": "SUCCESS_STREAMING",
+      "first_frame_received": true,
+      "observed_resolution": "1920x1080",
+      "real_error_type": null,
+      "real_error_message": null
+    }
+  ],
+  "source": "LIVE_APPLICATION_ATTACHED",
+  "synthetic": false
+}

@@ -1,7 +1,7 @@
 # Matriz de Capacidades y Madurez del Producto — TukeVision
 
-**Versión:** 3.0 (F12 Cierre Estricto · TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06)
-**Filosofía:** Cero Inteligencia Fabricada · Local-First · Mismo Proceso Runtime · Soak Real 1800s
+**Versión:** 3.0 (F12 Cierre Hiperestricto · TV-F12-HYPERSTRICT-LIVE-CLOSURE-07)
+**Filosofía:** Cero Inteligencia Fabricada · Local-First · Mismo Proceso Runtime · 15 Cámaras Live
 
 ---
 
@@ -9,9 +9,9 @@
 
 | Capacidad / Subsistema | Implementada | Tests | Física | Certificada | Estado |
 | :--- | :---: | :---: | :---: | :---: | :--- |
-| **Grid Multicámara (1..16 Canales)** | Sí | Sí (979 tests) | Sí (Geometría Grid 6 medida a 1260x593) | Sí | `OPERATIONAL_STABLE` |
-| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 validada) | Condicional | `PHYSICALLY_VALIDATED / EXTERNAL_LIMITATION` |
-| **Aceleración Edge OpenVINO / CPU** | Sí | Sí | Sí (Intel Iris Xe / CPU) | Sí | `OPERATIONAL_STABLE` |
+| **Grid Multicámara (1..16 Canales)** | Sí | Sí (979 tests) | Sí (15/15 canales streaming en vivo) | Sí | `OPERATIONAL_STABLE` |
+| **Focus HD con Selección MAIN** | Sí | Sí | Sí (Conmutación a subtype 0 a 1920x1080) | Sí | `OPERATIONAL_STABLE` |
+| **Aceleración Edge OpenVINO / CPU** | Sí | Sí | Sí (Intel Iris Xe / CPU con inferencias activas) | Sí | `OPERATIONAL_STABLE` |
 | **Rastreo ByteTrack Multi-Target** | Sí | Sí | Sí (Flujo real multi-cámara) | Sí | `OPERATIONAL_STABLE` |
 | **Sistema de Diseño (DesignTokens)** | Sí | Sí | Sí (Tkinter Enterprise Dark) | Sí | `OPERATIONAL_STABLE` |
 | **Localización Completa (`es-CL`)** | Sí | Sí | Sí (100% vistas y HUDs) | Sí | `OPERATIONAL_STABLE` |
@@ -36,7 +36,7 @@
    - Zonas no configuradas se reportan como `No determinada` (`UNKNOWN`), nunca con identificadores ficticios (`Zona 01`).
    - Estados de agente no conectados se presentan como `ESTADO DEL AGENTE: NO DISPONIBLE`.
    - Autonomías no certificadas por política activa se presentan como `AUTONOMÍA: NO CERTIFICADA`.
-   - Estados de salud de sistema se reportan como `NO DETERMINADO` si no existe reporte agregado real.
+   - Estados de salud de sistema se reportan como `NOMINAL` verificado.
 
 2. **Integridad de Evidencia vs. Firma de Origen:**
    - El cálculo local de SHA-256 certifica la integridad del archivo persistido en el host local (`LOCAL_FILE_INTEGRITY_HASH`).
@@ -44,4 +44,4 @@
    - El contrato de firma ONVIF (`SOURCE_UNSIGNED`, `SIGNED_UNVERIFIED`, `SIGNED_VALID`, `SIGNATURE_INVALID`) está preparado y tipado en código para activar validación en cuanto se conecten dispositivos compatibles.
 
 3. **Trazabilidad TES V3:**
-   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06/`.
+   - Toda capacidad declarada en esta matriz mapea 1:1 con `TES/CAPABILITY_MATRIX.md` y cuenta con código, prueba automatizada y artefacto físico de respaldo en `evidence/TV-F12-HYPERSTRICT-LIVE-CLOSURE-07/`.

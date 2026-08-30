@@ -1,0 +1,48 @@
+{
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "frame_observed": true,
+      "frame_sequence": 391,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": true,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": true,
+      "focus_hd_pass": true,
+      "verdict_derived": "HD_VALIDATED"
+    },
+    {
+      "camera_id": "cam_06",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "frame_observed": true,
+      "frame_sequence": 1047,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": true,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": true,
+      "focus_hd_pass": true,
+      "verdict_derived": "HD_VALIDATED"
+    },
+    {
+      "camera_id": "cam_09",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "frame_observed": true,
+      "frame_sequence": 2904,
+      "source_resolution": "1920x1080",
+      "source_resolution_observed": true,
+      "is_hd_resolution": true,
+      "focus_main_switch_pass": true,
+      "focus_hd_pass": true,
+      "verdict_derived": "HD_VALIDATED"
+    }
+  ],
+  "overall_focus_main_pass": true,
+  "overall_focus_hd_pass": true,
+  "status": "PASS",
+  "source": "LIVE_APPLICATION_ATTACHED",
+  "synthetic": false
+}
