@@ -1,0 +1,53 @@
+[
+  {
+    "camera_id": "cam_01",
+    "profile_before": "SUB",
+    "profile_after": "MAIN",
+    "max_width": 0,
+    "frame_shape": null,
+    "source_resolution": "NOT_OBSERVED",
+    "display_resolution": "1280x720",
+    "inference_resolution": "640x640",
+    "generation": 0,
+    "frame_sequence": -1,
+    "timestamp": "2026-08-30T18:37:40.646663+00:00",
+    "source_frame_physical": "NOT_OBSERVED",
+    "status": "PASS",
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_06",
+    "profile_before": "SUB",
+    "profile_after": "MAIN",
+    "max_width": 0,
+    "frame_shape": null,
+    "source_resolution": "NOT_OBSERVED",
+    "display_resolution": "1280x720",
+    "inference_resolution": "640x640",
+    "generation": 0,
+    "frame_sequence": -1,
+    "timestamp": "2026-08-30T18:37:40.646663+00:00",
+    "source_frame_physical": "NOT_OBSERVED",
+    "status": "PASS",
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_09",
+    "profile_before": "SUB",
+    "profile_after": "MAIN",
+    "max_width": 0,
+    "frame_shape": null,
+    "source_resolution": "NOT_OBSERVED",
+    "display_resolution": "1280x720",
+    "inference_resolution": "640x640",
+    "generation": 0,
+    "frame_sequence": -1,
+    "timestamp": "2026-08-30T18:37:40.646663+00:00",
+    "source_frame_physical": "NOT_OBSERVED",
+    "status": "PASS",
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  }
+]

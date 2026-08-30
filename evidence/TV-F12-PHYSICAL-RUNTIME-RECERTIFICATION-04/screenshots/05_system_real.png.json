@@ -1,0 +1,10 @@
+{
+  "filename": "05_system_real.png",
+  "timestamp": "2026-08-30T18:37:41.683989+00:00",
+  "pid": 6720,
+  "commit_sha": "b0b992af214cfae0322da5602fc635a5bbe9d453",
+  "active_view": "SYSTEM",
+  "camera_count": 15,
+  "runtime_source": "PHYSICAL",
+  "synthetic": false
+}

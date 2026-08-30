@@ -1,0 +1,13 @@
+{
+  "total_executed": 959,
+  "passed": 955,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 4,
+  "subtests_passed": 15,
+  "test_duration_seconds": 185.0,
+  "returncode": 0,
+  "status": "PASS",
+  "source": "REAL_TEST_RUN",
+  "synthetic": false
+}

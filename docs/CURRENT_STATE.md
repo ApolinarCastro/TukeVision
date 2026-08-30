@@ -1,6 +1,6 @@
-# Estado Actual del Sistema — TukeVision (F12 Consolidado)
+# Estado Actual del Sistema — TukeVision (F12 Consolidado & Recertificado)
 
-**ID de Ejecución:** `TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03`
+**ID de Ejecución:** `TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`
 **Rama:** `phase12/operational-intelligence-visualization-hd`
 **Idioma Primario:** Español (`es-CL`)
 **Arquitectura:** Local-First / Edge-First (Grabación Primaria en DVR/NVR)
@@ -15,9 +15,10 @@ TukeVision opera como un Centro de Mando local de alta fidelidad, integrando has
 ### Principios Operacionales Aplicados:
 1. **Verdad Epistémica Absoluta:** Todo dato operacional distingue explícitamente entre `HECHO` (detección validada, telemetría física), `INFERENCIA` (clasificación algorítmica probabilística) y `DESCONOCIDO` (parámetros no determinados).
 2. **Cero Datos Falsos (Zero-Fake Absolute):** Se eliminó cualquier generación artificial de situaciones, IDs, severidades, tipos o diagnósticos globales de salud no justificados en capas de renderizado.
-3. **UX Simplificada y Dominancia del Video:** El panel lateral técnico es colapsable por defecto (`self._side_panel_visible = False`), garantizando que el área de video ocupe ≥ 80% del espacio visual.
-4. **Trazabilidad Forense Local:** Paquetes de evidencia con cálculo de integridad SHA-256 e indicación honesta de estado de firma de origen.
-5. **Reconciliación TES V3:** Cada componente cuenta con trazabilidad formal `CÓDIGO ↔ PRUEBA ↔ EVIDENCIA FÍSICA ↔ TES`.
+3. **Telemetría Directa de Runtime:** Toda certificación física proviene de mediciones directas (`SourceManager`, `psutil`, `TkApp`, `TrueLiveness`), descartando generadores sintéticos.
+4. **UX Simplificada y Dominancia del Video:** El panel lateral técnico es colapsable por defecto (`self._side_panel_visible = False`), garantizando que el área de video ocupe ≥ 80% del espacio visual.
+5. **Trazabilidad Forense Local:** Paquetes de evidencia con cálculo de integridad SHA-256 e indicación honesta de estado de firma de origen.
+6. **Reconciliación TES V3:** Cada componente cuenta con trazabilidad formal `CÓDIGO ↔ PRUEBA ↔ EVIDENCIA FÍSICA REAL ↔ TES`.
 
 ---
 
@@ -38,5 +39,5 @@ TukeVision opera como un Centro de Mando local de alta fidelidad, integrando has
 
 ## 3. Pruebas de Regresión
 
-- Suite completa de pruebas unitarias, de integración y visuales sin fallos.
+- 955 pruebas pasadas (0 fallidas, 0 errores, 4 omitidas, 15 subtests pasados).
 - Pruebas negativas dedicadas garantizan que el rastreo o eventos genéricos no generan situaciones y que campos ausentes se presentan como no disponibles.

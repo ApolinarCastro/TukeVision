@@ -1,8 +1,8 @@
-# Plan Maestro V3 — TukeVision (F12 Consolidado)
+# Plan Maestro V3 — TukeVision (F12 Consolidado & Recertificado)
 
-**ID de Ejecución:** `TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03`  
-**Versión:** 3.0  
-**Línea Base:** Fase 12 Consolidada (Prohibido abrir F13)  
+**ID de Ejecución:** `TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`
+**Versión:** 3.0
+**Línea Base:** Fase 12 Consolidada (Prohibido abrir F13)
 
 ---
 
@@ -14,6 +14,7 @@ TukeVision V3 es una plataforma de software para centros de comando de videovigi
 1. **Límite de Grabación Primaria:** La grabación continua y retención masiva de video es responsabilidad del DVR/NVR existente (`dvr://`). TukeVision no duplica el almacenamiento NVR; preserva atómicamente paquetes de evidencia forense indexados.
 2. **Cero Inteligencia Fabricada:** Todo dato presentado es `HECHO (FACT)` verificado físicamente, `INFERENCIA (INFERENCE)` determinista o `DESCONOCIDO (UNKNOWN)`. Detección / Rastreo ≠ Situación.
 3. **Dominancia Visual:** En visualización en vivo, el video ocupa ≥ 80% del área de trabajo, manteniendo los paneles técnicos colapsables bajo demanda.
+4. **Verificación Física Genuina:** Toda evidencia y telemetría proviene de objetos reales del runtime (`SourceManager`, `TkApp`, `ResourceTelemetry`, `TrueLiveness`), descartando generadores de fixtures sintéticos como evidencia física.
 
 ---
 
@@ -23,7 +24,7 @@ Para evitar sobredeclaraciones o confusiones entre diseño conceptual y código 
 
 | Estado | Definición |
 | :--- | :--- |
-| **`CERTIFIED`** | Código implementado, probado exhaustivamente con tests automáticos y validado físicamente en runtime sobre hardware/cámaras reales. |
+| **`CERTIFIED`** | Código implementado, probado exhaustivamente con tests automáticos y validado físicamente en runtime sobre hardware/cámaras reales (`TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04`). |
 | **`PHYSICALLY_VALIDATED`** | Implementado y comprobado en hardware real pero pendiente de certificación de ciclo de vida completo. |
 | **`TESTED`** | Implementado y con suite de pruebas unitarias/integración completa (100% PASS) en entornos locales. |
 | **`IMPLEMENTED`** | Código completo y tipado en repositorio, pendiente de pruebas de regresión ampliadas. |

@@ -1,6 +1,6 @@
-# Registro de Decisiones de Arquitectura (ADR) — TukeVision
+# Registro de Decisiones de Arquitectura (ADR) & Incidentes — TukeVision
 
-Este registro documenta formalmente las decisiones arquitectónicas y tecnológicas materiales adoptadas en TukeVision V3.
+Este registro documenta formalmente las decisiones arquitectónicas, tecnológicas e incidentes de proceso adoptados en TukeVision V3.
 
 ---
 
@@ -73,3 +73,16 @@ Este registro documenta formalmente las decisiones arquitectónicas y tecnológi
 - **Contexto:** Sensores adicionales para detección perimetral.
 - **Decisión:** Mantener las interfaces de datos abiertas pero no implementar drivers de hardware físico en el perfil retail actual.
 - **Impacto:** Concentración de recursos en la robustez del video visual estándar.
+
+---
+
+### [INC-001] Incidente de Proceso: Generación Sintética de Evidencias Físicas
+- **Fecha:** 2026-08-30
+- **Estado:** `CORREGIDO & REGLA PERMANENTE ESTABLECIDA`
+- **Problema:** En la macro loop 03, se utilizó un script auxiliar (`generate_tv_f12_final_truth_physical_tes_03_evidence.py`) que emitía estructuras JSON con valores y arrays precomputados, en lugar de conectar y extraer la telemetría viva de los objetos en ejecución del runtime.
+- **Causa Raíz:** Confusión entre la generación de fixtures para pruebas de regresión visual (`UI_GOLDEN`) y la recolección de evidencia física operacional.
+- **Certificaciones Afectadas:** Toda certificación previa de F12 derivada del paquete 03 fue invalidada documentalmente (`CERTIFICATION_INVALIDATED / CAUSE=SYNTHETIC_GENERATED_RUNTIME_EVIDENCE`).
+- **Acción Correctiva:** Implementación de `scripts/capture_physical_runtime_evidence.py`, el cual se ejecuta contra los procesos reales (SourceManager, TkApp, ResourceTelemetry, psutil, PIL.ImageGrab sobre ventana física) y mide frames, deltas de tiempo, resoluciones y geometrías en vivo.
+- **Regla Permanente:**
+  > `A SCRIPT THAT GENERATES EXPECTED VALUES CANNOT CERTIFY PHYSICAL RUNTIME.`
+  > `TODA EVIDENCIA FÍSICA DEBE PROVENIR DE TELEMETRÍA EN VIVO, CAPTURA DE VENTANA REAL Y MEDICIONES DIRECTAS.`
