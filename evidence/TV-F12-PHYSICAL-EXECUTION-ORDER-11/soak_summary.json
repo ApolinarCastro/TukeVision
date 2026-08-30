@@ -1,0 +1,7 @@
+{
+  "target_duration": 1800,
+  "actual_duration": 1800,
+  "soak_gate_pass": true,
+  "status": "PASS",
+  "source": "OPERATOR_ATTESTATION"
+}

@@ -18,20 +18,7 @@ if __name__ == "__main__":
             if candidate_dirs:
                 candidate_dirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
                 run_dir = candidate_dirs[0]
-                check = {
-                    "soak_conforming": True, # Simulated 10s soak instead of 1800s due to agentic limit
-                    "regression_passed": True, # Tests passed successfully
-                    "zero_fake_passed": True,
-                    "liveness_passed": True,
-                    "presentation_passed": True,
-                    "grid6_passed": True, # Macro executed grid 6
-                    "focus_main_passed": True, # Macro executed focus
-                    "focus_hd_passed": False, # Hardware limit
-                    "certifier_hygiene_scan_passed": True,
-                    "final_closure_allowed": True,
-                    "recommended_verdict": "TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS",
-                    "reason": "Agentic environment constraints prevented full 1800s physical test and HD validation. Regression tests passed (997 passed). Observability telemetry (live_status.json, physical_runtime_report.json) successfully exported. UI macro successfully executed grid and focus commands."
-                }
+                check = CertificationEvaluator.evaluate_certification_integrity(run_dir)
                 
                 print(f"Certification Evaluation for {run_dir.name}:")
                 print(json.dumps(check, indent=2))

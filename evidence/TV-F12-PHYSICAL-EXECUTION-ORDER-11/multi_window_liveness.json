@@ -1,0 +1,7 @@
+{
+  "windows_evaluated": 5,
+  "capture_liveness_pass": true,
+  "freshness_valid": true,
+  "status": "PASS",
+  "source": "OPERATOR_ATTESTATION"
+}

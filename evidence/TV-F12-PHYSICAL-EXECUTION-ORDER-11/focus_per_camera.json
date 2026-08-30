@@ -1,0 +1,24 @@
+{
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "focus_main_pass": true,
+      "focus_hd_pass": false,
+      "limitation": "Hardware limit"
+    },
+    {
+      "camera_id": "cam_06",
+      "focus_main_pass": true,
+      "focus_hd_pass": false,
+      "limitation": "Hardware limit"
+    },
+    {
+      "camera_id": "cam_09",
+      "focus_main_pass": true,
+      "focus_hd_pass": false,
+      "limitation": "Hardware limit"
+    }
+  ],
+  "status": "PASS_WITH_LIMITATIONS",
+  "source": "OPERATOR_ATTESTATION"
+}
