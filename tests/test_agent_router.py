@@ -15,7 +15,7 @@ class TestReasoningRouter(unittest.TestCase):
         self.vlm = FakeReasoner(InvestigationResult(facts=["Entity E01 is carrying a box."]))
         
         self.validator = AgentOutputValidator()
-        self.budget = ReasoningBudget()
+        self.budget = ReasoningBudget(force_state="NORMAL")
         
         self.router = ReasoningRouter(self.det, self.llm, self.vlm, self.budget, self.validator)
 
@@ -56,8 +56,11 @@ class TestReasoningRouter(unittest.TestCase):
         # If queue depth is massive, budget goes CRITICAL, forces deterministic
         context = {"candidate": {"situation_type": "visual_ambiguity", "entity_ids": ["E01"]}}
         
+        # Override budget without force_state to allow queue_depth to trigger CRITICAL
+        router = ReasoningRouter(self.det, self.llm, self.vlm, ReasoningBudget(), self.validator)
+        
         # High queue depth forces CRITICAL
-        result = self.router.route(context, queue_depth=100)
+        result = router.route(context, queue_depth=100)
         
         # Should NOT reach VLM
         self.assertFalse(any("box" in f for f in result.facts))

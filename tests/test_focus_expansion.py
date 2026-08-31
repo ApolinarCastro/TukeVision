@@ -180,28 +180,30 @@ class TestDisplayGeometry(unittest.TestCase):
         return w / h
 
     def test_aspect_ratio_preserved_when_focus_upscales(self):
-        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        frame = np.zeros((600, 800, 3), dtype=np.uint8)
         image = build_display_image(frame, 1000, 700, allow_upscale=True)
         self.assertAlmostEqual(
             image.width / image.height, self._aspect(frame), places=1,
         )
-        self.assertGreater(image.width, 320, "FOCUS should use the available area")
-        self.assertGreater(image.height, 240)
+        self.assertGreater(image.width, 800, "FOCUS should use the available area")
+        self.assertGreater(image.height, 600)
 
     def test_grid_default_never_upscales(self):
-        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        frame = np.zeros((600, 800, 3), dtype=np.uint8)
         image = build_display_image(frame, 1000, 700)
-        self.assertEqual((image.width, image.height), (320, 240))
+        self.assertEqual((image.width, image.height), (800, 600))
 
     def test_zoom_on_expanded_focus_preserves_aspect(self):
-        frame = np.zeros((240, 320, 3), dtype=np.uint8)
+        frame = np.zeros((1080, 1440, 3), dtype=np.uint8)
         zoomed = build_zoomed_display_image(
             frame, 1000, 700, 2.0, allow_upscale=True
         )
         self.assertAlmostEqual(
             zoomed.width / zoomed.height, self._aspect(frame), places=1,
         )
-        self.assertGreater(zoomed.width, 320)
+        # Note: 1440/2 = 720. 720x540 crop fits into 1000x700 by scaling to 933x700
+        # which is > 720. We just assert > 720 since crop is 720.
+        self.assertGreater(zoomed.width, 720)
 
 
 if __name__ == "__main__":

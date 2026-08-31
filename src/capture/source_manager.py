@@ -100,6 +100,16 @@ class _CameraRuntime:
     last_snapshot: Optional[dict] = None
     last_error: str = ""
     generation: int = 0
+    # Resiliency tracking
+    consecutive_failure_count: int = 0
+    last_successful_frame_at: float = 0.0
+    last_failure_at: float = 0.0
+    recovery_attempts: int = 0
+    recovery_window_start: float = 0.0
+    first_frame_at: float = 0.0
+    duplicate_decoder_process_count: int = 0
+    duplicate_decoder_owner_count: int = 0
+    state: str = "OFFLINE"
 
 
 class SourceManagerError(Exception):
@@ -123,11 +133,30 @@ class SourceManager:
     _WORKER_JOIN_TIMEOUT_S = 5.0
     _RECONNECT_SEMAPHORE = threading.Semaphore(2)  # BLOCK E: max 2 simultaneous reconnects
 
-    def __init__(self, source_factory: Optional[Callable[..., object]] = None) -> None:
+    def __init__(
+        self, 
+        source_factory: Optional[Callable[..., object]] = None,
+        startup_grace_seconds: float = 10.0,
+        consecutive_failure_threshold: int = 3,
+        recovery_window_seconds: float = 300.0,
+        max_recovery_attempts: int = 5,
+        recovery_backoff_seconds: float = 5.0,
+        decoder_shutdown_timeout: float = 5.0,
+        first_frame_timeout: float = 15.0,
+        experience_sink: Optional[Callable[[dict], None]] = None,
+    ) -> None:
         self._lock = threading.RLock()
         self._source_factory = source_factory or _default_rtsp_source
         self._runtimes: Dict[str, _CameraRuntime] = {}
         self._running: Dict[str, bool] = {}
+        self.startup_grace_seconds = startup_grace_seconds
+        self.consecutive_failure_threshold = consecutive_failure_threshold
+        self.recovery_window_seconds = recovery_window_seconds
+        self.max_recovery_attempts = max_recovery_attempts
+        self.recovery_backoff_seconds = recovery_backoff_seconds
+        self.decoder_shutdown_timeout = decoder_shutdown_timeout
+        self.first_frame_timeout = first_frame_timeout
+        self.experience_sink = experience_sink
 
     # ------------------------------------------------------------------
     # Registro e inventario
@@ -267,8 +296,8 @@ class SourceManager:
             running = bool(self._running.get(camera_id, False))
             queue_depth = len(rt.queue)
             last_error = rt.last_error
+            state = rt.state
 
-        state = "REGISTERED"
         fps = 0.0
         resolution = ""
         last_age_ms = 0
@@ -276,7 +305,6 @@ class SourceManager:
         readable_frames = 0
         source_type = "RTSP"
         if source is not None:
-            state = getattr(source, "state", "OPEN") or "OPEN"
             meta = getattr(source, "metadata", None)
             source_fps = getattr(source, "fps", None)
             if source_fps is not None and float(source_fps) > 0:
@@ -290,7 +318,10 @@ class SourceManager:
             readable_frames = int(getattr(source, "readable_frames", 0) or 0)
             source_type = str(getattr(source, "source_type", "RTSP"))
 
-        healthy = running and state not in ("FAILED", "CLOSED")
+        healthy = running and state not in ("FAILED", "OFFLINE", "RECONNECTING", "STARTING")
+        if state == "HEALTHY":
+            healthy = True
+            
         return CameraHealth(
             camera_id=camera_id,
             state=state,
@@ -324,22 +355,26 @@ class SourceManager:
     def _worker(
         self, camera_id: str, rt: _CameraRuntime, stop_event: threading.Event
     ) -> None:
-        """Hilo de captura de UNA cámara (aislado del resto).
-
-        El SourceManager consume source.frames() (supervisor) y publica en una
-        cola FIFO acotada por cámara con política drop-oldest. Un fallo marca
-        la salud de esta cámara pero NO derriba el runtime global ni a las
-        demás cámaras (NO_SHARED_MUTABLE_CAPTURE). Tras una pérdida de stream
-        (FAILED / STREAM_LOST) el worker reintenta con backoff acotado y jitter
-        para evitar tormentas de reconexión (BLOCK D), en lugar de abandonar
-        la cámara para siempre (ROOT_CAUSE_STREAM_STABILITY).
-        """
+        """Hilo de captura de UNA cámara (aislado del resto)."""
         attempt = 0
         while not stop_event.is_set():
             source = None
             cleanup_failed = False
+            
+            # Reset budget if outside window
+            now = time.monotonic()
+            if now - rt.recovery_window_start > self.recovery_window_seconds:
+                rt.recovery_attempts = 0
+                rt.recovery_window_start = now
+                
+            if rt.recovery_attempts >= self.max_recovery_attempts:
+                with self._lock:
+                    rt.state = "OFFLINE"
+                    rt.last_error = "RECOVERY_BUDGET_EXHAUSTED"
+                    self._running[camera_id] = False
+                break
+                
             # BLOCK E: central limit for simultaneous reconnects (max 2)
-            # Acquire slot for the open attempt; staggered start already spaces initial opens
             acquired = False
             while not stop_event.is_set() and not acquired:
                 acquired = self._RECONNECT_SEMAPHORE.acquire(timeout=0.25)
@@ -351,33 +386,72 @@ class SourceManager:
                     rt.source = source
                     rt.generation += 1
                     rt.last_error = ""
+                    rt.state = "STARTING"
+                    generation = rt.generation
+                    
+                started_at = time.monotonic()
                 metadata = source.open()
                 self._RECONNECT_SEMAPHORE.release()
                 acquired = False
                 attempt = 0
-
+                first_frame_received = False
+                
+                # First frame loop
                 for frame_index, frame in source.frames():
                     if stop_event.is_set():
                         break
+                        
+                    now = time.monotonic()
+                    
+                    if not first_frame_received:
+                        if frame is not None:
+                            first_frame_received = True
+                            rt.first_frame_at = now
+                            rt.consecutive_failure_count = 0
+                            rt.state = "HEALTHY"
+                            # If we recovered successfully, record it
+                            if rt.recovery_attempts > 0:
+                                self._record_experience(camera_id, generation-1, generation, "SUCCESS")
+                            rt.recovery_attempts = 0
+                        else:
+                            if now - started_at > self.first_frame_timeout:
+                                rt.last_error = "FIRST_FRAME_TIMEOUT"
+                                break
+                            continue # keep waiting for first frame
+
                     state = getattr(source, "state", None)
-                    if state in ("FAILED", "STALLED"):
-                        rt.last_error = "STREAM_LOST"
-                        break
-                    self._publish(rt, camera_id, frame_index, frame, source, metadata)
+                    if state in ("FAILED", "STALLED") or frame is None:
+                        # Grace period logic
+                        if now - rt.first_frame_at <= self.startup_grace_seconds:
+                            continue # Ignore missing frames during grace period
+                            
+                        rt.consecutive_failure_count += 1
+                        rt.last_failure_at = now
+                        if rt.consecutive_failure_count > self.consecutive_failure_threshold:
+                            rt.last_error = "CONSECUTIVE_FAILURE_THRESHOLD_EXCEEDED"
+                            break
+                    else:
+                        rt.consecutive_failure_count = 0
+                        rt.last_successful_frame_at = now
+                        rt.state = "HEALTHY"
+                        
+                    if frame is not None:
+                        self._publish(rt, camera_id, frame_index, frame, source, metadata)
 
                 if stop_event.is_set():
                     break
-                # Si la fuente terminó el generador en FAILED o STALLED, registrar la pérdida
+                    
                 source_state = getattr(source, "state", None)
                 if rt.last_error == "" and source_state in ("FAILED", "STALLED"):
                     rt.last_error = "STREAM_LOST"
-                # Salida limpia (stop) sin error -> terminar.
+                    
                 if stop_event.is_set() or rt.last_error == "":
                     with self._lock:
                         self._running[camera_id] = False
                     logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                     break
-            except Exception as exc:  # aislar: el fallo no propaga a otras cámaras
+                    
+            except Exception as exc: 
                 if stop_event.is_set():
                     break
                 rt.last_error = f"{type(exc).__name__}: {exc}"
@@ -385,7 +459,7 @@ class SourceManager:
             finally:
                 try:
                     if source is not None:
-                        source.close()  # type: ignore[union-attr]
+                        source.close()  
                 except Exception as exc:
                     cleanup_failed = True
                     rt.last_error = f"SOURCE_CLEANUP_FAILED: {type(exc).__name__}"
@@ -393,39 +467,63 @@ class SourceManager:
                 with self._lock:
                     if not cleanup_failed:
                         rt.source = None
+                    rt.state = "RECONNECTING"
                 if acquired:
                     try:
                         self._RECONNECT_SEMAPHORE.release()
                     except Exception:
                         pass
+                        
             if cleanup_failed:
                 with self._lock:
                     self._running[camera_id] = False
-                break  # never start a second generation while cleanup is unconfirmed
+                    rt.state = "OFFLINE"
+                break
+                
             if stop_event.is_set():
                 with self._lock:
                     self._running[camera_id] = False
+                    rt.state = "OFFLINE"
                 logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                 break
+                
             if rt.last_error == "":
-                # Salida limpia sin error (p.ej. frames agotados sin fallo) -> terminar
                 with self._lock:
                     self._running[camera_id] = False
+                    rt.state = "OFFLINE"
                 logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                 break
-            attempt += 1
-            base = min(30.0, 2.0 * (1.5 ** min(attempt, 6)))
-            jitter = random.uniform(0.0, 1.0)
-            delay = base + jitter
+                
+            rt.recovery_attempts += 1
+            self._record_experience(camera_id, generation, generation+1, "FAILED", reason=rt.last_error)
+            
+            # Backoff
+            delay = self.recovery_backoff_seconds + random.uniform(0.0, 1.0)
             logger.info(
                 "SOURCE_RETRY camera_id=%s attempt=%s delay_s=%.1f",
-                camera_id, attempt, delay,
+                camera_id, rt.recovery_attempts, delay,
             )
             if stop_event.wait(timeout=delay):
                 with self._lock:
                     self._running[camera_id] = False
+                    rt.state = "OFFLINE"
                 logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                 break
+
+    def _record_experience(self, camera_id: str, old_gen: int, new_gen: int, outcome: str, reason: str = ""):
+        if self.experience_sink:
+            try:
+                ev = {
+                    "camera_id": camera_id,
+                    "old_generation": old_gen,
+                    "new_generation": new_gen,
+                    "outcome": outcome,
+                    "reason": reason,
+                    "timestamp": time.time()
+                }
+                self.experience_sink(ev)
+            except Exception as e:
+                logger.error("Failed to record experience: %s", e)
 
     def _publish(
         self,

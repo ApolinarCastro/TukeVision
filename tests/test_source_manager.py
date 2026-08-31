@@ -187,7 +187,7 @@ class TestSourceManagerLifecycle(unittest.TestCase):
 
         h = self._wait_running(mgr, "CAM-01")
         self.assertTrue(h.healthy)
-        self.assertEqual(h.state, SourceState.OPEN)
+        self.assertEqual(h.state, "HEALTHY")
         self.assertEqual(h.resolution, "640x480")
 
         snap = mgr.snapshot("CAM-01")
