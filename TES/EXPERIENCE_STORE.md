@@ -21,22 +21,22 @@ Este documento registra los aprendizajes operacionales y referencias arquitectó
 ### EXP-CLEARCAM-001
 * **PROBLEM**: Premature stream restart. (Se reinician decodificadores que simplemente estaban inicializando y no habían tenido tiempo de entregar el primer frame).
 * **PATTERN**: Startup grace before recovery.
-* **DECISION**: ADAPTED_IN_F12 (Añadido `startup_grace_seconds` al `SourceManager`, verificado con tests automatizados).
+* **DECISION**: ADAPTED_POST_F12 (Añadido `startup_grace_seconds` al `SourceManager`, verificado con tests automatizados).
 
 ### EXP-CLEARCAM-002
 * **PROBLEM**: Repeated frame-read failures. (Cámaras del mundo real pierden frames aislados. Reiniciar el pipeline entero por un frame perdido genera latencia e inestabilidad).
 * **PATTERN**: Consecutive failure threshold.
-* **DECISION**: ADAPTED_IN_F12 (Añadido `consecutive_failure_threshold` antes de desencadenar recuperación).
+* **DECISION**: ADAPTED_POST_F12 (Añadido `consecutive_failure_threshold` antes de desencadenar recuperación).
 
 ### EXP-CLEARCAM-003
 * **PROBLEM**: Duplicate FFmpeg processes during recovery. (*Restart storms* causados por crear decodificadores nuevos sin asegurar la muerte de los antiguos).
 * **PATTERN**: Single-owner decoder lifecycle.
-* **DECISION**: ADAPTED_IN_F12 (Implementado semáforo de reconexión y espera de cleanup del hilo antiguo antes de iniciar nueva generación).
+* **DECISION**: ADAPTED_POST_F12 (Implementado semáforo de reconexión y espera de cleanup del hilo antiguo antes de iniciar nueva generación).
 
 ### EXP-CLEARCAM-004
 * **PROBLEM**: Recovery declared before real video returns. (Creer que el stream volvió solo porque FFmpeg arrancó, aunque la cámara no envíe datos).
 * **PATTERN**: First-frame confirmation after restart.
-* **DECISION**: ADAPTED_IN_F12 (La recuperación exige confirmación de recepción física de frame validada en el worker loop).
+* **DECISION**: ADAPTED_POST_F12 (La recuperación exige confirmación de recepción física de frame validada en el worker loop).
 
 ### EXP-CLEARCAM-005
 * **PROBLEM**: High compute from continuous heavy inference.

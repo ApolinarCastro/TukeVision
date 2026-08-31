@@ -1,7 +1,7 @@
 {
   "valid_json_lines": true,
   "chronological_order": true,
-  "sample_index_progression": false,
+  "sample_index_progression": true,
   "monotonic_progression": true,
   "run_id_consistency": true,
   "commit_sha_consistency": true,

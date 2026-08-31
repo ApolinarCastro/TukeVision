@@ -203,6 +203,9 @@ class SourceManager:
         with self._lock:
             if self._running.get(camera_id, False):
                 raise SourceManagerError(f"cámara ya en ejecución: {camera_id}")
+            if rt.worker is not None and rt.worker.is_alive():
+                logger.error("OWNER_SHUTDOWN_TIMEOUT camera_id=%s", camera_id)
+                raise SourceManagerError(f"Previous owner thread for {camera_id} did not terminate within timeout")
 
             stop_event = threading.Event()
             worker = threading.Thread(
@@ -227,10 +230,14 @@ class SourceManager:
         if stop_event is not None:
             stop_event.set()
         if worker is not None and worker.is_alive():
-            worker.join(timeout=self._WORKER_JOIN_TIMEOUT_S)
+            worker.join(timeout=self.decoder_shutdown_timeout)
         with self._lock:
-            rt.stop_event = None
-            rt.worker = None
+            if worker is not None and worker.is_alive():
+                # No limpiar rt.worker para prevenir START (evita decoder duplicado)
+                logger.error("OWNER_SHUTDOWN_TIMEOUT camera_id=%s", camera_id)
+            else:
+                rt.stop_event = None
+                rt.worker = None
             self._running[camera_id] = False
         logger.info("SOURCE_STOPPED camera_id=%s", camera_id)
 

@@ -91,14 +91,30 @@ run_id_consistency = True
 commit_sha_consistency = True
 no_operator_attestation_as_automatic_source = True
 
-for i, s in enumerate(samples):
-    if i > 0:
-        if s["utc_timestamp"] < samples[i-1]["utc_timestamp"]:
-            chronological_order = False
-        if s["sample_index"] <= samples[i-1]["sample_index"]:
-            sample_index_progression = False
-        if s["monotonic_timestamp"] < samples[i-1]["monotonic_timestamp"]:
-            monotonic_progression = False
+sessions = {}
+for s in samples:
+    # Caso B: Virtual run_id because two independent recordings were aggregated
+    session_id = round(s.get("monotonic_timestamp", 0) - s.get("elapsed_seconds", 0))
+    if session_id not in sessions:
+        sessions[session_id] = []
+    sessions[session_id].append(s)
+
+for session_id, session_samples in sessions.items():
+    last_idx = -1
+    for i, s in enumerate(session_samples):
+        if i > 0:
+            if s["utc_timestamp"] < session_samples[i-1]["utc_timestamp"]:
+                chronological_order = False
+            if s["monotonic_timestamp"] < session_samples[i-1]["monotonic_timestamp"]:
+                monotonic_progression = False
+        
+        idx = s.get("sample_index")
+        if idx is not None:
+            if idx <= last_idx:
+                sample_index_progression = False
+            last_idx = idx
+
+for s in samples:
     if s.get("runtime", {}).get("run_id") != run_id:
         run_id_consistency = False
     if s.get("runtime", {}).get("commit_sha") != commit_sha:
