@@ -1,0 +1,36 @@
+{
+  "outlier_count": 3,
+  "fleet_global_frame_age_p95_ms": 6346.65,
+  "outliers": [
+    {
+      "camera_id": "cam_09",
+      "metric": "frame_age_ms",
+      "p95_ms": 19616.1,
+      "fleet_global_p95_ms": 6346.65,
+      "ratio_to_fleet": 3.09,
+      "reason": "p95 significantly above fleet median",
+      "active_profile": "SUB",
+      "source_state": "OPEN"
+    },
+    {
+      "camera_id": "cam_12",
+      "metric": "frame_age_ms",
+      "p95_ms": 19059.85,
+      "fleet_global_p95_ms": 6346.65,
+      "ratio_to_fleet": 3.0,
+      "reason": "p95 significantly above fleet median",
+      "active_profile": "SUB",
+      "source_state": "OPEN"
+    },
+    {
+      "camera_id": "cam_14",
+      "metric": "frame_age_ms",
+      "p95_ms": 17075.85,
+      "fleet_global_p95_ms": 6346.65,
+      "ratio_to_fleet": 2.69,
+      "reason": "p95 significantly above fleet median",
+      "active_profile": "SUB",
+      "source_state": "OPEN"
+    }
+  ]
+}

@@ -1,0 +1,369 @@
+{
+  "observed_run_id": "RUN-59C253",
+  "observed_pid": 22576,
+  "started_at": "2026-08-31T11:49:28",
+  "observed_timestamp_utc": "2026-08-31T15:55:34Z",
+  "total_runtime_seconds": 365.5,
+  "cameras": {
+    "cam_01": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 31.0,
+          "p50_ms": 484.5,
+          "p95_ms": 2726.8,
+          "max_ms": 4500.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 350.0,
+          "p50_ms": 350.0,
+          "p95_ms": 350.0,
+          "max_ms": 350.0
+        }
+      }
+    },
+    "cam_02": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 63.0,
+          "p50_ms": 484.5,
+          "p95_ms": 3457.7,
+          "max_ms": 6641.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 380.0,
+          "p50_ms": 380.0,
+          "p95_ms": 380.0,
+          "max_ms": 380.0
+        }
+      }
+    },
+    "cam_03": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 63.0,
+          "p50_ms": 547.0,
+          "p95_ms": 2801.7,
+          "max_ms": 5656.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 410.0,
+          "p50_ms": 410.0,
+          "p95_ms": 410.0,
+          "max_ms": 410.0
+        }
+      }
+    },
+    "cam_04": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "CONNECTING",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 31.0,
+          "p50_ms": 672.5,
+          "p95_ms": 5548.65,
+          "max_ms": 8844.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 440.0,
+          "p50_ms": 440.0,
+          "p95_ms": 440.0,
+          "max_ms": 440.0
+        }
+      }
+    },
+    "cam_05": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 78.0,
+          "p50_ms": 570.0,
+          "p95_ms": 4418.05,
+          "max_ms": 8453.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 420.0,
+          "p50_ms": 420.0,
+          "p95_ms": 420.0,
+          "max_ms": 420.0
+        }
+      }
+    },
+    "cam_06": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 78.0,
+          "p50_ms": 469.0,
+          "p95_ms": 2403.95,
+          "max_ms": 4672.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 460.0,
+          "p50_ms": 460.0,
+          "p95_ms": 460.0,
+          "max_ms": 460.0
+        }
+      }
+    },
+    "cam_07": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 78.0,
+          "p50_ms": 531.0,
+          "p95_ms": 3525.0,
+          "max_ms": 6891.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 520.0,
+          "p50_ms": 520.0,
+          "p95_ms": 520.0,
+          "max_ms": 520.0
+        }
+      }
+    },
+    "cam_08": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 31.0,
+          "p50_ms": 562.5,
+          "p95_ms": 2139.55,
+          "max_ms": 4422.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 890.0,
+          "p50_ms": 890.0,
+          "p95_ms": 890.0,
+          "max_ms": 890.0
+        }
+      }
+    },
+    "cam_09": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 62.0,
+          "p50_ms": 773.5,
+          "p95_ms": 19616.1,
+          "max_ms": 24360.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 950.0,
+          "p50_ms": 950.0,
+          "p95_ms": 950.0,
+          "max_ms": 950.0
+        }
+      }
+    },
+    "cam_10": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 31.0,
+          "p50_ms": 453.0,
+          "p95_ms": 2274.25,
+          "max_ms": 4500.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 430.0,
+          "p50_ms": 430.0,
+          "p95_ms": 430.0,
+          "max_ms": 430.0
+        }
+      }
+    },
+    "cam_11": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 79.0,
+          "p50_ms": 515.5,
+          "p95_ms": 2398.8,
+          "max_ms": 4640.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 480.0,
+          "p50_ms": 480.0,
+          "p95_ms": 480.0,
+          "max_ms": 480.0
+        }
+      }
+    },
+    "cam_12": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 47.0,
+          "p50_ms": 664.5,
+          "p95_ms": 19059.85,
+          "max_ms": 23719.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 1850.0,
+          "p50_ms": 1850.0,
+          "p95_ms": 1850.0,
+          "max_ms": 1850.0
+        }
+      }
+    },
+    "cam_13": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 47.0,
+          "p50_ms": 453.0,
+          "p95_ms": 2325.95,
+          "max_ms": 3344.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 390.0,
+          "p50_ms": 390.0,
+          "p95_ms": 390.0,
+          "max_ms": 390.0
+        }
+      }
+    },
+    "cam_14": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 78.0,
+          "p50_ms": 844.0,
+          "p95_ms": 17075.85,
+          "max_ms": 21672.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 370.0,
+          "p50_ms": 370.0,
+          "p95_ms": 370.0,
+          "max_ms": 370.0
+        }
+      }
+    },
+    "cam_15": {
+      "active_profile": "SUB",
+      "active_subtype": 1,
+      "source_width": 352,
+      "source_height": 240,
+      "source_state": "OPEN",
+      "health_state": "OFFLINE",
+      "metrics": {
+        "frame_age_ms": {
+          "count": 90,
+          "min_ms": 79.0,
+          "p50_ms": 1359.5,
+          "p95_ms": 8134.15,
+          "max_ms": 10594.0
+        },
+        "time_to_first_frame_ms": {
+          "count": 1,
+          "min_ms": 510.0,
+          "p50_ms": 510.0,
+          "p95_ms": 510.0,
+          "max_ms": 510.0
+        }
+      }
+    }
+  }
+}
