@@ -206,7 +206,7 @@ class TestMulticameraEntrypoint(unittest.TestCase):
         self.assertIn("Track: TRK-7 (ACTIVE)", text)
         self.assertIn("Imagen: VIVO 11", text)
         self.assertIn("Video: 11", text)
-        self.assertIn("Frame analítico: 9", text)
+        self.assertIn("Analítico: 9", text)
         self.assertIn("Evidencia: frame.jpg", text)
 
     def test_runtime_trace_is_bounded_and_records_ui_boundary(self):

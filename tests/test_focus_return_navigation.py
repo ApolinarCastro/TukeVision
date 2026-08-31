@@ -97,7 +97,7 @@ class TestFocusReturnNavigation(TkAppFocusBase):
     def test_initial_grid_is_all_15_cameras(self):
         self.assertEqual(len(self.app._visible_camera_ids), 15)
         self.assertIsNone(self.app._grid_preset)
-        self.assertEqual(self.app._grid_capacity(), 16)
+        self.assertEqual(self.app._grid_capacity(), 15)
 
     def test_enter_focus_saves_context_and_enables_return(self):
         self.app._on_click_camera("cam_07")

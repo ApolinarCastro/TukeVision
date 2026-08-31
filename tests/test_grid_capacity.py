@@ -22,8 +22,8 @@ def camera_ids(count):
 
 
 class TestGridCapacity(unittest.TestCase):
-    def test_15_physical_cameras_render_in_a_16_cell_grid(self):
-        self.assertEqual(grid_capacity(15), 16)
+    def test_15_physical_cameras_render_in_a_15_cell_grid(self):
+        self.assertEqual(grid_capacity(15), 15)
         self.assertEqual(grid_capacity(16), 16)
         self.assertEqual(grid_capacity(9), 9)
         self.assertEqual(grid_capacity(4), 4)
