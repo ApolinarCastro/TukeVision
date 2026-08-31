@@ -445,17 +445,22 @@ class UiController:
             return None
 
     def set_focus(self, camera_id: Optional[str]) -> None:
-        """Cambia el foco visual y ajusta el perfil de stream RTSP."""
+        """Cambia el foco visual y ajusta el perfil de stream RTSP.
+        
+        Decoupled: executes in a background thread to prevent blocking the
+        Tk event loop during slow stream switches.
+        """
         if not hasattr(self, "_manager") or self._manager is None:
             return
         
-        # DEF-F12-01: No hardcodear 1920. max_width=0 preserva resolución nativa (MAIN).
-        # max_width=640 para substream (GRID).
-        for cam in self.camera_ids:
-            if camera_id is not None and cam == camera_id:
-                self._manager.switch_stream(cam, 0, max_width=0)  # MAIN (HD Native)
-            else:
-                self._manager.switch_stream(cam, 1, max_width=640)  # SUB (Economy)
+        def _switch_streams():
+            for cam in self.camera_ids:
+                if camera_id is not None and cam == camera_id:
+                    self._manager.switch_stream(cam, 0, max_width=0)  # MAIN (HD Native)
+                else:
+                    self._manager.switch_stream(cam, 1, max_width=640)  # SUB (Economy)
+                    
+        threading.Thread(target=_switch_streams, daemon=True).start()
 
     def poll_state(self) -> dict:
         """Copia del estado actual para la vista (hilo principal)."""

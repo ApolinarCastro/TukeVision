@@ -45,6 +45,8 @@ def grid_size(camera_count: int) -> Tuple[int, int]:
     """
     if camera_count < 1:
         return (1, 1)
+    if camera_count == 15:
+        return (3, 5)
     if camera_count in _SUPPORTED:
         return _SUPPORTED[camera_count]
     rows = int(math.ceil(math.sqrt(camera_count)))
@@ -66,6 +68,8 @@ def grid_capacity(camera_count: int) -> int:
         return 0
     if count == 6:
         return 6
+    if count == 15:
+        return 15
     rows, cols = grid_size(count)
     return rows * cols
 

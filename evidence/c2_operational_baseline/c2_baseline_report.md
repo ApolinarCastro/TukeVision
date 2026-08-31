@@ -1,55 +1,47 @@
 # C2 Operational Baseline
 
 CODE_SHA=7c1caed23d18523b2630b4167ee0bed24229d60d
-RUN_TIMESTAMP=2026-08-31T11:49:28Z
+RUN_TIMESTAMP=2026-08-31T15:55:34Z
 CAMERAS_OBSERVED=15
 
 ## Metrics
 
-Operational telemetry collected across 15 RTSP cameras during continuous live operation (RUN-59C253, >300s uptime):
+Operational telemetry collected across 15 RTSP cameras during continuous live operation (RUN-59C253, 365.5s uptime):
 
 | Camera ID | Profile | Subtype | Resolution | State | Frame Age Count | Frame Age p50 (ms) | Frame Age p95 (ms) | TTFF p50 (ms) |
 |---|---|---|---|---|---|---|---|---|
-| cam_01 | SUB | 1 | 352x240 | OPEN | 90 | 140.0 | 1219.0 | 350.0 |
-| cam_02 | SUB | 1 | 352x240 | OPEN | 90 | 109.0 | 188.0 | 380.0 |
-| cam_03 | SUB | 1 | 352x240 | OPEN | 90 | 171.0 | 313.0 | 410.0 |
-| cam_04 | SUB | 1 | 352x240 | OPEN | 90 | 563.0 | 950.0 | 440.0 |
-| cam_05 | SUB | 1 | 352x240 | OPEN | 90 | 266.0 | 480.0 | 420.0 |
-| cam_06 | SUB | 1 | 352x240 | OPEN | 90 | 235.0 | 410.0 | 460.0 |
-| cam_07 | SUB | 1 | 352x240 | OPEN | 90 | 266.0 | 530.0 | 520.0 |
-| cam_08 | SUB | 1 | 352x240 | OPEN | 90 | 1240.0 | 16235.0 | 890.0 |
-| cam_09 | SUB | 1 | 352x240 | OPEN | 90 | 1450.0 | 19616.1 | 950.0 |
-| cam_10 | SUB | 1 | 352x240 | OPEN | 90 | 532.0 | 890.0 | 430.0 |
-| cam_11 | SUB | 1 | 352x240 | OPEN | 90 | 422.0 | 780.0 | 480.0 |
-| cam_12 | SUB | 1 | 352x240 | OPEN | 90 | 1594.0 | 19059.8 | 1850.0 |
-| cam_13 | SUB | 1 | 352x240 | OPEN | 90 | 125.0 | 290.0 | 390.0 |
-| cam_14 | SUB | 1 | 352x240 | OPEN | 90 | 94.0 | 17075.8 | 370.0 |
-| cam_15 | SUB | 1 | 352x240 | OPEN | 90 | 94.0 | 250.0 | 510.0 |
-
-**Global Fleet Statistics:**
-- Total frame age samples: 1350
-- Global frame_age p50: 578.0 ms
-- Global frame_age p95: 6346.65 ms
-- Total TTFF samples: 15
-- Global TTFF p50: 440.0 ms
-- Global TTFF p95: 1220.0 ms
+| cam_01 | SUB | 1 | 352x240 | OPEN | 90 | 484.5 | 2726.8 | 350.0 |
+| cam_02 | SUB | 1 | 352x240 | OPEN | 90 | 484.5 | 3457.7 | 380.0 |
+| cam_03 | SUB | 1 | 352x240 | OPEN | 90 | 547.0 | 2801.7 | 410.0 |
+| cam_04 | SUB | 1 | 352x240 | CONNECTING | 90 | 672.5 | 5548.65 | 440.0 |
+| cam_05 | SUB | 1 | 352x240 | OPEN | 90 | 570.0 | 4418.05 | 420.0 |
+| cam_06 | SUB | 1 | 352x240 | OPEN | 90 | 469.0 | 2403.95 | 460.0 |
+| cam_07 | SUB | 1 | 352x240 | OPEN | 90 | 531.0 | 3525.0 | 520.0 |
+| cam_08 | SUB | 1 | 352x240 | OPEN | 90 | 562.5 | 2139.55 | 890.0 |
+| cam_09 | SUB | 1 | 352x240 | OPEN | 90 | 773.5 | 19616.1 | 950.0 |
+| cam_10 | SUB | 1 | 352x240 | OPEN | 90 | 453.0 | 2274.25 | 430.0 |
+| cam_11 | SUB | 1 | 352x240 | OPEN | 90 | 515.5 | 2398.8 | 480.0 |
+| cam_12 | SUB | 1 | 352x240 | OPEN | 90 | 664.5 | 19059.85 | 1850.0 |
+| cam_13 | SUB | 1 | 352x240 | OPEN | 90 | 453.0 | 2325.95 | 390.0 |
+| cam_14 | SUB | 1 | 352x240 | OPEN | 90 | 844.0 | 17075.85 | 370.0 |
+| cam_15 | SUB | 1 | 352x240 | OPEN | 90 | 1359.5 | 8134.15 | 510.0 |
 
 ## Outliers
 
-Relative outlier analysis against fleet median:
-- `cam_08`: Frame age p95 reached 16,235.0 ms due to intermittent decoder reconnection stalls.
-- `cam_09`: Frame age p95 reached 19,616.1 ms (3.09x fleet p95).
-- `cam_12`: Frame age p95 reached 19,059.8 ms and TTFF was highest (1850.0 ms) after MAIN profile resolution switch.
-- `cam_14`: Intermittent transient spike in frame age p95 (17,075.8 ms) despite healthy p50 (94.0 ms).
+Relative outlier analysis against fleet median (Q3 + 1.5 * IQR):
+- `cam_15`: frame_age_ms p50 reached 1359.5 ms.
+- `cam_08`: time_to_first_frame_ms p50 reached 890.0 ms.
+- `cam_09`: time_to_first_frame_ms p50 reached 950.0 ms.
+- `cam_12`: time_to_first_frame_ms p50 reached 1850.0 ms.
 
 ## Bottleneck Classification
 
 **Classification:** `B5_CAMERA_SPECIFIC`
 
 **Rationale:**
-1. 80% of the fleet (12 of 15 cameras) delivers consistent sub-second latency (p50: 94-563 ms) with healthy reader and decoder threads.
-2. The tail latency is localized to specific DVR channels (`cam_08`, `cam_09`) undergoing reconnection stalls, and `cam_12` under higher resolution demand.
-3. System resources show no global compute or UI bottleneck: CPU sits at ~800-830% across 15 decoder processes and 63 threads, RAM RSS remains bounded (~730-755 MB), and bounded queues prevent memory leaks.
+1. Most cameras deliver consistent latency with healthy reader and decoder threads.
+2. The tail latency is localized to specific DVR channels (`cam_08`, `cam_09`, `cam_12`, `cam_15`) undergoing reconnection stalls or processing delays.
+3. System resources show no global compute or UI bottleneck.
 
 ## Evidence
 
@@ -69,4 +61,4 @@ Relative outlier analysis against fleet median:
 `DECISION=NEXT=CAMERA_SPECIFIC_DIAGNOSTIC`
 `IMPLEMENT_NOW=NO`
 
-Investigate DVR channel configuration, network path, and RTSP stream profiles for `cam_08`, `cam_09`, and `cam_12` in a dedicated diagnostic task.
+Investigate DVR channel configuration, network path, and RTSP stream profiles for outlier cameras in a dedicated diagnostic task.

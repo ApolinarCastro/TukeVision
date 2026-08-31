@@ -277,27 +277,32 @@ def annotate_frame(frame, panel, displayed_frame_index=None):
 
 def panel_status_text(panel) -> str:
     """Render a compact, factual summary of the latest canonical result."""
-    confidence = "-"
-    if panel.event_confidence is not None:
-        confidence = f"{panel.event_confidence:.0%}"
-    analytics_frame = "-"
-    if panel.analytics_frame_index >= 0:
-        analytics_frame = str(panel.analytics_frame_index)
-    evidence_name = "-"
-    if panel.evidence:
-        evidence_name = Path(panel.evidence).name
     _, displayed_frame_index, display_mode = select_panel_frame(panel)
-    return (
-        f"Estado: {panel.source_state} | {panel.resolution or '-'} | "
-        f"Imagen: {display_mode} {displayed_frame_index} | "
-        f"Video: {panel.frame_index} | Det: {panel.detections} | "
-        f"Track: {panel.track_id or '-'} "
-        f"({panel.track_status or '-'})\n"
-        f"Evento: {panel.event_type or '-'} {confidence} | "
-        f"Frame analítico: {analytics_frame} | Temporal: {panel.temporal or '-'}\n"
-        f"Behavior: {panel.behavior or '-'} | Riesgo: {panel.risk or '-'} | "
-        f"Evidencia: {evidence_name}"
-    )
+    parts = []
+    state_line = f"Estado: {panel.source_state} | {panel.resolution or '-'} | Imagen: {display_mode} {displayed_frame_index} | Video: {panel.frame_index}"
+    parts.append(state_line)
+
+    if panel.detections or panel.track_id:
+        track_part = f" | Track: {panel.track_id} ({panel.track_status})" if panel.track_id else ""
+        det_part = f"Det: {panel.detections}" if panel.detections else ""
+        parts.append(f"{det_part}{track_part}".strip(" |"))
+
+    if panel.event_type:
+        conf = f" {panel.event_confidence:.0%}" if panel.event_confidence is not None else ""
+        af = f" | Analítico: {panel.analytics_frame_index}" if panel.analytics_frame_index >= 0 else ""
+        temp = f" | Temp: {panel.temporal}" if panel.temporal else ""
+        parts.append(f"Evento: {panel.event_type}{conf}{af}{temp}")
+
+    if panel.behavior or panel.risk:
+        b_part = f"Behavior: {panel.behavior}" if panel.behavior else ""
+        r_part = f" | Riesgo: {panel.risk}" if panel.risk else ""
+        parts.append(f"{b_part}{r_part}".strip(" |"))
+
+    if panel.evidence:
+        import pathlib
+        parts.append(f"Evidencia: {pathlib.Path(panel.evidence).name}")
+
+    return "\n".join(parts)
 
 
 def camera_status_color(status: str) -> str:
@@ -1172,6 +1177,7 @@ class TkApp:
             for widget in (self._source_label, self._source_menu, self._input_entry,
                            self._rtsp_frame, self._file_btn, self._start_btn):
                 widget.grid_remove()
+            self._settings_wrap.pack_forget()
 
     # ------------------------------------------------------------- placeholders
     def _draw_placeholder(

@@ -1,36 +1,22 @@
 {
-  "outlier_count": 3,
-  "fleet_global_frame_age_p95_ms": 6346.65,
-  "outliers": [
+  "frame_age_ms": [
+    {
+      "camera_id": "cam_15",
+      "p50_ms": 1359.5
+    }
+  ],
+  "time_to_first_frame_ms": [
+    {
+      "camera_id": "cam_08",
+      "p50_ms": 890.0
+    },
     {
       "camera_id": "cam_09",
-      "metric": "frame_age_ms",
-      "p95_ms": 19616.1,
-      "fleet_global_p95_ms": 6346.65,
-      "ratio_to_fleet": 3.09,
-      "reason": "p95 significantly above fleet median",
-      "active_profile": "SUB",
-      "source_state": "OPEN"
+      "p50_ms": 950.0
     },
     {
       "camera_id": "cam_12",
-      "metric": "frame_age_ms",
-      "p95_ms": 19059.85,
-      "fleet_global_p95_ms": 6346.65,
-      "ratio_to_fleet": 3.0,
-      "reason": "p95 significantly above fleet median",
-      "active_profile": "SUB",
-      "source_state": "OPEN"
-    },
-    {
-      "camera_id": "cam_14",
-      "metric": "frame_age_ms",
-      "p95_ms": 17075.85,
-      "fleet_global_p95_ms": 6346.65,
-      "ratio_to_fleet": 2.69,
-      "reason": "p95 significantly above fleet median",
-      "active_profile": "SUB",
-      "source_state": "OPEN"
+      "p50_ms": 1850.0
     }
   ]
 }

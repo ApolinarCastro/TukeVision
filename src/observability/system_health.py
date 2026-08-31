@@ -49,8 +49,6 @@ def health_state_for(
                  (a cached last frame must NOT be counted online).
     OFFLINE:     closed / failed / not healthy (no recent frame ever counts).
     """
-    if not healthy:
-        return "OFFLINE"
     if state in ("FAILED", "CLOSED"):
         return "OFFLINE"
     if state in _RECONNECTING_STATES:
@@ -61,7 +59,11 @@ def health_state_for(
             return "DEGRADED"
         if age_seconds is None:
             return "DEGRADED"
-        return "ONLINE" if age_seconds <= fresh_frame_age_seconds else "DEGRADED"
+        if age_seconds <= fresh_frame_age_seconds:
+            return "ONLINE"
+        return "DEGRADED"
+    if not healthy:
+        return "OFFLINE"
     if state in _DEGRADED_STATES:
         return "DEGRADED"
     return "OFFLINE"

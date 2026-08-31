@@ -1,33 +1,5 @@
 {
-  "camera_count": 15,
-  "metrics_available": [
-    "frame_age_ms",
-    "time_to_first_frame_ms"
-  ],
-  "samples_total": 1350,
-  "frame_age_global_p50": 578.0,
-  "frame_age_global_p95": 6346.65,
-  "ttff_global_p50": 440.0,
-  "ttff_global_p95": 1220.0,
-  "highest_frame_age_camera": "cam_09",
-  "highest_ttff_camera": "cam_12",
-  "cameras_without_samples": [],
-  "cameras_degraded": [],
-  "cameras_offline": [
-    "cam_01",
-    "cam_02",
-    "cam_03",
-    "cam_04",
-    "cam_05",
-    "cam_06",
-    "cam_07",
-    "cam_08",
-    "cam_09",
-    "cam_10",
-    "cam_11",
-    "cam_12",
-    "cam_13",
-    "cam_14",
-    "cam_15"
-  ]
+  "observed_run_id": "RUN-59C253",
+  "total_runtime_seconds": 365.5,
+  "total_cameras_evaluated": 15
 }
