@@ -98,9 +98,7 @@ class UiController:
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
         # Presentation-only orchestration for snapshots produced upstream.
-        self._presentation = MultiCameraViewModel(camera_ids or ())
-        self.camera_ids = camera_ids or ()
-
+        
         # Focus coordinator
         self._focus_lock = threading.Lock()
         self._focus_condition = threading.Condition(self._focus_lock)
