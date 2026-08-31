@@ -18,7 +18,7 @@ from typing import Callable, Mapping, Optional, Sequence, Tuple, Any
 
 logger = logging.getLogger("tukevision.system_health")
 HEALTH_METRIC_UNAVAILABLE = "HEALTH_METRIC_UNAVAILABLE"
-_ONLINE_STATES = frozenset(("OPEN", "READING"))
+_ONLINE_STATES = frozenset(("OPEN", "READING", "HEALTHY"))
 _DEGRADED_STATES = frozenset(("STALLED",))
 # BLOCK L: a source that is actively trying to recover is RECONNECTING, which
 # is NOT ONLINE (it has no fresh frame) and is reported distinctly so the
@@ -54,6 +54,8 @@ def health_state_for(
     if state in _RECONNECTING_STATES:
         return "RECONNECTING"
     if state in _ONLINE_STATES:
+        if not healthy:
+            return "OFFLINE"
         frames = readable_frames if readable_frames is not None else None
         if frames is not None and int(frames) <= 0:
             return "DEGRADED"

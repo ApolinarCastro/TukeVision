@@ -98,6 +98,17 @@ class UiController:
         self._lock = threading.Lock()
         self._thread: Optional[threading.Thread] = None
         # Presentation-only orchestration for snapshots produced upstream.
+        self._presentation = MultiCameraViewModel(camera_ids or ())
+        self.camera_ids = camera_ids or ()
+
+        # Focus coordinator
+        self._focus_lock = threading.Lock()
+        self._focus_condition = threading.Condition(self._focus_lock)
+        self._pending_focus_intent = None
+        self._active_focus_intent = None
+        self._stop_focus_worker = False
+        self._focus_worker_thread = threading.Thread(target=self._focus_worker_loop, daemon=True)
+        self._focus_worker_thread.start()
         # Camera set is config-driven (OC-01): 1 -> 4 -> 16 -> N.
         # The view model holds the FULL CAMERA CATALOG (every store's
         # cameras) as ``catalog_ids`` and a CURRENT VIEWPORT subset; store
@@ -444,23 +455,36 @@ class UiController:
         except queue.Empty:
             return None
 
+    def _focus_worker_loop(self):
+        while not self._stop_focus_worker:
+            with self._focus_condition:
+                while self._pending_focus_intent is None and not self._stop_focus_worker:
+                    self._focus_condition.wait()
+                if self._stop_focus_worker:
+                    break
+                intent = self._pending_focus_intent
+                self._pending_focus_intent = None
+                self._active_focus_intent = intent
+            
+            if hasattr(self, "_manager") and self._manager is not None:
+                for cam in self.camera_ids:
+                    if intent is not None and cam == intent:
+                        self._manager.switch_stream(cam, 0, max_width=0)  # MAIN
+                    else:
+                        self._manager.switch_stream(cam, 1, max_width=640)  # SUB
+
+            with self._focus_condition:
+                self._active_focus_intent = None
+
     def set_focus(self, camera_id: Optional[str]) -> None:
         """Cambia el foco visual y ajusta el perfil de stream RTSP.
         
-        Decoupled: executes in a background thread to prevent blocking the
-        Tk event loop during slow stream switches.
+        Schedules the transition in a single background worker to prevent
+        blocking the Tk event loop. Latest intent wins.
         """
-        if not hasattr(self, "_manager") or self._manager is None:
-            return
-        
-        def _switch_streams():
-            for cam in self.camera_ids:
-                if camera_id is not None and cam == camera_id:
-                    self._manager.switch_stream(cam, 0, max_width=0)  # MAIN (HD Native)
-                else:
-                    self._manager.switch_stream(cam, 1, max_width=640)  # SUB (Economy)
-                    
-        threading.Thread(target=_switch_streams, daemon=True).start()
+        with self._focus_condition:
+            self._pending_focus_intent = camera_id
+            self._focus_condition.notify_all()
 
     def poll_state(self) -> dict:
         """Copia del estado actual para la vista (hilo principal)."""
@@ -500,6 +524,10 @@ class UiController:
     def close(self) -> None:
         """Detiene, espera y limpia sin forzar procesos."""
         self._stop.set()
+        if hasattr(self, "_focus_condition"):
+            with self._focus_condition:
+                self._stop_focus_worker = True
+                self._focus_condition.notify_all()
         self.join(timeout=10.0)
         self._drain_visual()
         with self._lock:

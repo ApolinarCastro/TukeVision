@@ -1,22 +1,16 @@
 {
   "frame_age_ms": [
     {
-      "camera_id": "cam_15",
-      "p50_ms": 1359.5
-    }
-  ],
-  "time_to_first_frame_ms": [
-    {
-      "camera_id": "cam_08",
-      "p50_ms": 890.0
-    },
-    {
-      "camera_id": "cam_09",
-      "p50_ms": 950.0
+      "camera_id": "cam_14",
+      "p95_ms": 17075.85
     },
     {
       "camera_id": "cam_12",
-      "p50_ms": 1850.0
+      "p95_ms": 19059.85
+    },
+    {
+      "camera_id": "cam_09",
+      "p95_ms": 19616.1
     }
   ]
 }

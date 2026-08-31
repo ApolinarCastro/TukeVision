@@ -29,10 +29,9 @@ Operational telemetry collected across 15 RTSP cameras during continuous live op
 ## Outliers
 
 Relative outlier analysis against fleet median (Q3 + 1.5 * IQR):
-- `cam_15`: frame_age_ms p50 reached 1359.5 ms.
-- `cam_08`: time_to_first_frame_ms p50 reached 890.0 ms.
-- `cam_09`: time_to_first_frame_ms p50 reached 950.0 ms.
-- `cam_12`: time_to_first_frame_ms p50 reached 1850.0 ms.
+- `cam_09`: frame_age_ms p95 reached 19616.1 ms.
+- `cam_12`: frame_age_ms p95 reached 19059.85 ms.
+- `cam_14`: frame_age_ms p95 reached 17075.85 ms.
 
 ## Bottleneck Classification
 

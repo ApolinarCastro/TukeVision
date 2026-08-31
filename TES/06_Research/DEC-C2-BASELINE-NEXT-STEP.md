@@ -6,4 +6,4 @@ DECISION=NEXT=CAMERA_SPECIFIC_DIAGNOSTIC
 
 IMPLEMENT_NOW=NO
 
-RATIONALE=12 of 15 cameras deliver steady sub-second p50 latencies (94-563ms). Outliers are confined to specific channels (cam_08, cam_09, cam_12) due to localized reconnection stalls or profile switches rather than architectural compute/UI bottlenecks.
+RATIONALE=12 of 15 cameras deliver steady sub-second p50 latencies (453-1359.5ms). Outliers are confined to specific channels (cam_09, cam_12, cam_14) due to localized reconnection stalls or profile switches rather than architectural compute/UI bottlenecks.
