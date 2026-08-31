@@ -286,14 +286,12 @@ class MulticameraRuntime:
         resolutions = [panel.resolution for panel in panels.values() if panel.resolution]
         qw04 = self._qw04.summary()
         system_health = self._health.snapshot(runtime_running=running)
-        # True liveness: live exclusively via frame progress, not session open
-        true_snap = {}
+        # Single source of truth: health snapshot online_camera_count
+        # (MACRO-OC-02: header counter derives from health_state == ONLINE)
         live_count = system_health.online_camera_count
+        true_snap = {}
         try:
             true_snap = self._true_liveness.snapshot()
-            # Override live count with true liveness if available after startup
-            if any(v.last_frame_monotonic is not None for v in true_snap.values()):
-                live_count = sum(1 for v in true_snap.values() if v.live)
         except Exception:
             true_snap = {}
         return {"status": "RUNNING" if running else "STOPPED", "source_path_display": "MULTICAMERA",

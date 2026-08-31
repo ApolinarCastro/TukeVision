@@ -67,7 +67,9 @@ class AdvanceChain:
         self._behavior = behavior_engine
         
         from src.perception.person_presence_validator import PersonPresenceValidator
+        from src.tracking.visit_session import VisitSessionManager
         self._person_validator = PersonPresenceValidator()
+        self._visit_mgr = VisitSessionManager()
         
         self._closed = False
         
@@ -266,6 +268,7 @@ class AdvanceChain:
             
             # SLICE: Temporal Person Presence Validation
             validated_presence = None
+            visit_semantics = ()
             if getattr(track, "object_type", "") == "person" and self._person_validator is not None:
                 store_state = (metadata or {}).get("store_state", "OPEN")
                 self._person_validator.update_store_state(store_state)
@@ -277,6 +280,25 @@ class AdvanceChain:
                 # Rule 13: CLOSED STORE EXPECTATION
                 if store_state == "CLOSED" and validated_presence == "PERSON_MOVING":
                     metadata["UNEXPECTED_HUMAN_ACTIVITY"] = True
+
+                # Generate semantic snapshot
+                is_eligible = validated_presence in ("PERSON_MOVING", "PERSON_STATIONARY")
+                visit = self._visit_mgr.handle_track(
+                    str(getattr(track, "track_id", "")),
+                    camera_id,
+                    bbox if bbox else (0,0,0,0),
+                    is_eligible_person=is_eligible,
+                )
+                from src.tracking.visit_semantic import VisitSemanticSnapshot
+                visit_semantics = (VisitSemanticSnapshot(
+                    track_id=str(getattr(track, "track_id", "")),
+                    camera_id=camera_id,
+                    person_state=validated_presence,
+                    visit_id=visit.visit_id if visit else None,
+                    visit_role=visit.role if visit else "UNKNOWN",
+                    customer_analytics_eligible=visit.customer_analytics_eligible if visit else False,
+                    visit_origin=visit.entry_source if visit else "UNKNOWN"
+                ),)
 
             temporal_activity = next(
                 (
@@ -326,6 +348,7 @@ class AdvanceChain:
             "correlation": correlation,
             "behavior": behavior,
             "evidence": evidence,
+            "visit_semantics": visit_semantics if track else (),
         }
 
     # ------------------------------------------------------------------
