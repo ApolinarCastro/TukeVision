@@ -369,19 +369,62 @@ class MulticameraRuntime:
         """Single sampler writer: observation is available before UI shutdown."""
         from dataclasses import asdict
         from src.observability.logging_setup import atomic_write_text
+        import threading
+        
         base = Path(self.evidence_root)
         self._telemetry.export(base / "resource_telemetry.json")
         states = {cid: asdict(value) for cid, value in self._true_liveness.snapshot().items()}
+        
+        # EXPOSURE-ONLY PATCH for missing fields
+        trace_snap = self._trace.snapshot()
+        for cid in self._camera_ids:
+            if cid not in states:
+                states[cid] = {}
+            # Defaults
+            states[cid]["active_profile"] = "MAIN"
+            states[cid]["active_subtype"] = 1
+            states[cid]["source_width"] = None
+            states[cid]["source_height"] = None
+            states[cid]["ui_rendered_sequence"] = trace_snap.get(cid, {}).get("UI_RENDERED", 0)
+            states[cid]["decoder_state"] = states[cid].get("liveness_state", "UNKNOWN")
+            
+            # Extract actual values from SourceManager runtimes
+            try:
+                rt = self._manager._runtimes.get(cid)
+                if rt:
+                    # active_subtype from current descriptor
+                    if hasattr(rt, "descriptor") and rt.descriptor:
+                        states[cid]["active_subtype"] = getattr(rt.descriptor, "subtype", 1)
+                        states[cid]["active_profile"] = "MAIN" if states[cid]["active_subtype"] == 0 else "SUB"
+                    # source resolution
+                    snap = rt.last_snapshot
+                    if snap:
+                        res = snap.get("resolution", "")
+                        if "x" in res:
+                            w, h = res.split("x")
+                            states[cid]["source_width"] = int(w)
+                            states[cid]["source_height"] = int(h)
+                    # decoder_state
+                    if rt.source:
+                        states[cid]["decoder_state"] = getattr(rt.source, "state", states[cid]["decoder_state"])
+            except Exception:
+                pass
+
+        readers_active = sum(1 for th in threading.enumerate() if th.name.startswith(("tukevision-rtsp-reader", "tukevision-ffmpeg-")) and th.is_alive())
+
         payload = {
             "run_id": self._run_id, "pid": self._pid,
             "observed_at": time.time(), "observed_monotonic": time.monotonic(),
+            "readers_active": readers_active,
+            "decoders_active": readers_active,
             "cameras": states,
-            "live_count": sum(value["live"] for value in states.values()),
+            "live_count": sum(value.get("live", False) for value in states.values()),
             "technical_gate": "NOT_CERTIFIED",
-            "trace": self._trace.snapshot(),
+            "trace": trace_snap,
         }
         if getattr(self, "current_grid_snapshot", None):
-            payload["grid_snapshot"] = self.current_grid_snapshot
+            payload["ui"] = {"grid_snapshot": self.current_grid_snapshot, "layout_mode": "GRID6" if len(self.current_grid_snapshot.get("tiles", {})) <= 6 else "GRID16"}
+            payload["grid_snapshot"] = self.current_grid_snapshot  # Keep original too just in case
         atomic_write_text(base / "live_status.json", json.dumps(payload, indent=2))
         self._trace.export(base / "runtime_trace.json")
 

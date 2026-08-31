@@ -1,9 +1,9 @@
 {
   "run_id": "RUN-NOFF",
-  "pid": 25408,
-  "started_at": "2026-08-30T19:28:26",
-  "started_at_unix": 1788132506.7893856,
-  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
+  "pid": 22680,
+  "started_at": "2026-08-30T20:01:04",
+  "started_at_unix": 1788134464.0712676,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
   "camera_ids": [
     "cam_01",
     "cam_02",

@@ -1,0 +1,24 @@
+{
+  "run_id": "RUN-DC83B5",
+  "pid": 23696,
+  "started_at": "2026-08-30T19:33:20",
+  "started_at_unix": 1788132800.1582198,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-1-g5b4ac47-dirty",
+  "camera_ids": [
+    "cam_01",
+    "cam_02",
+    "cam_03",
+    "cam_04",
+    "cam_05",
+    "cam_06",
+    "cam_07",
+    "cam_08",
+    "cam_09",
+    "cam_10",
+    "cam_11",
+    "cam_12",
+    "cam_13",
+    "cam_14",
+    "cam_15"
+  ]
+}
