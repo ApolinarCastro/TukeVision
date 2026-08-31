@@ -1,0 +1,10 @@
+{
+  "valid_json_lines": true,
+  "chronological_order": true,
+  "sample_index_progression": false,
+  "monotonic_progression": true,
+  "run_id_consistency": true,
+  "commit_sha_consistency": true,
+  "no_operator_attestation_as_automatic_source": true,
+  "hash_chain_status": "NOT_IMPLEMENTED"
+}
