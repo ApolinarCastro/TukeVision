@@ -13,7 +13,7 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Callable, Mapping, Optional, Sequence, Tuple
+from typing import Callable, Mapping, Optional, Sequence, Tuple, Any
 
 
 logger = logging.getLogger("tukevision.system_health")
@@ -137,6 +137,7 @@ class CameraOperationalHealth:
     last_error: str = ""
     health_state: str = "OFFLINE"
     readable_frames: Optional[int] = None
+    latency_metrics: Optional[Mapping[str, Any]] = None
 
 
 @dataclass(frozen=True)
@@ -284,6 +285,12 @@ class SystemHealthSampler:
                     readable_frames=readable,
                     fresh_frame_age_seconds=self._fresh_frame_age_seconds,
                 )
+                try:
+                    from src.observability.latency_metrics import get_latency_metrics
+                    latency = get_latency_metrics(camera_id)
+                except ImportError:
+                    latency = None
+                
                 values.append(CameraOperationalHealth(
                     camera_id=camera_id,
                     source_state=state,
@@ -294,6 +301,7 @@ class SystemHealthSampler:
                     last_error=str(getattr(health, "last_error", "") or ""),
                     health_state=health_state,
                     readable_frames=readable,
+                    latency_metrics=latency,
                 ))
             except Exception as exc:
                 logger.warning(

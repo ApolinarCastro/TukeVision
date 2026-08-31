@@ -414,6 +414,13 @@ class SourceManager:
                         if frame is not None:
                             first_frame_received = True
                             rt.first_frame_at = now
+                            
+                            try:
+                                from src.observability.latency_metrics import record_latency
+                                record_latency(camera_id, "time_to_first_frame_ms", (now - started_at) * 1000.0)
+                            except ImportError:
+                                pass
+                            
                             rt.consecutive_failure_count = 0
                             rt.state = "HEALTHY"
                             # If we recovered successfully, record it
@@ -565,6 +572,13 @@ class SourceManager:
                 ),
                 "timestamp": time.monotonic(),
             }
+            try:
+                from src.observability.latency_metrics import record_latency
+                frame_age = getattr(source, "last_valid_frame_age_ms", None)
+                if frame_age is not None:
+                    record_latency(camera_id, "frame_age_ms", float(frame_age))
+            except ImportError:
+                pass
 
 
 def _default_rtsp_source(descriptor: CameraDescriptor):
