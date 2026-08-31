@@ -276,12 +276,62 @@ def test_recovery_success_requires_sequence_advance(sm):
     desc = CameraDescriptor(camera_id="cam_1", host="rtsp://test")
     sm.register_source(desc)
     
-    rt = sm._get_runtime("cam_1")
-    rt.generation = 1
-    rt.state = "STARTING"
+    events = []
+    sm.experience_sink = lambda ev: events.append(ev)
     
-    # We test the first frame loop logic in isolation to simulate sequence advance requirement
-    assert True # The runtime inherently requires generation advance to accept a frame. Sequences are handled by downstream processing.
+    attempt = 0
+    def mock_factory(descriptor):
+        nonlocal attempt
+        src = MockSource(descriptor)
+        if attempt == 0:
+            # GEN 1 -> frame -> failure
+            src._frames_to_yield = [(0, "frame0"), "STALL"]
+        elif attempt == 1:
+            # GEN 2 -> first real frame seq0 -> next real frame seq1 -> hang
+            src._frames_to_yield = [(0, "real_frame0"), (1, "real_frame1"), "HANG"]
+        attempt += 1
+        return src
+        
+    sm._source_factory = mock_factory
+    sm.start("cam_1")
+    time.sleep(0.3)
+    sm.stop("cam_1")
+    
+    success_events = [e for e in events if e.get("outcome") == "SUCCESS"]
+    assert len(success_events) > 0
+    ev = success_events[0]
+    
+    assert ev["new_generation"] > ev["old_generation"]
+    # We implicitly test that the two real frames were processed if it succeeded.
+    
+def test_recovery_success_fails_if_no_real_frame(sm):
+    # GEN 2 starts BUT no real frame -> RECOVERY_SUCCESS_EVENT = 0
+    desc = CameraDescriptor(camera_id="cam_1", host="rtsp://test")
+    sm.register_source(desc)
+    
+    events = []
+    sm.experience_sink = lambda ev: events.append(ev)
+    
+    attempt = 0
+    def mock_factory(descriptor):
+        nonlocal attempt
+        src = MockSource(descriptor)
+        if attempt == 0:
+            # GEN 1 -> frame -> failure
+            src._frames_to_yield = [(0, "frame0"), "STALL"]
+        elif attempt == 1:
+            # GEN 2 -> no real frame, just stall
+            src._frames_to_yield = ["STALL"]
+        attempt += 1
+        return src
+        
+    sm._source_factory = mock_factory
+    sm.start("cam_1")
+    time.sleep(0.3)
+    sm.stop("cam_1")
+    
+    success_events = [e for e in events if e.get("outcome") == "SUCCESS"]
+    assert len(success_events) == 0
 
 
 def test_recovery_budget_prevents_restart_storm(sm):
@@ -373,21 +423,23 @@ def test_recovery_event_records_failure_and_actual_outcome(sm):
     assert "outcome" in ev
 
 def test_true_liveness_does_not_control_decoder_lifecycle():
-    # If the TrueLiveness module is in a different path or not present, we can just 
-    # check that it's an observer by verifying its class implementation or dummy.
-    try:
-        from src.observability.liveness import TrueLivenessTracker
-        tracker = TrueLivenessTracker()
-        
-        # Observe frame
-        tracker.observe_frame("cam_1", 1, 100)
-        tracker.observe_heartbeat("cam_1", 1)
-        snap = tracker.snapshot()
-        
-        assert "cam_1" in snap
-    except ImportError:
-        # If it doesn't exist yet, we still pass as observer-only
-        pass
+    from src.observability.true_liveness import TrueLivenessTracker
+    tracker = TrueLivenessTracker(["cam_1"])
+    
+    # Observe frame and heartbeat
+    tracker.observe_frame("cam_1", frame=None, frame_index=1)
+    tracker.observe_heartbeat("cam_1", capture_state="OPEN")
+    
+    snap = tracker.snapshot()
+    assert "cam_1" in snap
+    
+    assert tracker.live_count() >= 0
+    assert tracker.stale_count() >= 0
+    assert tracker.reconnecting_count() >= 0
+    
+    # Ensure there are no methods that imply control
+    for method in ["start", "stop", "restart", "open", "close"]:
+        assert not hasattr(tracker, method)
     
 def test_decoder_shutdown_timeout_is_effective(sm):
     desc = CameraDescriptor(camera_id="cam_1", host="rtsp://test")

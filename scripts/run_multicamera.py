@@ -396,6 +396,7 @@ class MulticameraRuntime:
                     if hasattr(rt, "descriptor") and rt.descriptor:
                         states[cid]["active_subtype"] = getattr(rt.descriptor, "subtype", 1)
                         states[cid]["active_profile"] = "MAIN" if states[cid]["active_subtype"] == 0 else "SUB"
+                    states[cid]["generation"] = getattr(rt, "generation", -1)
                     # source resolution
                     snap = rt.last_snapshot
                     if snap:
