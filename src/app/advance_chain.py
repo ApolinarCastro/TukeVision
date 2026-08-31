@@ -65,6 +65,10 @@ class AdvanceChain:
         self._evidence_store = evidence_store
         self._correlator = correlator
         self._behavior = behavior_engine
+        
+        from src.perception.person_presence_validator import PersonPresenceValidator
+        self._person_validator = PersonPresenceValidator()
+        
         self._closed = False
         
         # SLICE 1: Frame Buffer & Bundle Selector
@@ -259,6 +263,21 @@ class AdvanceChain:
             if isinstance(primary_bbox, (list, tuple)) and len(primary_bbox) == 4:
                 bbox = tuple(int(value) for value in primary_bbox)
             track = self._tracker.ingest(event, bbox=bbox)
+            
+            # SLICE: Temporal Person Presence Validation
+            validated_presence = None
+            if getattr(track, "object_type", "") == "person" and self._person_validator is not None:
+                store_state = (metadata or {}).get("store_state", "OPEN")
+                self._person_validator.update_store_state(store_state)
+                validated_presence = self._person_validator.evaluate_track(track, event, metadata)
+                if metadata is None:
+                    metadata = {}
+                metadata["validated_presence"] = validated_presence
+                
+                # Rule 13: CLOSED STORE EXPECTATION
+                if store_state == "CLOSED" and validated_presence == "PERSON_MOVING":
+                    metadata["UNEXPECTED_HUMAN_ACTIVITY"] = True
+
             temporal_activity = next(
                 (
                     activity
@@ -287,12 +306,15 @@ class AdvanceChain:
                     track, activity=temporal_activity, metadata=metadata
                 )
             if self._behavior is not None:
-                behavior = self._behavior.evaluate(
-                    observation=observation, event=event, track=track,
-                    activity=temporal_activity,
-                    trajectory=getattr(correlation, "trajectory", None),
-                    metadata=metadata,
-                )
+                if validated_presence == "LIKELY_SCENE_FIXTURE":
+                    behavior = None
+                else:
+                    behavior = self._behavior.evaluate(
+                        observation=observation, event=event, track=track,
+                        activity=temporal_activity,
+                        trajectory=getattr(correlation, "trajectory", None),
+                        metadata=metadata,
+                    )
 
         return {
             "camera_id": camera_id,

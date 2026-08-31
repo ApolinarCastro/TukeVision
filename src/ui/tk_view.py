@@ -113,6 +113,9 @@ def fit_display_size(
         return int(src_w), int(src_h)
     if allow_upscale:
         scale = min(max_w / src_w, max_h / src_h)
+        # Rule 28: No agresivo upscale para fuentes SD (ej. 352x240)
+        if src_w < 720:
+            scale = min(1.0, scale) # Preferir presentación letterbox nativa
     else:
         scale = min(1.0, max_w / src_w, max_h / src_h)
     disp_w = max(1, int(round(src_w * scale)))
@@ -1222,6 +1225,17 @@ class TkApp:
         self._focused_camera = camera_id
         self._focus_index = self._index_of(camera_id)
         self._reset_viewport(camera_id)
+        
+        # Rule 20: Wait for new generation on FOCUS
+        try:
+            panels = self._controller.poll_multicamera()
+            panel = panels.get(camera_id)
+            if panel:
+                gen = getattr(panel, "generation", 0) or 0
+                self._focus_target_generation = int(gen) + 1
+        except Exception:
+            self._focus_target_generation = 0
+            
         # BLOCK B: switch focused camera to MAIN, others remain SUB
         try:
             fn = getattr(self._controller, "set_focus", None)
@@ -1886,10 +1900,15 @@ class TkApp:
 
         generation = int(getattr(panel, "generation", 0) or 0)
         last_gen = getattr(self, "_last_render_gen", {}).get(camera_id, 0)
+        
+        # Rule 20: Wait for actual new generation when in FOCUS
+        if focus and generation < getattr(self, "_focus_target_generation", 0):
+            self._draw_placeholder(camera_id, canvas, "LOADING MAIN STREAM (HD)...", health_state)
+            return
 
         frame_changed = (
-            size != self._last_render_size[camera_id]
-            or frame_index != self._last_render_index[camera_id]
+            size != self._last_render_size.get(camera_id)
+            or frame_index != self._last_render_index.get(camera_id)
             or generation != last_gen
             or vp_key != last_vp
         )

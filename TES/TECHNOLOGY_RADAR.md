@@ -17,6 +17,7 @@ El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evalu
  • Ambient.ai UX│   • ONVIF Profile T / Media Signing (CONTRACT_READY)
  • IntelliSeek │   • ONNX Runtime secondary
  • God's Eye   │   • Attention Orchestrator Metrics (P0-66)
+ • ClearCam Exp│
 ───────────────┼────────────────►
     WATCH      │      RESERVE
  • Local VLM   │   • Radar mmWave
@@ -50,6 +51,7 @@ El Radar de Tecnología clasifica las tecnologías, bibliotecas y patrones evalu
 | **Patrón God's Eye View** | Centros de Mando Avanzados | Cuadrícula conmutativa, HUD de Foco HD y vistas espaciales lógicas. | `ADAPTED` |
 | **Patrón Ambient.ai** | Plataformas de IA perimetral | Desglose epistémico explícito (`HECHO`, `INFERENCIA`, `DESCONOCIDO`). | `ADAPTED` |
 | **Patrón HiFocus IntelliSeek** | Grabadores NVR HiFocus | Búsqueda estructurada multidimensional con enlace a URIs `dvr://`. | `ADAPTED` |
+| **ClearCam RTSP Recovery** | roryclear/clearcam | Resiliencia de decodificador (grace period, single-owner, first-frame). | `ADAPTED` |
 
 ---
 

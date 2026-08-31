@@ -1,9 +1,9 @@
 {
   "run_id": "RUN-TEST123",
-  "pid": 22680,
-  "started_at": "2026-08-30T20:01:04",
-  "started_at_unix": 1788134464.2380142,
-  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
+  "pid": 24536,
+  "started_at": "2026-08-30T20:03:07",
+  "started_at_unix": 1788134587.0346467,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-1-gc46067c-dirty",
   "camera_ids": [
     "cam_01",
     "cam_02",

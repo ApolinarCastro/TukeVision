@@ -1,9 +1,9 @@
 {
   "run_id": "RUN-AAAAAA",
-  "pid": 22680,
-  "started_at": "2026-08-30T20:01:03",
-  "started_at_unix": 1788134463.8745344,
-  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
+  "pid": 24536,
+  "started_at": "2026-08-30T20:03:06",
+  "started_at_unix": 1788134586.663901,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-1-gc46067c-dirty",
   "camera_ids": [
     "cam_01",
     "cam_02",

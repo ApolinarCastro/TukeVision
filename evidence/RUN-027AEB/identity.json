@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-027AEB",
+  "pid": 24536,
+  "started_at": "2026-08-30T20:03:36",
+  "started_at_unix": 1788134616.3786728,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-1-gc46067c-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

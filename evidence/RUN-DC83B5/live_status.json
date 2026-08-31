@@ -1,8 +1,8 @@
 {
   "run_id": "RUN-DC83B5",
   "pid": 23696,
-  "observed_at": 1788134581.9591653,
-  "observed_monotonic": 27613.8238499,
+  "observed_at": 1788135300.3916037,
+  "observed_monotonic": 28332.2562882,
   "cameras": {
     "cam_01": {
       "camera_id": "cam_01",

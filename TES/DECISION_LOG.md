@@ -86,3 +86,11 @@ Este registro documenta formalmente las decisiones arquitectÃ³nicas, tecnolÃ³gic
 - **Regla Permanente:**
   > `A SCRIPT THAT GENERATES EXPECTED VALUES CANNOT CERTIFY PHYSICAL RUNTIME.`
   > `TODA EVIDENCIA FÃSICA DEBE PROVENIR DE TELEMETRÃA EN VIVO, CAPTURA DE VENTANA REAL Y MEDICIONES DIRECTAS.`
+
+---
+
+### [DEC-010] Adopción del Patrón ClearCam para Recuperación RTSP
+- **Estado:** `ADOPTADO`
+- **Contexto:** Las cámaras físicas presentan inestabilidad (frames caídos, reinicios). FFmpeg puede generar "restart storms" o creer que se recuperó sin emitir frames.
+- **Decisión:** Integrar patrones operativos de ClearCam: startup_grace_period, presupuesto de fallos consecutivos (consecutive_failure_count), higiene de procesos (one owner, verificar muerte), confirmación de irst-frame y ecovery_budget.
+- **Impacto:** Resiliencia extrema sin bucles infinitos, preservando la arquitectura original de TukeVision sin copiar código GPL. Genera registro formal de Failure->Experience.
