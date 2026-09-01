@@ -1,0 +1,15 @@
+{
+  "SEMANTIC_STATE_VISIBLE_TO_OPERATOR": "NOT_VALIDATED_PHYSICAL_HEADLESS",
+  "VISIT_ID_VISIBLE_TO_OPERATOR": "NOT_VALIDATED_PHYSICAL_HEADLESS",
+  "VISIT_ROLE_VISIBLE_TO_OPERATOR": "NOT_VALIDATED_PHYSICAL_HEADLESS",
+  "GRID15": "NOT_TESTED_PHYSICAL_HEADLESS_BUT_LOGIC_PRESERVED",
+  "FOCUS": "NOT_TESTED_PHYSICAL_HEADLESS_BUT_LOGIC_PRESERVED",
+  "FOCUS_BLACKOUT_PROLONGED": "NOT_OBSERVED",
+  "ZOOM": "NOT_TESTED_PHYSICAL_HEADLESS_BUT_LOGIC_PRESERVED",
+  "unit_test_ui_props": {
+    "visit_semantics_in_snapshot": "PASS (AdvanceChain VisitSemanticSnapshot)",
+    "visit_id_in_view_model": "PASS",
+    "health_counter_consistent": "PASS"
+  },
+  "note": "GRID/FOCUS/ZOOM logic untouched per TV-ENTITY-PHYSICAL-DVR-CLOSURE-25 prohibitions; smoke not re-run physically due to headless"
+}

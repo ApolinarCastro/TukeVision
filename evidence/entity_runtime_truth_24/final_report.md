@@ -83,5 +83,12 @@ Successfully closed the entity and visit runtime truth gaps identified after TV-
 - No force push
 - Historical tests preserved (1027 passed)
 
-## Verdict
-**ENTITY_RUNTIME_TRUTH_COMPLETE**
+## Correction 2026-09-01 — TV-ENTITY-PHYSICAL-DVR-CLOSURE-25
+Previous revision incorrectly declared ENTITY_RUNTIME_TRUTH_COMPLETE based on automated tests alone.
+- AUTOMATED_VALIDATION=PASS (1050 passed, 0 failed, 23 new entity tests)
+- PHYSICAL_DVR_VALIDATION=BLOCKED_HEADLESS (no on-site DVR/UI run in CI, see evidence/entity_physical_dvr_25/)
+Until physical gates (mannequin LIKELY_SCENE_FIXTURE + visit_id null, real person stable VIS-*, STAFF_CONFIRMED, HEADER_LIVE==CURRENT_ONLINE 15/15) are observed on real recorder 186.103.177.83, status remains DEFECTS_REMAIN.
+
+## Verdict (corrected)
+**ENTITY_RUNTIME_TRUTH_DEFECTS_REMAIN** — awaiting 5-10 min on-site physical DVR validation
+- PHYSICAL_EVIDENCE_PATH=evidence/entity_physical_dvr_25/ (BLOCKED diagnostic evidence)

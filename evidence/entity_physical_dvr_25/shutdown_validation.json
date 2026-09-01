@@ -1,0 +1,8 @@
+{
+  "OWNER_SHUTDOWN_TIMEOUT_COUNT": 0,
+  "ORPHAN_PROCESSES": 0,
+  "CLEAN_TERMINATION": "NOT_APPLICABLE_NO_RUNTIME_LAUNCHED",
+  "runtime_launched": false,
+  "block_condition": "orphan_processes>0 OR runtime_hang OR clean_termination==NO => BLOCK, else RECORD ONLY",
+  "result": "RECORD_ONLY"
+}

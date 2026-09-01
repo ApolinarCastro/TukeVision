@@ -1,0 +1,16 @@
+{
+  "DEFAULT_REAL_RUNTIME_VISIT_ROLE": "UNKNOWN (unit test validated: new visit defaults UNKNOWN, not CUSTOMER)",
+  "STAFF_CONFIRMED_PHYSICAL_TEST": "BLOCKED_HEADLESS_NO_UI_ACTION",
+  "STAFF_VISIT_ROLE": "NOT_OBSERVED_PHYSICAL_EXPECTED_STAFF_CONFIRMED",
+  "STAFF_CUSTOMER_ANALYTICS_ELIGIBLE": "NOT_OBSERVED_EXPECTED_false",
+  "STAFF_TRACKING_VISIBLE": "NOT_OBSERVED_EXPECTED_YES",
+  "STAFF_SAFETY_VISIBILITY": "NOT_OBSERVED_EXPECTED_YES",
+  "unit_test_staff": {
+    "status": "PASS",
+    "tests": ["default UNKNOWN", "set_role STAFF_CONFIRMED", "STAFF_CONFIRMED excluded from analytics", "STAFF_CANDIDATE not excluded"]
+  },
+  "physical_hard_gate_block_reason": "UI not launched headless, no operator action to assign STAFF_CONFIRMED to a real VIS-* during this CI run",
+  "expected_flow": "select real VIS-* in UI -> assign STAFF_CONFIRMED via existing mechanism -> verify visit_role=STAFF_CONFIRMED, analytics=false, tracking visible",
+  "defect_if_ui_action_missing": "STAFF_CONFIRMED_PHYSICAL_TEST=BLOCKED_BY_UI_ACTION",
+  "final": "ENTITY_PHYSICAL_DVR_DEFECTS_REMAIN due to blocked staff UI action + headless"
+}

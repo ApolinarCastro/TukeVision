@@ -1,0 +1,18 @@
+{
+  "TOTAL_CAMERAS": 15,
+  "CURRENT_ONLINE_CAMERAS": "NOT_OBSERVED_PHYSICAL_HEADLESS",
+  "HEADER_LIVE_CAMERAS": "NOT_OBSERVED_PHYSICAL_HEADLESS",
+  "LIVE_COUNTER_CONSISTENT": "NOT_VALIDATED_PHYSICAL_BUT_UNIT_TEST_PASS",
+  "unit_test_live_counter": {
+    "status": "PASS",
+    "tests": 5,
+    "details": "15 ONLINE => 15/15, offline reduces, uses current SystemHealthSnapshot, ignores stale startup, derives from full catalog not viewport"
+  },
+  "code_fix": "scripts/run_multicamera.py: live_count = SystemHealthSnapshot.online_camera_count (single source of truth, removed true_liveness override)",
+  "physical_hard_gate": "HEADER_LIVE_CAMERAS == CURRENT_ONLINE_CAMERAS - NOT_OBSERVED_DUE_TO_HEADLESS",
+  "tcp_554_reachable": 0,
+  "dvr_host": "186.103.177.83:554",
+  "defect": "PHYSICAL_UI_NOT_LAUNCHED_HEADLESS_CI",
+  "expected": "15/15 EN VIVO when all ONLINE",
+  "observed": "NOT_OBSERVED"
+}

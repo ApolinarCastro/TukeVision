@@ -1,0 +1,1 @@
+{"timestamp": "2026-09-01T10:15:00Z", "note": "PHYSICAL_OBSERVATION_BLOCKED_HEADLESS_NO_UI", "total_cameras": 15, "online_cameras": null, "header_live_cameras": null, "global_health": null, "source": "SystemHealthSnapshot.online_camera_count (unit test validated: 15/15 when ONLINE, 0 when CLOSED, uses current snapshot, ignores stale startup)"}
