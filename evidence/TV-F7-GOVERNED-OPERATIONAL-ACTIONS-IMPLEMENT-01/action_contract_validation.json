@@ -1,0 +1,16 @@
+{
+  "contract": "ProposedAction",
+  "status": "PASS",
+  "autonomy_levels": ["AUTONOMY_0", "AUTONOMY_1", "AUTONOMY_2", "AUTONOMY_3"],
+  "allowed_action_types": [
+    "CREATE_OPERATOR_ALERT",
+    "RAISE_ATTENTION_PRIORITY",
+    "CREATE_REVIEW_TASK",
+    "PIN_EVIDENCE",
+    "FOCUS_COMMAND_CENTER_VIEW",
+    "REQUEST_OPERATOR_REVIEW",
+    "MARK_INVESTIGATION_FOR_FOLLOWUP",
+    "ACKNOWLEDGE_INTERNAL_SYSTEM_EVENT"
+  ],
+  "verification": "SOURCE_CODE_VERIFIED"
+}

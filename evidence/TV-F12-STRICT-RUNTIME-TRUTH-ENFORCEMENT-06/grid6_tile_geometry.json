@@ -1,0 +1,50 @@
+{
+  "viewport_width": 1260,
+  "viewport_height": 593,
+  "visible_tiles": 6,
+  "tile_rects": {
+    "cam_01": [
+      2,
+      2,
+      836,
+      392
+    ],
+    "cam_02": [
+      842,
+      2,
+      416,
+      194
+    ],
+    "cam_03": [
+      842,
+      200,
+      416,
+      194
+    ],
+    "cam_04": [
+      2,
+      398,
+      416,
+      193
+    ],
+    "cam_05": [
+      422,
+      398,
+      416,
+      193
+    ],
+    "cam_06": [
+      842,
+      398,
+      416,
+      193
+    ]
+  },
+  "empty_tiles": 0,
+  "overlap_count": 0,
+  "clipped_count": 0,
+  "total_rendered_area_px": 729984,
+  "usable_grid_area_px": 747180.0,
+  "dead_space_percent": 2.3,
+  "aspect_ratio_preserved": true
+}

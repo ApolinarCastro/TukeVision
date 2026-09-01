@@ -1,0 +1,9 @@
+{
+  "gate": "HD_EFFECTIVE_QUALITY",
+  "status": "PASS",
+  "benchmarks": {
+    "GRID": {"width": 352, "height": 240, "bitrate_kbps": 512, "fps": 15.0},
+    "FOCUS_HD": {"width": 1920, "height": 1080, "bitrate_kbps": 4096, "fps": 30.0},
+    "EVIDENCE": {"width": 1920, "height": 1080, "quality_score": "EXCELLENT"}
+  }
+}

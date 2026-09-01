@@ -1,0 +1,97 @@
+{
+  "gate_presentation_all_derived": true,
+  "cameras": {
+    "cam_01": {
+      "ui_rendered_T0": 2158,
+      "ui_rendered_T1": 2158,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_02": {
+      "ui_rendered_T0": 2236,
+      "ui_rendered_T1": 2236,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_03": {
+      "ui_rendered_T0": 2298,
+      "ui_rendered_T1": 2298,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_04": {
+      "ui_rendered_T0": 2161,
+      "ui_rendered_T1": 2161,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_05": {
+      "ui_rendered_T0": 2041,
+      "ui_rendered_T1": 2041,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_06": {
+      "ui_rendered_T0": 2022,
+      "ui_rendered_T1": 2022,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_07": {
+      "ui_rendered_T0": 2286,
+      "ui_rendered_T1": 2286,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_08": {
+      "ui_rendered_T0": 2104,
+      "ui_rendered_T1": 2104,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_09": {
+      "ui_rendered_T0": 2330,
+      "ui_rendered_T1": 2330,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_10": {
+      "ui_rendered_T0": 2021,
+      "ui_rendered_T1": 2021,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_11": {
+      "ui_rendered_T0": 2071,
+      "ui_rendered_T1": 2071,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_12": {
+      "ui_rendered_T0": 1965,
+      "ui_rendered_T1": 1965,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_13": {
+      "ui_rendered_T0": 2073,
+      "ui_rendered_T1": 2073,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_14": {
+      "ui_rendered_T0": 2065,
+      "ui_rendered_T1": 2065,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    },
+    "cam_15": {
+      "ui_rendered_T0": 2190,
+      "ui_rendered_T1": 2190,
+      "delta_ui_rendered": 0,
+      "presentation_active": true
+    }
+  },
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

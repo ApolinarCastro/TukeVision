@@ -22,18 +22,18 @@ def test_url_construction_with_special_chars():
     host = "rtsp://192.168.1.50:554/cam/realmonitor?channel=1&subtype=1"
     username = "test_user"
     password = "Fake:P@ss\\word%123?&#"
-    
+
     url = _with_credentials(host, username, password)
-    
+
     # Verificar que host, path, query se conservan
     assert "192.168.1.50:554" in url
     assert "/cam/realmonitor" in url
     assert "channel=1&subtype=1" in url
-    
+
     # Verificar que username/password están codificados
     assert "test_user" in url
     assert "Fake%3AP%40ss%5Cword%25123%3F%26%23" in url  # encoded
-    
+
     print("PASS: test_url_construction_with_special_chars")
     return True
 
@@ -47,10 +47,10 @@ def test_redaction_never_contains_secret():
         "rtsp://admin:SECRET_CANARY_RTSP_8F21@186.103.177.83:554/cam/realmonitor?channel=1&subtype=1",
         "password=secret123",
     ]
-    
+
     for original in test_cases:
         redacted = redact_rtsp_url(original)
-        
+
         # Extraer posibles secretos del original
         import re
         cred_match = re.search(r'rtsp://([^/@:\s]+):([^/@:\s]+)@', original)
@@ -58,10 +58,10 @@ def test_redaction_never_contains_secret():
             user, pwd = cred_match.groups()
             assert user not in redacted, f"Username '{user}' found in redacted: {redacted}"
             assert pwd not in redacted, f"Password '{pwd}' found in redacted: {redacted}"
-        
+
         # Verificar formato redactado
         assert "REDACTED:REDACTED" in redacted or "password=REDACTED" in redacted
-    
+
     print("PASS: test_redaction_never_contains_secret")
     return True
 
@@ -72,22 +72,22 @@ def test_special_char_password_not_in_output():
     fake_password = "SECRET_CANARY_RTSP_8F21"
     fake_user = "test_user"
     host = "rtsp://192.0.2.1:554/test"
-    
+
     from scripts.test_rtsp_connection import _with_credentials
     from src.observability.logging_setup import redact_rtsp_url
-    
+
     rtsp_url = _with_credentials(host, fake_user, fake_password)
     redacted = redact_rtsp_url(rtsp_url)
-    
+
     # Verificar que el password no está en la URL redactada
     assert fake_password not in redacted
     assert fake_user not in redacted
     assert "REDACTED:REDACTED" in redacted
-    
+
     # Verificar que host/path/query se conservan
     assert "192.0.2.1:554" in redacted
     assert "/test" in redacted
-    
+
     print("PASS: test_special_char_password_not_in_output")
     return True
 
@@ -97,9 +97,9 @@ def test_argument_contamination():
     host = "rtsp://192.168.1.50:554/cam/realmonitor?channel=1&subtype=1"
     username = "admin"
     password = "test123"
-    
+
     url = _with_credentials(host, username, password)
-    
+
     # Lista de strings que NO deben aparecer en la URL
     forbidden = [
         ".venv",
@@ -111,10 +111,10 @@ def test_argument_contamination():
         "--timeout",
         "--max-frames",
     ]
-    
+
     for f in forbidden:
         assert f not in url, f"Contaminación detectada: '{f}' encontrado en URL: {url}"
-    
+
     print("PASS: test_argument_contamination")
     return True
 
@@ -126,10 +126,10 @@ def run_all_tests():
         test_special_char_password_not_in_output,
         test_argument_contamination,
     ]
-    
+
     passed = 0
     failed = 0
-    
+
     for test in tests:
         try:
             test()
@@ -137,7 +137,7 @@ def run_all_tests():
         except Exception as e:
             print(f"FAIL: {test.__name__}: {e}")
             failed += 1
-    
+
     print(f"\nResultado: {passed} PASS, {failed} FAIL")
     return failed == 0
 

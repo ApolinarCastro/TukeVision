@@ -1,0 +1,5 @@
+{
+  "clean_shutdown": "PASS",
+  "orphan_processes": 0,
+  "resource_leak_after_shutdown": 0
+}

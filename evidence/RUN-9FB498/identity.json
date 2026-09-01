@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-9FB498",
+  "pid": 22244,
+  "started_at": "2026-08-30T18:45:15",
+  "started_at_unix": 1788129915.4533029,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

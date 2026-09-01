@@ -1,0 +1,19 @@
+{
+  "ACTION_LAYER_OFF": {
+    "avg_cpu_percent": 43.1,
+    "avg_rss_mb": 2510,
+    "action_latency_ms": 0,
+    "queue_depth": 0
+  },
+  "ACTION_LAYER_ON": {
+    "avg_cpu_percent": 43.8,
+    "avg_rss_mb": 2525,
+    "action_latency_ms": 1.8,
+    "queue_depth": 3
+  },
+  "overhead": {
+    "cpu_delta_percent": 0.7,
+    "rss_delta_mb": 15,
+    "status": "PASS"
+  }
+}

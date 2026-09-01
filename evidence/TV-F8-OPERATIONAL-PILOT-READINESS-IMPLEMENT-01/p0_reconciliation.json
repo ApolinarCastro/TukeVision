@@ -1,0 +1,12 @@
+{
+  "gate": "P0_RECONCILIATION",
+  "status": "PASS",
+  "historical_discrepancy": "58 vs 62",
+  "canonical_p0_count": 62,
+  "breakdown": {
+    "implemented_and_certified": 58,
+    "planned_or_aliased": 4,
+    "total_canonical": 62
+  },
+  "reconciliation_strategy": "Normalized aliases across F1-F8, leaving 0 contradictory records."
+}

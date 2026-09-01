@@ -21,13 +21,15 @@ Invariantes (PRODUCT_CORE.md / FIRST_PRODUCT_DELIVERY.md):
 """
 
 import logging
+import random
 import threading
 import time
 from collections import deque
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Callable, Deque, Dict, List, Optional
 
 from src.capture.rtsp_url import build_rtsp_url
+from src.capture.video_source import VideoSourceError
 from src.observability.logging_setup import redact_rtsp_url
 
 logger = logging.getLogger("tukevision.multicamera")
@@ -97,6 +99,17 @@ class _CameraRuntime:
     queue: Deque[tuple] = field(default_factory=deque)
     last_snapshot: Optional[dict] = None
     last_error: str = ""
+    generation: int = 0
+    # Resiliency tracking
+    consecutive_failure_count: int = 0
+    last_successful_frame_at: float = 0.0
+    last_failure_at: float = 0.0
+    recovery_attempts: int = 0
+    recovery_window_start: float = 0.0
+    first_frame_at: float = 0.0
+    duplicate_decoder_process_count: int = 0
+    duplicate_decoder_owner_count: int = 0
+    state: str = "OFFLINE"
 
 
 class SourceManagerError(Exception):
@@ -118,12 +131,32 @@ class SourceManager:
 
     _QUEUE_MAX = 8
     _WORKER_JOIN_TIMEOUT_S = 5.0
+    _RECONNECT_SEMAPHORE = threading.Semaphore(2)  # BLOCK E: max 2 simultaneous reconnects
 
-    def __init__(self, source_factory: Optional[Callable[..., object]] = None) -> None:
+    def __init__(
+        self, 
+        source_factory: Optional[Callable[..., object]] = None,
+        startup_grace_seconds: float = 10.0,
+        consecutive_failure_threshold: int = 3,
+        recovery_window_seconds: float = 300.0,
+        max_recovery_attempts: int = 5,
+        recovery_backoff_seconds: float = 5.0,
+        decoder_shutdown_timeout: float = 5.0,
+        first_frame_timeout: float = 15.0,
+        experience_sink: Optional[Callable[[dict], None]] = None,
+    ) -> None:
         self._lock = threading.RLock()
         self._source_factory = source_factory or _default_rtsp_source
         self._runtimes: Dict[str, _CameraRuntime] = {}
         self._running: Dict[str, bool] = {}
+        self.startup_grace_seconds = startup_grace_seconds
+        self.consecutive_failure_threshold = consecutive_failure_threshold
+        self.recovery_window_seconds = recovery_window_seconds
+        self.max_recovery_attempts = max_recovery_attempts
+        self.recovery_backoff_seconds = recovery_backoff_seconds
+        self.decoder_shutdown_timeout = decoder_shutdown_timeout
+        self.first_frame_timeout = first_frame_timeout
+        self.experience_sink = experience_sink
 
     # ------------------------------------------------------------------
     # Registro e inventario
@@ -170,6 +203,9 @@ class SourceManager:
         with self._lock:
             if self._running.get(camera_id, False):
                 raise SourceManagerError(f"cámara ya en ejecución: {camera_id}")
+            if rt.worker is not None and rt.worker.is_alive():
+                logger.error("OWNER_SHUTDOWN_TIMEOUT camera_id=%s", camera_id)
+                raise SourceManagerError(f"Previous owner thread for {camera_id} did not terminate within timeout")
 
             stop_event = threading.Event()
             worker = threading.Thread(
@@ -194,10 +230,14 @@ class SourceManager:
         if stop_event is not None:
             stop_event.set()
         if worker is not None and worker.is_alive():
-            worker.join(timeout=self._WORKER_JOIN_TIMEOUT_S)
+            worker.join(timeout=self.decoder_shutdown_timeout)
         with self._lock:
-            rt.stop_event = None
-            rt.worker = None
+            if worker is not None and worker.is_alive():
+                # No limpiar rt.worker para prevenir START (evita decoder duplicado)
+                logger.error("OWNER_SHUTDOWN_TIMEOUT camera_id=%s", camera_id)
+            else:
+                rt.stop_event = None
+                rt.worker = None
             self._running[camera_id] = False
         logger.info("SOURCE_STOPPED camera_id=%s", camera_id)
 
@@ -205,6 +245,36 @@ class SourceManager:
         """stop + start de una cámara (aislado del resto)."""
         self.stop(camera_id)
         self.start(camera_id)
+
+    def switch_stream(self, camera_id: str, subtype: int, max_width: Optional[int] = None) -> bool:
+        """Cambia subtype (0 MAIN / 1 SUB) para una cámara y la reinicia.
+
+        BLOCK B dual stream: GRID -> SUB, FOCUS -> MAIN. Retorna True si hubo
+        cambio, False si ya estaba en ese subtype. Reinicio aislado.
+        """
+        rt = self._get_runtime(camera_id)
+        with self._lock:
+            cur_subtype = int(rt.descriptor.subtype)
+            cur_width = int(rt.descriptor.max_width) if rt.descriptor.max_width else 0
+            req_width = max_width if max_width is not None else cur_width
+            if cur_subtype == int(subtype) and cur_width == req_width:
+                return False
+            rt.descriptor = replace(rt.descriptor, subtype=int(subtype), max_width=req_width)
+        self.restart(camera_id)
+        logger.info("STREAM_SWITCH camera_id=%s subtype=%s max_width=%s", camera_id, subtype, req_width)
+        return True
+
+    def start_all_staggered(self, delay_s: float = 0.35) -> None:
+        """Arranca todas las cámaras con delay escalonado (BLOCK H)."""
+        with self._lock:
+            ids = sorted(self._runtimes.keys())
+        for idx, cid in enumerate(ids):
+            if idx > 0:
+                time.sleep(max(0.0, float(delay_s)))
+            try:
+                self.start(cid)
+            except SourceManagerError as exc:
+                logger.warning("STAGGERED_START_FAILED camera_id=%s err=%s", cid, exc)
 
     def isolate_failure(self, camera_id: str) -> None:
         """Aísla la cámara fallida deteniéndola sin afectar a las demás."""
@@ -233,8 +303,8 @@ class SourceManager:
             running = bool(self._running.get(camera_id, False))
             queue_depth = len(rt.queue)
             last_error = rt.last_error
+            state = rt.state
 
-        state = "REGISTERED"
         fps = 0.0
         resolution = ""
         last_age_ms = 0
@@ -242,17 +312,23 @@ class SourceManager:
         readable_frames = 0
         source_type = "RTSP"
         if source is not None:
-            state = getattr(source, "state", "OPEN") or "OPEN"
             meta = getattr(source, "metadata", None)
-            if meta is not None:
+            source_fps = getattr(source, "fps", None)
+            if source_fps is not None and float(source_fps) > 0:
+                fps = float(source_fps)
+            elif meta is not None:
                 fps = float(getattr(meta, "fps", 0.0) or 0.0)
+            if meta is not None:
                 resolution = f"{getattr(meta, 'width', 0)}x{getattr(meta, 'height', 0)}"
             last_age_ms = int(getattr(source, "last_valid_frame_age_ms", 0) or 0)
             stall_count = int(getattr(source, "stall_count", 0) or 0)
             readable_frames = int(getattr(source, "readable_frames", 0) or 0)
             source_type = str(getattr(source, "source_type", "RTSP"))
 
-        healthy = running and state not in ("FAILED", "CLOSED")
+        healthy = running and state not in ("FAILED", "OFFLINE", "RECONNECTING", "STARTING")
+        if state == "HEALTHY":
+            healthy = True
+            
         return CameraHealth(
             camera_id=camera_id,
             state=state,
@@ -286,45 +362,182 @@ class SourceManager:
     def _worker(
         self, camera_id: str, rt: _CameraRuntime, stop_event: threading.Event
     ) -> None:
-        """Hilo de captura de UNA cámara (aislado del resto).
+        """Hilo de captura de UNA cámara (aislado del resto)."""
+        attempt = 0
+        while not stop_event.is_set():
+            source = None
+            cleanup_failed = False
+            
+            # Reset budget if outside window
+            now = time.monotonic()
+            if now - rt.recovery_window_start > self.recovery_window_seconds:
+                rt.recovery_attempts = 0
+                rt.recovery_window_start = now
+                
+            if rt.recovery_attempts >= self.max_recovery_attempts:
+                with self._lock:
+                    rt.state = "OFFLINE"
+                    rt.last_error = "RECOVERY_BUDGET_EXHAUSTED"
+                    self._running[camera_id] = False
+                break
+                
+            # BLOCK E: central limit for simultaneous reconnects (max 2)
+            acquired = False
+            while not stop_event.is_set() and not acquired:
+                acquired = self._RECONNECT_SEMAPHORE.acquire(timeout=0.25)
+            if not acquired:
+                break
+            try:
+                source = self._source_factory(rt.descriptor)
+                with self._lock:
+                    rt.source = source
+                    rt.generation += 1
+                    rt.last_error = ""
+                    rt.state = "STARTING"
+                    generation = rt.generation
+                    
+                started_at = time.monotonic()
+                metadata = source.open()
+                self._RECONNECT_SEMAPHORE.release()
+                acquired = False
+                attempt = 0
+                first_frame_received = False
+                
+                # First frame loop
+                for frame_index, frame in source.frames():
+                    if stop_event.is_set():
+                        break
+                        
+                    now = time.monotonic()
+                    
+                    if not first_frame_received:
+                        if frame is not None:
+                            first_frame_received = True
+                            rt.first_frame_at = now
+                            
+                            try:
+                                from src.observability.latency_metrics import record_latency
+                                record_latency(camera_id, "time_to_first_frame_ms", (now - started_at) * 1000.0)
+                            except ImportError:
+                                pass
+                            
+                            rt.consecutive_failure_count = 0
+                            rt.state = "HEALTHY"
+                            # If we recovered successfully, record it
+                            if rt.recovery_attempts > 0:
+                                self._record_experience(camera_id, generation-1, generation, "SUCCESS")
+                            rt.recovery_attempts = 0
+                        else:
+                            if now - started_at > self.first_frame_timeout:
+                                rt.last_error = "FIRST_FRAME_TIMEOUT"
+                                break
+                            continue # keep waiting for first frame
 
-        El SourceManager consume source.frames() (supervisor) y publica en una
-        cola FIFO acotada por cámara con política drop-oldest. Un fallo marca
-        la salud de esta cámara y termina este hilo; el resto de cámaras no se
-        ven afectadas (NO_SHARED_MUTABLE_CAPTURE).
-        """
-        source = None
-        try:
-            source = self._source_factory(rt.descriptor)
-            with self._lock:
-                rt.source = source
-                rt.last_error = ""
-            metadata = source.open()
+                    state = getattr(source, "state", None)
+                    if state in ("FAILED", "STALLED") or frame is None:
+                        # Grace period logic
+                        if now - rt.first_frame_at <= self.startup_grace_seconds:
+                            continue # Ignore missing frames during grace period
+                            
+                        rt.consecutive_failure_count += 1
+                        rt.last_failure_at = now
+                        if rt.consecutive_failure_count > self.consecutive_failure_threshold:
+                            rt.last_error = "CONSECUTIVE_FAILURE_THRESHOLD_EXCEEDED"
+                            break
+                    else:
+                        rt.consecutive_failure_count = 0
+                        rt.last_successful_frame_at = now
+                        rt.state = "HEALTHY"
+                        
+                    if frame is not None:
+                        self._publish(rt, camera_id, frame_index, frame, source, metadata)
 
-            for frame_index, frame in source.frames():
                 if stop_event.is_set():
                     break
-                if getattr(source, "state", None) == "FAILED":
+                    
+                source_state = getattr(source, "state", None)
+                if rt.last_error == "" and source_state in ("FAILED", "STALLED"):
                     rt.last_error = "STREAM_LOST"
+                    
+                if stop_event.is_set() or rt.last_error == "":
+                    with self._lock:
+                        self._running[camera_id] = False
+                    logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
                     break
-                self._publish(rt, camera_id, frame_index, frame, source, metadata)
+                    
+            except Exception as exc: 
+                if stop_event.is_set():
+                    break
+                rt.last_error = f"{type(exc).__name__}: {exc}"
+                logger.error("SOURCE_FAILED camera_id=%s err=%s", camera_id, exc)
+            finally:
+                try:
+                    if source is not None:
+                        source.close()  
+                except Exception as exc:
+                    cleanup_failed = True
+                    rt.last_error = f"SOURCE_CLEANUP_FAILED: {type(exc).__name__}"
+                    logger.error("SOURCE_CLEANUP_FAILED camera_id=%s", camera_id)
+                with self._lock:
+                    if not cleanup_failed:
+                        rt.source = None
+                    rt.state = "RECONNECTING"
+                if acquired:
+                    try:
+                        self._RECONNECT_SEMAPHORE.release()
+                    except Exception:
+                        pass
+                        
+            if cleanup_failed:
+                with self._lock:
+                    self._running[camera_id] = False
+                    rt.state = "OFFLINE"
+                break
+                
+            if stop_event.is_set():
+                with self._lock:
+                    self._running[camera_id] = False
+                    rt.state = "OFFLINE"
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
+                
+            if rt.last_error == "":
+                with self._lock:
+                    self._running[camera_id] = False
+                    rt.state = "OFFLINE"
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
+                
+            rt.recovery_attempts += 1
+            self._record_experience(camera_id, generation, generation+1, "FAILED", reason=rt.last_error)
+            
+            # Backoff
+            delay = self.recovery_backoff_seconds + random.uniform(0.0, 1.0)
+            logger.info(
+                "SOURCE_RETRY camera_id=%s attempt=%s delay_s=%.1f",
+                camera_id, rt.recovery_attempts, delay,
+            )
+            if stop_event.wait(timeout=delay):
+                with self._lock:
+                    self._running[camera_id] = False
+                    rt.state = "OFFLINE"
+                logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                break
 
-            # Si la fuente terminó el generador en FAILED (reconexiones
-            # agotadas), registrar la pérdida aunque no se entregó otro frame.
-            if rt.last_error == "" and getattr(source, "state", None) == "FAILED":
-                rt.last_error = "STREAM_LOST"
-        except Exception as exc:  # aislar: el fallo no propaga a otras cámaras
-            rt.last_error = f"{type(exc).__name__}: {exc}"
-            logger.error("SOURCE_FAILED camera_id=%s err=%s", camera_id, exc)
-        finally:
+    def _record_experience(self, camera_id: str, old_gen: int, new_gen: int, outcome: str, reason: str = ""):
+        if self.experience_sink:
             try:
-                source.close()  # type: ignore[union-attr]
-            except Exception:
-                pass
-            with self._lock:
-                rt.source = None
-                self._running[camera_id] = False
-            logger.info("SOURCE_WORKER_END camera_id=%s", camera_id)
+                ev = {
+                    "camera_id": camera_id,
+                    "old_generation": old_gen,
+                    "new_generation": new_gen,
+                    "outcome": outcome,
+                    "reason": reason,
+                    "timestamp": time.time()
+                }
+                self.experience_sink(ev)
+            except Exception as e:
+                logger.error("Failed to record experience: %s", e)
 
     def _publish(
         self,
@@ -341,28 +554,78 @@ class SourceManager:
             if len(rt.queue) >= self._QUEUE_MAX:
                 rt.queue.popleft()
             rt.queue.append((frame_index, frame))
+            source_fps = getattr(source, "fps", None)
+            if source_fps is not None and float(source_fps) > 0:
+                fps = float(source_fps)
+            else:
+                fps = float(getattr(metadata, "fps", 0.0) or 0.0)
             rt.last_snapshot = {
                 "camera_id": camera_id,
                 "frame_index": frame_index,
+                "generation": rt.generation,
                 "frame": frame,
                 "state": getattr(source, "state", "OPEN"),
                 "source_path": redact_rtsp_url(getattr(metadata, "path", "")),
-                "fps": float(getattr(metadata, "fps", 0.0) or 0.0),
+                "fps": fps,
                 "resolution": (
                     f"{getattr(metadata, 'width', 0)}x{getattr(metadata, 'height', 0)}"
                 ),
                 "timestamp": time.monotonic(),
             }
+            try:
+                from src.observability.latency_metrics import record_latency
+                frame_age = getattr(source, "last_valid_frame_age_ms", None)
+                if frame_age is not None:
+                    record_latency(camera_id, "frame_age_ms", float(frame_age))
+            except ImportError:
+                pass
 
 
 def _default_rtsp_source(descriptor: CameraDescriptor):
-    """Fábrica por defecto: compone RTSPSource E01_COMPAT sin modificarlo."""
-    from src.capture.live_sources import RTSPSource
+    """Fábrica por defecto: compone RTSPSource E01_COMPAT sin modificarlo.
 
-    return RTSPSource(
+    Si RTSP_BACKEND=ffmpeg_supervised (env o config), usa FFmpegSupervisedSource
+    con supervisión de proceso (ClearCam/Frigate pattern, no GPL copy).
+    
+    NO silent fallback: if FFmpeg backend requested but instantiation fails,
+    startup fails with identifiable error. Logs effective class per camera.
+    """
+    import os as _os
+    backend = _os.environ.get("RTSP_BACKEND", "").strip().lower()
+    import logging as _lg
+    logger = _lg.getLogger("tukevision.capture")
+    
+    if backend in ("ffmpeg", "ffmpeg_supervised", "ffmpeg-supervised"):
+        try:
+            from src.capture.ffmpeg_supervised import FFmpegSupervisedSource
+            source = FFmpegSupervisedSource(
+                rtsp_url=descriptor.build_url(),
+                max_width=descriptor.max_width,
+                process_every_n_frames=descriptor.process_every_n_frames,
+                frame_stall_timeout_s=descriptor.frame_stall_timeout_s,
+                rtsp_open_timeout_ms=descriptor.rtsp_open_timeout_ms,
+                username=descriptor.username,
+                password=descriptor.password,
+            )
+            logger.info("SOURCE_CLASS camera_id=%s class=FFmpegSupervisedSource backend=%s", 
+                       descriptor.camera_id, backend)
+            return source
+        except Exception as exc:
+            logger.error("FFMPEG_SOURCE_INSTANTIATION_FAILED camera_id=%s err=%s", 
+                        descriptor.camera_id, exc)
+            raise VideoSourceError(
+                f"FFmpeg backend requested but failed to instantiate: {exc}"
+            )
+    
+    # OpenCV backend (default if no RTSP_BACKEND or explicitly opencv)
+    from src.capture.live_sources import RTSPSource
+    source = RTSPSource(
         rtsp_url=descriptor.build_url(),
         max_width=descriptor.max_width,
         process_every_n_frames=descriptor.process_every_n_frames,
         frame_stall_timeout_s=descriptor.frame_stall_timeout_s,
         rtsp_open_timeout_ms=descriptor.rtsp_open_timeout_ms,
     )
+    logger.info("SOURCE_CLASS camera_id=%s class=RTSPSource backend=opencv", 
+               descriptor.camera_id)
+    return source

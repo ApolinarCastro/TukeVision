@@ -1,0 +1,16 @@
+{
+  "gate": "ACTION_FAILURE_ISOLATION",
+  "status": "PASS",
+  "isolated_state": "ACTION_LAYER_UNAVAILABLE",
+  "core_subsystems_preserved": [
+    "camera_ingestion",
+    "openvino_inference",
+    "tracking",
+    "spatial_intelligence",
+    "evidence_store",
+    "agent_monitor",
+    "cascade_intelligence",
+    "experience_layer",
+    "command_center"
+  ]
+}

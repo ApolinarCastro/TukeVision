@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-DFDC44",
+  "pid": 22208,
+  "started_at": "2026-08-28T20:40:27",
+  "started_at_unix": 1787964027.5657635,
+  "version": "v3-phase3-openvino-stable-20260828-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

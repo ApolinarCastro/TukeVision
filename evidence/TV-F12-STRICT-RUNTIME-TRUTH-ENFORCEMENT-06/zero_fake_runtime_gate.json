@@ -1,0 +1,19 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T20:14:02.494303+00:00",
+  "runtime_counters": {
+    "detections_received": 0,
+    "tracks_received": 0,
+    "events_received": 0,
+    "situations_received": 0,
+    "situations_rendered": 0,
+    "situations_created_by_ui": 0,
+    "ids_created_by_ui": 0,
+    "severity_created_by_ui": 0,
+    "epistemic_created_by_ui": 0
+  },
+  "zero_fake_passed_derived": true,
+  "physical_default_values_found": false,
+  "status": "PASS"
+}

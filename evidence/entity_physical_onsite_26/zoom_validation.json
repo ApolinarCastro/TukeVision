@@ -1,0 +1,9 @@
+{
+  "ZOOM": "BLOCKED_NO_OPERATOR_LAUNCH",
+  "IMAGE_ALIGNED": null,
+  "ASPECT_RATIO_CORRECT": null,
+  "IMAGE_WITHIN_VIEWPORT": null,
+  "RESET_TO_1X_CORRECT": null,
+  "SOURCE_RESOLUTION_TRUTH": "NOT_OBSERVED",
+  "sequence": "1x -> 2x -> 4x -> pan -> reset NOT_EXECUTED_HEADLESS"
+}

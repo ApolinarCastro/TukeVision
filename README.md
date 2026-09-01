@@ -1,114 +1,66 @@
-# TukeVision
+# TukeVision — Centro de Mando & Inteligencia Visual Gobernada
 
-Prototipo local para transformar video en observaciones, eventos, riesgo, alertas y evidencia trazable.
+TukeVision es una plataforma de software para centros de comando de videovigilancia, analítica de comportamiento retail y prevención de pérdidas en tiempo real. Opera bajo una arquitectura **local-first** en hardware estándar (CPU x86_64, Windows/Linux), sin requerir servidores en la nube ni conexión obligatoria a internet.
 
-## Estado
+---
 
-Implementación del primer prototipo funcional (SPEC-0001) completada a nivel de módulos. Pendiente de ejecutar la prueba integral con un video real.
+## 1. Capacidades Principales del Producto
 
-## Requisitos
+### 1.1 Monitoreo Multicámara en Vivo (HD Focus & Cuadrículas Dinámicas)
+- Ingesta simultánea de hasta 16 cámaras concurrentes (RTSP H.264/H.265 o archivos locales).
+- Cuadrículas simétricas automáticas: 1, 4, 6 (1 principal + 5 auxiliares), 9 y 16 cámaras.
+- Modo **Foco HD**: Ampliación con preservación de resolución nativa (1080p/4K), zoom digital interactivo (1x a 4x) y HUD técnico con separación explícita de `FUENTE`, `PRESENTACIÓN` e `INFERENCIA`.
+- **Panel Técnico Colapsable**: El panel lateral es colapsable bajo demanda (`Detalles Técnicos`), maximizando el área útil de video al 80-100% de la pantalla.
 
-- Windows.
-- Python 3.12.9 (64 bits).
-- Entorno virtual en `.venv`.
+### 1.2 Inferencia Visual Edge & Cascada de Inteligencia
+- Aceleración en el borde mediante OpenVINO (CPU/iGPU/GPU) con fallback automático.
+- Cascada estructurada: Detección de Movimiento → Inferencia Edge → ByteTrack → Análisis Temporal de Permanencia → Evaluación de Políticas Gobernadas.
 
-## Activar el entorno virtual
+### 1.3 Cero Inteligencia Fabricada (Zero Fake Data)
+- Todo dato visible es `HECHO (FACT)` verificado físicamente, `INFERENCIA (INFERENCE)` determinista o `DESCONOCIDO (UNKNOWN)`.
+- Eliminación total de alarmas sintéticas generadas por capas visuales: el rastreo puro no genera situaciones falsas (`DETECTION != TRACK != SITUATION`).
+
+### 1.4 Bóveda de Evidencia Forense & Preparación para Firma ONVIF
+- Empaquetado atómico de clips de video MP4 (PyAV) con cuadros clave y metadatos sidecar JSON.
+- Integridad local garantizada mediante hashes criptográficos SHA-256 inmutables.
+- Trazabilidad de origen y preparación para firma de medios ONVIF (`FUENTE NO FIRMADA (DVR LOCAL)` para DVRs estándar).
+- Búsqueda estructurada SQLite e indexación con enlaces directos de origen (`dvr://`).
+
+### 1.5 Interfaz de Usuario Unificada en Español (`es-CL`)
+- Vistas operacionales integradas:
+  - 📊 **RESUMEN**: Panel ejecutivo con métricas en vivo, situaciones activas y cola de atención.
+  - 📹 **EN VIVO**: Cuadrícula de cámaras con interacción en tiempo real y panel técnico colapsable.
+  - ⚠️ **SITUACIONES**: Tarjetas operacionales compactas con botones de investigación inmediata.
+  - 🔍 **INVESTIGACIONES**: Registro cronológico de auditoría por caso.
+  - 📁 **EVIDENCIA**: Bóveda de paquetes locales con verificación de integridad SHA-256.
+  - 🗺️ **MAPA / ZONAS**: Vista de cobertura funcional y lógica de la tienda.
+  - ⚙️ **ESTADO DEL SISTEMA**: Diagnóstico técnico de CPU, RAM, Disco y telemetría de flujos RTSP.
+
+---
+
+## 2. Requisitos del Sistema
+- **Sistema Operativo**: Windows 10/11 (64-bit) o Linux x86_64.
+- **Python**: 3.12+ (entorno virtual `.venv`).
+- **Hardware Recomendado**: Intel Core i5/i7 (8va gen o superior) / AMD Ryzen 5/7, 8 GB RAM mínimo (16 GB recomendado para 15+ cámaras), almacenamiento SSD.
+
+---
+
+## 3. Inicio Rápido
+
+Ejecutar la aplicación completa con:
+```powershell
+.\TukeVision.bat
+```
+
+O directamente mediante el launcher de Python:
+```powershell
+.\.venv\Scripts\python.exe scripts/launcher.py
+```
+
+---
+
+## 4. Ejecución de Pruebas Automatizadas
 
 ```powershell
-Set-Location "C:\ruta\a\TukeVision"
-.\.venv\Scripts\Activate.ps1
+.\.venv\Scripts\pytest tests/ --basetemp=.pytest_tmp -q
 ```
-
-## Ejecutar el prototipo
-
-Coloque un video local en `data/input/` y ejecute:
-
-```powershell
-.\.venv\Scripts\python.exe scripts\run_prototype.py "data\input\video.mp4"
-```
-
-## Interfaz operativa local
-
-Aplicación de escritorio Tkinter (biblioteca estándar) que muestra en una
-sola ventana fuente, conexión, zona, persona seguida, permanencia, riesgo,
-alertas y evidencia generada. OpenCV sigue siendo la tecnología de visión;
-no es el sistema de ventanas (ver `docs/LOCAL_INTERFACE.md`).
-
-```powershell
-.\.venv\Scripts\python.exe scripts\run_interface.py
-```
-
-La fuente (archivo, webcam o RTSP) se selecciona dentro de la aplicación.
-
-### Estructura de entrada y salida
-
-```text
-data/input/        Video local a procesar (uno a la vez).
-data/output/       Video procesado con anotaciones (processed.mp4).
-data/evidence/     Evidencia por alerta: frame.jpg y metadata.json.
-data/temp/         Archivos temporales (imágenes de prueba).
-models/            Peso del modelo yolo11n.pt (no se sube a Git).
-config/default.json Configuración: detección, zona, negocio y alertas.
-```
-
-### Salida esperada
-
-```text
-VIDEO_PATH:
-FRAMES_PROCESSED:
-PERSONS_DETECTED:
-TRACKS_CREATED:
-OBSERVATIONS_CREATED:
-EVENTS_CREATED:
-ALERTS_CREATED:
-EVIDENCE_CREATED:
-OUTPUT_VIDEO:
-FINAL_STATUS:
-```
-
-## Significado de las salidas
-
-- `PERSONS_DETECTED`: total de detecciones de personas (puede incluir la misma persona en varios fotogramas).
-- `TRACKS_CREATED`: trayectorias temporales únicas asignadas por seguimiento.
-- `OBSERVATIONS_CREATED`: hechos objetivos (entrada, permanencia, salida).
-- `EVENTS_CREATED`: eventos de permanencia prolongada (más de 30 segundos).
-- `ALERTS_CREATED`: alertas generadas cuando el riesgo es 60 o superior.
-- `EVIDENCE_CREATED`: carpetas con fotograma y metadatos por alerta.
-
-## Restricciones del prototipo
-
-- Sin reconocimiento facial.
-- Sin identificación de personas.
-- Sin cámaras en vivo.
-- Sin varias cámaras ni varias zonas.
-- Sin inteligencia artificial conversacional.
-- Sin servicios externos ni base de datos.
-- Procesamiento por CPU, un video a la vez.
-- Resolución máxima de 640 píxeles de ancho.
-- Procesamiento secuencial sin cargar el video completo en memoria.
-
-## Configuración
-
-`config/default.json` permite ajustar:
-
-- Modelo, umbral de confianza y dispositivo de detección.
-- Zona poligonal (identificador, nombre y vértices).
-- Tienda, cámara y tiempo máximo de permanencia.
-- Umbral de riesgo para generar alertas.
-
-## Solución de errores básicos
-
-- `El archivo de video no existe`: verifique que el video esté en `data/input/` y la ruta sea correcta.
-- `Modelo no encontrado`: descargue `yolo11n.pt` (modelo YOLO Nano) y colóquelo en `models/`.
-- `No se puede abrir el video`: el archivo puede estar dañado o no ser un formato compatible con OpenCV.
-- Errores de dependencias: ejecute `python -m pip install -r requirements.txt` dentro de `.venv`.
-
-## Pruebas
-
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -p "test_*.py" -v
-```
-
-## Fuente de especificaciones
-
-Las decisiones y especificaciones oficiales viven en el Vault TES de Obsidian.

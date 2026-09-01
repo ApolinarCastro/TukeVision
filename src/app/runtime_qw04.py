@@ -34,11 +34,13 @@ class RuntimeQw04Integration:
         *,
         clips_enabled: bool = True,
         recent_signal_limit: int = 64,
+        router: Optional[Any] = None,
     ) -> None:
         if recent_signal_limit < 1:
             raise ValueError("recent_signal_limit must be positive")
         self.coordinator = coordinator
         self._exporter = exporter
+        self._router = router
         self._review_target = Path(review_target)
         self._clips_enabled = bool(clips_enabled)
         self._pending_records: Dict[str, Any] = {}
@@ -57,6 +59,7 @@ class RuntimeQw04Integration:
         *,
         evidence_root: str | Path,
         review_target: str | Path,
+        router: Optional[Any] = None,
     ) -> "RuntimeQw04Integration":
         clip_config = config.get("clips")
         review_config = config.get("review_export")
@@ -70,15 +73,28 @@ class RuntimeQw04Integration:
             max_frames_per_camera=int(clip_config["max_frames_per_camera"]),
             max_fps=float(clip_config["buffer_fps"]),
         )
-        adapter = EvidenceClipAdapter(
-            evidence_root,
-            max_clips_per_camera=int(clip_config["max_clips_per_camera"]),
-            max_clip_duration_seconds=max_duration,
-            frame_rate=float(clip_config["buffer_fps"]),
-            container=str(clip_config["container"]),
-            codec=str(clip_config["codec"]),
-            review_target=review_target,
-        )
+        if router is not None:
+            adapter = router.clip_adapter(
+                max_clip_duration_seconds=max_duration,
+            )
+            exporter = router.review_exporter()
+        else:
+            adapter = EvidenceClipAdapter(
+                evidence_root,
+                max_clips_per_camera=int(clip_config["max_clips_per_camera"]),
+                max_clip_duration_seconds=max_duration,
+                frame_rate=float(clip_config["buffer_fps"]),
+                container=str(clip_config["container"]),
+                codec=str(clip_config["codec"]),
+                review_target=review_target,
+            )
+            exporter = BoundedReviewExporter(
+                max_records_total=int(review_config["max_records_total"]),
+                max_records_per_camera=int(review_config["max_records_per_camera"]),
+                max_records_per_signal_type=int(review_config["max_records_per_signal_type"]),
+                max_records_per_rule=int(review_config["max_records_per_rule"]),
+                max_candidates=int(review_config["max_candidates"]),
+            )
         coordinator = TemporalClipCoordinator(
             buffer,
             adapter,
@@ -86,19 +102,13 @@ class RuntimeQw04Integration:
             post_roll_seconds=float(clip_config["post_roll_seconds"]),
             max_pending_per_camera=int(clip_config["max_pending_per_camera"]),
         )
-        exporter = BoundedReviewExporter(
-            max_records_total=int(review_config["max_records_total"]),
-            max_records_per_camera=int(review_config["max_records_per_camera"]),
-            max_records_per_signal_type=int(review_config["max_records_per_signal_type"]),
-            max_records_per_rule=int(review_config["max_records_per_rule"]),
-            max_candidates=int(review_config["max_candidates"]),
-        )
         return cls(
             coordinator,
             exporter,
             review_target,
             clips_enabled=bool(clip_config.get("enabled", False)),
             recent_signal_limit=int(review_config["max_candidates"]),
+            router=router,
         )
 
     def _remember_signal(self, signal_id: str) -> None:
@@ -208,6 +218,18 @@ class RuntimeQw04Integration:
                 )
                 if record.camera_id != camera_id:
                     record = replace(record, camera_id=camera_id)
+                if self._router is not None:
+                    try:
+                        context = self._router.context_for_camera(camera_id)
+                        record = replace(
+                            record,
+                            store_id=context.store_id,
+                            organization_id=context.organization_id,
+                        )
+                    except Exception:
+                        logger.error(
+                            "QW04_STORE_CONTEXT_FAILED camera_id=%s", camera_id
+                        )
                 if not self._clips_enabled:
                     self._pending_records[signal_id] = record
                     self._publish_clip(

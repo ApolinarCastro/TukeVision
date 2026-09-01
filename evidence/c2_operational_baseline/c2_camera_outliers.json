@@ -1,0 +1,16 @@
+{
+  "frame_age_ms": [
+    {
+      "camera_id": "cam_14",
+      "p95_ms": 17075.85
+    },
+    {
+      "camera_id": "cam_12",
+      "p95_ms": 19059.85
+    },
+    {
+      "camera_id": "cam_09",
+      "p95_ms": 19616.1
+    }
+  ]
+}

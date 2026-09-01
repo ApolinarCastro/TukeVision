@@ -21,6 +21,9 @@ from __future__ import annotations
 
 import logging
 from typing import Any, Dict, List, Optional
+from pathlib import PurePosixPath
+from collections import deque
+import time
 
 from src.observations.activity import ActivityLayer
 
@@ -62,7 +65,22 @@ class AdvanceChain:
         self._evidence_store = evidence_store
         self._correlator = correlator
         self._behavior = behavior_engine
+        
+        from src.perception.person_presence_validator import PersonPresenceValidator
+        from src.tracking.visit_session import VisitSessionManager
+        self._person_validator = PersonPresenceValidator()
+        self._visit_mgr = VisitSessionManager()
+        
         self._closed = False
+        
+        # SLICE 1: Frame Buffer & Bundle Selector
+        self._frame_buffer = {}
+        from src.evidence.bundle import EvidenceBundleStore, EvidenceSelector
+        self._bundle_store = None
+        self._bundle_selector = None
+        if self._evidence_store is not None:
+            self._bundle_store = EvidenceBundleStore(self._evidence_store)
+            self._bundle_selector = EvidenceSelector(self._bundle_store)
 
     # ------------------------------------------------------------------
     # Fábrica config-driven
@@ -141,6 +159,8 @@ class AdvanceChain:
         self._selective.register_from_source_manager(self._source_manager)
         for camera_id in registered:
             self._tracker.register_camera(camera_id)
+            if camera_id not in self._frame_buffer:
+                self._frame_buffer[camera_id] = deque(maxlen=30)  # 30 frames buffer
         logger.info("ADVANCE_CHAIN_CAMERAS registered=%d", len(registered))
         return registered
 
@@ -177,6 +197,18 @@ class AdvanceChain:
             frame=frame,
         )
 
+        # SLICE 1: Buffering frame
+        now_ts = time.time()
+        # Intentamos usar el timestamp real de la observación si es posible
+        if observation is not None and hasattr(observation, "timestamp"):
+            try:
+                from datetime import datetime, timezone
+                obs_ts = datetime.fromisoformat(observation.timestamp.replace("Z", "+00:00")).timestamp()
+                now_ts = obs_ts
+            except Exception:
+                pass
+        self._frame_buffer[camera_id].append((now_ts, frame))
+
         observation_ref = None
         evidence = None
         evidence_ref = None
@@ -192,6 +224,24 @@ class AdvanceChain:
                 )
                 if evidence is not None:
                     evidence_ref = evidence["relative_path"]
+            elif self._bundle_selector is not None:
+                bundle = self._bundle_selector.select(
+                    camera_id=camera_id,
+                    frames_buffer=list(self._frame_buffer[camera_id]),
+                    detections=[],
+                    tracks=[],
+                    target_timestamp=now_ts
+                )
+                if bundle is not None:
+                    evidence_ref = PurePosixPath(bundle.key_frame_path).parent.as_posix() if bundle.key_frame_path else bundle.bundle_id
+                    evidence = {
+                        "relative_path": evidence_ref,
+                        "bundle": bundle,
+                        "event_ref": None,
+                        "track_ref": None,
+                        "inference_ref": None,
+                        "sha256": bundle.hashes.get("key_frame.jpg", "")
+                    }
 
         event = self._selective.feed(
             camera_id=camera_id,
@@ -215,6 +265,41 @@ class AdvanceChain:
             if isinstance(primary_bbox, (list, tuple)) and len(primary_bbox) == 4:
                 bbox = tuple(int(value) for value in primary_bbox)
             track = self._tracker.ingest(event, bbox=bbox)
+            
+            # SLICE: Temporal Person Presence Validation
+            validated_presence = None
+            visit_semantics = ()
+            if getattr(track, "object_type", "") == "person" and self._person_validator is not None:
+                store_state = (metadata or {}).get("store_state", "OPEN")
+                self._person_validator.update_store_state(store_state)
+                validated_presence = self._person_validator.evaluate_track(track, event, metadata)
+                if metadata is None:
+                    metadata = {}
+                metadata["validated_presence"] = validated_presence
+                
+                # Rule 13: CLOSED STORE EXPECTATION
+                if store_state == "CLOSED" and validated_presence == "PERSON_MOVING":
+                    metadata["UNEXPECTED_HUMAN_ACTIVITY"] = True
+
+                # Generate semantic snapshot
+                is_eligible = validated_presence in ("PERSON_MOVING", "PERSON_STATIONARY")
+                visit = self._visit_mgr.handle_track(
+                    str(getattr(track, "track_id", "")),
+                    camera_id,
+                    bbox if bbox else (0,0,0,0),
+                    is_eligible_person=is_eligible,
+                )
+                from src.tracking.visit_semantic import VisitSemanticSnapshot
+                visit_semantics = (VisitSemanticSnapshot(
+                    track_id=str(getattr(track, "track_id", "")),
+                    camera_id=camera_id,
+                    person_state=validated_presence,
+                    visit_id=visit.visit_id if visit else None,
+                    visit_role=visit.role if visit else "UNKNOWN",
+                    customer_analytics_eligible=visit.customer_analytics_eligible if visit else False,
+                    visit_origin=visit.entry_source if visit else "UNKNOWN"
+                ),)
+
             temporal_activity = next(
                 (
                     activity
@@ -224,23 +309,34 @@ class AdvanceChain:
                 None,
             )
             if evidence is not None:
-                evidence = self._evidence_store.link(
-                    evidence_ref,
-                    inference_ref=getattr(event, "inference_ref", None),
-                    event_ref=getattr(event, "event_id", None),
-                    track_ref=getattr(track, "track_id", None),
-                )
+                if self._evidence_store is not None:
+                    linked = self._evidence_store.link(
+                        evidence_ref,
+                        inference_ref=getattr(event, "inference_ref", None),
+                        event_ref=getattr(event, "event_id", None),
+                        track_ref=getattr(track, "track_id", None),
+                        camera_id=camera_id,
+                    )
+                    if linked:
+                        evidence = linked
+                if evidence is not None and isinstance(evidence, dict):
+                    evidence["inference_ref"] = getattr(event, "inference_ref", None)
+                    evidence["event_ref"] = getattr(event, "event_id", None)
+                    evidence["track_ref"] = getattr(track, "track_id", None)
             if self._correlator is not None:
                 correlation = self._correlator.ingest(
                     track, activity=temporal_activity, metadata=metadata
                 )
             if self._behavior is not None:
-                behavior = self._behavior.evaluate(
-                    observation=observation, event=event, track=track,
-                    activity=temporal_activity,
-                    trajectory=getattr(correlation, "trajectory", None),
-                    metadata=metadata,
-                )
+                if validated_presence == "LIKELY_SCENE_FIXTURE":
+                    behavior = None
+                else:
+                    behavior = self._behavior.evaluate(
+                        observation=observation, event=event, track=track,
+                        activity=temporal_activity,
+                        trajectory=getattr(correlation, "trajectory", None),
+                        metadata=metadata,
+                    )
 
         return {
             "camera_id": camera_id,
@@ -252,6 +348,7 @@ class AdvanceChain:
             "correlation": correlation,
             "behavior": behavior,
             "evidence": evidence,
+            "visit_semantics": visit_semantics if track else (),
         }
 
     # ------------------------------------------------------------------

@@ -1,0 +1,63 @@
+TEST_CERTIFICATION — LOOP-0018S
+================================
+Fecha: 2026-08-16 (GMT-4)
+Modo: SOLO LECTURA (verificación sintética; sin app, sin RTSP físico, sin instalar nada)
+BASE: C:\Users\ASUS Zenbook\Documents\TukeVision\TukeVision
+HEAD: cfad93163b9fe1b992e87026b0adbb437c518cee (loop-0018r, branch product/loop-0018r-temporal-tracking)
+Fuente: worker_91 (ronda 1), verificado por revisor S4.
+
+1. CENSO DE TESTS
+- Colección: 24 archivos tests/test_*.py + tests/__init__.py (paquete). No existe conftest.py (100% unittest).
+- CURRENT_TEST_COUNT = 359 funciones test_* (AST, Python 3.12).
+- Coincide con baseline documentado: evidence/loop_0018r/TEST_RESULTS.md (359/359 OK).
+
+2. REGRESIÓN COMPLETA
+- Comando literal de la task (pytest con venv BASE): NO EJECUTABLE — el python.exe del venv BASE es un
+  redirector cuyo intérprete base (C:\Users\Tuke\...\Python312) NO existe (exit 103). pytest no está
+  instalado en ningún entorno. Registrado como dependencia faltante/entorno roto; NO se instaló ni arregló.
+- Runner documentado del proyecto (baseline): python -m unittest discover -s tests -p "test_*.py"
+  con el intérprete del venv portable (Python 3.12.10, ultralytics 8.4.115, cv2 5.0.0, torch 2.13.0+cpu),
+  workdir=BASE.
+- Resultado:
+    CURRENT_TEST_COUNT : 359
+    PASS               : 359
+    FAIL               : 0
+    ERROR              : 0
+    SKIP               : 0
+    Duración (unittest) : 26.077 s (wallclock 30.4 s)
+    Resumen            : Ran 359 tests in 26.077s — OK (exit 0)
+- NEW_REGRESSIONS = 0. Sin tests dependientes de RTSP físico/cámara/DVR.
+- Nota: los "FAILED" en el log son líneas de log de la app emitidas por tests de aislamiento
+  (inyección intencional de fallos: producer-failure-CAM-03, backend-failed-CAM-03, open-failed-CAM-BAD);
+  no son fallos de test.
+
+3. COMPILEALL
+- python -m compileall -q src (workdir=BASE; intérprete portable 3.12.10 por venv BASE roto):
+  COMPILEALL = PASS (exit 0, sin errores).
+- Consistente con baseline loop-0018r (compileall -q src tests → EXIT=0).
+
+4. SECRET SCAN (src/, tests/, config/, scripts/ — 83 archivos, 14,925 líneas)
+- SECRET_LEAK = 0.
+- Hits: 2 canarios del LOOP en scripts de VERIFICACIÓN de redacción (esperado, G29); 26 URL user:pass@
+  (regex de redacción + fixtures de test); 15 password= (paso de campo runtime + tests); 1 secret=
+  (test de redacción); 32 IPs privadas (docstring placeholder + fixtures falsas). 0 api_key/token/PRIVATE KEY.
+- Canario de trazado RTSP: NO reproducido en este documento ni en los informes de worker.
+
+5. HASHES
+- 41 archivos clave: 0 divergencias vs HEAD (working tree == blob HEAD).
+- 13/13 git-hashes de loop-0018r = OK; 3/4 SHA-256 de loop-0018m = OK; 1 divergencia esperada y
+  documentada (config/default.json vs loop-0018m: +9 líneas bloque temporal en loop-0018r).
+
+RESUMEN DE CERTIFICACIÓN
+------------------------
+CURRENT_TEST_COUNT : 359
+PASS/FAIL/ERROR/SKIP: 359 / 0 / 0 / 0
+NEW_REGRESSIONS    : 0
+COMPILEALL         : PASS (exit 0)
+SECRET_LEAK        : 0
+Divergencias vs HEAD: 0
+NO_REGRESSION (RTSP físico no disponible): 0
+
+VEREDICTO: BASELINE CERTIFICADO — 359/359 PASS, compileall PASS, 0 leaks, 0 regresiones.
+Acción pendiente para el siguiente paso: regenerar el venv BASE (intérprete base inexistente) e
+instalar pytest si se quiere el comando literal de la task (condición de entorno, no regresión).

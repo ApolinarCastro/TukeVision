@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-3B3762",
+  "pid": 23776,
+  "started_at": "2026-08-31T09:36:53",
+  "started_at_unix": 1788183413.0808675,
+  "version": "v3-phase12-raw-physical-truth-closed-1-g80f8698-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

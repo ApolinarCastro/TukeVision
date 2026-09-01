@@ -1,0 +1,48 @@
+{
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "profile_requested": "MAIN",
+      "profile_observed": "SUB",
+      "frame_observed": true,
+      "frame_sequence_after": 9230,
+      "source_resolution": "352x240",
+      "source_resolution_observed": true,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "SUB_PROFILE_GRID_OBSERVED"
+    },
+    {
+      "camera_id": "cam_06",
+      "profile_requested": "MAIN",
+      "profile_observed": "SUB",
+      "frame_observed": true,
+      "frame_sequence_after": 838,
+      "source_resolution": "352x240",
+      "source_resolution_observed": true,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "SUB_PROFILE_GRID_OBSERVED"
+    },
+    {
+      "camera_id": "cam_09",
+      "profile_requested": "MAIN",
+      "profile_observed": "SUB",
+      "frame_observed": true,
+      "frame_sequence_after": 1560,
+      "source_resolution": "352x240",
+      "source_resolution_observed": true,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "SUB_PROFILE_GRID_OBSERVED"
+    }
+  ],
+  "overall_focus_main_pass": false,
+  "overall_focus_hd_pass": false,
+  "status": "NOT_FULLY_OBSERVED_IN_PASSIVE_MODE",
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

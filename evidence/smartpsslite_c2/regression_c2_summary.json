@@ -1,0 +1,9 @@
+{
+  "execution_id": "TV-POST-F12-SMARTPSSLITE-SURGICAL-INTEGRATION-18",
+  "passed": 1049,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 4,
+  "subtests_passed": 15,
+  "source": "regression_c2_raw.txt"
+}

@@ -1,0 +1,6 @@
+{
+  "gate": "NO_AUTOMATIC_POLICY_MUTATION",
+  "status": "PASS",
+  "test_case": "test_no_automatic_policy_mutation",
+  "result": "Positive action experiences do not mutate policy allowlist or escalate autonomy"
+}

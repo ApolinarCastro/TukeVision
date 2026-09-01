@@ -1,0 +1,11 @@
+{
+  "cpu_percent": 0.0,
+  "process_rss_mb": 72.06,
+  "system_ram_percent": 67.2,
+  "disk_percent": 75.1,
+  "active_threads": 30,
+  "unhandled_exceptions": 0,
+  "overall_health": "SALUDABLE",
+  "source": "LIVE_TELEMETRY",
+  "synthetic": false
+}

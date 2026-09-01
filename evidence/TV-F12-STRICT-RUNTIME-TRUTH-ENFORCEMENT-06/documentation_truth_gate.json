@@ -1,0 +1,10 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T20:14:02.494303+00:00",
+  "readme_reconciled": true,
+  "current_state_reconciled": true,
+  "product_capabilities_reconciled": true,
+  "changelog_reconciled": true,
+  "status": "PASS"
+}

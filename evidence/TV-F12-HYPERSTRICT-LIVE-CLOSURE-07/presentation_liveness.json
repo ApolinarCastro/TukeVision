@@ -1,0 +1,82 @@
+{
+  "cameras": {
+    "cam_01": {
+      "ui_model_received": 1285,
+      "ui_rendered_frames": 948,
+      "presentation_active": true
+    },
+    "cam_02": {
+      "ui_model_received": 1442,
+      "ui_rendered_frames": 1049,
+      "presentation_active": true
+    },
+    "cam_03": {
+      "ui_model_received": 1311,
+      "ui_rendered_frames": 1066,
+      "presentation_active": true
+    },
+    "cam_04": {
+      "ui_model_received": 1400,
+      "ui_rendered_frames": 1074,
+      "presentation_active": true
+    },
+    "cam_05": {
+      "ui_model_received": 1258,
+      "ui_rendered_frames": 925,
+      "presentation_active": true
+    },
+    "cam_06": {
+      "ui_model_received": 1041,
+      "ui_rendered_frames": 833,
+      "presentation_active": true
+    },
+    "cam_07": {
+      "ui_model_received": 1424,
+      "ui_rendered_frames": 1114,
+      "presentation_active": true
+    },
+    "cam_08": {
+      "ui_model_received": 1214,
+      "ui_rendered_frames": 1000,
+      "presentation_active": true
+    },
+    "cam_09": {
+      "ui_model_received": 1356,
+      "ui_rendered_frames": 1131,
+      "presentation_active": true
+    },
+    "cam_10": {
+      "ui_model_received": 1426,
+      "ui_rendered_frames": 1069,
+      "presentation_active": true
+    },
+    "cam_11": {
+      "ui_model_received": 1212,
+      "ui_rendered_frames": 996,
+      "presentation_active": true
+    },
+    "cam_12": {
+      "ui_model_received": 1194,
+      "ui_rendered_frames": 976,
+      "presentation_active": true
+    },
+    "cam_13": {
+      "ui_model_received": 1182,
+      "ui_rendered_frames": 1013,
+      "presentation_active": true
+    },
+    "cam_14": {
+      "ui_model_received": 1300,
+      "ui_rendered_frames": 1032,
+      "presentation_active": true
+    },
+    "cam_15": {
+      "ui_model_received": 1487,
+      "ui_rendered_frames": 1119,
+      "presentation_active": true
+    }
+  },
+  "gate_presentation_all_derived": true,
+  "source": "LIVE_APPLICATION_ATTACHED",
+  "synthetic": false
+}

@@ -1,0 +1,14 @@
+{
+  "tes_root": "TES/",
+  "incident_recorded": "[INC-001] SYNTHETIC PHYSICAL EVIDENCE MISCLASSIFICATION",
+  "permanent_rule_active": "A SCRIPT THAT GENERATES EXPECTED VALUES CANNOT CERTIFY PHYSICAL RUNTIME",
+  "openvino_status": "ADOPTED / CERTIFIED",
+  "detectron2_status": "REJECTED / RESERVED (EDGE PROFILE)",
+  "onvif_signing_status": "CONTRACT_READY (DEVICE_VALIDATION_NOT_AVAILABLE)",
+  "semantic_investigation_status": "STRUCTURED_RETRIEVAL_IMPLEMENTED / NLP_TARGET",
+  "dvr_nvr_boundary_status": "PRIMARY_RECORDER_PRESERVED",
+  "capabilities_recertified_physical_run_id": "TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04",
+  "status": "PASS",
+  "source": "TES_RECONCILIATION",
+  "synthetic": false
+}

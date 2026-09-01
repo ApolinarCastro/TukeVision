@@ -1,0 +1,18 @@
+{
+  "run_id": "RUN-E4DF5F",
+  "pid": "NOT_OBSERVED",
+  "code_sha": "NOT_OBSERVED",
+  "observation_count": 12960,
+  "observation_duration_seconds": 899.2,
+  "cameras_observed": 15,
+  "focus_switches_observed": 1,
+  "focus_first_frame_confirmations": 1,
+  "grid_return_switches_observed": 1,
+  "natural_reconnects_observed": 0,
+  "generation_transitions": 1,
+  "duplicate_decoder_owner_max": 0,
+  "duplicate_decoder_process_max": 0,
+  "runtime_exceptions": 0,
+  "runtime_freezes": 0,
+  "ui_heartbeat_stalls": 0
+}

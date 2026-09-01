@@ -1,0 +1,6 @@
+{
+  "gate": "AUTONOMY_2_LIMITED_ACTION",
+  "status": "PASS",
+  "test_case": "test_autonomy_2_limited_action",
+  "result": "Low-risk internal action CREATE_OPERATOR_ALERT executed and verified under AUTONOMY_2"
+}

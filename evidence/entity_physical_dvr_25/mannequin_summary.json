@@ -1,0 +1,17 @@
+{
+  "MANNEQUIN_RAW_PERSON_DETECTION": "NOT_OBSERVED_PHYSICAL_BUT_EXPECTED_YES",
+  "MANNEQUIN_LOCAL_TRACK": "NOT_OBSERVED_PHYSICAL",
+  "MANNEQUIN_FINAL_PERSON_STATE": "NOT_OBSERVED_PHYSICAL_EXPECTED_LIKELY_SCENE_FIXTURE",
+  "MANNEQUIN_VISIT_ID": "NOT_OBSERVED_EXPECTED_null",
+  "MANNEQUIN_VISIT_ROLE": "NOT_OBSERVED_EXPECTED_UNKNOWN",
+  "MANNEQUIN_CUSTOMER_ANALYTICS": "NOT_OBSERVED_EXPECTED_false",
+  "acceptable_states": ["LIKELY_SCENE_FIXTURE", "AMBIGUOUS_PERSON_LIKE"],
+  "not_acceptable": "PERSON_MOVING persistent with VIS-* and CUSTOMER",
+  "unit_test_mannequin": {
+    "status": "PASS",
+    "tests": ["static fixture becomes LIKELY_SCENE_FIXTURE", "no visit_id for fixture", "fixture excluded from analytics"]
+  },
+  "defect": "PHYSICAL_MANNEQUIN_NOT_OBSERVED_HEADLESS",
+  "camera_id": null,
+  "timestamp": null
+}

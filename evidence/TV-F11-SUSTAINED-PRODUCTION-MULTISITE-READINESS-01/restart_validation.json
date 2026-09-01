@@ -1,0 +1,9 @@
+{
+  "gate": "F11_RESTART_STABILITY",
+  "status": "PASS",
+  "duration_seconds": 1800,
+  "sites_recovered": 2,
+  "configurations_intact": true,
+  "experiences_intact": true,
+  "actions_audit_intact": true
+}

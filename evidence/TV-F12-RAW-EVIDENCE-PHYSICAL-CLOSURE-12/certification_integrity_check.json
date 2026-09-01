@@ -1,0 +1,11 @@
+{
+  "certified_code_identity": "c46067c1e13d69b7df9d47333ba3ddd861c3129d",
+  "raw_integrity": "PASS",
+  "soak_summary_matches_raw": "PASS",
+  "liveness_matches_raw": "PASS",
+  "presentation_matches_raw": "PASS",
+  "focus_matches_raw_if_available": "PASS",
+  "grid_matches_raw_if_available": "PASS",
+  "regression_matches_raw": "PASS",
+  "operator_attestation_not_used_as_gate": "PASS"
+}

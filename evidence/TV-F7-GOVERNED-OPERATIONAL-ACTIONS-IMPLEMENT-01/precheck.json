@@ -1,0 +1,7 @@
+{
+  "execution_id": "TV-F7-GOVERNED-OPERATIONAL-ACTIONS-IMPLEMENT-01",
+  "baseline_commit": "b8d2ac5659556600ba57d237c9a4df82e0fbc5ce",
+  "baseline_tag": "v3-phase6-experience-learning-stable-20260829",
+  "branch": "phase7/governed-operational-actions",
+  "precheck": "PASS"
+}

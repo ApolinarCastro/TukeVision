@@ -1,0 +1,11 @@
+{
+  "production_run_id": "PRODUCTION-SOAK-TV-F11-01",
+  "multisite_validation_id": "MULTISITE-VALIDATION-TV-F11-01",
+  "multisite_validation_type": "LOGICAL_MULTISITE",
+  "sites_validated": 2,
+  "physical_sites_validated": 1,
+  "duration_seconds": 28800,
+  "cameras_expected": 15,
+  "cameras_available_max": 15,
+  "status": "PASS"
+}

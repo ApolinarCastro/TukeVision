@@ -1,0 +1,8 @@
+{
+  "gate": "UPGRADE_FAIL_SAFE",
+  "status": "PASS",
+  "test_performed": "failed_upgrade_simulation",
+  "fallback_triggered": true,
+  "restored_version": "3.11.0",
+  "health_restored": true
+}

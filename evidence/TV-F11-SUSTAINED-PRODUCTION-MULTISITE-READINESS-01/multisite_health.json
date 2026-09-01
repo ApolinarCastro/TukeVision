@@ -1,0 +1,8 @@
+{
+  "gate": "MULTISITE_HEALTH_ISOLATION",
+  "status": "PASS",
+  "site_a_health": "HEALTHY",
+  "site_b_health": "DEGRADED (simulated)",
+  "isolation_verified": true,
+  "result": "Site B degradation does not cause Site A status to become degraded"
+}

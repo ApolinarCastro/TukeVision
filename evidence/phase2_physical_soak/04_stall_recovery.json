@@ -1,0 +1,6 @@
+{
+  "watchdog_timeout_s": 10.0,
+  "frames_generator_stall_break_confirmed": true,
+  "source_manager_reconnect_backoff_confirmed": true,
+  "stalled_without_recovery_path": 0
+}

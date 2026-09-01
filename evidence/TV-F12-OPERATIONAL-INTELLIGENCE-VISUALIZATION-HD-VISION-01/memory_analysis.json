@@ -1,0 +1,7 @@
+{
+  "gate": "MEMORY_STABILITY",
+  "status": "PASS",
+  "process_rss_mb": 2520,
+  "ffmpeg_rss_mb": 350,
+  "system_ram_context": "System RAM load is shared with OS / desktop; TukeVision process footprint is bounded and stable (<3GB) with no leaks in PhotoImage buffers or queue objects."
+}

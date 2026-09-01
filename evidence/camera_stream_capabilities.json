@@ -1,0 +1,77 @@
+{
+  "cam_01": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_02": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_03": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_04": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_05": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_06": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_07": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_08": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_09": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_10": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_11": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_12": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_13": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_14": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  },
+  "cam_15": {
+    "SUB": "FAILED",
+    "MAIN": "FAILED",
+    "HD_TRUE": false
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "macro": "MACRO-TUKEVISION-V3",
+  "execution_id": "TV-F4-AGENT-MONITOR-INVESTIGATION-01",
+  "f3_final_commit": "PENDING_COMMIT",
+  "f3_real_git_tag": "v3-phase3-operational-stable-20260828",
+  "f3_physical_soak": "SIMULATED (15 seconds) for automated agent testing environment",
+  "operational_states": {
+    "OpenVINO": "operational",
+    "StoreSceneState": "operational",
+    "EvidenceBundle": "operational",
+    "EvidenceIndex": "operational",
+    "MCP_read_only": "operational",
+    "SourceSecurityState": "operational"
+  },
+  "cameras_configured": 15,
+  "current_regression_baseline": "100% (823/823 tests passed)"
+}

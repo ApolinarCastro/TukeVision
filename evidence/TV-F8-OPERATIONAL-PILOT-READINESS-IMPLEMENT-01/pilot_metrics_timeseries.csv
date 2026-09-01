@@ -1,0 +1,6 @@
+timestamp,situations_generated,investigations_generated,operator_reviews,actions_executed,experiences_created
+2026-08-29T10:00:00Z,16,10,10,8,10
+2026-08-29T10:15:00Z,32,22,20,16,20
+2026-08-29T10:30:00Z,50,34,32,26,32
+2026-08-29T10:45:00Z,68,46,42,34,42
+2026-08-29T11:00:00Z,84,56,52,42,52

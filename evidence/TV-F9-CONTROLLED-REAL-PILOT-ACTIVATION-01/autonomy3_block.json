@@ -1,0 +1,8 @@
+{
+  "gate": "REAL_PILOT_AUTONOMY_3_BLOCK",
+  "status": "PASS",
+  "test_case": "test_real_pilot_autonomy_3_block",
+  "autonomy_3_enabled": false,
+  "sensitive_action_executions": 0,
+  "result": "Sensitive actions blocked from autonomous execution"
+}

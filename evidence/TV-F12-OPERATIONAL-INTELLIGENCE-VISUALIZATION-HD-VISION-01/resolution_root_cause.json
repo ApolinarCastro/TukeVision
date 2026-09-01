@@ -1,0 +1,6 @@
+{
+  "gate": "RESOLUTION_ROOT_CAUSE",
+  "status": "PASS",
+  "root_cause_classification": "SUBSTREAM_SELECTION",
+  "explanation": "Grid view deliberately selects substream (352x240) to preserve multi-view decode stability across 15 concurrent channels while focus and evidence capture can scale to native 1920x1080."
+}

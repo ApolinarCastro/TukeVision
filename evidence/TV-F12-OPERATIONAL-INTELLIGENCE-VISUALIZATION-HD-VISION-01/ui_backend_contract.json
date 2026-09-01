@@ -1,0 +1,6 @@
+{
+  "gate": "BACKEND_UI_TRUTH",
+  "status": "PASS",
+  "unification_chain_verified": "Camera -> Observation -> Detection -> Track -> TemporalEntity -> SpatialState -> Behavior -> Situation -> Evidence -> Investigation -> Reasoning -> GovernedAction -> OperatorOutcome -> Experience",
+  "mock_data_in_production": false
+}

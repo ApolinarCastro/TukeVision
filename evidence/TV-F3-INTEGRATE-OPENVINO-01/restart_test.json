@@ -1,0 +1,7 @@
+{
+  "gate": "PASS",
+  "runtime_tested": "openvino",
+  "duration_seconds": 600.7,
+  "total_operations": 12900,
+  "errors": 0
+}

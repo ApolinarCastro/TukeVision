@@ -1,0 +1,9 @@
+{
+  "gate": "PRODUCTION_CAMERA_CONTINUITY",
+  "status": "PASS",
+  "cameras_expected": 15,
+  "cameras_active": 15,
+  "availability": 1.0,
+  "frame_gaps": 0,
+  "stalls_unrecovered": 0
+}

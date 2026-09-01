@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-1F5742",
+  "pid": 26292,
+  "started_at": "2026-08-27T15:21:19",
+  "started_at_unix": 1787858479.2890165,
+  "version": "06d0e6a-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

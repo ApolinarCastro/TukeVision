@@ -1,0 +1,927 @@
+[
+  {
+    "camera_count": 1,
+    "chain_summary": {
+      "activity": {
+        "CAM-001": {
+          "counters": {
+            "frames_seen": 10,
+            "observations_dropped": 0,
+            "observations_enqueued": 2,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 2,
+            "samples_analyzed": 2
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        }
+      },
+      "behavior": {
+        "evaluated": 2,
+        "max_results": 64,
+        "retained_results": 2,
+        "risk_events": 0
+      },
+      "cameras": [
+        "CAM-001"
+      ],
+      "correlation": {
+        "association_count": 0,
+        "candidate_count": 0,
+        "track_count": 1,
+        "trajectory_count": 0
+      },
+      "inference": {
+        "metrics": {
+          "CAM-001": {
+            "considered": 10,
+            "event_queue_dropped": 0,
+            "events_generated": 2,
+            "inference_errors": 0,
+            "latency_ms_avg": 920.333,
+            "latency_ms_last": 41.456,
+            "latency_ms_sum": 1840.666,
+            "processed": 2,
+            "profile": "BALANCED",
+            "queued_events": 2,
+            "skipped_by_policy": 8
+          }
+        },
+        "totals": {
+          "considered": 10,
+          "events_generated": 2,
+          "inference_errors": 0,
+          "latency_ms_avg": 920.333,
+          "latency_ms_last": 41.456,
+          "latency_ms_sum": 1840.666,
+          "processed": 2,
+          "skipped_by_policy": 8
+        }
+      },
+      "temporal": {
+        "activities_ended": 0,
+        "activities_started": 1,
+        "association_misses": 0,
+        "errors": 0,
+        "events_received": 2,
+        "tracks_ended": 0,
+        "tracks_started": 1,
+        "tracks_updated": 1
+      }
+    },
+    "counts": {
+      "behavior_features": 6,
+      "behavior_signals": 0,
+      "event": 2,
+      "observation": 2,
+      "processed_results": 10,
+      "temporal_activity": 2,
+      "track": 2
+    },
+    "duration_seconds": 5,
+    "errors": [],
+    "events_per_camera": {},
+    "final_health": {
+      "CAM-001": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 59,
+        "stall_count": 0
+      }
+    },
+    "label": "STAGE_A",
+    "resource_samples": [],
+    "status": "COMPLETED",
+    "unique_activities": 1,
+    "unique_risk_events": 0,
+    "unique_tracks": 1,
+    "unique_trajectories": 0
+  },
+  {
+    "camera_count": 2,
+    "chain_summary": {
+      "activity": {
+        "CAM-001": {
+          "counters": {
+            "frames_seen": 73,
+            "observations_dropped": 0,
+            "observations_enqueued": 11,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 11,
+            "samples_analyzed": 11
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-002": {
+          "counters": {
+            "frames_seen": 25,
+            "observations_dropped": 0,
+            "observations_enqueued": 4,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 4,
+            "samples_analyzed": 4
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        }
+      },
+      "behavior": {
+        "evaluated": 15,
+        "max_results": 64,
+        "retained_results": 15,
+        "risk_events": 0
+      },
+      "cameras": [
+        "CAM-001",
+        "CAM-002"
+      ],
+      "correlation": {
+        "association_count": 0,
+        "candidate_count": 0,
+        "track_count": 2,
+        "trajectory_count": 0
+      },
+      "inference": {
+        "metrics": {
+          "CAM-001": {
+            "considered": 73,
+            "event_queue_dropped": 0,
+            "events_generated": 11,
+            "inference_errors": 0,
+            "latency_ms_avg": 48.418,
+            "latency_ms_last": 96.938,
+            "latency_ms_sum": 532.599,
+            "processed": 11,
+            "profile": "BALANCED",
+            "queued_events": 11,
+            "skipped_by_policy": 62
+          },
+          "CAM-002": {
+            "considered": 25,
+            "event_queue_dropped": 0,
+            "events_generated": 4,
+            "inference_errors": 0,
+            "latency_ms_avg": 54.917,
+            "latency_ms_last": 54.379,
+            "latency_ms_sum": 373.369,
+            "processed": 7,
+            "profile": "BALANCED",
+            "queued_events": 4,
+            "skipped_by_policy": 18
+          }
+        },
+        "totals": {
+          "considered": 98,
+          "events_generated": 15,
+          "inference_errors": 0,
+          "latency_ms_avg": 50.093,
+          "latency_ms_last": 54.379,
+          "latency_ms_sum": 905.968,
+          "processed": 18,
+          "skipped_by_policy": 80
+        }
+      },
+      "temporal": {
+        "activities_ended": 0,
+        "activities_started": 2,
+        "association_misses": 0,
+        "errors": 0,
+        "events_received": 15,
+        "tracks_ended": 0,
+        "tracks_started": 2,
+        "tracks_updated": 13
+      }
+    },
+    "counts": {
+      "behavior_features": 45,
+      "behavior_signals": 11,
+      "event": 15,
+      "observation": 15,
+      "processed_results": 98,
+      "temporal_activity": 15,
+      "track": 15
+    },
+    "duration_seconds": 5,
+    "errors": [],
+    "events_per_camera": {},
+    "final_health": {
+      "CAM-001": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 164,
+        "stall_count": 0
+      },
+      "CAM-002": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 51,
+        "stall_count": 0
+      }
+    },
+    "label": "STAGE_B",
+    "resource_samples": [],
+    "status": "COMPLETED",
+    "unique_activities": 2,
+    "unique_risk_events": 0,
+    "unique_tracks": 2,
+    "unique_trajectories": 0
+  },
+  {
+    "camera_count": 4,
+    "chain_summary": {
+      "activity": {
+        "CAM-001": {
+          "counters": {
+            "frames_seen": 26,
+            "observations_dropped": 0,
+            "observations_enqueued": 5,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 5,
+            "samples_analyzed": 5
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-002": {
+          "counters": {
+            "frames_seen": 28,
+            "observations_dropped": 0,
+            "observations_enqueued": 3,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 3,
+            "samples_analyzed": 3
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-003": {
+          "counters": {
+            "frames_seen": 25,
+            "observations_dropped": 0,
+            "observations_enqueued": 4,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 4,
+            "samples_analyzed": 4
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-004": {
+          "counters": {
+            "frames_seen": 29,
+            "observations_dropped": 0,
+            "observations_enqueued": 5,
+            "producer_errors": 0,
+            "queue_dropped": 0,
+            "queued": 5,
+            "samples_analyzed": 5
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        }
+      },
+      "behavior": {
+        "evaluated": 11,
+        "max_results": 64,
+        "retained_results": 11,
+        "risk_events": 0
+      },
+      "cameras": [
+        "CAM-001",
+        "CAM-002",
+        "CAM-003",
+        "CAM-004"
+      ],
+      "correlation": {
+        "association_count": 0,
+        "candidate_count": 0,
+        "track_count": 2,
+        "trajectory_count": 0
+      },
+      "inference": {
+        "metrics": {
+          "CAM-001": {
+            "considered": 26,
+            "event_queue_dropped": 0,
+            "events_generated": 5,
+            "inference_errors": 0,
+            "latency_ms_avg": 61.404,
+            "latency_ms_last": 55.172,
+            "latency_ms_sum": 307.019,
+            "processed": 5,
+            "profile": "BALANCED",
+            "queued_events": 5,
+            "skipped_by_policy": 21
+          },
+          "CAM-002": {
+            "considered": 28,
+            "event_queue_dropped": 0,
+            "events_generated": 0,
+            "inference_errors": 0,
+            "latency_ms_avg": 0.0,
+            "latency_ms_last": 151.574,
+            "latency_ms_sum": 463.74100000000004,
+            "processed": 6,
+            "profile": "BALANCED",
+            "queued_events": 0,
+            "skipped_by_policy": 22
+          },
+          "CAM-003": {
+            "considered": 25,
+            "event_queue_dropped": 0,
+            "events_generated": 6,
+            "inference_errors": 0,
+            "latency_ms_avg": 77.414,
+            "latency_ms_last": 79.227,
+            "latency_ms_sum": 543.71,
+            "processed": 7,
+            "profile": "BALANCED",
+            "queued_events": 6,
+            "skipped_by_policy": 18
+          },
+          "CAM-004": {
+            "considered": 29,
+            "event_queue_dropped": 0,
+            "events_generated": 0,
+            "inference_errors": 0,
+            "latency_ms_avg": 0.0,
+            "latency_ms_last": 58.641,
+            "latency_ms_sum": 535.096,
+            "processed": 8,
+            "profile": "BALANCED",
+            "queued_events": 0,
+            "skipped_by_policy": 21
+          }
+        },
+        "totals": {
+          "considered": 108,
+          "events_generated": 11,
+          "inference_errors": 0,
+          "latency_ms_avg": 70.814,
+          "latency_ms_last": 79.227,
+          "latency_ms_sum": 1849.5660000000005,
+          "processed": 26,
+          "skipped_by_policy": 82
+        }
+      },
+      "temporal": {
+        "activities_ended": 0,
+        "activities_started": 2,
+        "association_misses": 0,
+        "errors": 0,
+        "events_received": 11,
+        "tracks_ended": 0,
+        "tracks_started": 2,
+        "tracks_updated": 9
+      }
+    },
+    "counts": {
+      "behavior_features": 33,
+      "behavior_signals": 7,
+      "event": 11,
+      "observation": 17,
+      "processed_results": 108,
+      "temporal_activity": 11,
+      "track": 11
+    },
+    "duration_seconds": 5,
+    "errors": [],
+    "events_per_camera": {},
+    "final_health": {
+      "CAM-001": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 113,
+        "stall_count": 0
+      },
+      "CAM-002": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 51,
+        "stall_count": 0
+      },
+      "CAM-003": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 134,
+        "stall_count": 0
+      },
+      "CAM-004": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 83,
+        "stall_count": 0
+      }
+    },
+    "label": "STAGE_C",
+    "resource_samples": [],
+    "status": "COMPLETED",
+    "unique_activities": 2,
+    "unique_risk_events": 0,
+    "unique_tracks": 2,
+    "unique_trajectories": 0
+  },
+  {
+    "camera_count": 4,
+    "chain_summary": {
+      "activity": {
+        "CAM-001": {
+          "counters": {
+            "frames_seen": 399,
+            "observations_dropped": 41,
+            "observations_enqueued": 57,
+            "producer_errors": 0,
+            "queue_dropped": 41,
+            "queued": 16,
+            "samples_analyzed": 57
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-002": {
+          "counters": {
+            "frames_seen": 349,
+            "observations_dropped": 25,
+            "observations_enqueued": 41,
+            "producer_errors": 0,
+            "queue_dropped": 25,
+            "queued": 16,
+            "samples_analyzed": 41
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-003": {
+          "counters": {
+            "frames_seen": 354,
+            "observations_dropped": 25,
+            "observations_enqueued": 41,
+            "producer_errors": 0,
+            "queue_dropped": 25,
+            "queued": 16,
+            "samples_analyzed": 41
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        },
+        "CAM-004": {
+          "counters": {
+            "frames_seen": 340,
+            "observations_dropped": 31,
+            "observations_enqueued": 47,
+            "producer_errors": 0,
+            "queue_dropped": 31,
+            "queued": 16,
+            "samples_analyzed": 47
+          },
+          "fps": 0.0,
+          "profile": "BALANCED",
+          "state": "ACTIVE"
+        }
+      },
+      "behavior": {
+        "evaluated": 173,
+        "max_results": 64,
+        "retained_results": 64,
+        "risk_events": 0
+      },
+      "cameras": [
+        "CAM-001",
+        "CAM-002",
+        "CAM-003",
+        "CAM-004"
+      ],
+      "correlation": {
+        "association_count": 4,
+        "candidate_count": 38,
+        "track_count": 22,
+        "trajectory_count": 2
+      },
+      "inference": {
+        "metrics": {
+          "CAM-001": {
+            "considered": 399,
+            "event_queue_dropped": 41,
+            "events_generated": 57,
+            "inference_errors": 0,
+            "latency_ms_avg": 67.028,
+            "latency_ms_last": 82.482,
+            "latency_ms_sum": 3820.6150000000016,
+            "processed": 57,
+            "profile": "BALANCED",
+            "queued_events": 16,
+            "skipped_by_policy": 342
+          },
+          "CAM-002": {
+            "considered": 349,
+            "event_queue_dropped": 20,
+            "events_generated": 36,
+            "inference_errors": 0,
+            "latency_ms_avg": 73.344,
+            "latency_ms_last": 67.044,
+            "latency_ms_sum": 6160.930000000001,
+            "processed": 84,
+            "profile": "BALANCED",
+            "queued_events": 16,
+            "skipped_by_policy": 265
+          },
+          "CAM-003": {
+            "considered": 354,
+            "event_queue_dropped": 61,
+            "events_generated": 77,
+            "inference_errors": 0,
+            "latency_ms_avg": 75.338,
+            "latency_ms_last": 73.353,
+            "latency_ms_sum": 6253.0199999999995,
+            "processed": 83,
+            "profile": "BALANCED",
+            "queued_events": 16,
+            "skipped_by_policy": 271
+          },
+          "CAM-004": {
+            "considered": 340,
+            "event_queue_dropped": 0,
+            "events_generated": 3,
+            "inference_errors": 0,
+            "latency_ms_avg": 76.363,
+            "latency_ms_last": 67.365,
+            "latency_ms_sum": 7306.279000000001,
+            "processed": 96,
+            "profile": "BALANCED",
+            "queued_events": 3,
+            "skipped_by_policy": 244
+          }
+        },
+        "totals": {
+          "considered": 1442,
+          "events_generated": 173,
+          "inference_errors": 0,
+          "latency_ms_avg": 73.585,
+          "latency_ms_last": 67.365,
+          "latency_ms_sum": 23540.844,
+          "processed": 320,
+          "skipped_by_policy": 1122
+        }
+      },
+      "temporal": {
+        "activities_ended": 18,
+        "activities_started": 22,
+        "association_misses": 0,
+        "errors": 0,
+        "events_received": 173,
+        "tracks_ended": 18,
+        "tracks_started": 22,
+        "tracks_updated": 151
+      }
+    },
+    "counts": {
+      "behavior_features": 525,
+      "behavior_signals": 132,
+      "event": 173,
+      "observation": 186,
+      "processed_results": 1442,
+      "temporal_activity": 173,
+      "track": 173
+    },
+    "duration_seconds": 60,
+    "errors": [],
+    "events_per_camera": {},
+    "final_health": {
+      "CAM-001": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 775,
+        "stall_count": 0
+      },
+      "CAM-002": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 436,
+        "stall_count": 0
+      },
+      "CAM-003": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 495,
+        "stall_count": 0
+      },
+      "CAM-004": {
+        "healthy": true,
+        "last_error": false,
+        "readable_frames": 467,
+        "stall_count": 0
+      }
+    },
+    "label": "MAIN",
+    "resource_samples": [
+      {
+        "active_tracks": 3,
+        "behavior_features": 36,
+        "behavior_signals": 7,
+        "camera_id": "ALL",
+        "completed_tracks": 0,
+        "cpu_percent": 723.1,
+        "detections": 12,
+        "elapsed_seconds": 5.0,
+        "errors": 0,
+        "events": 12,
+        "evidence_written": 14,
+        "frames_received": 389,
+        "frames_selected": 14,
+        "healthy_cameras": 4,
+        "inferences": 27,
+        "queue_depths": 32,
+        "ram_mb": 641.609,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 3,
+        "threads": 193,
+        "trajectories": 0,
+        "trajectory_candidates": 0
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 87,
+        "behavior_signals": 19,
+        "camera_id": "ALL",
+        "completed_tracks": 2,
+        "cpu_percent": 655.6,
+        "detections": 28,
+        "elapsed_seconds": 10.0,
+        "errors": 0,
+        "events": 28,
+        "evidence_written": 28,
+        "frames_received": 511,
+        "frames_selected": 28,
+        "healthy_cameras": 4,
+        "inferences": 52,
+        "queue_depths": 32,
+        "ram_mb": 633.562,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 5,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 1
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 123,
+        "behavior_signals": 28,
+        "camera_id": "ALL",
+        "completed_tracks": 4,
+        "cpu_percent": 649.5,
+        "detections": 40,
+        "elapsed_seconds": 15.047,
+        "errors": 0,
+        "events": 40,
+        "evidence_written": 44,
+        "frames_received": 641,
+        "frames_selected": 44,
+        "healthy_cameras": 4,
+        "inferences": 80,
+        "queue_depths": 32,
+        "ram_mb": 641.684,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 7,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 3
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 168,
+        "behavior_signals": 39,
+        "camera_id": "ALL",
+        "completed_tracks": 6,
+        "cpu_percent": 638.7,
+        "detections": 55,
+        "elapsed_seconds": 20.094,
+        "errors": 0,
+        "events": 55,
+        "evidence_written": 58,
+        "frames_received": 785,
+        "frames_selected": 58,
+        "healthy_cameras": 4,
+        "inferences": 105,
+        "queue_depths": 32,
+        "ram_mb": 660.723,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 9,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 13
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 213,
+        "behavior_signals": 49,
+        "camera_id": "ALL",
+        "completed_tracks": 9,
+        "cpu_percent": 679.1,
+        "detections": 70,
+        "elapsed_seconds": 25.094,
+        "errors": 0,
+        "events": 70,
+        "evidence_written": 75,
+        "frames_received": 974,
+        "frames_selected": 75,
+        "healthy_cameras": 4,
+        "inferences": 133,
+        "queue_depths": 32,
+        "ram_mb": 664.605,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 12,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 20
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 258,
+        "behavior_signals": 63,
+        "camera_id": "ALL",
+        "completed_tracks": 9,
+        "cpu_percent": 720.3,
+        "detections": 85,
+        "elapsed_seconds": 30.172,
+        "errors": 0,
+        "events": 85,
+        "evidence_written": 91,
+        "frames_received": 1158,
+        "frames_selected": 91,
+        "healthy_cameras": 4,
+        "inferences": 160,
+        "queue_depths": 32,
+        "ram_mb": 681.465,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 12,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 32
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 300,
+        "behavior_signals": 75,
+        "camera_id": "ALL",
+        "completed_tracks": 10,
+        "cpu_percent": 683.8,
+        "detections": 99,
+        "elapsed_seconds": 35.172,
+        "errors": 0,
+        "events": 99,
+        "evidence_written": 105,
+        "frames_received": 1329,
+        "frames_selected": 105,
+        "healthy_cameras": 4,
+        "inferences": 185,
+        "queue_depths": 32,
+        "ram_mb": 677.461,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 13,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 32
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 336,
+        "behavior_signals": 81,
+        "camera_id": "ALL",
+        "completed_tracks": 13,
+        "cpu_percent": 757.0,
+        "detections": 111,
+        "elapsed_seconds": 40.188,
+        "errors": 0,
+        "events": 111,
+        "evidence_written": 121,
+        "frames_received": 1480,
+        "frames_selected": 121,
+        "healthy_cameras": 4,
+        "inferences": 214,
+        "queue_depths": 32,
+        "ram_mb": 677.812,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 16,
+        "threads": 193,
+        "trajectories": 1,
+        "trajectory_candidates": 32
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 366,
+        "behavior_signals": 88,
+        "camera_id": "ALL",
+        "completed_tracks": 15,
+        "cpu_percent": 575.0,
+        "detections": 121,
+        "elapsed_seconds": 45.297,
+        "errors": 0,
+        "events": 121,
+        "evidence_written": 136,
+        "frames_received": 1644,
+        "frames_selected": 136,
+        "healthy_cameras": 4,
+        "inferences": 237,
+        "queue_depths": 32,
+        "ram_mb": 682.922,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 18,
+        "threads": 196,
+        "trajectories": 1,
+        "trajectory_candidates": 32
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 417,
+        "behavior_signals": 103,
+        "camera_id": "ALL",
+        "completed_tracks": 16,
+        "cpu_percent": 736.3,
+        "detections": 138,
+        "elapsed_seconds": 50.375,
+        "errors": 0,
+        "events": 138,
+        "evidence_written": 154,
+        "frames_received": 1813,
+        "frames_selected": 154,
+        "healthy_cameras": 4,
+        "inferences": 268,
+        "queue_depths": 32,
+        "ram_mb": 687.16,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 19,
+        "threads": 196,
+        "trajectories": 1,
+        "trajectory_candidates": 32
+      },
+      {
+        "active_tracks": 3,
+        "behavior_features": 471,
+        "behavior_signals": 118,
+        "camera_id": "ALL",
+        "completed_tracks": 17,
+        "cpu_percent": 721.6,
+        "detections": 155,
+        "elapsed_seconds": 55.375,
+        "errors": 0,
+        "events": 155,
+        "evidence_written": 170,
+        "frames_received": 1999,
+        "frames_selected": 170,
+        "healthy_cameras": 4,
+        "inferences": 296,
+        "queue_depths": 32,
+        "ram_mb": 671.41,
+        "risk_events": 0,
+        "stage": "MAIN",
+        "stalls": 0,
+        "temporal_activities": 20,
+        "threads": 196,
+        "trajectories": 2,
+        "trajectory_candidates": 32
+      }
+    ],
+    "status": "COMPLETED",
+    "unique_activities": 22,
+    "unique_risk_events": 0,
+    "unique_tracks": 22,
+    "unique_trajectories": 2
+  }
+]

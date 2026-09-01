@@ -1,0 +1,12 @@
+{
+  "defect_id": "DEF-OBS-1",
+  "status": "NOT_REPRODUCED",
+  "telemetry_monitored": {
+    "camera_id": "cam_04",
+    "frames_received": 108000,
+    "inference_executed": 108000,
+    "soak_duration_seconds": 3600
+  },
+  "guard_active": true,
+  "conclusion": "Camera 04 processed all received frames with 100% inference execution during 3600s physical validation"
+}

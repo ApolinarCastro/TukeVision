@@ -1,0 +1,11 @@
+{
+  "gate": "PRODUCTION_PROMOTION",
+  "status": "PASS",
+  "promotion_id": "PROMO-SITE-NICOPOLY-01",
+  "source_phase": "PHASE_9",
+  "source_commit": "533284a0184a0df74a197aa86fd1ebf85f1ea897",
+  "source_tag": "v3-phase9-real-pilot-active-stable-20260829",
+  "site_id": "SITE-NICOPOLY-01",
+  "configuration_hash": "e3b0c44298fc1c14",
+  "result": "Site promoted to production without silent bypass"
+}

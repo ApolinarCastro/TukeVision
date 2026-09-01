@@ -1,0 +1,8 @@
+{
+  "gate": "MULTISITE_SQLITE_STABILITY",
+  "status": "PASS",
+  "mode": "WAL",
+  "write_contention_handling": "PASS",
+  "integrity_check": "ok",
+  "site_filtering_verified": true
+}

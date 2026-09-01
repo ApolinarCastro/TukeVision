@@ -1,0 +1,36 @@
+{
+  "LLM_CANDIDATES": [
+    {
+      "name": "Qwen1.5-1.8B-Chat-GGUF",
+      "footprint": "small",
+      "execution": "llama.cpp",
+      "license": "Tongyi Qianwen LICENSE"
+    },
+    {
+      "name": "Llama-3-8B-Instruct-Q4_K_M",
+      "footprint": "medium",
+      "execution": "llama.cpp",
+      "license": "Llama 3 License"
+    },
+    {
+      "name": "Phi-3-mini-4k-instruct-q4",
+      "footprint": "small",
+      "execution": "llama.cpp",
+      "license": "MIT"
+    }
+  ],
+  "VLM_CANDIDATES": [
+    {
+      "name": "Qwen-VL-Chat-Int4",
+      "footprint": "medium",
+      "execution": "llama.cpp",
+      "license": "Tongyi Qianwen LICENSE"
+    },
+    {
+      "name": "Moondream2",
+      "footprint": "small",
+      "execution": "onnxruntime",
+      "license": "Apache 2.0"
+    }
+  ]
+}

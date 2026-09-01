@@ -1,0 +1,6 @@
+{
+  "total_samples": 75,
+  "p95_freshness_ms": 3875.0,
+  "source": "MULTI_WINDOW_OBSERVATION",
+  "synthetic": false
+}

@@ -1,0 +1,15 @@
+{
+  "gate": "ACTION_MCP_GOVERNANCE",
+  "status": "PASS",
+  "test_case": "test_mcp_governance",
+  "permissions": {
+    "get_action": "ALLOW",
+    "get_actions_for_investigation": "ALLOW",
+    "get_pending_approvals": "ALLOW",
+    "get_action_audit": "ALLOW",
+    "execute_action": "DENY",
+    "approve_action": "DENY",
+    "change_policy": "DENY",
+    "change_autonomy": "DENY"
+  }
+}

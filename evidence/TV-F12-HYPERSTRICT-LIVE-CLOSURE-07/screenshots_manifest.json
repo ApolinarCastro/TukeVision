@@ -1,0 +1,55 @@
+{
+  "screenshots_required": 9,
+  "screenshots_captured": 9,
+  "screenshots_all_physical": true,
+  "screenshot_gate": "PASS",
+  "items": [
+    {
+      "file": "01_command_center.png",
+      "view": "COMMAND_CENTER",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "02_live_grid.png",
+      "view": "LIVE_GRID_16",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "03_grid6.png",
+      "view": "GRID_6_LAYOUT",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "04_focus_main.png",
+      "view": "FOCUS_HD_MAIN_PROFILE",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "05_situations.png",
+      "view": "SITUACIONES_OPERACIONALES_EMPTY",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "06_investigations.png",
+      "view": "INVESTIGACIONES_EMPTY",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "07_evidence.png",
+      "view": "EVIDENCE_VAULT",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "08_map_zones.png",
+      "view": "LOGICAL_COVERAGE_MAP",
+      "status": "REGISTERED_PHYSICAL"
+    },
+    {
+      "file": "09_system.png",
+      "view": "SYSTEM_HEALTH_MONITOR",
+      "status": "REGISTERED_PHYSICAL"
+    }
+  ],
+  "source": "LIVE_APPLICATION_WINDOW",
+  "synthetic": false
+}

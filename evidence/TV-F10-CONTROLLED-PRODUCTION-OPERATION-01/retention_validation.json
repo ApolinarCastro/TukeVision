@@ -1,0 +1,8 @@
+{
+  "gate": "PRODUCTION_RETENTION",
+  "status": "PASS",
+  "policy": "POLICY-RET-PROD-30D",
+  "protected_evidence_preservation": "ENFORCED",
+  "active_investigation_preservation": "ENFORCED",
+  "result": "Routine retention cleanup purges unflagged frames while strictly protecting flagged evidence"
+}

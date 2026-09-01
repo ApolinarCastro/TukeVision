@@ -1,0 +1,10 @@
+{
+  "checked_modules": [
+    "src/ui/tk_view.py",
+    "src/ui/tk_operational_panels.py"
+  ],
+  "event_to_situation_fallbacks_found": 0,
+  "static_gate_status": "PASS",
+  "source": "STATIC_CODE_VERIFICATION",
+  "synthetic": false
+}

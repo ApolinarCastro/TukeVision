@@ -1,0 +1,27 @@
+{
+  "traces": [
+    {
+      "camera_id": "cam_01",
+      "descriptor_source": "multistore.active.json host=186.103.177.83",
+      "rtsp_uri_observed": "NOT_OBSERVED",
+      "connection_attempt_observed": "OBSERVED",
+      "decoder_restart_observed": "NOT_OBSERVED"
+    },
+    {
+      "camera_id": "cam_06",
+      "descriptor_source": "multistore.active.json host=186.103.177.83",
+      "rtsp_uri_observed": "NOT_OBSERVED",
+      "connection_attempt_observed": "OBSERVED",
+      "decoder_restart_observed": "NOT_OBSERVED"
+    },
+    {
+      "camera_id": "cam_09",
+      "descriptor_source": "multistore.active.json host=186.103.177.83",
+      "rtsp_uri_observed": "NOT_OBSERVED",
+      "connection_attempt_observed": "OBSERVED",
+      "decoder_restart_observed": "NOT_OBSERVED"
+    }
+  ],
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

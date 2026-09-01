@@ -1,0 +1,8 @@
+{
+  "gate": "PRODUCTION_VERSION_TRACEABILITY",
+  "status": "PASS",
+  "software_version": "3.11.0",
+  "git_commit": "a23749d509fc4650bc6d48f5cf7298b5e4f8ec1c",
+  "schema_version": "2.0.0",
+  "runtime_version": "openvino-2024.1"
+}

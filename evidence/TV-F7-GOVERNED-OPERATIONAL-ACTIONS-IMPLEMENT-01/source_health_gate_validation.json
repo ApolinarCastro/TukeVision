@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_SOURCE_HEALTH_GATE",
+  "status": "PASS",
+  "test_case": "test_degraded_source_health_gate",
+  "result": "Degraded source camera forces human approval request rather than autonomous execution"
+}

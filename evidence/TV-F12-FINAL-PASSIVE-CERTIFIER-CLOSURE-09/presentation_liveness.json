@@ -1,0 +1,67 @@
+{
+  "gate_presentation_all_derived": false,
+  "cameras": {
+    "cam_01": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_02": {
+      "presentation_advancing_windows": 4,
+      "presentation_active": true
+    },
+    "cam_03": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_04": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_05": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_06": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_07": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_08": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_09": {
+      "presentation_advancing_windows": 4,
+      "presentation_active": true
+    },
+    "cam_10": {
+      "presentation_advancing_windows": 2,
+      "presentation_active": false
+    },
+    "cam_11": {
+      "presentation_advancing_windows": 4,
+      "presentation_active": true
+    },
+    "cam_12": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_13": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_14": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    },
+    "cam_15": {
+      "presentation_advancing_windows": 5,
+      "presentation_active": true
+    }
+  },
+  "source": "MULTI_WINDOW_OBSERVATION",
+  "synthetic": false
+}

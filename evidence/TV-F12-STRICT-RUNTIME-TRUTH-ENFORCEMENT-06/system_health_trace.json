@@ -1,0 +1,9 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T20:14:02.494303+00:00",
+  "overall_health_derived": "OFFLINE",
+  "cpu_percent": 0.0,
+  "ram_percent": 80.4,
+  "status": "PASS"
+}

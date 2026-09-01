@@ -1,0 +1,6 @@
+{
+  "gate": "EXPERIENCE_VISIBILITY",
+  "status": "PASS",
+  "separation_guarantee": "CURRENT FACT != CURRENT INFERENCE != HISTORICAL EXPERIENCE",
+  "auto_patching": "DISABLED"
+}

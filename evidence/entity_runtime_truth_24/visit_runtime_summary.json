@@ -1,0 +1,16 @@
+{
+  "visit_manager_connected": true,
+  "visit_id_format": "VIS-NNNNNN",
+  "visit_id_stability": true,
+  "tests": {
+    "eligible_person_gets_visit_id": true,
+    "fixture_no_visit_id": true,
+    "ambiguous_no_visit_id": true,
+    "moving_then_stationary_same_visit_id": true,
+    "visit_id_not_reused_after_close": true
+  },
+  "entry_origin": {
+    "ENTRY_OBSERVED": true,
+    "UNKNOWN": true
+  }
+}

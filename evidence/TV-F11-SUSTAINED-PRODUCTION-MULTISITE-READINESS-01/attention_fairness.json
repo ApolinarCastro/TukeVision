@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_ATTENTION_FAIRNESS",
+  "status": "PASS",
+  "queue_bound_per_site": 100,
+  "starvation_prevented": true,
+  "result": "Site A event bursts do not starve Site B observation processing"
+}

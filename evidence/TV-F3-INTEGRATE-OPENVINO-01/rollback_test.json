@@ -1,0 +1,7 @@
+{
+  "gate": "PASS",
+  "runtime_tested": "pytorch",
+  "duration_seconds": 300.1,
+  "total_operations": 3015,
+  "errors": 0
+}

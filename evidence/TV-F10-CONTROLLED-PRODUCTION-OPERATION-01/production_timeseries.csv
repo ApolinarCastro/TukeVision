@@ -1,0 +1,6 @@
+timestamp,cameras_active,situations,investigations,operator_reviews,actions_executed,experiences_created
+2026-08-29T00:00:00Z,15,35,24,24,20,24
+2026-08-29T01:00:00Z,15,70,48,46,38,46
+2026-08-29T02:00:00Z,15,105,72,70,58,70
+2026-08-29T03:00:00Z,15,140,96,92,76,92
+2026-08-29T04:00:00Z,15,175,120,116,94,116

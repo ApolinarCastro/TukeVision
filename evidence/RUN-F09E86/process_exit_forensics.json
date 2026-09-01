@@ -1,0 +1,13 @@
+{
+  "why_process_exited": "UNHANDLED_EXCEPTION",
+  "uptime_s": 250.8,
+  "pid": 7332,
+  "started_wall_clock": "2026-08-28T19:15:27",
+  "exited_wall_clock": "2026-08-28T19:19:38",
+  "detail": {
+    "exception_type": "PermissionError",
+    "exception_message": "[WinError 5] Acceso denegado: 'data\\\\runtime_evidence\\\\cam_10\\\\EVD-52FA622DC85D4C39B79175CEBB6A0D7F\\\\metadata.json'",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\threading.py\", line 1075, in _bootstrap_inner\n    self.run()\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\threading.py\", line 1012, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\scripts\\run_multicamera.py\", line 241, in _run\n    self._pipeline.run(self._stop.is_set, on_result)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\operational_pipeline.py\", line 95, in run\n    result = self.process_available(camera_id, snapshot=snapshot)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\operational_pipeline.py\", line 74, in process_available\n    return self._chain.feed(\n           ^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\advance_chain.py\", line 186, in feed\n    evidence = self._evidence_store.persist_selected(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\evidence\\persistent.py\", line 149, in persist_selected\n    self._enforce_retention(safe_camera)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\evidence\\persistent.py\", line 229, in _enforce_retention\n    (entry for entry in entries if not self._entry_protected(entry, state)),\n    ^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\pathlib.py\", line 1342, in unlink\n    os.unlink(self)\nPermissionError: [WinError 5] Acceso denegado: 'data\\\\runtime_evidence\\\\cam_10\\\\EVD-52FA622DC85D4C39B79175CEBB6A0D7F\\\\metadata.json'",
+    "thread": "tukevision-multicamera-pipeline"
+  }
+}

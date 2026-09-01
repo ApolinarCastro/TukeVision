@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_EVIDENCE_GATE",
+  "status": "PASS",
+  "test_case": "test_evidence_sufficiency_gate",
+  "result": "Action proposing execution with insufficient evidence rejected with POLICY_DENIED"
+}

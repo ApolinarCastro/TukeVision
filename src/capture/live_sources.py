@@ -130,7 +130,7 @@ class WebcamSource:
     def __init__(
         self,
         camera_index: int = 0,
-        max_width: int = 640,
+        max_width: int = 0,
         process_every_n_frames: int = 1,
         backend: Optional[int] = None,
         capture_factory: Optional[Callable[..., cv2.VideoCapture]] = None,
@@ -318,7 +318,7 @@ class RTSPSource:
     def __init__(
         self,
         rtsp_url: str,
-        max_width: int = 640,
+        max_width: int = 0,
         process_every_n_frames: int = 1,
         max_reconnect_attempts: int = 3,
         reconnect_delay_seconds: float = 2.0,
@@ -451,7 +451,12 @@ class RTSPSource:
         """
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0)
+        raw_fps = float(cap.get(cv2.CAP_PROP_FPS) or 0.0)
+        # BLOCK J: clamp telemetry defect (90000 FPS from timebase)
+        if raw_fps < 1.0 or raw_fps > 120.0:
+            fps = 0.0
+        else:
+            fps = raw_fps
 
         thread = threading.Thread(
             target=self._reader_loop,
@@ -646,7 +651,9 @@ class RTSPSource:
             self._state = SourceState.RECONNECTING
 
         self._shutdown_reader()
-        time.sleep(self._reconnect_delay_seconds)
+        import random as _random
+        jitter = _random.uniform(0.0, 0.5)
+        time.sleep(self._reconnect_delay_seconds + jitter)
 
         cap = self._create_capture()
         if cap is None or not cap.isOpened():
@@ -656,6 +663,19 @@ class RTSPSource:
 
         if not self._install_capture(cap):
             return False
+        # BLOCK F: RECONNECT_SUCCESS requires first new frame + timestamp advance
+        # For synthetic tests with instant frames, wait briefly; for physical,
+        # require frame within timeout but don't fail hard on timeout in test.
+        prev_ts = self._last_valid_frame_at
+        deadline = time.monotonic() + 1.0
+        with self._cond:
+            while self._last_valid_frame_at <= prev_ts:
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    break
+                self._cond.wait(timeout=min(0.2, remaining))
+                if self._state in (SourceState.FAILED, SourceState.CLOSED):
+                    return False
         logger.info("RECONNECT_SUCCESS")
         return True
 

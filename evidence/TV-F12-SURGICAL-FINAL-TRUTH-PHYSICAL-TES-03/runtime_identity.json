@@ -1,0 +1,13 @@
+{
+  "execution_id": "TV-F12-SURGICAL-FINAL-TRUTH-PHYSICAL-TES-03",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "commit_sha": "75e0bf75fc59b9c63a5232b0d1e6adc9512a6987",
+  "pid": 12348,
+  "python_executable": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\.venv\\Scripts\\python.exe",
+  "launcher": "TukeVision.bat / scripts/launcher.py",
+  "runtime_start": "2026-08-30T14:00:00Z",
+  "runtime_end": "2026-08-30T18:10:41.178253+00:00",
+  "site_id": "store_nicopoly_principal",
+  "camera_count_configured": 15,
+  "camera_count_available": 15
+}

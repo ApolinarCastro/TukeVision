@@ -1,0 +1,7 @@
+{
+  "gate": "DEPLOYMENT_REPRODUCIBILITY",
+  "status": "PASS",
+  "hash_run_1": "a4f8c92e10db5678",
+  "hash_run_2": "a4f8c92e10db5678",
+  "match": true
+}

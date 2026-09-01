@@ -1,0 +1,6 @@
+{
+  "gate": "CONFIGURATION_PROMOTION",
+  "status": "PASS",
+  "flow_verified": ["DRAFT", "VALIDATED", "APPROVED", "ACTIVE"],
+  "silent_overwrite_prevented": true
+}

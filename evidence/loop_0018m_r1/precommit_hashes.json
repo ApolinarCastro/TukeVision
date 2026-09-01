@@ -1,0 +1,17 @@
+# LOOP-0018M-R1 — PRECOMMIT HASHES
+
+```json
+{
+  "execution_id": "LOOP-0018M-R1",
+  "base_path": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision",
+  "branch": "backport/loop-0018j",
+  "head_pre": "cce37452f7fee2fbb00ece232cf25341010fcd99",
+  "files": {
+    "config/default.json": "4B1A1E5AE141974F02F56DEE6AD492B5FED2A4957FD40D8049440C70264B455F",
+    "src/app/pipeline.py": "9B93EAB0D5D7B489CB541466F7DC333B4E2225EFA72520A6F64AAB2336461F42",
+    "src/capture/live_sources.py": "EEA67E3D3252D2E43C15645BC13E9C5D05872C869CF4B83A1A839F709A00295C",
+    "src/ui/controller.py": "CAE5D822718943A4F0811204DEBD38403B0A444A86C9565FB25534F8D4C1F6D4",
+    "src/capture/live_sources.BASE_preE01.bak.py": "99D9DD9B673AE64E3619C499417724662C25D68ED29494C156D125F974C9F575"
+  }
+}
+```

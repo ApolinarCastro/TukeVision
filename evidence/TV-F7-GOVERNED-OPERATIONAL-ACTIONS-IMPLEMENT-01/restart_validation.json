@@ -1,0 +1,9 @@
+{
+  "gate": "ACTION_RESTART_STABILITY",
+  "status": "PASS",
+  "restart_duration_seconds": 2,
+  "action_store_recovered": true,
+  "policy_recovered": true,
+  "audit_history_preserved": true,
+  "expired_actions_purged_on_restart": true
+}

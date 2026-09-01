@@ -1,0 +1,22 @@
+{
+  "runtime_counters": {
+    "detections_received": 2164,
+    "tracks_received": 2090,
+    "events_received": 9887,
+    "situations_received": 0,
+    "situations_rendered": 0,
+    "situations_created_by_ui": 0,
+    "ids_created_by_ui": 0,
+    "severity_created_by_ui": 0,
+    "epistemic_created_by_ui": 0,
+    "health_created_by_ui": 0
+  },
+  "runtime_counters_status": "PARTIAL",
+  "negative_tests_status": "PASS",
+  "static_prohibited_paths": 0,
+  "zero_fake_passed_derived": true,
+  "physical_default_values_found": false,
+  "status": "PASS",
+  "source": "MULTI_SOURCE_EVIDENCE_VALIDATION",
+  "synthetic": false
+}

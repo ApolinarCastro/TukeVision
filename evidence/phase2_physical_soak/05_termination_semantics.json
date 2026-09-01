@@ -1,0 +1,6 @@
+{
+  "supervisor_terminated": "CLASSIFIED_CLEAN",
+  "stream_closed_by_source": "LOGGED_INFO",
+  "false_ffmpeg_eof": 0,
+  "misclassified_terminations": 0
+}

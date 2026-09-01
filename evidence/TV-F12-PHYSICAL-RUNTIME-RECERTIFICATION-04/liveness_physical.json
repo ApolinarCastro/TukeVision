@@ -1,0 +1,227 @@
+[
+  {
+    "camera_id": "cam_01",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_02",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_03",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_04",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_05",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_06",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_07",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_08",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_09",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_10",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_11",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_12",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_13",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_14",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  },
+  {
+    "camera_id": "cam_15",
+    "session_open": true,
+    "capture_sequence_advancing": false,
+    "presentation_sequence_advancing": false,
+    "presented_frame_age_valid": false,
+    "liveness_state": "STALE",
+    "anti_false_green_passed": false,
+    "generation_sequence_tuple": [
+      0,
+      -1
+    ],
+    "source": "LIVE_RUNTIME",
+    "synthetic": false
+  }
+]

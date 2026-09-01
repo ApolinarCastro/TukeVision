@@ -1,0 +1,11 @@
+{
+  "visible_cameras": 6,
+  "layout": "1_MAIN_5_SUB",
+  "empty_tiles": 0,
+  "overlap": 0,
+  "clipped": 0,
+  "aspect_preserved": "YES",
+  "dead_space_percent": 4.2,
+  "dead_space_threshold": "<10%",
+  "status": "PASS"
+}

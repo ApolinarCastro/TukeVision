@@ -1,0 +1,7 @@
+{
+  "gate": "F11_SOFTWARE_ROLLBACK",
+  "status": "PASS",
+  "duration_seconds": 600,
+  "baseline_commit_tested": "a23749d509fc4650bc6d48f5cf7298b5e4f8ec1c",
+  "result": "Clean software rollback preserved baseline functionality"
+}

@@ -1,0 +1,11 @@
+{
+  "gate": "FULL_REGRESSION",
+  "status": "PASS",
+  "total_tests": 938,
+  "passed": 934,
+  "failed": 0,
+  "skipped": 4,
+  "subtests_passed": 15,
+  "duration_seconds": 316.81,
+  "verified_at": "2026-08-29T12:14:16Z"
+}

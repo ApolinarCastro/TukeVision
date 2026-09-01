@@ -1,0 +1,20 @@
+# LOOP-0018M-R1 — COMMIT RECORD
+
+```json
+{
+  "commit_sha": "ccacb3d95f963a973ff64400cbdb88500dbde705",
+  "parent_sha": "cce37452f7fee2fbb00ece232cf25341010fcd99",
+  "branch": "backport/loop-0018j",
+  "message": "consolidation: integrate certified E01 RTSP lifecycle into base",
+  "files_changed": [
+    "config/default.json",
+    "src/app/pipeline.py",
+    "src/capture/live_sources.py",
+    "src/ui/controller.py"
+  ],
+  "insertions": 486,
+  "deletions": 90,
+  "push_executed": false,
+  "merge_executed": false
+}
+```

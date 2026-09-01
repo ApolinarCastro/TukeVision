@@ -1,0 +1,20 @@
+{
+  "availability": "AVAILABLE",
+  "camera_id": "cam_15",
+  "clip_evidence_ref": "clips/cam_15/CLP-875840C5EB724745A74B7AE2668B0877.mp4",
+  "clip_id": "CLP-875840C5EB724745A74B7AE2668B0877",
+  "codec": "mpeg4",
+  "container": "mp4",
+  "created_at": "2026-08-27T21:47:31.250420+00:00",
+  "duration_seconds": 10.0,
+  "end_timestamp": 177046.671,
+  "frame_count": 26,
+  "frame_rate": 5.0,
+  "organization_id": "",
+  "relative_ref": "clips/cam_15/CLP-875840C5EB724745A74B7AE2668B0877.mp4",
+  "sha256": "fdee35d5252ffc0b140e3e7297c834df518c9020f211329c0356dcc2ca5a38e5",
+  "signal_id": "BS-662BF6B0E9BB97DE",
+  "start_timestamp": 177036.671,
+  "static_evidence_fallback": true,
+  "store_id": ""
+}

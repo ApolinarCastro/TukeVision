@@ -1,0 +1,20 @@
+{
+  "roles_supported": [
+    "UNKNOWN",
+    "CUSTOMER",
+    "STAFF_CONFIRMED", 
+    "STAFF_CANDIDATE"
+  ],
+  "default_role": "UNKNOWN",
+  "customer_analytics_eligibility": {
+    "CUSTOMER": true,
+    "UNKNOWN": true,
+    "STAFF_CANDIDATE": true,
+    "STAFF_CONFIRMED": false,
+    "LIKELY_FIXTURE": false,
+    "AMBIGUOUS": false
+  },
+  "staff_confirmed_excluded": true,
+  "staff_candidate_eligible": true,
+  "operator_assignment_works": true
+}

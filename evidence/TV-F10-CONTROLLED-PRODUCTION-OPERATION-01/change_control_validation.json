@@ -1,0 +1,8 @@
+{
+  "gate": "CHANGE_CONTROL",
+  "status": "PASS",
+  "test_case": "test_configuration_immutability_and_change_control",
+  "disallowed_changes_blocked": ["MODEL_REPLACEMENT", "AUTONOMY_3_ENABLE", "ARCHITECTURE_MUTATION"],
+  "governed_changes_applied": ["SCHEDULE_ADJUSTMENT"],
+  "result": "Disallowed mutations rejected; allowed changes produce traceable new configuration versions"
+}

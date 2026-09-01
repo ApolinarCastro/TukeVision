@@ -1,0 +1,10 @@
+{
+  "gate": "PRODUCTION_RESTART_STABILITY",
+  "status": "PASS",
+  "restart_duration_seconds": 1800,
+  "profile_recovered": true,
+  "config_hash_preserved": true,
+  "incidents_preserved": true,
+  "experience_store_preserved": true,
+  "action_audit_preserved": true
+}

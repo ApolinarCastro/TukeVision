@@ -1,0 +1,34 @@
+[
+  {
+    "TEST": "test_focus_cannot_pass_from_camera_live_only",
+    "ACTUAL_OUTPUT": "TypeError: CertificationEvaluator.evaluate_focus() missing 1 required positional argument or got unexpected keyword arguments",
+    "EXPECTED_OUTPUT": "False, False, MAIN_SWITCH_FAILED",
+    "ROOT_CAUSE": "evaluate_focus signature was changed to (profile_observed, resolution_observed) and no longer accepts frame_shape and frame_sequence kwargs.",
+    "COMPONENT_OWNER": "Certifier Evaluator",
+    "FIX": "Update test to call evaluate_focus with new signature (profile_observed='SUB', resolution_observed='352x240') and assert updated status strings."
+  },
+  {
+    "TEST": "test_focus_requires_observed_main_profile",
+    "ACTUAL_OUTPUT": "TypeError: CertificationEvaluator.evaluate_focus() got unexpected keyword arguments",
+    "EXPECTED_OUTPUT": "True, True, HD_VALIDATED",
+    "ROOT_CAUSE": "evaluate_focus signature changed.",
+    "COMPONENT_OWNER": "Certifier Evaluator",
+    "FIX": "Update test call to match evaluate_focus('MAIN', '1920x1080') and assert updated status HD_VALIDATED_1920x1080."
+  },
+  {
+    "TEST": "test_focus_requires_observed_resolution",
+    "ACTUAL_OUTPUT": "TypeError: CertificationEvaluator.evaluate_focus() got unexpected keyword arguments",
+    "EXPECTED_OUTPUT": "False, False, NOT_VALIDATED",
+    "ROOT_CAUSE": "evaluate_focus signature changed.",
+    "COMPONENT_OWNER": "Certifier Evaluator",
+    "FIX": "Update test call to evaluate_focus('MAIN', 'NOT_OBSERVED') and assert NOT_VALIDATED."
+  },
+  {
+    "TEST": "test_final_verdict_cannot_be_hardcoded",
+    "ACTUAL_OUTPUT": "AssertionError: 'TV_F12_RUNTIME_TRUTH_DEFECTS_REMAIN' == 'TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS'",
+    "EXPECTED_OUTPUT": "'TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS'",
+    "ROOT_CAUSE": "evaluate_certification_integrity was modified in RUN-09 to no longer allow CLOSED_WITH_EXTERNAL_LIMITATIONS when physical gates like grid or focus fail, enforcing FAIL-CLOSED.",
+    "COMPONENT_OWNER": "Certifier Evaluator",
+    "FIX": "Update test assertion to expect 'TV_F12_RUNTIME_TRUTH_DEFECTS_REMAIN' when software gates pass but physical gates fail, reflecting the new enforced F12 strict policy."
+  }
+]
