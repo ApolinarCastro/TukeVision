@@ -47,3 +47,26 @@ Este documento registra los aprendizajes operacionales y referencias arquitectó
 * **PROBLEM**: Historical event retrieval (Dificultad de investigar en terabytes de video crudo).
 * **PATTERN**: Indexed evidence + semantic search.
 * **DECISION**: ADAPT_TO_P0-65 (Búsqueda semántica usando metadatos y VLM ligero).
+
+### EXP-AGENTIC-VIDEO-001
+* **PROBLEM**: Expensive/static long-video processing.
+* **PATTERN**: Goal-directed temporal search + dynamic re-sampling + selective high-FPS inspection.
+* **DECISION**: ADAPT_PATTERN (BENCHMARK_FUTURE).
+* **TUKEVISION_MAPPING**: P0-64, P0-65, P0-62, P0-76.
+* **SOURCE**: Google Agentic Video Understanding (VENDOR_TECHNICAL_REFERENCE).
+* **NOTE**: External processing pattern only. No customer video to cloud without future explicit policy. Vendor percentages are VENDOR_BENCHMARK_CLAIM.
+
+### EXP-PURPOSE-BOUND-INVESTIGATION-001
+* **PROBLEM**: AI free search in CCTV can become an operational and privacy risk if users broaden scope arbitrarily.
+* **PATTERN**: PURPOSE -> CASE -> PERMISSION -> SCOPE -> QUERY -> RESULTS (LEADS) -> EVIDENCE -> HUMAN VALIDATION -> AUDIT.
+* **DECISION**: ADOPT_GOVERNANCE_PATTERN.
+* **TUKEVISION_MAPPING**: P0-59, P0-65, P0-66, P1-69.
+* **NOTE**: AI search result is a CANDIDATE_LEAD, not a fact or guilt. Each search must log investigation_id, operator_id, case_reference, purpose, scope, policy_version, overrides, etc.
+
+### EXP-ONVIF-MEDIA-SIGNING-001
+* **PROBLEM**: Need for standardized Edge AI origin verification and evidence integrity.
+* **PATTERN**: Cryptographic signing of H.264/H.265 in SEI NAL units directly on edge hardware.
+* **DECISION**: CONTRACT_READY / SANDBOX_BENCHMARK_READY.
+* **SOURCE**: onvif/media-signing-framework (OFFICIAL_UPSTREAM).
+* **LICENSE**: MIT.
+* **NOTE**: Signing/validation code and examples are present in the official MIT repo. Hardware validation remains PENDING_HARDWARE. No TukeVision runtime implementation is marked without physical testing.

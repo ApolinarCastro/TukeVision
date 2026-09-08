@@ -89,8 +89,26 @@ Este registro documenta formalmente las decisiones arquitect√≥nicas, tecnol√≥gic
 
 ---
 
-### [DEC-010] AdopciÛn del PatrÛn ClearCam para RecuperaciÛn RTSP
+### [DEC-010] AdopciÔøΩn del PatrÔøΩn ClearCam para RecuperaciÔøΩn RTSP
 - **Estado:** `ADOPTADO`
-- **Contexto:** Las c·maras fÌsicas presentan inestabilidad (frames caÌdos, reinicios). FFmpeg puede generar "restart storms" o creer que se recuperÛ sin emitir frames.
-- **DecisiÛn:** Integrar patrones operativos de ClearCam: startup_grace_period, presupuesto de fallos consecutivos (consecutive_failure_count), higiene de procesos (one owner, verificar muerte), confirmaciÛn de irst-frame y ecovery_budget.
-- **Impacto:** Resiliencia extrema sin bucles infinitos, preservando la arquitectura original de TukeVision sin copiar cÛdigo GPL. Genera registro formal de Failure->Experience.
+- **Contexto:** Las cÔøΩmaras fÔøΩsicas presentan inestabilidad (frames caÔøΩdos, reinicios). FFmpeg puede generar "restart storms" o creer que se recuperÔøΩ sin emitir frames.
+- **DecisiÔøΩn:** Integrar patrones operativos de ClearCam: startup_grace_period, presupuesto de fallos consecutivos (consecutive_failure_count), higiene de procesos (one owner, verificar muerte), confirmaciÔøΩn de irst-frame y 
+ecovery_budget.
+- **Impacto:** Resiliencia extrema sin bucles infinitos, preservando la arquitectura original de TukeVision sin copiar cÔøΩdigo GPL. Genera registro formal de Failure->Experience.
+
+
+---
+
+### [DEC-011] Gobernanza de B√∫squeda IA (Purpose-Bound Investigation)
+- **Estado:** ADOPTADO (PATR√ìN DE GOBERNANZA)
+- **Contexto:** Las b√∫squedas de IA sin restricciones en videovigilancia presentan riesgos operativos y de privacidad (riesgo de abuso de scope).
+- **Decisi√≥n:** Integrar gobernanza estricta en P0-65 (Semantic Investigation). AI Search Result != Fact, es solo CANDIDATE_LEAD. Toda b√∫squeda debe documentar purpose, case, permission, camera_scope, time_scope y audit trail (investigation_id, operator_id).
+- **Impacto:** Protege el cumplimiento de normativas de privacidad (P1-69) previniendo b√∫squedas exploratorias no autorizadas.
+
+---
+
+### [DEC-012] L√≠mite Arquitect√≥nico: Agentic Video Processing (Pattern-Only)
+- **Estado:** ADAPT_PATTERN / BENCHMARK_FUTURE
+- **Contexto:** Mecanismos como Google Gemini Agentic Video Processing optimizan la inferencia a trav√©s de escaneo temporal dirigido y re-muestreo din√°mico, pero implican subida a nube.
+- **Decisi√≥n:** TukeVision adopta el PATR√ìN algor√≠tmico (b√∫squeda orientada a objetivo + muestreo selectivo FPS) para optimizar el Edge, pero RECHAZA la subida de video de cliente a la nube externa. Customer CCTV remains local.
+- **Impacto:** Refuerza la autonom√≠a local Edge reduciendo c√≥mputo ocioso sin comprometer la soberan√≠a de los datos.
