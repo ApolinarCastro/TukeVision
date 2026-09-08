@@ -1,116 +1,187 @@
 # RADAR RECONCILIATION
-**MISSION:** TV-KNOWLEDGE-RADAR-RECONCILIATION-01
+**MISSION:** TV-KNOWLEDGE-RADAR-RECONCILIATION-02
 **DATE:** 2026-09-08
+**MODE:** ACTIVE / TES-FIRST / ANTI-DORMANCY
 
 ## 1. SOURCE INVENTORY
 
-### ACTIVE (Adopted/Tested)
+### ACTIVE BASELINE (Adopted/Tested)
 - OpenVINO Edge Runtime
 - PyAV (FFmpeg C-bindings)
 - ByteTrack
 - Tkinter + DesignTokens
 - SQLite Structured Indexing (P0-65)
 
-### DORMANT (Evaluate/Watch/Target)
-- ONVIF Media Signing (Profile T / G) - Pending hardware validation
-- Attention Orchestrator Metrics (P0-66) - Telemetry active
-- ONNX Runtime (Fallback)
-- Semantic NLP (P0-65 target)
+### ACTIVE EVALUATION QUEUE
+Todos los elementos anteriormente clasificados como `DORMANT`, `EVALUATE`, `WATCH`, `TARGET` o `BENCHMARK` pasan a una cola activa de reevaluación condicionada por brechas reales y revisión periódica.
+
+- ONVIF Media Signing
+- ONVIF Analytics Metadata / Profile M
+- ONVIF Profile V readiness
+- Attention Orchestrator Metrics (P0-66)
+- ONNX Runtime fallback
+- Semantic NLP / Semantic Investigation
 - DVR/NVR AI On-Demand
 - WebRTC Gateway Auxiliar
+- ClearCam
+- Frigate
+- God's Eye View
+- Ambient.ai / agentic monitoring
+- HiFocus IntelliSeek
+- Agentic Video Understanding
+- Purpose-Bound Investigation
+- March Networks
+- Avigilon
+- SmartPSS Lite
+- screen2ipcam
+- RapidVMS (reference only)
+- OC-SORT
+- CoTracker
+- TAPNet
+- Trace Anything
+- SmolVLM
+- FastVLM
+- Qwen3-VL
+- NCSC agentic security patterns
+- JetBrains Junie
+- Access Control / PACS patterns
+- Radar / Thermal / Audio (reserved but radar-visible)
 
-### SUPERSEDED / REJECTED
-- Detectron2 / Mask R-CNN (Rejected: Memory >4GB)
-- Chromium/Electron UI (Rejected: High RAM, slow render)
-- Grabación continua 24/7 en Host TukeVision (Rejected: DVR does this)
+### REJECTED / RESTRICTED
+Estos elementos permanecen visibles y pueden reabrirse sólo por `REVISIT_WHEN` explícito:
+- Detectron2 / Mask R-CNN as primary edge runtime
+- Chromium/Electron UI
+- Grabación continua 24/7 en Host TukeVision
+- ClearCam direct code integration / product replacement
+- RapidVMS direct product integration
 
-## 2. DORMANT KNOWLEDGE / MISSING KNOWLEDGE
-The following seeds were recovered and reconciled:
-- **ClearCam**: `ALREADY_IN_EXPERIENCE` (EXP-CLEARCAM-001..004)
-- **Frigate**: `ALREADY_IN_RADAR` (CCTV lifecycle / multicamera resilience benchmark)
-- **God's Eye View**: `ALREADY_DECIDED` (DEC-003)
-- **Ambient.ai**: `ALREADY_DECIDED` (DEC-003)
-- **HiFocus IntelliSeek**: `ALREADY_DECIDED` (DEC-007)
-- **ONVIF Media Signing**: `ALREADY_DECIDED` (DEC-006, CAP-10)
-- **YOLO people footfall**: `ALREADY_IN_RADAR` (SKILL.md)
-- **claude-real-video**: `ALREADY_IN_RADAR` (SKILL.md)
-- **SmolVLM**: `ALREADY_IN_RADAR` (HuggingFaceTB/SmolVLM2 family)
-- **FastVLM**: `ALREADY_IN_RADAR` (apple/FastVLM-*)
+## 2. TES-FIRST PROBLEM-SOLVING CONTRACT
 
-## 3. NEW CANDIDATES (External Radar)
+Ante un problema técnico o operacional:
 
-### JetBrains Junie
-- **REPO_CANDIDATE_ID**: CAND-JUNIE
-- **FORGE**: GITHUB
-- **OWNER**: JetBrains
-- **REPOSITORY**: junie
-- **TYPE**: ENGINEERING_AGENT
-- **ROLE**: DEVELOPMENT_TOOLING
-- **DECISION**: BENCHMARK_COMPATIBILITY
-- **DIRECT_CODE_REUSE**: NO
-- **TUKEVISION MAPPING**: Agent tooling / CI-CD integration
-- **REASON**: Evaluate agent capability paradigms.
-- **REVISIT_WHEN**: Need for standardized CI/CD subagents.
+```text
+PROBLEM
+→ EXPERIENCE_STORE SEARCH
+→ TECHNOLOGY_RADAR SEARCH
+→ DECISION_LOG SEARCH
+→ RADAR_RECONCILIATION SEARCH
+→ MATCH CANDIDATES
+→ MINIMUM DECISIVE BENCHMARK
+→ ADAPT / INTEGRATE / ALREADY_RESOLVED / RESERVE / REJECT
+→ REGRESSION TEST
+→ TES UPDATE
+```
 
-### Avigilon / March Networks / SmartPSS
-- **TYPE**: VMS / Hardware Interfaces
-- **DECISION**: WATCH
-- **REASON**: Enterprise VMS interoperability patterns.
+No crear un módulo, dependencia o arquitectura nueva sin registrar primero:
 
-### ONVIF Analytics Metadata
-- **TYPE**: Protocol Extension
-- **DECISION**: EVALUATE
-- **TUKEVISION MAPPING**: `src/evidence/models.py`
-- **REASON**: Standardize Edge AI inference output to physical NVRs.
+`TES_CONSULTED=YES`
 
-### OC-SORT / CoTracker / TAPNet / Trace Anything
-- **TYPE**: Tracking Models
-- **DECISION**: BENCHMARK
-- **TUKEVISION MAPPING**: `src/tracking/`
-- **REASON**: ByteTrack is currently `ADOPTED`. Benchmark only if occlusion becomes a proven operational defect.
+## 3. DORMANT KNOWLEDGE RECOVERY
 
-### Qwen3-VL
-- **TYPE**: Vision Language Model (VLM)
-- **DECISION**: WATCH
-- **TUKEVISION MAPPING**: `src/evidence/search_contract.py`
-- **REASON**: Alternative to SmolVLM for local edge deployments, depending on VRAM usage.
+### ClearCam
+- **STATUS:** ACTIVE_ENGINEERING_CANDIDATE
+- **DECISION:** ADAPT_BENCHMARK
+- **DIRECT_CODE_REUSE:** NO (GPL-3.0 boundary)
+- **ACTIVE TARGETS:** RTSP resilience, playback freshness, selective inference, stationary/recovery tracking, event/semantic search.
+- **REVISIT_WHEN:** cualquier defecto o mejora potencial en SourceManager, frame freshness, tracking, compute budget o investigation.
 
-### NCSC agentic security patterns
-- **TYPE**: Security Guidelines
-- **DECISION**: EVALUATE
-- **TUKEVISION MAPPING**: `src/agent/actions/`
-- **REASON**: Reinforce Zero-Trust architecture in governed autonomy (DEC-004).
+### Frigate
+- **STATUS:** ACTIVE_BENCHMARK_REFERENCE
+- **TARGETS:** ffmpeg/go2rtc lifecycle, camera recovery, multicamera resilience, hardware acceleration, events/search.
+- **REVISIT_WHEN:** fallos de ingestión, lifecycle, recovery o necesidad de comparación NVR OSS madura.
 
-## 4. DECISIONS & REVISIT CONDITIONS
-- Maintain **SQLite Structured Indexing** as operational truth for search, only advancing to NLP/VLM (SmolVLM/Qwen3-VL) when a clear operational need and hardware budget exist.
-- Keep **ClearCam** experience patterns locked as the foundation for RTSP resilience (DEC-010).
-- Do not incorporate new tracking algorithms (OC-SORT, CoTracker) without demonstrating failure of current `ByteTrack` pipeline.
+### God's Eye View
+- **STATUS:** ADAPTED / PERIODIC_REVIEW
+- **TARGETS:** spatial state, viewshed, freshness, provenance, map/agent context.
 
----
-## UPDATE_2026_09_08
+### Ambient.ai
+- **STATUS:** ADAPT_PATTERN / PERIODIC_REVIEW
+- **TARGETS:** selective attention, case management, operator-load metrics.
 
-### NEW_MATERIAL_FINDINGS
-- **Agentic Video Understanding**: ADAPT_PATTERN / BENCHMARK_FUTURE. Added to P0-64/65/62/76. Vendor claims (up to 88% token reduction) logged as benchmark claims. Customer cloud upload prohibited.
-- **Purpose-Bound AI Investigation**: ADOPT_GOVERNANCE_PATTERN. Added to P0-59/65/66/69. AI Search Result is now strictly a CANDIDATE_LEAD, not fact.
-- **ONVIF Media Signing Framework**: BENCHMARK_READY. Upstream verified (onvif/media-signing-framework), MIT License.
-- **screen2ipcam**: WATCH (SourceForge SF-SCREEN2IPCAM-001). Pattern for Universal Source Connector.
-- **RapidVMS**: BENCHMARK_REFERENCE_ONLY. Direct integration rejected due to SECOND_NVR and ELECTRON_CONFLICT.
+### HiFocus IntelliSeek
+- **STATUS:** ADAPT_PATTERN / ACTIVE_WHEN_INVESTIGATION
+- **TARGETS:** local on-demand historical analysis without full-video embeddings.
 
-### NO_CHANGE_FINDINGS
-- **GitLab**: Searched. No material finding. NO_CHANGE.
-- **Profile M / Profile V**: No change. P1 / P2_WATCH_READINESS.
-- **Radar / Thermal / Audio**: No change. RESERVE.
-- **Hugging Face**: Maintained candidates (SmolVLM, etc.). No new promotion.
+### ONVIF Media Signing
+- **STATUS:** CONTRACT_READY / ACTIVE_HARDWARE_WATCH
+- **TARGETS:** origin signing, provenance, evidence verification.
 
-### SOURCE_VALIDATION
-- onvif/media-signing-framework -> OFFICIAL_UPSTREAM, LICENSE: MIT
-- screen2ipcam -> SourceForge, LICENSE/BINARY: Unverified/Watch
+### Agentic Video Understanding
+- **STATUS:** ACTIVE_BENCHMARK_CANDIDATE
+- **TARGETS:** goal-directed temporal search, dynamic re-sampling, selective high-FPS inspection.
 
-### TUKEVISION_MAPPING
-- Agentic Video -> Adaptive Perception Budget, Cascade Intelligence, Semantic Investigation.
-- Purpose-Bound Investigation -> Autonomy Governance, Privacy-Aware Evidence.
-- screen2ipcam -> Universal Source Connector (P0-67).
+### Purpose-Bound Investigation
+- **STATUS:** ADOPT_GOVERNANCE_PATTERN
+- **TARGETS:** purpose/case/scope/permission/audit; AI result = candidate lead.
 
-### DECISION & REVISIT_WHEN
-- Do not integrate external VLM clouds without explicit policy update.
-- Revisit ONVIF hardware validation when signed hardware is physically available.
+### Tracking candidates
+- **OC-SORT:** ACTIVE_BENCHMARK when ByteTrack shows ID-switch/stationary/occlusion weakness.
+- **CoTracker / TAPNet / Trace Anything:** ACTIVE_EVALUATION only for point/dense/recovery needs.
+
+### Local VLM candidates
+- **SmolVLM / FastVLM / Qwen3-VL:** ACTIVE_BENCHMARK when selective contextual analysis is required; never continuous by default.
+
+### Enterprise VMS experience
+- **March Networks / Avigilon / SmartPSS Lite:** ACTIVE_REFERENCE for multisitio, access/video, investigation, UX and interoperability patterns.
+
+### NCSC
+- **STATUS:** ACTIVE_GOVERNANCE_REFERENCE
+- **REVISIT_WHEN:** agent permissions, tools, autonomy or safe-mode capability changes.
+
+### Access Control / PACS
+- **STATUS:** CONTRACT_READYNESS_ACTIVE
+- **TARGET:** neutral `AccessObservation` and correlation with video/location/time.
+- **RULE:** no Mercury/Alocity proprietary module.
+
+## 4. REEVALUATION RULES
+
+### Triggered reevaluation
+Reevaluate immediately when:
+- a defect matches a stored experience;
+- a new source materially changes maturity/performance/license;
+- a previously reserved capability becomes a real product requirement;
+- a baseline component can gain measurable stability, efficiency, accuracy or operator value.
+
+### Periodic reevaluation
+The daily TukeVision Radar must compare new findings not only against the Plan Maestro but against this active queue and the Experience Store.
+
+### Minimum decisive benchmark
+Do not build a long project when a small experiment can decide. Prefer:
+- same input;
+- same hardware;
+- same acceptance metric;
+- baseline vs candidate;
+- explicit cost/risk/license result.
+
+## 5. NO LONGER VALID
+
+The following behavior is prohibited:
+
+```text
+DISCOVER
+→ DOCUMENT IN TES
+→ NEVER REVISIT
+```
+
+Required behavior:
+
+```text
+DISCOVER
+→ VERIFY
+→ MAP
+→ ACTIVE EVALUATION
+→ DECIDE
+→ LEARN
+```
+
+## 6. KNOWLEDGE FRESHNESS
+
+Every Radar cycle must:
+1. inspect material external developments;
+2. inspect all active TES candidates affected by those developments;
+3. compare them with current TukeVision problems and roadmap;
+4. update the recommended state (`ADAPT`, `INTEGRATE`, `BENCHMARK`, `RESERVE`, `REJECT`, `ALREADY_RESOLVED`);
+5. identify stale assumptions or obsolete rejection reasons;
+6. preserve source/licence/provenance.
+
+Knowledge freshness is part of engineering readiness, not optional documentation hygiene.
