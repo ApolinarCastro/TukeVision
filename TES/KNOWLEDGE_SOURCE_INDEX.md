@@ -50,15 +50,53 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 | THERMAL | tecnología futura | sensor | **RESERVE** | multimodal observation | Reabrir por incendio/industrial/condición térmica real |
 | AUDIO-ANALYTICS | tecnología futura | sensor | **RESERVE** | multimodal observation | Reabrir con base legal, hardware y caso operativo claros |
 
-## Refresh log — fuentes GitHub
+## Política de forjas — GitHub + GitLab
 
-### 2026-09-08 — `roryclear/clearcam`
+TES mantiene **GitHub y GitLab como fuentes prioritarias de conocimiento técnico**. El radar no debe limitar la exploración a una sola forja cuando busca soluciones, referencias, librerías, benchmarks o implementaciones maduras.
+
+Para cada fuente basada en código se deben registrar, cuando sea aplicable:
+
+```text
+FORGE = GITHUB | GITLAB | OTHER
+CANONICAL_UPSTREAM = <url>
+MIRRORS = <urls opcionales>
+LAST_VERIFIED_REF = <commit/tag/release>
+LAST_VERIFIED_AT = <timestamp/date>
+LICENSE = <license>
+TES_DECISION = <estado>
+REVISIT_WHEN = <condición>
+```
+
+Regla de búsqueda:
+
+```text
+PROBLEMA / BRECHA
+→ TES
+→ GITHUB SEARCH
+→ GITLAB SEARCH
+→ FUENTES ORIGINALES
+→ EVIDENCIA
+→ BENCHMARK / DECISIÓN
+```
+
+No se debe declarar `NO_RELEVANT_EXTERNAL_EXPERIENCE_FOUND` sin haber considerado ambas forjas, salvo que una sea manifiestamente irrelevante para el dominio o no esté accesible; esa excepción debe quedar registrada.
+
+Cuando el mismo proyecto esté alojado o espejado en ambas forjas, se conserva **un único SOURCE_ID** y se identifica el upstream canónico para evitar duplicar conocimiento.
+
+## Refresh log — fuentes GitHub / GitLab
+
+### 2026-09-08 — `roryclear/clearcam` — GitHub
 
 - Upstream: `main` activo y repositorio no archivado.
 - Latest release verificada: **0.2.8**, publicada 2026-08-31.
 - Cambios materiales del release: streams de `.ts` a `.m4s`, correcciones de scrubbing, mejor sincronización temporal entre feeds y startup más rápido.
 - Impacto TukeVision: refuerza prioridad del benchmark de `playback/freshness`, sincronización multicámara y startup/recovery; no cambia la frontera GPL ni autoriza copia directa.
 - Decisión: `ACTIVE_EVALUATION_HIGH` se mantiene y gana prioridad operativa.
+
+### GitLab
+
+- GitLab queda activado como forge de búsqueda y actualización de igual prioridad que GitHub.
+- No se registra aquí un proyecto GitLab específico sin upstream verificado; los candidatos se incorporarán por `SOURCE_ID` conforme sean identificados y validados.
 
 ## Regla de consulta
 
@@ -82,4 +120,4 @@ Las fuentes `ACTIVE_EVALUATION`, `BENCHMARK`, `WATCH` y `DISCOVERY_LAYER` deben 
 - una decisión depende de una característica upstream;
 - el radar ejecuta una revisión periódica.
 
-La revisión debe actualizar `EXPERIENCE_STORE.md`, `TECHNOLOGY_RADAR.md` y `DECISION_LOG.md` sólo cuando exista cambio material.
+La revisión debe comprobar el upstream canónico, sea GitHub o GitLab, y actualizar `EXPERIENCE_STORE.md`, `TECHNOLOGY_RADAR.md` y `DECISION_LOG.md` sólo cuando exista cambio material.

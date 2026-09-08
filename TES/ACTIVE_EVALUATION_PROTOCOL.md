@@ -88,17 +88,38 @@ Ejemplos de alto apalancamiento:
 - seguridad de agentes;
 - conectividad multimodal neutral de proveedor.
 
-## 6. Actualización desde GitHub
+## 6. Actualización desde GitHub y GitLab
 
-Para repositorios GitHub registrados como fuente, cada reevaluación debe comprobar como mínimo:
+GitHub y GitLab son **fuentes de ingeniería de primera clase y equivalentes para el radar TES**. Ninguna de las dos debe tratarse como secundaria por defecto.
 
-- repositorio original;
-- actividad reciente / releases cuando existan;
-- README/documentación vigente;
+Para repositorios registrados en cualquiera de ambas forjas, cada reevaluación debe comprobar como mínimo:
+
+- repositorio canónico original;
+- forge de origen: `GITHUB` o `GITLAB`;
+- actividad reciente / releases / tags cuando existan;
+- README y documentación vigente;
 - licencia;
 - cambios materiales en arquitectura o capacidades;
-- issues/restricciones relevantes cuando afecten la decisión;
-- commit/release observado cuando la decisión dependa de una versión.
+- issues, merge requests, milestones o restricciones relevantes cuando afecten la decisión;
+- commit, tag o release observado cuando la decisión dependa de una versión;
+- relación `CANONICAL_UPSTREAM / MIRROR / FORK` cuando el mismo proyecto exista en más de una forja.
+
+Reglas:
+
+```text
+GITHUB_SOURCE != MORE_AUTHORITATIVE_BY_DEFAULT
+GITLAB_SOURCE != SECONDARY_BY_DEFAULT
+CANONICAL_UPSTREAM = SOURCE_OF_TRUTH
+MIRROR != CANONICAL_UNLESS_PROVEN
+```
+
+Si una experiencia existe en GitHub y GitLab:
+
+1. identificar cuál es el upstream canónico;
+2. registrar ambas URLs cuando aporten valor;
+3. no duplicar Experience Records por espejo;
+4. comparar divergencias materiales sólo cuando existan;
+5. conservar provenance de la fuente concreta usada para una decisión.
 
 No copiar código de terceros al core sin revisión explícita de licencia y provenance.
 
@@ -152,3 +173,5 @@ Los documentos canónicos para este proceso son:
 - `CAPABILITY_MATRIX.md`
 
 Cada actualización material de radar debe reconciliar estos documentos y evitar estados contradictorios.
+
+Las revisiones periódicas del radar deben consultar **GitHub y GitLab** antes de declarar `NO_CHANGE` para una categoría técnica relevante, salvo que exista una razón documentada por la cual una de las forjas no aplique a esa categoría.
