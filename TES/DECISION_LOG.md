@@ -92,10 +92,8 @@ Este registro documenta formalmente las decisiones arquitectónicas, tecnológic
 ### [DEC-010] Adopci�n del Patr�n ClearCam para Recuperaci�n RTSP
 - **Estado:** `ADOPTADO`
 - **Contexto:** Las c�maras f�sicas presentan inestabilidad (frames ca�dos, reinicios). FFmpeg puede generar "restart storms" o creer que se recuper� sin emitir frames.
-- **Decisi�n:** Integrar patrones operativos de ClearCam: startup_grace_period, presupuesto de fallos consecutivos (consecutive_failure_count), higiene de procesos (one owner, verificar muerte), confirmaci�n de irst-frame y 
-ecovery_budget.
-- **Impacto:** Resiliencia extrema sin bucles infinitos, preservando la arquitectura original de TukeVision sin copiar c�digo GPL. Genera registro formal de Failure->Experience.
-
+- **Decisi�n:** Integrar patrones operativos de ClearCam: startup_grace_period, presupuesto de fallos consecutivos (consecutive_failure_count), higiene de procesos (one owner, verificar muerte), confirmaci�n de irst-frame y ecovery_budget.
+- **Impacto:** Resiliencia extrema sin bucles infinitos, preservando la arquitectura original de TukeVision sin copiar c�digo GPL. Genera registro formal de Failure->Experience.
 
 ---
 
