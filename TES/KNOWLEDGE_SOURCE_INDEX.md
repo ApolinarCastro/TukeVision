@@ -50,6 +50,16 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 | THERMAL | tecnología futura | sensor | **RESERVE** | multimodal observation | Reabrir por incendio/industrial/condición térmica real |
 | AUDIO-ANALYTICS | tecnología futura | sensor | **RESERVE** | multimodal observation | Reabrir con base legal, hardware y caso operativo claros |
 
+## Refresh log — fuentes GitHub
+
+### 2026-09-08 — `roryclear/clearcam`
+
+- Upstream: `main` activo y repositorio no archivado.
+- Latest release verificada: **0.2.8**, publicada 2026-08-31.
+- Cambios materiales del release: streams de `.ts` a `.m4s`, correcciones de scrubbing, mejor sincronización temporal entre feeds y startup más rápido.
+- Impacto TukeVision: refuerza prioridad del benchmark de `playback/freshness`, sincronización multicámara y startup/recovery; no cambia la frontera GPL ni autoriza copia directa.
+- Decisión: `ACTIVE_EVALUATION_HIGH` se mantiene y gana prioridad operativa.
+
 ## Regla de consulta
 
 Ante un problema, el agente/ingeniero debe buscar primero por:
