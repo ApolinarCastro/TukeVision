@@ -132,14 +132,36 @@ class MultiCameraViewModel:
         visit_role = ""
         person_state = ""
         visit_semantics = getattr(snapshot, "visit_semantics", ())
+        semantic_match_mode = "NO_SEMANTICS"
+        target_semantic = None
         if visit_semantics:
             target_semantic = next(
                 (v for v in visit_semantics if v.track_id == track_id),
-                visit_semantics[-1]
+                None
             )
+            if target_semantic:
+                semantic_match_mode = "EXACT_TRACK_MATCH"
+            else:
+                target_semantic = visit_semantics[-1]
+                semantic_match_mode = "FALLBACK_LAST"
+                
             visit_id = target_semantic.visit_id or ""
             visit_role = target_semantic.visit_role or "UNKNOWN"
             person_state = target_semantic.person_state or ""
+            
+        from src.observability.entity_truth_tracer import emit_entity_truth_trace
+        emit_entity_truth_trace(
+            boundary="VIEWMODEL",
+            camera_id=camera_id,
+            raw_track_id=track_id,
+            semantic_track_id=target_semantic.track_id if target_semantic else None,
+            visit_id=visit_id,
+            visit_role=visit_role,
+            person_state=person_state,
+            event_type=semantic_match_mode,
+            snapshot_camera_id=getattr(snapshot, "camera_id", getattr(snapshot, "source_camera_id", None)),
+            viewmodel_target_camera_id=camera_id
+        )
 
         has_event_analytics = any(
             value not in (None, "")

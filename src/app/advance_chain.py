@@ -338,6 +338,31 @@ class AdvanceChain:
                         metadata=metadata,
                     )
 
+        if track:
+            from src.observability.entity_truth_tracer import emit_entity_truth_trace
+            
+            t_obj_type = getattr(track, "object_type", None)
+            t_track_id = getattr(track, "track_id", None)
+            t_last_bbox = getattr(track, "last_bbox", None)
+            ev_type = getattr(event, "event_type", None) if event else None
+            
+            for vs in visit_semantics:
+                emit_entity_truth_trace(
+                    boundary="CHAIN",
+                    camera_id=camera_id,
+                    frame_index=frame_index,
+                    raw_track_id=t_track_id,
+                    event_type=ev_type,
+                    track_object_type=t_obj_type,
+                    validated_presence=validated_presence,
+                    semantic_track_id=vs.track_id,
+                    visit_id=vs.visit_id,
+                    visit_role=vs.visit_role,
+                    person_state=vs.person_state,
+                    customer_analytics_eligible=vs.customer_analytics_eligible,
+                    source_camera_id=camera_id
+                )
+                
         return {
             "camera_id": camera_id,
             "frame_index": frame_index,

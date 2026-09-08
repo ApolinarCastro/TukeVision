@@ -2107,12 +2107,25 @@ class TkApp:
                 fill="#10B981", font=FONT_BODY_BOLD,
             )
             
+        ui_presented_visit = False
         if visit_id:
             visit_text = f"{visit_id} [{visit_role}] - {person_state}"
             canvas.create_text(
                 8, ch - 26, anchor=tk.W, text=visit_text,
                 fill=COLORS["accent"], font=FONT_BODY_BOLD,
             )
+            ui_presented_visit = True
+            
+        from src.observability.entity_truth_tracer import emit_entity_truth_trace
+        emit_entity_truth_trace(
+            boundary="UI",
+            camera_id=camera_id,
+            raw_track_id=getattr(panel, "track_id", None),
+            visit_id=visit_id,
+            visit_role=visit_role,
+            person_state=person_state,
+            ui_presented=ui_presented_visit
+        )
 
         event = getattr(panel, "event", None)
         if event:
@@ -2161,6 +2174,17 @@ class TkApp:
         )
         if hasattr(self, "_cameras_var"):
             self._cameras_var.set(f"CÁMARAS: {live} / {total} EN VIVO")
+            
+            from src.observability.entity_truth_tracer import emit_entity_truth_trace
+            h_count = getattr(health, "online_camera_count", None) if health is not None else None
+            emit_entity_truth_trace(
+                boundary="HEALTH",
+                camera_id="SYSTEM",
+                state_live_count=state.get("live_count"),
+                health_online_camera_count=h_count,
+                rendered_live_count=live,
+                total_camera_count=total
+            )
 
         # Operational status derivation
         alerts = state.get("alert_log") or []

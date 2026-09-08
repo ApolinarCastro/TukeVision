@@ -376,6 +376,21 @@ class UiController:
             evidence=evidence,
             visit_semantics=result.get("visit_semantics", ()),
         )
+        
+        from src.observability.entity_truth_tracer import emit_entity_truth_trace
+        for vs in snapshot.visit_semantics:
+            emit_entity_truth_trace(
+                boundary="CONTROLLER",
+                camera_id=camera_id,  # From _on_operational_result parameter
+                frame_index=snapshot.frames_processed,
+                generation=snapshot.generation,
+                semantic_track_id=vs.track_id,
+                visit_id=vs.visit_id,
+                visit_role=vs.visit_role,
+                person_state=vs.person_state,
+                source_camera_id=camera_id
+            )
+            
         self._on_frame(snapshot)
 
     def _on_frame(self, snapshot) -> None:
