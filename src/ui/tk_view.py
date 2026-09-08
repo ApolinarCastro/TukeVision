@@ -2097,10 +2097,21 @@ class TkApp:
                 )
 
         tracks = getattr(panel, "tracked_objects", ())
+        visit_id = getattr(panel, "visit_id", "")
+        visit_role = getattr(panel, "visit_role", "")
+        person_state = getattr(panel, "person_state", "")
+
         if tracks:
             canvas.create_text(
                 8, ch - 12, anchor=tk.W, text=f"● {len(tracks)} activos",
                 fill="#10B981", font=FONT_BODY_BOLD,
+            )
+            
+        if visit_id:
+            visit_text = f"{visit_id} [{visit_role}] - {person_state}"
+            canvas.create_text(
+                8, ch - 26, anchor=tk.W, text=visit_text,
+                fill=COLORS["accent"], font=FONT_BODY_BOLD,
             )
 
         event = getattr(panel, "event", None)

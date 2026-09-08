@@ -39,6 +39,9 @@ class CameraPanelState:
     analytics_frame: Optional[Any] = None
     analytics_frame_index: int = -1
     resolution: str = ""
+    visit_id: str = ""
+    visit_role: str = ""
+    person_state: str = ""
 
 
 class MultiCameraViewModel:
@@ -123,11 +126,27 @@ class MultiCameraViewModel:
         behavior = getattr(snapshot, "behavior", None)
         risk = getattr(snapshot, "risk", None)
         evidence = getattr(snapshot, "evidence", None)
+        
+        # Extract visit semantics for the followed track, or the first available
+        visit_id = ""
+        visit_role = ""
+        person_state = ""
+        visit_semantics = getattr(snapshot, "visit_semantics", ())
+        if visit_semantics:
+            target_semantic = next(
+                (v for v in visit_semantics if v.track_id == track_id),
+                visit_semantics[-1]
+            )
+            visit_id = target_semantic.visit_id or ""
+            visit_role = target_semantic.visit_role or "UNKNOWN"
+            person_state = target_semantic.person_state or ""
+
         has_event_analytics = any(
             value not in (None, "")
             for value in (
                 detections, track_id, track_bbox, bboxes, event_id, event_type,
                 event_confidence, inference_ref, temporal, behavior, risk,
+                visit_id
             )
         )
         self._panels[camera_id] = CameraPanelState(
@@ -159,6 +178,9 @@ class MultiCameraViewModel:
                 frame_index if has_event_analytics else current.analytics_frame_index
             ),
             resolution=str(getattr(snapshot, "resolution", current.resolution) or current.resolution),
+            visit_id=str(visit_id if visit_id not in (None, "") else current.visit_id),
+            visit_role=str(visit_role if visit_role not in (None, "") else current.visit_role),
+            person_state=str(person_state if person_state not in (None, "") else current.person_state),
         )
 
     def mark_state(self, camera_id: str, source_state: str) -> None:

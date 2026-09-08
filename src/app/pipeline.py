@@ -85,9 +85,8 @@ class FrameSnapshot:
     persons_detected: int
     alerts_total: int
     evidence_total: int
-    # Per-track visit semantics: track_id -> (visit_id, role, person_state, customer_analytics_eligible)
-    # None values mean the track has no confirmed visit yet.
-    visits_info: Dict[int, tuple] = None  # type: ignore[assignment]
+    # Tuple of immutable VisitSemanticSnapshot DTOs
+    visit_semantics: tuple = ()
 
 
 def load_config(config_path: str = "config/default.json") -> dict:
@@ -375,7 +374,7 @@ class Pipeline:
                 unique_tracks.update(obj.track_id for obj in tracked)
 
                 # Validation and Visit logic
-                visits_info = {}
+                visits_info = []
                 for obj in tracked:
                     # Lightweight adapter — no class-in-loop, no frozen mutation
                     track_adapter = SimpleNamespace(
@@ -391,12 +390,18 @@ class Pipeline:
                         track_adapter.last_bbox,
                         is_eligible_person=is_eligible,
                     )
-                    visit_id = visit.visit_id if visit else None
-                    visit_role = visit.role if visit else "UNKNOWN"
-                    eligible = visit.customer_analytics_eligible if visit else False
-                    visits_info[obj.track_id] = (
-                        visit_id, visit_role, person_state, eligible
+                    
+                    from src.tracking.visit_semantic import VisitSemanticSnapshot
+                    vss = VisitSemanticSnapshot(
+                        track_id=str(obj.track_id),
+                        camera_id=self._camera_id,
+                        person_state=person_state,
+                        visit_id=visit.visit_id if visit else None,
+                        visit_role=visit.role if visit else "UNKNOWN",
+                        customer_analytics_eligible=visit.customer_analytics_eligible if visit else False,
+                        visit_origin=visit.entry_source if visit else "UNKNOWN"
                     )
+                    visits_info.append(vss)
 
                 risk_text = ""
                 latest_alert = None
@@ -486,7 +491,7 @@ class Pipeline:
                         persons_detected=persons_detected,
                         alerts_total=alerts_created,
                         evidence_total=evidence_created,
-                        visits_info=visits_info,
+                        visit_semantics=tuple(visits_info),
                     ))
                 output_writer.write(frame)
 

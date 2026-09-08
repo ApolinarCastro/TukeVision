@@ -374,6 +374,7 @@ class UiController:
             generation=source_snapshot.get("generation", 0),
             event=event,
             evidence=evidence,
+            visit_semantics=result.get("visit_semantics", ()),
         )
         self._on_frame(snapshot)
 
