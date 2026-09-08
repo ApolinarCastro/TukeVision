@@ -1,116 +1,158 @@
 # RADAR RECONCILIATION
-**MISSION:** TV-KNOWLEDGE-RADAR-RECONCILIATION-01
+**MISSION:** TV-KNOWLEDGE-RADAR-RECONCILIATION-02
 **DATE:** 2026-09-08
+**MODE:** ACTIVE_EVALUATION
 
-## 1. SOURCE INVENTORY
+## 1. OBJETIVO
 
-### ACTIVE (Adopted/Tested)
+Evitar que una experiencia útil permanezca dormida en TES. Toda fuente con relación directa a una brecha actual debe pasar a evaluación activa, benchmark o decisión explícita.
+
+Regla:
+
+```text
+DISCOVERY
+→ VERIFY
+→ MAP_TO_TUKEVISION
+→ ACTIVE_EVALUATION
+→ BENCHMARK
+→ DECISION
+```
+
+No se crean módulos automáticamente. Se activa la evaluación, no la adopción ciega.
+
+## 2. ACTIVE / ADOPTED BASELINE
+
 - OpenVINO Edge Runtime
-- PyAV (FFmpeg C-bindings)
+- PyAV / FFmpeg
 - ByteTrack
 - Tkinter + DesignTokens
-- SQLite Structured Indexing (P0-65)
+- SQLite Structured Indexing
 
-### DORMANT (Evaluate/Watch/Target)
-- ONVIF Media Signing (Profile T / G) - Pending hardware validation
-- Attention Orchestrator Metrics (P0-66) - Telemetry active
-- ONNX Runtime (Fallback)
-- Semantic NLP (P0-65 target)
-- DVR/NVR AI On-Demand
-- WebRTC Gateway Auxiliar
+Estos componentes se consultan como baseline antes de recomendar reemplazos.
 
-### SUPERSEDED / REJECTED
-- Detectron2 / Mask R-CNN (Rejected: Memory >4GB)
-- Chromium/Electron UI (Rejected: High RAM, slow render)
-- Grabación continua 24/7 en Host TukeVision (Rejected: DVR does this)
+## 3. EXPERIENCIAS ACTIVADAS DESDE TES
 
-## 2. DORMANT KNOWLEDGE / MISSING KNOWLEDGE
-The following seeds were recovered and reconciled:
-- **ClearCam**: `ALREADY_IN_EXPERIENCE` (EXP-CLEARCAM-001..004)
-- **Frigate**: `ALREADY_IN_RADAR` (CCTV lifecycle / multicamera resilience benchmark)
-- **God's Eye View**: `ALREADY_DECIDED` (DEC-003)
-- **Ambient.ai**: `ALREADY_DECIDED` (DEC-003)
-- **HiFocus IntelliSeek**: `ALREADY_DECIDED` (DEC-007)
-- **ONVIF Media Signing**: `ALREADY_DECIDED` (DEC-006, CAP-10)
-- **YOLO people footfall**: `ALREADY_IN_RADAR` (SKILL.md)
-- **claude-real-video**: `ALREADY_IN_RADAR` (SKILL.md)
-- **SmolVLM**: `ALREADY_IN_RADAR` (HuggingFaceTB/SmolVLM2 family)
-- **FastVLM**: `ALREADY_IN_RADAR` (apple/FastVLM-*)
+### P0-ACTIVE
 
-## 3. NEW CANDIDATES (External Radar)
+- **ClearCam** — `ACTIVE_ENGINEERING_CANDIDATE / HIGH`
+  - RTSP recovery ya adaptado parcialmente.
+  - Activar benchmark de playback/freshness, selective inference, stationary/recovery tracking, event/similar-image search.
+  - GPL-3.0: no copiar código al core.
 
-### JetBrains Junie
-- **REPO_CANDIDATE_ID**: CAND-JUNIE
-- **FORGE**: GITHUB
-- **OWNER**: JetBrains
-- **REPOSITORY**: junie
-- **TYPE**: ENGINEERING_AGENT
-- **ROLE**: DEVELOPMENT_TOOLING
-- **DECISION**: BENCHMARK_COMPATIBILITY
-- **DIRECT_CODE_REUSE**: NO
-- **TUKEVISION MAPPING**: Agent tooling / CI-CD integration
-- **REASON**: Evaluate agent capability paradigms.
-- **REVISIT_WHEN**: Need for standardized CI/CD subagents.
+- **Frigate** — `ACTIVE_BENCHMARK_REFERENCE`
+  - auditar ingestion, ffmpeg/go2rtc lifecycle, recovery, hardware acceleration, events, search, storage y health.
+  - límite: no segundo NVR.
 
-### Avigilon / March Networks / SmartPSS
-- **TYPE**: VMS / Hardware Interfaces
-- **DECISION**: WATCH
-- **REASON**: Enterprise VMS interoperability patterns.
+- **ONVIF Media Signing** — `ACTIVE_SANDBOX_BENCHMARK / CONTRACT_READY`
+  - benchmark sign→verify→tamper→verify_fail.
+  - hardware físico pendiente cuando corresponda.
 
-### ONVIF Analytics Metadata
-- **TYPE**: Protocol Extension
-- **DECISION**: EVALUATE
-- **TUKEVISION MAPPING**: `src/evidence/models.py`
-- **REASON**: Standardize Edge AI inference output to physical NVRs.
+- **NCSC Agentic Security** — `ACTIVE_GOVERNANCE`
+  - minimum privilege, deny-by-default, isolation, audit, human control, safe mode.
 
-### OC-SORT / CoTracker / TAPNet / Trace Anything
-- **TYPE**: Tracking Models
-- **DECISION**: BENCHMARK
-- **TUKEVISION MAPPING**: `src/tracking/`
-- **REASON**: ByteTrack is currently `ADOPTED`. Benchmark only if occlusion becomes a proven operational defect.
+- **Alocity/Mercury open access pattern** — `ACTIVE_CONTRACT_PATTERN`
+  - ACCESS pasa a fuente operacional normalizada.
+  - no crear módulo Mercury/Alocity.
+  - `CREDENTIAL_EVENT != PERSON_IDENTITY`.
 
-### Qwen3-VL
-- **TYPE**: Vision Language Model (VLM)
-- **DECISION**: WATCH
-- **TUKEVISION MAPPING**: `src/evidence/search_contract.py`
-- **REASON**: Alternative to SmolVLM for local edge deployments, depending on VRAM usage.
+- **Purpose-Bound / Flock investigation governance** — `ACTIVE_GOVERNANCE`
+  - purpose, case, permission, camera/time scope, audit.
+  - AI result = candidate lead.
 
-### NCSC agentic security patterns
-- **TYPE**: Security Guidelines
-- **DECISION**: EVALUATE
-- **TUKEVISION MAPPING**: `src/agent/actions/`
-- **REASON**: Reinforce Zero-Trust architecture in governed autonomy (DEC-004).
+### P1-ACTIVE
 
-## 4. DECISIONS & REVISIT CONDITIONS
-- Maintain **SQLite Structured Indexing** as operational truth for search, only advancing to NLP/VLM (SmolVLM/Qwen3-VL) when a clear operational need and hardware budget exist.
-- Keep **ClearCam** experience patterns locked as the foundation for RTSP resilience (DEC-010).
-- Do not incorporate new tracking algorithms (OC-SORT, CoTracker) without demonstrating failure of current `ByteTrack` pipeline.
+- **HiFocus IntelliSeek** — historical on-demand analysis, no full-frame indexing.
+- **Ambient.ai** — attention reduction and operator prioritization.
+- **Avigilon** — enterprise search, multisite, privacy, video+access patterns.
+- **March Networks** — connected intelligence across video/data/access/multisite.
+- **SmartPSS Lite** — operator workflow / VMS UX benchmark.
+- **Agentic Video Understanding** — local pattern benchmark for goal-directed temporal search and dynamic resampling.
 
----
-## UPDATE_2026_09_08
+### CONDITIONAL
 
-### NEW_MATERIAL_FINDINGS
-- **Agentic Video Understanding**: ADAPT_PATTERN / BENCHMARK_FUTURE. Added to P0-64/65/62/76. Vendor claims (up to 88% token reduction) logged as benchmark claims. Customer cloud upload prohibited.
-- **Purpose-Bound AI Investigation**: ADOPT_GOVERNANCE_PATTERN. Added to P0-59/65/66/69. AI Search Result is now strictly a CANDIDATE_LEAD, not fact.
-- **ONVIF Media Signing Framework**: BENCHMARK_READY. Upstream verified (onvif/media-signing-framework), MIT License.
-- **screen2ipcam**: WATCH (SourceForge SF-SCREEN2IPCAM-001). Pattern for Universal Source Connector.
-- **RapidVMS**: BENCHMARK_REFERENCE_ONLY. Direct integration rejected due to SECOND_NVR and ELECTRON_CONFLICT.
+- OC-SORT — activate on proven ID-switch/occlusion/recovery defect.
+- CoTracker / TAPNet / Trace Anything — activate only if bbox tracking is insufficient.
+- SmolVLM / FastVLM / Qwen3-VL — activate when structured investigation cannot satisfy a real need.
+- ONNX Runtime — activate for hardware/platform not served by OpenVINO.
+- screen2ipcam — activate on POS/legacy-screen source requirement.
 
-### NO_CHANGE_FINDINGS
-- **GitLab**: Searched. No material finding. NO_CHANGE.
-- **Profile M / Profile V**: No change. P1 / P2_WATCH_READINESS.
-- **Radar / Thermal / Audio**: No change. RESERVE.
-- **Hugging Face**: Maintained candidates (SmolVLM, etc.). No new promotion.
+### RESERVE
 
-### SOURCE_VALIDATION
-- onvif/media-signing-framework -> OFFICIAL_UPSTREAM, LICENSE: MIT
-- screen2ipcam -> SourceForge, LICENSE/BINARY: Unverified/Watch
+- Radar mmWave
+- Thermal
+- Audio analytics
 
-### TUKEVISION_MAPPING
-- Agentic Video -> Adaptive Perception Budget, Cascade Intelligence, Semantic Investigation.
-- Purpose-Bound Investigation -> Autonomy Governance, Privacy-Aware Evidence.
-- screen2ipcam -> Universal Source Connector (P0-67).
+## 4. RECONCILIACIÓN DE FUENTES YA CONOCIDAS
 
-### DECISION & REVISIT_WHEN
-- Do not integrate external VLM clouds without explicit policy update.
-- Revisit ONVIF hardware validation when signed hardware is physically available.
+- **God's Eye View**: `ADAPTED / WATCH`; consultar para spatial state, viewshed, handoff, freshness/provenance.
+- **Ambient.ai**: `ADAPTED_PATTERN / P1-ACTIVE`.
+- **HiFocus IntelliSeek**: `ADAPTED_PARTIAL / P1-ACTIVE`.
+- **ONVIF Media Signing**: `CONTRACT_READY / P0-ACTIVE`.
+- **Detectron2**: `REJECTED_FOR_CURRENT_EDGE_PROFILE / WATCH`; reabrir sólo si cambia hardware o aparece brecha de segmentación.
+- **RapidVMS**: `BENCHMARK_REFERENCE_ONLY`; integración directa rechazada por second-NVR conflict.
+- **MAGI**: `DISCOVERY_LAYER`; nunca autoridad directa.
+- **Profile M / Profile V**: `WATCH_READINESS`.
+
+## 5. CONSULTA OBLIGATORIA ANTE PROBLEMAS
+
+Desde esta reconciliación:
+
+```text
+PROBLEM
+→ TES/KNOWLEDGE_SOURCE_INDEX.md
+→ TES/EXPERIENCE_STORE.md
+→ TES/DECISION_LOG.md
+→ TES/TECHNOLOGY_RADAR.md
+→ EXISTING CAPABILITY
+→ DECIDE
+```
+
+Una nueva solución debe declarar:
+
+`TES_MATCHES=<fuentes/experiencias consultadas>`
+
+o
+
+`TES_MATCHES=NO_RELEVANT_EXPERIENCE_FOUND`.
+
+## 6. REGLA DE FRESCURA
+
+Para fuentes GitHub activas, cada revisión relacionada debe comprobar upstream original y sólo actualizar TES si existe cambio material.
+
+Mínimo:
+
+- README/documentación vigente;
+- actividad/release relevante;
+- licencia;
+- cambios de arquitectura/capacidad;
+- condición de reevaluación;
+- impacto frente al baseline TukeVision.
+
+## 7. CAMBIOS MATERIALES 2026-09-08
+
+- ClearCam deja de ser sólo experiencia RTSP almacenada y pasa a `ACTIVE_ENGINEERING_CANDIDATE`.
+- Frigate pasa a `ACTIVE_BENCHMARK_REFERENCE`.
+- ONVIF Media Signing pasa a benchmark activo sin sobredeclarar hardware.
+- ACCESS se incorpora al readiness multimodal por contrato neutral de proveedor.
+- Purpose-bound investigation pasa a gobernanza obligatoria para búsqueda IA.
+- Todas las experiencias `EVALUATE/WATCH/TARGET` reciben condición explícita de activación o permanecen `RESERVE`.
+
+## 8. DOCUMENTOS CANÓNICOS RECONCILIADOS
+
+- `TES/ACTIVE_EVALUATION_PROTOCOL.md`
+- `TES/KNOWLEDGE_SOURCE_INDEX.md`
+- `TES/EXPERIENCE_STORE.md`
+- `TES/TECHNOLOGY_RADAR.md`
+- `TES/DECISION_LOG.md`
+
+## 9. DECISIÓN
+
+`TES = ACTIVE_ENGINEERING_MEMORY`, no archivo pasivo.
+
+Objetivo:
+
+`LEARN → ADAPT → VERIFY`
+
+antes de:
+
+`INVENT → FAIL → PATCH`.
