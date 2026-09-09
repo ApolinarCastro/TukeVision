@@ -268,6 +268,7 @@ class UiController:
                 visit_id=vs.visit_id,
                 visit_role=vs.visit_role,
                 person_state=vs.person_state,
+                customer_analytics_eligible=vs.customer_analytics_eligible,
                 source_camera_id=camera_id
             )
         self._multicamera.update(camera_id, snapshot)

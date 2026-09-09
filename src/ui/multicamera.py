@@ -26,6 +26,7 @@ class CameraPanelState:
     detections: int = 0
     track_id: Optional[str] = None
     semantic_track_id: Optional[str] = None
+    customer_analytics_eligible: Optional[bool] = None
     track_status: str = ""
     track_bbox: Optional[Tuple[int, int, int, int]] = None
     bboxes: Tuple[tuple, ...] = ()
@@ -184,6 +185,7 @@ class MultiCameraViewModel:
             detections=(int(detections) if detections is not None else current.detections),
             track_id=(track_id if track_id not in (None, "") else current.track_id),
             semantic_track_id=(target_semantic.track_id if target_semantic else current.semantic_track_id),
+            customer_analytics_eligible=(target_semantic.customer_analytics_eligible if target_semantic else current.customer_analytics_eligible),
             track_status=(str(track_status) if track_status not in (None, "") else current.track_status),
             track_bbox=(tuple(track_bbox) if track_bbox is not None else current.track_bbox),
             bboxes=(tuple(tuple(item) for item in bboxes) if bboxes is not None else current.bboxes),
@@ -217,6 +219,7 @@ class MultiCameraViewModel:
             fps=current.fps, frame_index=current.frame_index,
             detections=current.detections, track_id=current.track_id,
             semantic_track_id=current.semantic_track_id,
+            customer_analytics_eligible=current.customer_analytics_eligible,
             track_status=current.track_status, track_bbox=current.track_bbox,
             bboxes=current.bboxes, event_id=current.event_id,
             event_type=current.event_type, event_confidence=current.event_confidence,

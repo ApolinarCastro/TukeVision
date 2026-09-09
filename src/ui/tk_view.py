@@ -2121,9 +2121,11 @@ class TkApp:
             boundary="UI",
             camera_id=camera_id,
             raw_track_id=getattr(panel, "track_id", None),
+            semantic_track_id=getattr(panel, "semantic_track_id", None),
             visit_id=visit_id,
             visit_role=visit_role,
             person_state=person_state,
+            customer_analytics_eligible=getattr(panel, "customer_analytics_eligible", None),
             ui_presented=ui_presented_visit
         )
 
