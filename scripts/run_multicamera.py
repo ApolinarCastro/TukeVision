@@ -99,6 +99,7 @@ def build_panel_snapshot(source_snapshot, result):
         risk=risk,
         evidence=(evidence or {}).get("relative_path") if evidence else None,
         resolution=str(source_snapshot.get("resolution", "") or ""),
+        visit_semantics=result.get("visit_semantics", ()),
     )
 
 

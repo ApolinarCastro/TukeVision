@@ -25,6 +25,7 @@ class CameraPanelState:
     last_updated_at: float = 0.0
     detections: int = 0
     track_id: Optional[str] = None
+    semantic_track_id: Optional[str] = None
     track_status: str = ""
     track_bbox: Optional[Tuple[int, int, int, int]] = None
     bboxes: Tuple[tuple, ...] = ()
@@ -158,6 +159,7 @@ class MultiCameraViewModel:
             visit_id=visit_id,
             visit_role=visit_role,
             person_state=person_state,
+            customer_analytics_eligible=(target_semantic.customer_analytics_eligible if target_semantic else False),
             event_type=semantic_match_mode,
             snapshot_camera_id=getattr(snapshot, "camera_id", getattr(snapshot, "source_camera_id", None)),
             viewmodel_target_camera_id=camera_id
@@ -181,6 +183,7 @@ class MultiCameraViewModel:
             last_updated_at=time.monotonic() if getattr(snapshot, "frame", None) is not None else current.last_updated_at,
             detections=(int(detections) if detections is not None else current.detections),
             track_id=(track_id if track_id not in (None, "") else current.track_id),
+            semantic_track_id=(target_semantic.track_id if target_semantic else current.semantic_track_id),
             track_status=(str(track_status) if track_status not in (None, "") else current.track_status),
             track_bbox=(tuple(track_bbox) if track_bbox is not None else current.track_bbox),
             bboxes=(tuple(tuple(item) for item in bboxes) if bboxes is not None else current.bboxes),
@@ -213,6 +216,7 @@ class MultiCameraViewModel:
             camera_id=camera_id, source_state=source_state, frame=current.frame,
             fps=current.fps, frame_index=current.frame_index,
             detections=current.detections, track_id=current.track_id,
+            semantic_track_id=current.semantic_track_id,
             track_status=current.track_status, track_bbox=current.track_bbox,
             bboxes=current.bboxes, event_id=current.event_id,
             event_type=current.event_type, event_confidence=current.event_confidence,

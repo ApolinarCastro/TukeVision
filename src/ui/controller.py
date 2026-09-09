@@ -257,6 +257,19 @@ class UiController:
         This method never opens a source or runs processing; it only updates
         the bounded latest-wins presentation model consumed by the UI timer.
         """
+        from src.observability.entity_truth_tracer import emit_entity_truth_trace
+        for vs in getattr(snapshot, "visit_semantics", ()):
+            emit_entity_truth_trace(
+                boundary="CONTROLLER",
+                camera_id=camera_id,
+                frame_index=getattr(snapshot, "frame_index", -1),
+                generation=getattr(snapshot, "generation", 0),
+                semantic_track_id=vs.track_id,
+                visit_id=vs.visit_id,
+                visit_role=vs.visit_role,
+                person_state=vs.person_state,
+                source_camera_id=camera_id
+            )
         self._multicamera.update(camera_id, snapshot)
 
     def mark_camera_state(self, camera_id: str, source_state: str) -> None:
