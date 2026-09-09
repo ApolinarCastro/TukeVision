@@ -99,7 +99,7 @@ def multicamera_control_state(status: str) -> dict:
 
 
 def fit_display_size(
-    src_w: int, src_h: int, max_w: int, max_h: int, *, allow_upscale: bool = False
+    src_w: int, src_h: int, max_w: int, max_h: int, *, allow_upscale: bool = False, original_w: int = None
 ):
     """Tamaño de presentación que llena el área máxima sin deformar.
 
@@ -114,7 +114,8 @@ def fit_display_size(
     if allow_upscale:
         scale = min(max_w / src_w, max_h / src_h)
         # Rule 28: No agresivo upscale para fuentes SD (ej. 352x240)
-        if src_w < 720:
+        base_w = original_w if original_w is not None else src_w
+        if base_w < 720:
             scale = min(1.0, scale) # Preferir presentación letterbox nativa
     else:
         scale = min(1.0, max_w / src_w, max_h / src_h)
@@ -188,7 +189,7 @@ def build_viewport_display_image(
     y0 = max(0, min(src_h - crop_h, y0))
     region = frame[y0:y0 + crop_h, x0:x0 + crop_w]
     disp_w, disp_h = fit_display_size(
-        crop_w, crop_h, max_w, max_h, allow_upscale=allow_upscale
+        crop_w, crop_h, max_w, max_h, allow_upscale=allow_upscale, original_w=src_w
     )
     rgb = bgr_frame_to_rgb(region)
     image = Image.fromarray(rgb)
@@ -1232,15 +1233,19 @@ class TkApp:
         self._focus_index = self._index_of(camera_id)
         self._reset_viewport(camera_id)
         
-        # Rule 20: Wait for new generation on FOCUS
+        # Instrument latency
+        self._focus_click_at = time.monotonic()
+        self._focus_ui_first_visible_at = None
+        self._focus_main_first_frame_at = None
+        
         try:
             panels = self._controller.poll_multicamera()
             panel = panels.get(camera_id)
             if panel:
                 gen = getattr(panel, "generation", 0) or 0
-                self._focus_target_generation = int(gen) + 1
+                self._focus_main_target_gen = int(gen) + 1
         except Exception:
-            self._focus_target_generation = 0
+            self._focus_main_target_gen = 1
             
         # BLOCK B: switch focused camera to MAIN, others remain SUB
         try:
@@ -1907,10 +1912,19 @@ class TkApp:
         generation = int(getattr(panel, "generation", 0) or 0)
         last_gen = getattr(self, "_last_render_gen", {}).get(camera_id, 0)
         
-        # Rule 20: Wait for actual new generation when in FOCUS
-        if focus and generation < getattr(self, "_focus_target_generation", 0):
-            self._draw_placeholder(camera_id, canvas, "LOADING MAIN STREAM (HD)...", health_state)
-            return
+        if focus:
+            now = time.monotonic()
+            if getattr(self, "_focus_ui_first_visible_at", None) is None:
+                self._focus_ui_first_visible_at = now
+                if hasattr(self, "_focus_click_at"):
+                    latency = (self._focus_ui_first_visible_at - self._focus_click_at) * 1000
+                    print(f"GATE 0A: CLICK_TO_FIRST_VISIBLE_MS={latency:.1f}")
+
+            if generation >= getattr(self, "_focus_main_target_gen", 0) and getattr(self, "_focus_main_first_frame_at", None) is None:
+                self._focus_main_first_frame_at = now
+                if hasattr(self, "_focus_click_at"):
+                    latency = (self._focus_main_first_frame_at - self._focus_click_at) * 1000
+                    print(f"GATE 0A: CLICK_TO_MAIN_MS={latency:.1f}")
 
         frame_changed = (
             size != self._last_render_size.get(camera_id)
