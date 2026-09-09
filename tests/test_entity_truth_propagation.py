@@ -26,8 +26,8 @@ class MockSnapshot:
 
 @patch("src.observability.entity_truth_tracer.emit_entity_truth_trace")
 def test_entity_truth_faithful_propagation(mock_emit_trace):
-    catalog = StoreCatalog.from_dict({"store_id": "STORE-1", "cameras": [{"id": "cam_01"}]})
-    controller = UiController(catalog, "dev")
+    config = {"store_id": "STORE-1", "cameras": [{"id": "cam_01"}], "zone": {}}
+    controller = UiController(config, lambda: MagicMock())
     
     # 1. Test CONTROLLER propagation
     semantic_record = MockVisitSemanticSnapshot(
@@ -39,6 +39,8 @@ def test_entity_truth_faithful_propagation(mock_emit_trace):
     )
     snapshot = MockSnapshot([semantic_record])
     
+    controller._multicamera._catalog_ids = ("cam_01",)
+    controller._multicamera.select_viewport(("cam_01",))
     controller.ingest_camera_snapshot("cam_01", snapshot)
     
     # Verify CONTROLLER trace
