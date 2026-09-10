@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-08  
+**UPDATED:** 2026-09-10  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -18,7 +18,9 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 |---|---|---|---|
 | **ClearCam (`roryclear/clearcam`)** | resiliencia RTSP, playback/freshness, tracking temporal, selective inference, event/semantic search | **BENCHMARK + ADAPT PATTERNS** | GPL-3.0; no copiar código al core |
 | **Frigate** | lifecycle multicámara, recovery, aceleración, eventos, storage/search | **AUDIT/BENCHMARK** contra ClearCam y TukeVision | no convertir TukeVision en segundo NVR |
+| **Shinobi (`Shinobi-Systems/Shinobi`, GitLab)** | live-grid render, substream switching, next/previous monitor navigation, ONVIF scanner, RTSP transport | **BENCHMARK / ADAPT PATTERNS** contra Gate 0C y Gate 1 | licencia Shinobi Open Source EULA; no copiar código al core |
 | **ONVIF Media Signing** | provenance e integridad desde origen | **SANDBOX BENCHMARK** sign→verify→tamper→fail | hardware físico puede quedar pendiente |
+| **ONVIF TLS Configuration Add-on 2.0 RC** | configuración TLS interoperable y endurecimiento del onboarding LAN/DVR | **BENCHMARK + CONTRACT READINESS** | Release Candidate; no declarar conformidad antes de finalización/test tools |
 | **NCSC Agentic Security** | mínimo privilegio, safe mode, control herramientas | **ADAPT GOVERNANCE** | guía/patrón, no dependencia |
 | **Alocity/Mercury access+video pattern** | correlación ACCESS + VIDEO + LOCATION + TIME | **CONTRACT READINESS** | proveedor-neutral; no módulo Mercury |
 | **Purpose-Bound / Flock governance pattern** | abuso de búsqueda semántica / ampliación de scope | **ADAPT GOVERNANCE** | AI result = lead, no fact |
@@ -56,8 +58,9 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
     ADAPT      │      EVALUATE / ACTIVE
  • God's Eye   │   • ClearCam broader benchmark
  • Ambient.ai  │   • Frigate audit
- • IntelliSeek │   • ONVIF Media Signing
- • ClearCam RTSP│  • Access+Video contract
+ • IntelliSeek │   • Shinobi live-grid/substream benchmark
+ • ClearCam RTSP│  • ONVIF Media Signing
+               │   • ONVIF TLS Configuration 2.0 RC
 ───────────────┼────────────────►
     WATCH      │      RESERVE
  • Local VLM   │   • Radar mmWave
@@ -125,7 +128,9 @@ Targets activos:
 |---|---|---|
 | **ClearCam broader benchmark** | ya resolvió parcialmente problemas de resiliencia; contiene patrones adicionales relevantes | mismo video/hardware: recovery, CPU/RAM, stale frames, ID switches, search latency |
 | **Frigate** | referencia OSS madura CCTV/NVR | mapear ingestion, go2rtc/ffmpeg, lifecycle, hardware accel, events, search, recovery; adoptar sólo patrones útiles |
+| **Shinobi (GitLab upstream)** | upstream activo con fixes recientes de live grid, substream y next/previous monitor navigation que coinciden con defectos físicos Gate 0C | benchmark de patrón sobre navegación, ownership de paneles y transición de substream; no integrar producto ni copiar código |
 | **ONVIF Media Signing** | autenticidad/integridad desde captura | benchmark de referencia; `SOURCE_UNSIGNED` cuando no exista firma real |
+| **ONVIF TLS Configuration Add-on 2.0 RC** | RC publicada 2026-09-09 con requisitos TLS más fuertes; impacto directo en Gate 1 LAN/DVR onboarding | mapear configuración/certificados/cipher policy y capacidad del DVR; implementar sólo cuando exista soporte real y especificación/test tool aplicables |
 | **NCSC agentic security** | control externo al modelo | mapear mínimo privilegio, deny-by-default, isolation, safe mode, audit |
 | **Alocity/Mercury pattern** | convergencia abierta access+video+AI | formalizar `SOURCE_TYPE=ACCESS` y `AccessObservation`; no integración propietaria |
 | **Avigilon / March Networks** | experiencia enterprise | identificar palancas reales que mejoren correlación/investigación/multisitio |
@@ -141,6 +146,7 @@ Targets activos:
 | **SmolVLM / FastVLM / Qwen3-VL** | medir sólo en benchmark local y selectivo; no VLM continuo |
 | **ONVIF Profile M** | cuando metadata/eventos interoperables sean necesarios en integración física |
 | **ONVIF Profile V** | readiness únicamente; no migrar local-first a cloud |
+| **ONVIF TLS Configuration Add-on 2.0** | reevaluar al publicarse especificación final/test tools a fin de 2026 o antes si Gate 1 descubre capacidad TLS configurable en DVR/cámaras |
 | **WebRTC Gateway** | cuando exista requerimiento real de visualización web remota |
 | **screen2ipcam** | cuando se necesite incorporar pantalla/POS legacy como fuente |
 | **MAGI / repo discovery** | discovery layer; cada candidato requiere fuente original |
@@ -166,6 +172,7 @@ Targets activos:
 | **Chromium/Electron UI** | rechazado por consumo y duplicación de stack | cambie necesidad de producto/plataforma |
 | **Grabación continua 24/7 en host TukeVision** | rechazado; DVR/NVR conserva rol primario | no reabrir salvo cambio explícito de producto |
 | **RapidVMS como dependencia/producto** | no integrar; referencia benchmark | sólo patrones aislados compatibles con límites TukeVision |
+| **Shinobi como dependencia/producto** | no integrar; benchmark de patrones únicamente por rol NVR y licencia/EULA comercial | reabrir sólo si cambia explícitamente el modelo de producto/licencia |
 
 ---
 
@@ -228,3 +235,23 @@ Un cambio upstream NO cambia automáticamente una decisión. Actualizar el radar
 - condición de reevaluación.
 
 Cada fuente activa debe estar indexada en [KNOWLEDGE_SOURCE_INDEX.md](KNOWLEDGE_SOURCE_INDEX.md).
+
+---
+
+## 10. Refresh 2026-09-10
+
+### ONVIF TLS Configuration Add-on 2.0 RC — `BENCHMARK / WATCH`
+
+- **Upstream canónico:** ONVIF; especificación oficial en ONVIF y desarrollo público en `onvif/specs`.
+- **Cambio material:** ONVIF publicó el 2026-09-09 la Release Candidate 2.0 del TLS Configuration Add-on, orientada a métodos criptográficos más fuertes y configuración TLS interoperable; la final está prevista para fin de 2026.
+- **Mapeo TukeVision:** Gate 1 LAN/DVR onboarding, discovery/configuración ONVIF, seguridad de transporte y capability negotiation.
+- **Riesgo:** RC no equivale a estándar final ni a conformidad del DVR/cámara; no sobredeclarar soporte.
+- **Siguiente gate:** durante Gate 1 inventariar capacidades TLS/ONVIF reales del DVR/cámaras y mantener fallback seguro; sandbox sólo si hardware expone la función.
+
+### Shinobi GitLab — `BENCHMARK / ADAPTAR`
+
+- **Upstream canónico:** `gitlab.com/Shinobi-Systems/Shinobi`; no se usa mirror/fork como fuente.
+- **Actividad verificada:** commit `c4cb68d0` (2026-08-20) corrige Live Grid; MR !548 incluye fixes de `open next/previous monitor navigation` y `loading substream issues`; MR !557 (2026-08-05) añade hardening de autenticación/permisos y rutas.
+- **Licencia:** Shinobi Open Source Software License Agreement (EULA propia; uso comercial sujeto a condiciones). No copiar código al core.
+- **Mapeo TukeVision:** defectos físicos Gate 0C (grid, navegación foco, substream) y seguridad de onboarding/operación en Gate 1.
+- **Siguiente gate:** benchmark de comportamiento/patrón desde baseline estable antes de nuevo diseño; `KNOWLEDGE ≠ DEPENDENCY`.
