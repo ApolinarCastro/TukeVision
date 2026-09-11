@@ -1,0 +1,7 @@
+{
+  "gate": "F11_FAILURE_ISOLATION",
+  "status": "PASS",
+  "site_failure_isolated": true,
+  "optional_reasoning_failure_isolated": true,
+  "result": "Core perception and adjacent site processing preserved during localized failures"
+}

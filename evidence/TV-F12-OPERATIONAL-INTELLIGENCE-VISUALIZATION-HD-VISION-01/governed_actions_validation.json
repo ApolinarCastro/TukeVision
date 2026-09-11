@@ -1,0 +1,8 @@
+{
+  "gate": "GOVERNED_ACTION_VISIBILITY",
+  "status": "PASS",
+  "autonomy_levels": "AUTONOMY_0 / AUTONOMY_1 / AUTONOMY_2 (policy-controlled)",
+  "autonomy_3_status": "DISABLED",
+  "action_allowlist_expanded": false,
+  "default_deny": true
+}

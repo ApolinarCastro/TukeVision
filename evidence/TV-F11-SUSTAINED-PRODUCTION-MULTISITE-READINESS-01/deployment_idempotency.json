@@ -1,0 +1,6 @@
+{
+  "gate": "DEPLOYMENT_IDEMPOTENCY",
+  "status": "PASS",
+  "mutations_on_reapply": 0,
+  "result": "No unnecessary mutations upon reapplying identical deployment profile"
+}

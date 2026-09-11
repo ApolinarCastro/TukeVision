@@ -1,0 +1,238 @@
+{
+  "cam_01": {
+    "camera_id": "cam_01",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "ONLINE": 610,
+      "STALE": 100,
+      "OFFLINE": 9
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_02": {
+    "camera_id": "cam_02",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "ONLINE": 637,
+      "STALE": 76,
+      "OFFLINE": 6
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_03": {
+    "camera_id": "cam_03",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 2,
+      "ONLINE": 639,
+      "STALE": 72,
+      "OFFLINE": 6
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_04": {
+    "camera_id": "cam_04",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 9,
+      "ONLINE": 629,
+      "STALE": 76,
+      "OFFLINE": 5
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_05": {
+    "camera_id": "cam_05",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 1,
+      "ONLINE": 628,
+      "STALE": 87,
+      "OFFLINE": 3
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_06": {
+    "camera_id": "cam_06",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 11,
+      "ONLINE": 616,
+      "STALE": 85,
+      "OFFLINE": 7
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_07": {
+    "camera_id": "cam_07",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 8,
+      "ONLINE": 589,
+      "STALE": 116,
+      "OFFLINE": 6
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_08": {
+    "camera_id": "cam_08",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 1,
+      "ONLINE": 620,
+      "STALE": 87,
+      "OFFLINE": 11
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_09": {
+    "camera_id": "cam_09",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 6,
+      "ONLINE": 644,
+      "STALE": 67,
+      "OFFLINE": 2
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_10": {
+    "camera_id": "cam_10",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 8,
+      "ONLINE": 615,
+      "STALE": 83,
+      "OFFLINE": 13
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_11": {
+    "camera_id": "cam_11",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 4,
+      "ONLINE": 617,
+      "STALE": 90,
+      "OFFLINE": 8
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_12": {
+    "camera_id": "cam_12",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 4,
+      "ONLINE": 616,
+      "STALE": 94,
+      "OFFLINE": 5
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_13": {
+    "camera_id": "cam_13",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 9,
+      "ONLINE": 601,
+      "STALE": 102,
+      "OFFLINE": 7
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_14": {
+    "camera_id": "cam_14",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 2,
+      "ONLINE": 630,
+      "STALE": 87
+    },
+    "final_classification": "LIVE"
+  },
+  "cam_15": {
+    "camera_id": "cam_15",
+    "windows_observed": 719,
+    "capture_advancing_windows": 719,
+    "capture_stale_windows": 0,
+    "presentation_advancing_windows": 719,
+    "presentation_stale_windows": 0,
+    "fresh_windows": 719,
+    "state_distribution": {
+      "RECONNECTING": 6,
+      "ONLINE": 638,
+      "STALE": 75
+    },
+    "final_classification": "LIVE"
+  }
+}

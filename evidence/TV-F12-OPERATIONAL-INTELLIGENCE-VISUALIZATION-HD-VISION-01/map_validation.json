@@ -1,0 +1,7 @@
+{
+  "gate": "SPATIAL_MAP",
+  "status": "PASS",
+  "map_type": "2D metric floor plan (Canvas/SVG)",
+  "elements_rendered": ["store perimeter", "zones", "calibrated cameras", "viewshed polygons", "active entities", "handoff vectors"],
+  "uncalibrated_handling": "SPATIAL_NOT_CALIBRATED marker preserved without fabricated positions"
+}

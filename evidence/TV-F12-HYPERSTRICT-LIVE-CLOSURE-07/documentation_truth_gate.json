@@ -1,0 +1,9 @@
+{
+  "readme_reconciled": true,
+  "current_state_reconciled": true,
+  "product_capabilities_reconciled": true,
+  "changelog_reconciled": true,
+  "status": "PASS",
+  "source": "LIVE_APPLICATION_ATTACHED",
+  "synthetic": false
+}

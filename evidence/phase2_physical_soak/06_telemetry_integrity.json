@@ -1,0 +1,6 @@
+{
+  "atomic_write_mechanism": "atomic_write_text with mkstemp + fsync + bounded retry",
+  "telemetry_write_failed": 0,
+  "winerror_5_telemetry": 0,
+  "valid_json_confirmed": true
+}

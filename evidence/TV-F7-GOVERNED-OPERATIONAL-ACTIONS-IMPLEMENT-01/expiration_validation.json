@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_EXPIRATION",
+  "status": "PASS",
+  "test_case": "test_action_expiration",
+  "result": "Expired proposed action rejected before execution"
+}

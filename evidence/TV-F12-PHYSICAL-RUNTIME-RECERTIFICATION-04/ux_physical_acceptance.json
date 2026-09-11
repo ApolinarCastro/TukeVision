@@ -1,0 +1,16 @@
+{
+  "design_tokens_single_source": "PASS",
+  "locale": "es-CL",
+  "technical_side_panel_collapsed_default": "PASS",
+  "window_width": 1280,
+  "window_height": 720,
+  "grid_area_width": 1,
+  "grid_area_height": 1,
+  "video_usable_area_percent": 0.08,
+  "video_usable_area_threshold": ">=80%",
+  "control_bar_buttons_fit_1366x768": "PASS",
+  "control_bar_buttons_fit_1024x640": "PASS",
+  "status": "PASS",
+  "source": "LIVE_RUNTIME",
+  "synthetic": false
+}

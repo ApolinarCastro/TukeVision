@@ -1,0 +1,9 @@
+{
+  "gate": "F11_PRODUCTION_ROLLBACK",
+  "status": "PASS",
+  "flags": {
+    "PRODUCTION_MODE_ENABLED": false
+  },
+  "duration_seconds": 600,
+  "result": "System successfully operates in fallback mode without production mode flags"
+}

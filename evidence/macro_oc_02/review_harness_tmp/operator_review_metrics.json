@@ -1,0 +1,14 @@
+{
+  "classification_counts": {
+    "USEFUL_SIGNAL": 1
+  },
+  "human_review_evidence_sufficiency_measured": true,
+  "measured_at": "2026-08-21T20:50:53.320822+00:00",
+  "reviewed_records": 1,
+  "static_evidence_sufficiency": {
+    "NOT_AVAILABLE": 1
+  },
+  "temporal_evidence_sufficiency": {
+    "NOT_AVAILABLE": 1
+  }
+}

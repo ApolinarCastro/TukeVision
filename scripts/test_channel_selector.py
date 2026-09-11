@@ -106,7 +106,7 @@ def test_ac_ch_10_password_remains_encoded_redacted():
     host = "rtsp://192.0.2.10:554/cam/realmonitor"
     password = "SECRET_CANARY_CHANNEL_TEST"
     url = build_rtsp_url(host, "test_user", password, channel=5)
-    
+
     # Verify redaction works - password should not appear in redacted output
     redacted = redact_rtsp_url(url)
     assert password not in redacted, f"Password found in redacted: {redacted}"
@@ -121,24 +121,24 @@ def test_ac_ch_11_changing_channel_not_alter_credentials():
     host = "rtsp://192.0.2.10:554/cam/realmonitor"
     username = "test_user"
     password = "SECRET_CANARY_CHANNEL_TEST"
-    
+
     url1 = build_rtsp_url(host, username, password, channel=1)
     url5 = build_rtsp_url(host, username, password, channel=5)
     url7 = build_rtsp_url(host, username, password, channel=7)
-    
+
     # Verify credentials are consistent
     for url in [url1, url5, url7]:
         assert "test_user" in url
         # Password should be present (encoded or not depending on chars)
         assert password in url or any(c in url for c in "%")
-    
+
     # Verify redaction works consistently
     for url in [url1, url5, url7]:
         redacted = redact_rtsp_url(url)
         assert password not in redacted
         assert "test_user" not in redacted
         assert "REDACTED:REDACTED" in redacted
-    
+
     print("PASS: AC-CH-11 changing channel does not alter username/password")
     return True
 
@@ -194,13 +194,13 @@ def test_special_chars_in_password_with_channel():
     host = "rtsp://192.0.2.10:554/cam/realmonitor"
     username = "test_user"
     password = "P@ss:w%rd#1"
-    
+
     url = build_rtsp_url(host, username, password, channel=5)
     assert "channel=5" in url
     assert "subtype=1" in url
     # Password should be percent-encoded
     assert "P%40ss%3Aw%25rd%231" in url or "@" not in url.split("@")[-1]
-    
+
     print("PASS: special chars in password with channel")
     return True
 
@@ -238,10 +238,10 @@ def run_all_tests():
         test_special_chars_in_password_with_channel,
         test_host_with_existing_query_params,
     ]
-    
+
     passed = 0
     failed = 0
-    
+
     for test in tests:
         try:
             test()
@@ -249,7 +249,7 @@ def run_all_tests():
         except Exception as e:
             print(f"FAIL: {test.__name__}: {e}")
             failed += 1
-    
+
     print(f"\nResultado: {passed} PASS, {failed} FAIL")
     return failed == 0
 

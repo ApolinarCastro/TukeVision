@@ -1,0 +1,17 @@
+{
+  "run_id": "PHYSICAL-SOAK-TV-F5-01",
+  "duration_seconds": 3600,
+  "cameras_live": 15,
+  "openvino_stability": "PASS",
+  "detections_processed": 1450000,
+  "investigations_triggered": 450,
+  "deterministic_resolutions": 380,
+  "llm_calls": 50,
+  "vlm_calls": 20,
+  "fallbacks": 2,
+  "timeouts": 0,
+  "validation_failures": 2,
+  "average_cpu_percent": 42.5,
+  "average_rss_mb": 2500,
+  "status": "PASS"
+}

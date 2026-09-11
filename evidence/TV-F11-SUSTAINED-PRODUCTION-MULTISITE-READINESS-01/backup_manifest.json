@@ -1,0 +1,16 @@
+{
+  "backup_id": "BKP-20260829120000",
+  "site_ids": ["SITE-A", "SITE-B"],
+  "software_version": "3.11.0",
+  "schema_version": "2.0.0",
+  "configuration_hash": "c9284fa98bc101fe",
+  "included_stores": [
+    "configuration",
+    "evidence_metadata",
+    "experiences",
+    "actions",
+    "incidents"
+  ],
+  "excluded_secrets": ["password", "secret", "private_key", "rtsp_password", "token"],
+  "status": "VALIDATED"
+}

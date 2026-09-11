@@ -1,0 +1,9 @@
+{
+  "gate": "VIDEO_PIPELINE_INVENTORY",
+  "status": "PASS",
+  "channels_inventoried": 15,
+  "codecs": ["H.264"],
+  "transports": ["RTSP_TCP"],
+  "profiles_supported": ["main (subtype=0)", "sub (subtype=1)"],
+  "supervisor_state": "ACTIVE"
+}

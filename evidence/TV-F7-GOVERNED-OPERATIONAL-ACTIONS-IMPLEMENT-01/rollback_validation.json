@@ -1,0 +1,10 @@
+{
+  "gate": "ACTION_ROLLBACK",
+  "status": "PASS",
+  "flags": {
+    "ACTION_EXECUTION_ENABLED": false,
+    "AUTONOMY_2_ENABLED": false
+  },
+  "behavior": "Operational actions disabled; system gracefully operates at Phase 6 certified state without regression",
+  "duration_seconds": 300
+}

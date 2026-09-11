@@ -82,6 +82,21 @@ class FakeManager:
             self.running[camera] = False
 
 
+class RacingSnapshotManager(FakeManager):
+    """Expose a frame between two reads to reproduce the runtime race."""
+
+    def __init__(self, camera_id, snapshot):
+        super().__init__([camera_id])
+        self._snapshot = snapshot
+        self.snapshot_calls = 0
+
+    def snapshot(self, camera_id):
+        self.snapshot_calls += 1
+        if self.snapshot_calls == 1:
+            return None
+        return self._snapshot
+
+
 class TestPersistentEvidence(unittest.TestCase):
     def test_atomic_relative_sha_and_bounded_retention(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -108,6 +123,43 @@ class TestPersistentEvidence(unittest.TestCase):
 
 
 class TestEndToEndOperationalContract(unittest.TestCase):
+    def test_run_processes_and_emits_one_exact_snapshot_read(self):
+        """The callback must receive the exact snapshot used by the chain."""
+        with tempfile.TemporaryDirectory() as tmp:
+            snapshot = {
+                "camera_id": "CAM-01",
+                "frame_index": 0,
+                "frame": FRAME.copy(),
+                "state": "OPEN",
+                "fps": 15.0,
+                "resolution": "120x80",
+                "timestamp": 123.5,
+            }
+            manager = RacingSnapshotManager("CAM-01", snapshot)
+            cfg = config("data/runtime_evidence")
+            chain = AdvanceChain.build(
+                cfg,
+                manager,
+                evidence_store=PersistentEvidenceStore(str(Path(tmp) / "runtime"), 2),
+            )
+            runtime = OperationalPipeline(cfg, manager, chain=chain)
+            observed = []
+            stop = False
+
+            def on_result(camera_id, emitted_snapshot, result):
+                nonlocal stop
+                observed.append((camera_id, emitted_snapshot, result))
+                stop = True
+
+            runtime.run(lambda: stop, on_result)
+
+            self.assertEqual(manager.snapshot_calls, 2)
+            self.assertEqual(len(observed), 1)
+            camera_id, emitted_snapshot, result = observed[0]
+            self.assertIs(emitted_snapshot, snapshot)
+            self.assertEqual(camera_id, result["camera_id"])
+            self.assertEqual(emitted_snapshot["frame_index"], result["frame_index"])
+
     def test_four_camera_trace_and_isolation(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = str(Path(tmp) / "runtime")

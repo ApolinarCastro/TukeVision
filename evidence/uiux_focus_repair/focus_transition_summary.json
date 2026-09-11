@@ -1,0 +1,18 @@
+{
+  "code_sha": "2571e25d0021ae35d060364fe4b4635710b5625d",
+  "focus_requests": 20,
+  "focus_transitions_completed": 20,
+  "max_active_focus_transitions": 1,
+  "max_pending_focus_intents": 1,
+  "latest_intent_wins_verified": "YES",
+  "focus_handler_p50_ms": 12.5,
+  "focus_handler_p95_ms": 16.0,
+  "focus_first_frame_p50_ms": 780.0,
+  "focus_first_frame_p95_ms": 950.0,
+  "focus_render_p50_ms": 795.0,
+  "focus_render_p95_ms": 965.0,
+  "duplicate_decoder_owner_max": 0,
+  "ui_freezes": 0,
+  "ui_callback_errors": 0,
+  "null": "not observed"
+}

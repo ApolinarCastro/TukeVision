@@ -1,0 +1,8 @@
+{
+  "overall_health_derived": "DEGRADED",
+  "cpu_percent": 566.9,
+  "ram_percent": 93.7,
+  "status": "PASS",
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

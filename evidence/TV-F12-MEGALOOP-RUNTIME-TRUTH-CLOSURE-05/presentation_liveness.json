@@ -1,0 +1,82 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:17:45.768890+00:00",
+  "cameras": {
+    "cam_01": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_02": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_03": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_04": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_05": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_06": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_07": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_08": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_09": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_10": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_11": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_12": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_13": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_14": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    },
+    "cam_15": {
+      "presented_frame_sequence": 0,
+      "presented_at_epoch": 0.0,
+      "presentation_active": false
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-8E09AF",
+  "pid": 22604,
+  "started_at": "2026-08-28T18:26:05",
+  "started_at_unix": 1787955965.6753623,
+  "version": "v3-phase2-baseline-20260828-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

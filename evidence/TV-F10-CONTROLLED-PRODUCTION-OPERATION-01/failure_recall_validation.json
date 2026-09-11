@@ -1,0 +1,8 @@
+{
+  "gate": "PRODUCTION_FAILURE_RECALL",
+  "status": "PASS",
+  "test_case": "test_production_experience_governance_and_failure_recall",
+  "signature_matched": "cam_stall_sig",
+  "root_cause_retrieved": "buffer overflow",
+  "fix_reference_retrieved": "stream_reconnect"
+}

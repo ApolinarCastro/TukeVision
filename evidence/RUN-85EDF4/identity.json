@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-85EDF4",
+  "pid": 21336,
+  "started_at": "2026-08-30T19:58:33",
+  "started_at_unix": 1788134313.226326,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

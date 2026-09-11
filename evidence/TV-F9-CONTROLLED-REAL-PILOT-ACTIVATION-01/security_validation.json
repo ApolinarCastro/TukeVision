@@ -1,0 +1,13 @@
+{
+  "gate": "REAL_PILOT_SECURITY",
+  "status": "PASS",
+  "test_case": "test_real_site_source_security",
+  "checks": {
+    "no_plaintext_credentials": "PASS",
+    "mcp_read_only": "PASS",
+    "default_deny_actions": "PASS",
+    "autonomy_3_disabled": "PASS",
+    "kill_switch_active": "PASS",
+    "safe_mode_active": "PASS"
+  }
+}

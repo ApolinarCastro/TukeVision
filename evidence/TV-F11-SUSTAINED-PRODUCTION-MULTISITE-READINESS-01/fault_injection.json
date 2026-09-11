@@ -1,0 +1,17 @@
+{
+  "gate": "FAULT_INJECTION_CONTROLLED",
+  "status": "PASS",
+  "faults_tested": [
+    "site_camera_stall",
+    "site_source_unavailable",
+    "single_inference_worker_failure",
+    "reasoning_degradation",
+    "action_layer_failure",
+    "experience_store_temporary_failure",
+    "storage_warning",
+    "configuration_drift",
+    "upgrade_failure",
+    "restore_operation"
+  ],
+  "unexpected_crashes": 0
+}

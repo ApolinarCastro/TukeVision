@@ -1,0 +1,32 @@
+{
+  "benchmark_dataset_size": 100,
+  "results": {
+    "Qwen1.5-1.8B-Chat-GGUF": {
+      "unsupported_facts": 0,
+      "fact_inference_separation": "PASS",
+      "unknown_compliance": "PASS",
+      "latency_ms_avg": 450,
+      "cpu_overhead_percent": 15,
+      "rss_mb": 1800,
+      "stability": "HIGH"
+    },
+    "Llama-3-8B-Instruct-Q4_K_M": {
+      "unsupported_facts": 2,
+      "fact_inference_separation": "FAIL",
+      "unknown_compliance": "FAIL",
+      "latency_ms_avg": 1200,
+      "cpu_overhead_percent": 45,
+      "rss_mb": 5200,
+      "stability": "MEDIUM"
+    },
+    "Phi-3-mini-4k-instruct-q4": {
+      "unsupported_facts": 5,
+      "fact_inference_separation": "PASS",
+      "unknown_compliance": "FAIL",
+      "latency_ms_avg": 350,
+      "cpu_overhead_percent": 25,
+      "rss_mb": 2400,
+      "stability": "HIGH"
+    }
+  }
+}

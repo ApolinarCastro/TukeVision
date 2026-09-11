@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F10-001",
+    "component": "ProductionService",
+    "symptom": "Change hash calculation did not include operational_schedule field.",
+    "root_cause": "config_repr string omitted operational_schedule parameter.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "Added operational_schedule to config_repr hash computation.",
+    "regression_test": "test_configuration_immutability_and_change_control",
+    "result": "PASS"
+  }
+]

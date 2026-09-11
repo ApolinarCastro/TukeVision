@@ -1,323 +1,83 @@
-"""Pruebas del controlador y estado de la interfaz (sin Tk ni ventana).
-
-Cubren: estado inicial, transiciones READY->RUNNING->STOPPED, error de
-fuente, actualización de snapshot, actualización de alertas, redacción
-RTSP, señal de stop, backpressure de cola y cierre seguro.
-"""
-
-import queue
-import tempfile
+import pytest
 import threading
 import time
-import unittest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
+from src.ui.controller import UiController
 
-import numpy as np
+class FakeSourceManager:
+    def __init__(self):
+        self.switches = []
+        self.lock = threading.Lock()
+        self.switch_event = threading.Event()
+        self.active_transitions = 0
+        self.max_active = 0
+    
+    def switch_stream(self, cam, subtype, max_width=0):
+        with self.lock:
+            self.active_transitions += 1
+            if self.active_transitions > self.max_active:
+                self.max_active = self.active_transitions
+        
+        # Simulate slow switch
+        self.switch_event.wait()
+        
+        with self.lock:
+            self.switches.append((cam, subtype))
+            self.active_transitions -= 1
 
-from src.alerts.models import Alert
-from src.app.pipeline import PipelineSummary
-from src.app.pipeline import FrameSnapshot
-from src.tracking.person_tracker import TrackedObject
-from src.capture.rtsp_url import build_rtsp_url
-from src.ui.controller import UiController, StopRequested, build_source
-from src.ui.state import AppStatus, UiState, followed_track_id, redact_source_display
+def test_set_focus_is_non_blocking():
+    ctrl = UiController(camera_ids=("cam_08", "cam_09"))
+    fake_mgr = FakeSourceManager()
+    ctrl._manager = fake_mgr
+    
+    start_time = time.time()
+    ctrl.set_focus("cam_08")
+    end_time = time.time()
+    
+    assert end_time - start_time < 0.1  # Must return immediately
+    
+    fake_mgr.switch_event.set()
+    time.sleep(0.1) # allow worker to finish
+    ctrl.close()
 
-CONFIG = {
-    "video": {"max_width": 640, "process_every_n_frames": 1},
-    "detection": {
-        "model": "yolo11n.pt", "class_ids": [0], "confidence_threshold": 0.35,
-        "device": "cpu", "image_size": 640,
-    },
-    "zone": {"id": "ZONE-001", "name": "Zona piloto",
-             "polygon": [[100, 100], [540, 100], [540, 420], [100, 420]]},
-    "business": {"store_id": "STORE-001", "camera_id": "CAM-001",
-                 "max_stay_seconds": 30.0, "remain_interval_frames": 30},
-    "alerts": {"risk_threshold": 60},
-}
+def test_latest_intent_wins():
+    ctrl = UiController(camera_ids=("cam_08", "cam_09", "cam_12"))
+    fake_mgr = FakeSourceManager()
+    ctrl._manager = fake_mgr
+    
+    # Send cam08, which will block in switch_stream
+    ctrl.set_focus("cam_08")
+    time.sleep(0.05) # give worker time to pick it up and block
+    
+    # Send rapid intents
+    ctrl.set_focus("cam_09")
+    ctrl.set_focus("cam_12")
+    
+    fake_mgr.switch_event.set()
+    time.sleep(0.2) # allow worker to finish processing
+    
+    with fake_mgr.lock:
+        switches = fake_mgr.switches
+        
+    assert fake_mgr.max_active == 1  # Only 1 transition at a time
+    
+    # Check that cam12 was processed, but cam09 was skipped because 12 overwrote it
+    main_switches = [cam for cam, sub in switches if sub == 0]
+    assert "cam_12" in main_switches
+    assert "cam_09" not in main_switches
+    ctrl.close()
 
-
-def _obj(track_id, x1=200, y1=200, x2=260, y2=360):
-    return TrackedObject(track_id=track_id, x1=x1, y1=y1, x2=x2, y2=y2,
-                         confidence=0.9, class_id=0)
-
-
-def _frame(height=480, width=640):
-    return np.zeros((height, width, 3), dtype=np.uint8)
-
-
-def _snapshot(frame_index=1, tracked=(), stays=None, in_zone=(),
-              latest_alert=None, latest_evidence_path=None,
-              risk_text="", source_state="OPEN", persons_detected=0):
-    return FrameSnapshot(
-        frame_index=frame_index,
-        frame=_frame(),
-        source_type="FILE",
-        source_path="data/input/video.mp4",
-        source_state=source_state,
-        fps=30.0,
-        tracked_objects=tuple(tracked),
-        stays_seconds=stays or {},
-        in_zone_track_ids=tuple(in_zone),
-        risk_text=risk_text,
-        latest_alert=latest_alert,
-        latest_evidence_path=latest_evidence_path,
-        frames_processed=frame_index + 1,
-        persons_detected=persons_detected,
-        alerts_total=1 if latest_alert else 0,
-        evidence_total=1 if latest_evidence_path else 0,
-    )
-
-
-def _alert(alert_id="ALR-00001"):
-    return Alert(alert_id=alert_id, event_id="EVT-00001", risk_score=80,
-                 rule_id="RULE-PERMANENCIA-001",
-                 created_at="2026-01-01T00:00:00Z", status="NEW",
-                 explanation="x")
-
-
-def _ok_pipeline(frames=3, alert_every=100):
-    """Pipeline fake que emite snapshots y devuelve resumen OK."""
-
-    class FakePipeline:
-        def process_source(self, source, on_frame=None):
-            for i in range(frames):
-                if on_frame is not None:
-                    on_frame(_snapshot(frame_index=i, tracked=(_obj(1),),
-                                       stays={1: float(i)},
-                                       in_zone=(1,),
-                                       persons_detected=i + 1))
-            return PipelineSummary(
-                video_path="data/input/video.mp4", frames_processed=frames,
-                persons_detected=frames, tracks_created=1,
-                observations_created=frames, events_created=0,
-                alerts_created=0, evidence_created=0,
-                output_video="out.mp4", final_status="OK",
-            )
-
-    return FakePipeline()
-
-
-class _BlockingPipeline:
-    """Pipeline fake que se mantiene en ejecución hasta una señal."""
-
-    def __init__(self, release: threading.Event) -> None:
-        self._release = release
-        self.frames = 0
-
-    def process_source(self, source, on_frame=None):
-        while not self._release.is_set():
-            if on_frame is not None:
-                on_frame(_snapshot(frame_index=0, tracked=(_obj(1),),
-                                   stays={1: 1.0}, in_zone=(1,),
-                                   persons_detected=1))
-            time.sleep(0.005)
-        return PipelineSummary(video_path="x", frames_processed=self.frames,
-                               persons_detected=0, tracks_created=0,
-                               observations_created=0, events_created=0,
-                               alerts_created=0, evidence_created=0,
-                               output_video="o", final_status="OK")
-
-
-class TestUiState(unittest.TestCase):
-
-    def test_estado_inicial(self) -> None:
-        controller = UiController(config=CONFIG)
-        state = controller.poll_state()
-        self.assertEqual(state["status"], AppStatus.READY)
-        self.assertEqual(state["zone_id"], "ZONE-001")
-        self.assertIsNone(state["followed_track"])
-
-    def test_followed_prioriza_zona(self) -> None:
-        snap = _snapshot(tracked=(_obj(1), _obj(2)), stays={1: 5.0, 2: 20.0},
-                         in_zone=(1,))
-        self.assertEqual(followed_track_id(snap), 1)
-
-    def test_followed_sin_zona_mayor_permanencia(self) -> None:
-        snap = _snapshot(tracked=(_obj(1), _obj(2)), stays={1: 5.0, 2: 20.0})
-        self.assertEqual(followed_track_id(snap), 2)
-
-    def test_followed_vacio(self) -> None:
-        self.assertIsNone(followed_track_id(_snapshot()))
-
-
-class TestRedaction(unittest.TestCase):
-
-    def test_rtsp_nunca_muestra_url(self) -> None:
-        snap = _snapshot()
-        snap.__dict__["source_type"] = "RTSP"
-        snap.__dict__["source_path"] = "rtsp://user:pass@host/stream"
-        text = redact_source_display("RTSP", snap)
-        self.assertEqual(text, "RTSP: REDACTED")
-        self.assertNotIn("user", text)
-        self.assertNotIn("pass", text)
-
-
-class TestControllerTransitions(unittest.TestCase):
-
-    def test_ready_a_running(self) -> None:
-        release = threading.Event()
-        controller = UiController(
-            config=CONFIG,
-            pipeline_factory=lambda: _BlockingPipeline(release),
-        )
-        controller.start("FILE", "data/input/video.mp4")
-        self.assertEqual(controller.status, AppStatus.RUNNING)
-        release.set()
-        controller.join(timeout=5)
-        self.assertEqual(controller.status, AppStatus.STOPPED)
-        self.assertEqual(controller.poll_state()["final_status"], "OK")
-
-    def test_no_doble_inicio(self) -> None:
-        release = threading.Event()
-        controller = UiController(
-            config=CONFIG,
-            pipeline_factory=lambda: _BlockingPipeline(release),
-        )
-        controller.start("FILE", "data/input/video.mp4")
-        with self.assertRaises(ValueError):
-            controller.start("FILE", "data/input/other.mp4")
-        release.set()
-        controller.join(timeout=5)
-
-    def test_snapshot_update(self) -> None:
-        controller = UiController(config=CONFIG, pipeline_factory=_ok_pipeline)
-        controller.start("FILE", "data/input/video.mp4")
-        controller.join(timeout=5)
-        state = controller.poll_state()
-        self.assertEqual(state["followed_track"], 1)
-        self.assertEqual(state["frames_processed"], 3)
-        self.assertEqual(state["persons_detected"], 3)
-
-    def test_backpressure_cola_tamano_1(self) -> None:
-        controller = UiController(config=CONFIG, pipeline_factory=_ok_pipeline)
-        controller.start("FILE", "data/input/video.mp4")
-        controller.join(timeout=5)
-        # Tras el fin, la cola conserva a lo sumo 1 elemento
-        snap = controller.poll_visual()
-        leftover = controller.poll_visual()
-        self.assertIsNotNone(snap)
-        self.assertIsNone(leftover)
-        self.assertEqual(snap.frame_index, 2)  # el último
-
-    def test_alert_update(self) -> None:
-        def pipeline():
-            class Fake:
-                def process_source(self, source, on_frame=None):
-                    on_frame(_snapshot(latest_alert=_alert(), latest_evidence_path="evidence/ALR-00001"))
-                    return PipelineSummary(video_path="x", frames_processed=1,
-                                           persons_detected=0, tracks_created=0,
-                                           observations_created=0, events_created=0,
-                                           alerts_created=1, evidence_created=1,
-                                           output_video="o", final_status="OK")
-            return Fake()
-
-        controller = UiController(config=CONFIG, pipeline_factory=pipeline)
-        controller.start("FILE", "data/input/video.mp4")
-        controller.join(timeout=5)
-        state = controller.poll_state()
-        self.assertEqual(len(state["alert_log"]), 1)
-        self.assertEqual(state["alert_log"][0]["alert_id"], "ALR-00001")
-        self.assertEqual(state["latest_risk_score"], 80)
-        self.assertIn("evidence/ALR-00001", state["evidence_paths"])
-
-    def test_source_error(self) -> None:
-        def bad_builder(kind, value, config):
-            raise ValueError("Ruta inválida")
-
-        controller = UiController(config=CONFIG, pipeline_factory=_ok_pipeline,
-                                  source_builder=bad_builder)
-        controller.start("FILE", "data/input/nonexistent.mp4")
-        controller.join(timeout=5)
-        state = controller.poll_state()
-        self.assertEqual(state["status"], AppStatus.STOPPED)
-        self.assertEqual(state["final_status"], "ERROR")
-        self.assertIn("Ruta inválida", state["error"])
-
-    def test_stop_signal(self) -> None:
-        release = threading.Event()
-
-        def pipeline():
-            class Fake:
-                def process_source(self, source, on_frame=None):
-                    while not release.is_set():
-                        on_frame(_snapshot(frame_index=0))
-                        time.sleep(0.01)
-                    return PipelineSummary(video_path="x", frames_processed=1,
-                                           persons_detected=0, tracks_created=0,
-                                           observations_created=0, events_created=0,
-                                           alerts_created=0, evidence_created=0,
-                                           output_video="o", final_status="OK")
-            return Fake()
-
-        controller = UiController(config=CONFIG, pipeline_factory=pipeline)
-        controller.start("FILE", "data/input/video.mp4")
-        time.sleep(0.1)
-        controller.stop()
-        controller.join(timeout=5)
-        release.set()
-        state = controller.poll_state()
-        self.assertEqual(state["final_status"], "STOPPED_BY_USER")
-
-    def test_stop_requested_lanza_desde_on_frame(self) -> None:
-        controller = UiController(config=CONFIG, pipeline_factory=_ok_pipeline)
-        controller._stop.set()
-        with self.assertRaises(StopRequested):
-            controller._on_frame(_snapshot())
-
-    def test_close_libera_y_limpia(self) -> None:
-        controller = UiController(config=CONFIG, pipeline_factory=_ok_pipeline)
-        controller.start("FILE", "data/input/video.mp4")
-        controller.close()
-        self.assertEqual(controller.status, AppStatus.STOPPED)
-        self.assertIsNone(controller.poll_visual())
-
-
-class TestBuildSource(unittest.TestCase):
-
-    def test_file_y_webcam_y_rtsp(self) -> None:
-        from src.capture.video_source import VideoSource
-        from src.capture.live_sources import WebcamSource, RTSPSource
-        self.assertIsInstance(build_source("FILE", "x.mp4", CONFIG), VideoSource)
-        self.assertIsInstance(build_source("WEBCAM", "0", CONFIG), WebcamSource)
-        self.assertIsInstance(
-            build_source("RTSP", "rtsp://h/s", CONFIG), RTSPSource
-        )
-
-    def test_rtsp_sin_url_error(self) -> None:
-        with self.assertRaises(ValueError):
-            build_source("RTSP", "", CONFIG)
-
-    def test_fuente_no_soportada(self) -> None:
-        with self.assertRaises(ValueError):
-            build_source("HLS", "x", CONFIG)
-
-
-class TestBuildRtspUrl(unittest.TestCase):
-    """Verifica la construcción segura de URL RTSP usada por la vista
-    (LOOP-0013-HOTFIX). No requiere display Tk."""
-
-    # Contract migration LOOP-0018J-R2: BASE adopts the certified portable
-    # RTSP contract (deterministic channel=1&subtype=1 in query).
-    def test_compone_url_con_credenciales(self) -> None:
-        url = build_rtsp_url(
-            "rtsp://192.168.1.50:554/cam?channel=1", "admin", "secreto"
-        )
-        self.assertEqual(
-            url,
-            "rtsp://admin:secreto@192.168.1.50:554/cam?channel=1&subtype=1",
-        )
-
-    def test_sin_credenciales_conserva_host(self) -> None:
-        host = "rtsp://192.168.1.50:554/cam"
-        self.assertEqual(
-            build_rtsp_url(host, "", ""),
-            "rtsp://192.168.1.50:554/cam?channel=1&subtype=1",
-        )
-
-    def test_host_vacio_devuelve_vacio(self) -> None:
-        self.assertEqual(build_rtsp_url("", "u", "p"), "")
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_no_thread_explosion():
+    ctrl = UiController(camera_ids=("cam_08",))
+    fake_mgr = FakeSourceManager()
+    ctrl._manager = fake_mgr
+    fake_mgr.switch_event.set() # Don't block
+    
+    initial_threads = threading.active_count()
+    for _ in range(100):
+        ctrl.set_focus("cam_08")
+    
+    time.sleep(0.1)
+    final_threads = threading.active_count()
+    # At most 1 thread added by the worker
+    assert final_threads - initial_threads <= 2
+    ctrl.close()

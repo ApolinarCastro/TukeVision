@@ -1,0 +1,12 @@
+{
+  "gate": "PRODUCTION_ACTION_POLICY",
+  "status": "PASS",
+  "default_deny": true,
+  "autonomy_levels": {
+    "AUTONOMY_0": "ENABLED",
+    "AUTONOMY_1": "ENABLED",
+    "AUTONOMY_2": "ENABLED_BY_POLICY_ONLY",
+    "AUTONOMY_3": "DISABLED"
+  },
+  "result": "Production action policy preserves allowlist integrity and blocks Autonomy 3"
+}

@@ -1,0 +1,25 @@
+{
+  "dataset_frames": 600,
+  "onnx": {
+    "functional_gate": "PASS",
+    "match_rate_pct": 97.0,
+    "avg_iou": 0.9815312189072601,
+    "avg_conf_diff": 0.020496044041854993,
+    "exact_matches": 567,
+    "minor_drift": 15,
+    "mismatches": 18,
+    "missed_detections": 14,
+    "extra_detections": 21
+  },
+  "openvino": {
+    "functional_gate": "PASS",
+    "match_rate_pct": 97.33333333333334,
+    "avg_iou": 0.9771786517124039,
+    "avg_conf_diff": 0.020457121663623387,
+    "exact_matches": 567,
+    "minor_drift": 17,
+    "mismatches": 16,
+    "missed_detections": 13,
+    "extra_detections": 22
+  }
+}

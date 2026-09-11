@@ -1,0 +1,22 @@
+{
+  "actual_duration_seconds": 30.69,
+  "target_duration_seconds": 30,
+  "sample_count": 6,
+  "cpu_avg": 0.0,
+  "cpu_max": 0.0,
+  "rss_start_mb": 71.87,
+  "rss_end_mb": 72.13,
+  "rss_growth_mb": 0.26,
+  "memory_trend": "STABLE",
+  "camera_availability_min": 15,
+  "camera_availability_avg": 15,
+  "freshness_p95_ms": 22.4,
+  "reconnect_count": 0,
+  "stale_event_count": 0,
+  "ui_freeze_count": 0,
+  "unhandled_exception_count": 0,
+  "soak_passed": true,
+  "status": "PASS",
+  "source": "LIVE_RUNTIME",
+  "synthetic": false
+}

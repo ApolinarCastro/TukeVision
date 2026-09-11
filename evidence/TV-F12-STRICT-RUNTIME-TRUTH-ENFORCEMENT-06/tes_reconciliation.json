@@ -1,0 +1,15 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T20:14:02.494303+00:00",
+  "execution_id": "TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06",
+  "capabilities_evaluated": 13,
+  "capabilities_certified": 10,
+  "capabilities_physically_validated": 1,
+  "capabilities_contract_ready": 1,
+  "capabilities_target": 1,
+  "false_certifications": 0,
+  "incident_history_preserved": true,
+  "radar_reconciled": true,
+  "status": "PASS"
+}

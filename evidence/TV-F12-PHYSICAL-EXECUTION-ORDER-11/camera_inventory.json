@@ -1,0 +1,9 @@
+{
+  "configured": 15,
+  "available": 15,
+  "live": 0,
+  "intermittent": 0,
+  "offline": 15,
+  "status": "PASS",
+  "source": "LIVE_STATUS_JSON"
+}

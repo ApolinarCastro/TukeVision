@@ -1,0 +1,23 @@
+{
+  "gate": "SCREENSHOT_BASELINE_ANALYSIS",
+  "status": "PASS",
+  "observations": {
+    "configured_cameras": 15,
+    "live_cameras_range": "14/15 to 15/15",
+    "effective_fps_range": "6.7 to 8.0 FPS",
+    "displayed_resolution": "352x240",
+    "cpu_observed_range": "50% - 58%",
+    "ram_observed_range": "84% - 96%",
+    "health_states": "Alternating HEALTH OK / HEALTH DEGRADED",
+    "yolo_detections_visible": true,
+    "track_ids_visible": true,
+    "grid_layouts": "1, 4, 6, 9, 15, 16 presets"
+  },
+  "identified_gaps": [
+    "Spatial scene and 2D floor plan not visually exposed",
+    "Agent Monitor investigation reasoning hidden in logs",
+    "Evidence bundle inspection unavailable in UI",
+    "Health degraded lacked granular drill-down",
+    "Focus mode lacked HD stream escalation"
+  ]
+}

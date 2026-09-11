@@ -1,0 +1,6 @@
+{
+  "gate": "PRODUCTION_AGENT_KILL_SWITCH",
+  "status": "PASS",
+  "agent_enabled": false,
+  "result": "Agent kill switch disables reasoning and agentic monitor while preserving perception, tracking, and spatial pipeline"
+}

@@ -4,9 +4,12 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Tuple
 
 from src.app.advance_chain import AdvanceChain
+
+
+_SNAPSHOT_UNSET = object()
 
 
 @dataclass(frozen=True)
@@ -26,27 +29,44 @@ class OperationalPipeline:
         chain: Optional[AdvanceChain] = None,
         poll_interval_s: float = 0.01,
         review_target: Any = None,
+        on_received: Optional[Callable[[str, int], None]] = None,
     ) -> None:
         self._manager = source_manager
         self._chain = chain or AdvanceChain.build(
             config, source_manager, review_target=review_target
         )
         self._poll_interval_s = max(0.001, float(poll_interval_s))
-        self._last_frame: Dict[str, int] = {}
+        self._last_frame: Dict[str, Tuple[int, int]] = {}
         self._closed = False
+        self._on_received = on_received
 
     def start(self) -> None:
-        for camera_id in self._chain.register_from_source_manager():
+        # BLOCK H: staggered start to avoid 15 simultaneous RTSP handshakes
+        ids = list(self._chain.register_from_source_manager())
+        for idx, camera_id in enumerate(ids):
+            if idx > 0:
+                time.sleep(0.35)
             self._manager.start(camera_id)
 
-    def process_available(self, camera_id: str) -> Optional[Dict[str, Any]]:
-        snapshot = self._manager.snapshot(camera_id)
+    def process_available(
+        self,
+        camera_id: str,
+        snapshot: Any = _SNAPSHOT_UNSET,
+    ) -> Optional[Dict[str, Any]]:
+        if snapshot is _SNAPSHOT_UNSET:
+            snapshot = self._manager.snapshot(camera_id)
         if not snapshot:
             return None
         frame_index = int(snapshot["frame_index"])
-        if frame_index <= self._last_frame.get(camera_id, -1):
+        generation = int(snapshot.get("generation", 0) or 0)
+        last_gen, last_idx = self._last_frame.get(camera_id, (-1, -1))
+        if generation < last_gen:
             return None
-        self._last_frame[camera_id] = frame_index
+        if generation == last_gen and frame_index <= last_idx:
+            return None
+        if snapshot.get("frame") is not None and self._on_received is not None:
+            self._on_received(camera_id, frame_index)
+        self._last_frame[camera_id] = (generation, frame_index)
         metadata = {
             "source_state": snapshot.get("state", "OPEN"),
             "resolution": snapshot.get("resolution", ""),
@@ -72,7 +92,7 @@ class OperationalPipeline:
                 for item in self._manager.list_sources():
                     camera_id = item["camera_id"]
                     snapshot = self._manager.snapshot(camera_id)
-                    result = self.process_available(camera_id)
+                    result = self.process_available(camera_id, snapshot=snapshot)
                     if result is not None:
                         active = True
                         processed += 1

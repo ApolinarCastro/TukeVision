@@ -1,0 +1,12 @@
+{
+  "gate": "PASS",
+  "component": "MCP_LOCAL_READ_ONLY",
+  "execution_id": "TV-F3-OPERATIONAL-INTELLIGENCE-IMPLEMENT-01",
+  "tests_passed": 4,
+  "get_store_scene_state": "verified",
+  "search_evidence": "verified",
+  "get_evidence_bundle": "verified",
+  "read_only_protection": "verified",
+  "test_script": "test_mcp_server.py",
+  "timestamp": "2026-08-28T20:38:30Z"
+}

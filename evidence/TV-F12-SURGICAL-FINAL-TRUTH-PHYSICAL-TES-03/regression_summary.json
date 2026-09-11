@@ -1,0 +1,10 @@
+{
+  "total_executed": 954,
+  "passed": 950,
+  "failed": 0,
+  "errors": 0,
+  "skipped": 4,
+  "subtests_passed": 15,
+  "test_duration_seconds": 186.45,
+  "status": "100%_OPERATIONAL_PASS"
+}

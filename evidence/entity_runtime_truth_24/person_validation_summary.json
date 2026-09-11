@@ -1,0 +1,22 @@
+{
+  "validator_connected": true,
+  "states_tested": [
+    "PERSON_MOVING",
+    "PERSON_STATIONARY", 
+    "LIKELY_SCENE_FIXTURE",
+    "AMBIGUOUS_PERSON_LIKE"
+  ],
+  "test_results": {
+    "static_fixture_becomes_fixture": true,
+    "static_fixture_no_dwell": true,
+    "small_jitter_not_motion": true,
+    "real_person_moving": true,
+    "real_person_stopping_stationary": true,
+    "fixture_moved_revalidated": true,
+    "closed_store_unexpected_activity": true,
+    "closed_store_not_disabled": true
+  },
+  "recent_window_frames": 30,
+  "fixture_persistence_seconds_configurable": true,
+  "entry_observed_independent": true
+}

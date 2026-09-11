@@ -1,0 +1,7 @@
+{
+  "gate": "CONTROLLED_MAINTENANCE",
+  "status": "PASS",
+  "window_id": "MNT-20260829-01",
+  "lifecycle_verified": ["PLANNED", "ACTIVE", "COMPLETED"],
+  "evidence_and_audit_preserved": true
+}

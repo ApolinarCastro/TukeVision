@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-08-29T12:05:09.617187",
+  "phase": "F4-AGENT-MONITOR",
+  "regression_status": "PASS",
+  "resource_budget": {
+    "baseline": {
+      "rss_mb": 304.15234375,
+      "cpu_percent": 0.0
+    },
+    "agent_on": {
+      "rss_mb": 304.18359375,
+      "cpu_percent": 0.0
+    },
+    "agent_off": {
+      "rss_mb": 304.23828125,
+      "cpu_percent": 0.0
+    },
+    "time_overhead_ms_per_candidate": 0.6248211860656738
+  }
+}

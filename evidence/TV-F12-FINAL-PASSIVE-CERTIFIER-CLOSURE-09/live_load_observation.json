@@ -1,0 +1,7 @@
+{
+  "process_cpu_percent": 815.4,
+  "process_rss_mb": 600.0,
+  "system_ram_percent": 61.0,
+  "source": "LIVE_RESOURCE_TELEMETRY_OBSERVER",
+  "synthetic": false
+}

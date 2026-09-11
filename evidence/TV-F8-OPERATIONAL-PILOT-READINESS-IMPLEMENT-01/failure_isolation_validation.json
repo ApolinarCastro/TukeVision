@@ -1,0 +1,5 @@
+{
+  "gate": "PILOT_FAILURE_ISOLATION",
+  "status": "PASS",
+  "result": "Failure in PilotMetrics or PilotReport components does not affect camera ingestion, OpenVINO inference, tracking, or Governed Actions"
+}

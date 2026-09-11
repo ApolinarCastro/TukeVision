@@ -1,0 +1,8 @@
+{
+  "DEFAULT_REAL_RUNTIME_VISIT_ROLE": "NOT_OBSERVED",
+  "STAFF_CONFIRMED_PHYSICAL_TEST": "BLOCKED_NO_OPERATOR_LAUNCH",
+  "STAFF_VISIT_ROLE": null,
+  "STAFF_CUSTOMER_ANALYTICS_ELIGIBLE": null,
+  "STAFF_TRACKING_VISIBLE": null,
+  "block_reason": "No physical VIS-* selected, no UI action executed headless"
+}

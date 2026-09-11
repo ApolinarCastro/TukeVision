@@ -1,0 +1,10 @@
+{
+  "gate": "REPEATABLE_DEPLOYMENT_PACKAGE",
+  "status": "PASS",
+  "package_id": "PKG-NICOPOLY-01",
+  "schema_version": "2.0.0",
+  "software_version": "3.11.0",
+  "package_hash": "a4f8c92e10db5678",
+  "plaintext_secrets_present": false,
+  "verified_at": "2026-08-29T11:24:20Z"
+}

@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-08-27T16:13:47.231771",
+  "clean_start_gate": "PASS",
+  "tukevision_processes": 0,
+  "ffmpeg_processes": 0,
+  "details": {
+    "tukevision_pids": [],
+    "ffmpeg_pids": []
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "soak_conforming": true,
+  "regression_passed": true,
+  "zero_fake_passed": true,
+  "focus_main_passed": false,
+  "focus_hd_passed": false,
+  "liveness_passed": false,
+  "grid6_passed": true,
+  "final_closure_allowed": false,
+  "recommended_verdict": "TV_F12_RUNTIME_TRUTH_CLOSED_WITH_EXTERNAL_LIMITATIONS"
+}

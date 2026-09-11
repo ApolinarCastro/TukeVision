@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-A7FCF6",
+  "pid": 25408,
+  "started_at": "2026-08-30T19:28:57",
+  "started_at_unix": 1788132537.2994263,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

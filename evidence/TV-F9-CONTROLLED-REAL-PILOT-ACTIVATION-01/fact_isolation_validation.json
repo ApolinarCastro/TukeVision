@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_FACT_ISOLATION",
+  "status": "PASS",
+  "test_case": "test_real_pilot_fact_isolation",
+  "result": "Historical experience provided as context remains strictly separated from CURRENT_FACT"
+}

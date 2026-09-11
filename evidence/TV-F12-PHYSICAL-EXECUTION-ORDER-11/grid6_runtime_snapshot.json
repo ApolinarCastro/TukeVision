@@ -1,0 +1,9 @@
+{
+  "layout_mode": "GRID",
+  "visible_tiles": 6,
+  "empty_tiles": 0,
+  "overlap_count": 0,
+  "clipped_count": 0,
+  "dead_space_percent": 0.0,
+  "source": "OPERATOR_ATTESTATION"
+}

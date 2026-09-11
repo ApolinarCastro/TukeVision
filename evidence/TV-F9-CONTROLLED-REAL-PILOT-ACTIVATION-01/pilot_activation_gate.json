@@ -1,0 +1,14 @@
+{
+  "gate": "PILOT_ACTIVATION_GATE",
+  "status": "PASS",
+  "criteria_evaluated": [
+    "CLIENT_OPERATIONAL_INPUT_VALIDATION",
+    "REAL_SITE_SOURCE_SECURITY",
+    "SITE_CONFIGURATION",
+    "PILOT_SECURITY_READINESS",
+    "PILOT_PRIVACY",
+    "REAL_OPERATOR_ROLE_GOVERNANCE",
+    "REAL_SITE_DRY_RUN"
+  ],
+  "result": "Activation gate evaluates all prerequisites with fail-closed safety"
+}

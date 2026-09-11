@@ -1,0 +1,50 @@
+[
+  {
+    "evidence_ref": "CAM-001/EVD-998598A6FFE846A6A8C190B4C7AF35A9/frame.jpg",
+    "review_id": "SRR-9e13d29b2d49773029da",
+    "sha256": "9ee9f0197ba37f3ae6f84c22563d42c907680aab0a9c7a6ab9b3f885383d12db",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-001/EVD-1A4A89772C2549DE8AFCC570AE692EE4/frame.jpg",
+    "review_id": "SRR-9e13d29b2d49773029da",
+    "sha256": "1f81ec9118618ccbead95acb663052028ddf790e97e8440ebfbf07411ab1796e",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-002/EVD-7AE94AA38F834E98BF97725DA40B6C15/frame.jpg",
+    "review_id": "SRR-e647e693005964499942",
+    "sha256": "6bd837093f1e04a45d2c19d2d7f9510ddcacfc45c3b8b81385374e395f02503b",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-002/EVD-250CA76AD4FF4B6B9CA0A532A3E14989/frame.jpg",
+    "review_id": "SRR-e647e693005964499942",
+    "sha256": "4cac46d32a92e3ad531b448d56e9ef57b22ed304af48ae213228509c9ca21bfa",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-003/EVD-152DC8BC61974090885548C0C82D510B/frame.jpg",
+    "review_id": "SRR-b707a893cc9ea693a1cd",
+    "sha256": "3fe54ab541f55aa409b08258c8fc27a807c21524908001b1fe3f06a166157da6",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-003/EVD-48A209A25E5448008CCA3C93F56BC0F0/frame.jpg",
+    "review_id": "SRR-b707a893cc9ea693a1cd",
+    "sha256": "633a640e331dbcbe9f2c55915b4346246704af866d54e6e95481873439cc670b",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-004/EVD-5729A19C789E4C379E6E14D4A896A1AC/frame.jpg",
+    "review_id": "SRR-dea2625221d9d4960fb7",
+    "sha256": "c93c56f03bd6be359ffa2ca837a3779a6c7179ac4329e12a220ff6d62197174e",
+    "verified": true
+  },
+  {
+    "evidence_ref": "CAM-004/EVD-725AA586F3774C89BD1E4E25AB940494/frame.jpg",
+    "review_id": "SRR-dea2625221d9d4960fb7",
+    "sha256": "9f3c3096203899812cef9e13d6ad942e672f78fb13f0fa9acacc7a677230e4ea",
+    "verified": true
+  }
+]

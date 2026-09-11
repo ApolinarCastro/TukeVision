@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_SAFE_MODE",
+  "status": "PASS",
+  "agent_mode": "SAFE",
+  "result": "Agent in safe mode; all automated actions blocked from execution"
+}

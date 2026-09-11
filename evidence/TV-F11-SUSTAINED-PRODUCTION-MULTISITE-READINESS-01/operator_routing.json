@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_OPERATOR_ROUTING",
+  "status": "PASS",
+  "routing_strategy": "site_id + active operator availability",
+  "routed_investigations": 120,
+  "successful_routings": 120
+}

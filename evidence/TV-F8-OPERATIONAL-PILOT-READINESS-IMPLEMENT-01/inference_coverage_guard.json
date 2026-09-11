@@ -1,0 +1,6 @@
+{
+  "gate": "INFERENCE_COVERAGE_GUARD",
+  "status": "PASS",
+  "test_case": "test_inference_coverage_guard",
+  "guard_action": "Detects ACTIVE_CAMERA_WITHOUT_INFERENCE and alerts before silent failure propagates"
+}

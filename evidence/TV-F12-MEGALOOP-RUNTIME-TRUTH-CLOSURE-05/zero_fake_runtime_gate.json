@@ -1,0 +1,18 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:19:21.971671+00:00",
+  "static_checks": {
+    "no_fake_situations_in_ui": true,
+    "no_fake_ids": true
+  },
+  "runtime_counters": {
+    "events_received": 0,
+    "tracks_received": 0,
+    "situations_received": 0,
+    "situations_rendered": 0,
+    "ui_created_situations": 0
+  },
+  "zero_fake_passed_derived": true,
+  "status": "PASS"
+}

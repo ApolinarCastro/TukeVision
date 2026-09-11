@@ -1,0 +1,21 @@
+{
+  "benchmark_dataset_size": 100,
+  "results": {
+    "Qwen-VL-Chat-Int4": {
+      "unsupported_visual_claims": 8,
+      "object_grounding": "MEDIUM",
+      "latency_ms_avg": 2500,
+      "cpu_overhead_percent": 60,
+      "rss_mb": 6000,
+      "stability": "MEDIUM"
+    },
+    "Moondream2": {
+      "unsupported_visual_claims": 0,
+      "object_grounding": "HIGH",
+      "latency_ms_avg": 850,
+      "cpu_overhead_percent": 20,
+      "rss_mb": 1400,
+      "stability": "HIGH"
+    }
+  }
+}

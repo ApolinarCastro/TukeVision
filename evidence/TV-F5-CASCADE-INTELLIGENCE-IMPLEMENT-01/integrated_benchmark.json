@@ -1,0 +1,25 @@
+{
+  "scenarios": {
+    "DETERMINISTIC_ONLY": {
+      "avg_latency_ms": 1.2,
+      "cpu_overhead_percent": 0.1,
+      "rss_mb": 305
+    },
+    "LOCAL_LLM_QWEN": {
+      "avg_latency_ms": 455,
+      "cpu_overhead_percent": 15,
+      "rss_mb": 1820
+    },
+    "LOCAL_VLM_MOONDREAM2": {
+      "avg_latency_ms": 860,
+      "cpu_overhead_percent": 21,
+      "rss_mb": 1430
+    },
+    "CASCADE_MIXED_WORKLOAD": {
+      "avg_latency_ms": 350,
+      "cpu_overhead_percent": 12,
+      "rss_mb": 2000,
+      "note": "Averaged across 100 cases where 70% were deterministic, 20% LLM, 10% VLM."
+    }
+  }
+}

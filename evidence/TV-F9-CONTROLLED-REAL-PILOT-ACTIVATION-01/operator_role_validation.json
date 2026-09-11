@@ -1,0 +1,12 @@
+{
+  "gate": "REAL_OPERATOR_ROLE_GOVERNANCE",
+  "status": "PASS",
+  "test_case": "test_real_operator_role_and_authorization",
+  "authorizations": {
+    "VIEWER": "READ_ONLY",
+    "OPERATOR": "READ_REVIEW_ACKNOWLEDGE",
+    "SUPERVISOR": "READ_REVIEW_GOVERNED_APPROVAL",
+    "ADMIN": "SITE_CONFIG_ADMIN"
+  },
+  "result": "Unauthorized approvals by VIEWER or automated actors strictly rejected"
+}

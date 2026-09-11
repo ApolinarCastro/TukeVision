@@ -1,0 +1,6 @@
+{
+  "gate": "OPERATIONAL_UI",
+  "status": "PASS",
+  "modes_active": ["GRID", "FOCUS", "OPERATIONAL", "MAP", "INVESTIGATIONS", "EVIDENCE", "SYSTEM"],
+  "smart_overlays": "Detection (DET 0.xx) and Tracking (TRK id) cleanly separated without scene clutter"
+}

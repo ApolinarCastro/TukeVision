@@ -1,0 +1,10 @@
+{
+  "gate": "REAL_PILOT_RESTART_STABILITY",
+  "status": "PASS",
+  "restart_duration_seconds": 2,
+  "site_configuration_recovered": true,
+  "pilot_metadata_recovered": true,
+  "operator_outcomes_recovered": true,
+  "experience_store_preserved": true,
+  "action_audit_preserved": true
+}

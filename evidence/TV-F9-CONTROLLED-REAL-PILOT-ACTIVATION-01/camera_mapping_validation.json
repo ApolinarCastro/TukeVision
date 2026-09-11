@@ -1,0 +1,8 @@
+{
+  "gate": "CAMERA_MAPPING_VALIDATION",
+  "status": "PASS",
+  "test_case": "test_camera_mapping_validation",
+  "cameras_mapped": 15,
+  "zones_covered": ["zone_entrance", "zone_checkout", "zone_aisle_01", "zone_storage"],
+  "result": "Camera to zone mappings validated; invalid mappings fail closed"
+}

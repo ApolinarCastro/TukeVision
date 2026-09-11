@@ -1,0 +1,16 @@
+{
+  "runtime_counters": {
+    "detections_received": 2719,
+    "tracks_received": 2522,
+    "events_received": 11879,
+    "situations_received": "NOT_INSTRUMENTED",
+    "situations_rendered": "NOT_INSTRUMENTED"
+  },
+  "runtime_counters_status": "PARTIAL",
+  "negative_tests_status": "PASS",
+  "static_prohibited_paths": 0,
+  "zero_fake_passed_derived": true,
+  "status": "PASS",
+  "source": "MULTI_SOURCE_EVIDENCE_VALIDATION",
+  "synthetic": false
+}

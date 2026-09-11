@@ -1,0 +1,7 @@
+{
+  "gate": "CONFIGURATION_ROLLBACK",
+  "status": "PASS",
+  "rollback_tested": true,
+  "prior_hash_restored": true,
+  "result": "PASS"
+}

@@ -1,0 +1,8 @@
+{
+  "gate": "REAL_PILOT_PRIVACY",
+  "status": "PASS",
+  "test_case": "test_real_pilot_evidence_access",
+  "retention_policy": "ENFORCED",
+  "biometric_profiling": "DISABLED",
+  "export_auditing": "ENABLED"
+}

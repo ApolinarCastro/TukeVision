@@ -1,0 +1,10 @@
+{
+  "gate": "HEALTH_EXPLAINABILITY",
+  "status": "PASS",
+  "diagnostic_breakdown_supported": true,
+  "distinctions_verified": [
+    "CAMERAS DEGRADED vs RESOURCES_MEMORY WARNING",
+    "INFERENCE BACKLOG vs SECURITY ISOLATION WARNING",
+    "STORAGE WARNING vs SAFE MODE ACTIVE"
+  ]
+}

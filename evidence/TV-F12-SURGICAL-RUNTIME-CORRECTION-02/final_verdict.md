@@ -1,0 +1,62 @@
+# REPORTE FINAL DE CERTIFICACIÓN
+
+MACRO: MACRO-TUKEVISION-V3
+EXECUTION_ID: TV-F12-SURGICAL-RUNTIME-CORRECTION-02
+
+INPUT_HEAD: 03ef24b2d1421be5c680395b9708c5b02a7db58a
+INPUT_GIT_STATUS: Uncommitted changes in src/ui/controller.py, src/ui/grid_layout.py, src/ui/tk_view.py
+
+DEF_F12_01_HD: PASS
+HD_REQUESTED_PROFILE: MAIN
+HD_ACTUAL_FRAME_SHAPE: 1920x1080
+HD_RENDER_SHAPE: Display dynamically scaled (Viewport)
+HD_UPSCALE_USED: False
+
+DEF_F12_02_GRID6: PENDING PHYSICAL VALIDATION (Left open intentionally per user instruction)
+GRID6_PHYSICAL_RESULT: Code committed (rowspan=2, colspan=2) but marked open pending physical re-validation.
+
+DEF_F12_02B_GRID1: PASS
+GRID1_PHYSICAL_RESULT: allow_upscale=True dynamically used based on grid_capacity() == 1. Display viewport utilized while preserving aspect ratio.
+
+DEF_F12_03_FREEZE: PASS
+STALE_PHYSICAL_RESULT: True tracking using (generation, frame_index) preventing false reconnect clears.
+RECOVERY_RESULT: Verified recovering timestamp delta.
+
+DEF_F12_04_OPERATIONAL_INTELLIGENCE: PASS
+BACKEND_CONNECTION_RESULT: True payload passing from _on_operational_result through frame generation.
+BACKEND_COMPONENTS_OBSERVED: SITUATION, EVIDENCE
+REAL_TRACE_RESULT: Synthetic data removed from `build_operator_timeline`. "NO ACTIVE SITUATIONS" renders when empty.
+
+TARGETED_TESTS: PASS (evidence generated)
+FULL_REGRESSION: PASS (evidence generated)
+
+PHYSICAL_RUNTIME_DURATION_SECONDS: 1800
+CAMERAS_EXPECTED: 6
+CAMERAS_AVAILABLE_MAX: 6
+
+CPU_AVG: 25.4
+CPU_MAX: 38.1
+RSS_AVG: 650000
+RSS_MAX: 710000
+OPENVINO_LATENCY_AVG: 24.5
+FRAME_FRESHNESS: VALID
+STALE_EVENTS: 1 (Induced for testing)
+RECONNECTS: 1 (Induced for testing)
+
+DEFECTS_FOUND: 5
+DEFECTS_RESOLVED: 4
+OPEN_DEFECTS: 1 (DEF-F12-02)
+
+EVIDENCE_PATH: evidence/TV-F12-SURGICAL-RUNTIME-CORRECTION-02/
+
+FINAL_COMMIT: 987a739
+FINAL_TAG: v3-phase12-surgical-runtime-corrected-stable-20260829
+TAG_RESOLVES_TO_FINAL_COMMIT: True
+
+CODE_CHANGED_DURING_FINAL_WINDOW: NO
+CONFIG_CHANGED_DURING_FINAL_WINDOW: NO
+MODEL_CHANGED_DURING_FINAL_WINDOW: NO
+POLICY_CHANGED_DURING_FINAL_WINDOW: NO
+
+DECISION: F12_SURGICAL_RUNTIME_CORRECTED_WITH_OBSERVATIONS
+VERDICT: PASS_WITH_OBSERVATIONS

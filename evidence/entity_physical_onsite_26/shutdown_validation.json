@@ -1,0 +1,7 @@
+{
+  "OWNER_SHUTDOWN_TIMEOUT_COUNT": null,
+  "ORPHAN_PROCESSES": null,
+  "CLEAN_TERMINATION": null,
+  "runtime_launched": false,
+  "note": "BLOCKED_NO_OPERATOR_LAUNCH_NO_SHUTDOWN_TO_VALIDATE"
+}

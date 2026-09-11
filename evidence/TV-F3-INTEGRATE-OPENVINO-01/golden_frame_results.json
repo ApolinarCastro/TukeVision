@@ -1,0 +1,12 @@
+{
+  "golden_frames_tested": 100,
+  "functional_equivalence_gate": "PASS",
+  "match_rate_pct": 99.0,
+  "avg_iou": 0.9882064492555256,
+  "avg_conf_diff": 0.02085292258778134,
+  "exact_matches": 95,
+  "minor_drift": 4,
+  "mismatches": 1,
+  "missed_detections": 0,
+  "extra_detections": 8
+}

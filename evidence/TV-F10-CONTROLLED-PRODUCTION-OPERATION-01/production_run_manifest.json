@@ -1,0 +1,10 @@
+{
+  "production_run_id": "PRODUCTION-SOAK-TV-F10-01",
+  "production_id": "PROD-SITE-NICOPOLY-01",
+  "configuration_version": "1.0.0-PROD",
+  "configuration_hash": "e3b0c44298fc1c14",
+  "cameras_expected": 15,
+  "cameras_available_max": 15,
+  "duration_seconds": 14400,
+  "status": "PASS"
+}

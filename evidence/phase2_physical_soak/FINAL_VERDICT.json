@@ -1,0 +1,74 @@
+{
+  "mission_id": "TUKEVISION_PHASE2_PHYSICAL_SOAK_1800_V1",
+  "macro_id": "MACRO-TUKEVISION-V3",
+  "verdict": "PHASE_2_RECOVERY_AND_PERSISTENCE_CERTIFIED_CONTINUITY_SOAK_PENDING",
+  "continuous_interval_run_id": "RUN-40E149",
+  "continuous_interval_start": "2026-08-27T16:21:58",
+  "continuous_interval_end": "2026-08-27T16:34:49",
+  "continuous_interval_duration_s": 771.0,
+  "target_soak_duration_s": 1800.0,
+  "gates": {
+    "persistence_gate": "PASS",
+    "recovery_gate": "PASS",
+    "resource_stability_gate": "PASS",
+    "clean_shutdown_gate": "PASS",
+    "continuity_soak_1800s_gate": "PENDING_SOAK_COMPLETION",
+    "operator_certification_gate": "PENDING_OPERATOR_ACCEPTANCE"
+  },
+  "pytest": {
+    "passed": 781,
+    "skipped": 4,
+    "failed": 0,
+    "subtests_passed": 15
+  },
+  "streams": {
+    "configured": 15,
+    "accounted": 15,
+    "final_live": 15,
+    "external_offline": 0,
+    "unexplained_failed": 0
+  },
+  "watchdog": {
+    "stalls": 0,
+    "recovered": 0,
+    "false_terminations": 0,
+    "false_eof": 0
+  },
+  "ffprobe": {
+    "failures": 0,
+    "false_failures": 0
+  },
+  "persistence": {
+    "telemetry_write_failed": 0,
+    "review_export_failed": 0,
+    "winerror_5": 0,
+    "corrupt_files": 0
+  },
+  "recovery": {
+    "reconnects": 2,
+    "storms": 0,
+    "unbounded_loops": 0
+  },
+  "resources": {
+    "memory_leak": 0,
+    "cpu_runaway": 0,
+    "thread_leak": 0,
+    "handle_leak": 0,
+    "orphan_ffmpeg": 0
+  },
+  "ui": {
+    "liveness_divergence": 0
+  },
+  "evidence": {
+    "regression": 0
+  },
+  "data_sovereignty": "PASS",
+  "dvr_nvr_role": "PRESERVED",
+  "clean_shutdown": "PASS",
+  "restart_recovery": "PASS",
+  "adversarial": {
+    "critical": 0,
+    "high": 0
+  },
+  "evidence_path": "evidence/phase2_physical_soak/"
+}

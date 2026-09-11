@@ -1,0 +1,24 @@
+{
+  "generated_at": "2026-08-29T21:24:40.458169+00:00",
+  "verdict": "PASS",
+  "test_framework": "unittest + pytest",
+  "total_tests_executed": 906,
+  "passed": 902,
+  "skipped": 4,
+  "failures": 0,
+  "errors": 0,
+  "duration_seconds": 96.63,
+  "core_suites_passing": [
+    "tests/test_command_center_layouts.py",
+    "tests/test_full_launcher_path.py",
+    "tests/test_operational_visualization_hd.py",
+    "tests/test_evidence_clips.py",
+    "tests/test_control_bar_visibility.py",
+    "tests/test_launcher_first_frame_gate.py",
+    "tests/test_review_retention.py",
+    "tests/test_runtime_qw04_integration.py",
+    "tests/test_system_health.py",
+    "tests/test_behavior_pipeline.py",
+    "tests/test_cross_camera_correlation.py"
+  ]
+}

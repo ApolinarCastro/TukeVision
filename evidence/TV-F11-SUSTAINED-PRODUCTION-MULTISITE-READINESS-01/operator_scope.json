@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_OPERATOR_SCOPE",
+  "status": "PASS",
+  "scope_mechanism": "allowed_site_ids list",
+  "cross_site_leak_attempts_blocked": 1,
+  "result": "PASS"
+}

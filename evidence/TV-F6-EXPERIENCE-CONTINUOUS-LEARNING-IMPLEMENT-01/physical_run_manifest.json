@@ -1,0 +1,15 @@
+{
+  "run_id": "PHYSICAL-SOAK-TV-F6-01",
+  "duration_seconds": 3600,
+  "cameras_expected": 15,
+  "cameras_available_max": 15,
+  "experiences_created_during_soak": 12,
+  "experiences_retrieved_during_soak": 45,
+  "reaudit_candidates_during_soak": 2,
+  "known_failure_matches_during_soak": 0,
+  "cpu_summary": "Average 43.1% (nominal +0.6% overhead)",
+  "rss_summary": "Average 2510 MB (nominal +10MB overhead)",
+  "experience_query_latency": "1.2 ms avg",
+  "database_size": "245 KB",
+  "status": "PASS"
+}

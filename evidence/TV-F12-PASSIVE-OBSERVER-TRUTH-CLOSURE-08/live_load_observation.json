@@ -1,0 +1,12 @@
+{
+  "live_camera_count": 11,
+  "active_sources": 11,
+  "process_cpu_percent": 566.9,
+  "process_rss_mb": 822.1,
+  "system_ram_percent": 93.7,
+  "thread_count": 63,
+  "global_fps_measured": 324.4,
+  "freshness_p95_ms": 6703.0,
+  "source": "LIVE_RESOURCE_TELEMETRY_OBSERVER",
+  "synthetic": false
+}

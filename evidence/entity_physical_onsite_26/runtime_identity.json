@@ -1,0 +1,19 @@
+{
+  "EXECUTION_ID": "TV-ENTITY-PHYSICAL-ONSITE-VALIDATION-26",
+  "BRANCH": "phase12/operational-intelligence-visualization-hd",
+  "RUNTIME_CODE_SHA": "36c19d5de2237887fe9d9a72be263e2073a8898e",
+  "BASELINE_SHA": "b7f4a9f5e24c76c586a1dff9909708efeb609bc7",
+  "HEAD": "b7f4a9f5e24c76c586a1dff9909708efeb609bc7",
+  "RUN_ID": null,
+  "PID": null,
+  "START_TIMESTAMP": null,
+  "REAL_DVR": "NOT_OBSERVED_NO_OPERATOR_LAUNCH",
+  "REAL_RTSP": "NOT_OBSERVED",
+  "UI_VISIBLE": "NO",
+  "HEADLESS": "YES",
+  "operator_launch": false,
+  "block_reason": "NO_OPERATOR_LAUNCH_DURING_CI_AUTOMATED_RUN_HEADLESS_NO_DISPLAY",
+  "dvr_host": "186.103.177.83:554",
+  "config_total_cameras": 15,
+  "note": "Awaiting manual operator launch on real PC. This evidence records BLOCKED state per TV-ENTITY-PHYSICAL-ONSITE-VALIDATION-26 §3. No synthetic data used as physical."
+}

@@ -1,0 +1,16 @@
+{
+  "execution_id": "TV-F12-FINAL-PASSIVE-CERTIFIER-CLOSURE-09",
+  "attachment_mode": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "same_process": false,
+  "same_memory_claim": false,
+  "collector_pid": 23736,
+  "runtime_pid": 21032,
+  "process_active": true,
+  "process_name": "python.exe",
+  "live_run_id": "RUN-5D10D8",
+  "started_at": "2026-08-30T22:24:42.416004+00:00",
+  "live_status_mtime_advanced": true,
+  "dt_measured_seconds": 10.718,
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

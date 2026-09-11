@@ -1,0 +1,32 @@
+{
+  "available_signals": 132,
+  "baseline_fingerprint": "E88F7880A0D84352B5DCE0C94F5D48DF4BA797194CD56247FAFB7D0C42F2BA84",
+  "broken_evidence_refs": 0,
+  "classification_counts": {
+    "INSUFFICIENT_EVIDENCE": 4
+  },
+  "duplicates": 0,
+  "evidence_hash_mismatch": 0,
+  "excluded": 47,
+  "per_camera": {
+    "CAM-001": 1,
+    "CAM-002": 1,
+    "CAM-003": 1,
+    "CAM-004": 1
+  },
+  "per_rule": {
+    "repeated_activity": 4
+  },
+  "per_signal_type": {
+    "REPEATED_ACTIVITY": 4
+  },
+  "retained_candidates": 51,
+  "reviewed_signals": 4,
+  "rule_classifications": {
+    "repeated_activity": {
+      "INSUFFICIENT_EVIDENCE": 4
+    }
+  },
+  "selected": 4,
+  "total_available": 51
+}

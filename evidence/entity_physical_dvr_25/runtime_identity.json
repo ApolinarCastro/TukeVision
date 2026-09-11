@@ -1,0 +1,23 @@
+{
+  "EXECUTED_GIT_HEAD": "973d4d8a797d85f39665556b04ff5e300b6fad03",
+  "RUNTIME_CODE_SHA": "36c19d5de2237887fe9d9a72be263e2073a8898e",
+  "BASELINE_EVIDENCE_SHA": "973d4d8a797d85f39665556b04ff5e300b6fad03",
+  "commit_message_head": "docs: record physical entity and visit runtime truth",
+  "commit_message_code": "fix: propagate real person and visit semantics to operator runtime",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "runtime_code_diff_evidence_only": true,
+  "src_changed_between_code_and_head": false,
+  "scripts_changed_between_code_and_head": false,
+  "config_changed_between_code_and_head": false,
+  "tests_changed_between_code_and_head": false,
+  "RUN_ID": null,
+  "PID": null,
+  "START_TIMESTAMP": null,
+  "launch_attempted": false,
+  "launch_block_reason": "HEADLESS_CI_ENVIRONMENT_NO_DISPLAY_NO_DVR_CREDENTIALS_IN_ENV",
+  "REAL_DVR": "TCP_554_REACHABLE_186.103.177.83_BUT_CREDENTIALS_NOT_PROVIDED",
+  "REAL_RTSP": "NOT_VALIDATED_HEADLESS",
+  "REAL_CAMERAS": "CONFIG_15_CAMERAS_BUT_PHYSICAL_STREAMS_NOT_OPENED_HEADLESS",
+  "UI_VISIBLE": "NO_HEADLESS",
+  "HEADLESS": "YES"
+}

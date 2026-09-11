@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-FB1C91",
+  "pid": 22604,
+  "started_at": "2026-08-28T18:24:04",
+  "started_at_unix": 1787955844.9320252,
+  "version": "v3-phase2-baseline-20260828-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

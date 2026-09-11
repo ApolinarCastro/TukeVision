@@ -45,6 +45,8 @@ class PersistentEvidenceStore:
         jpeg_quality: int = 90,
         id_factory: Optional[Callable[[], str]] = None,
         review_target: str | Path | None = None,
+        store_id: str = "",
+        organization_id: str = "",
     ) -> None:
         self.root = Path(root)
         if not 1 <= int(max_per_camera) <= 10000:
@@ -55,6 +57,8 @@ class PersistentEvidenceStore:
         self.jpeg_quality = int(jpeg_quality)
         self._id_factory = id_factory or (lambda: f"EVD-{uuid.uuid4().hex.upper()}")
         self.review_target = None if review_target is None else Path(review_target)
+        self.store_id = str(store_id)
+        self.organization_id = str(organization_id)
         self._retention_status: Dict[str, str] = {}
         self._lock = threading.RLock()
 
@@ -114,6 +118,8 @@ class PersistentEvidenceStore:
         record = {
             "evidence_id": evidence_id,
             "camera_id": str(camera_id),
+            "store_id": self.store_id,
+            "organization_id": self.organization_id,
             "timestamp": str(timestamp),
             "producer": str(producer),
             "observation_ref": observation_ref,
@@ -150,6 +156,7 @@ class PersistentEvidenceStore:
         inference_ref: Optional[str] = None,
         event_ref: Optional[str] = None,
         track_ref: Optional[str] = None,
+        camera_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """Atomically enrich an existing record with downstream references."""
         target = self.resolve(evidence_ref)
@@ -188,10 +195,19 @@ class PersistentEvidenceStore:
         camera_dir = self.root / safe_camera
         if not camera_dir.is_dir():
             return []
-        return sorted(
-            (p for p in camera_dir.iterdir() if p.is_dir()),
-            key=lambda p: (p.stat().st_mtime_ns, p.name),
-        )
+        items = []
+        try:
+            for p in camera_dir.iterdir():
+                if p.is_dir():
+                    try:
+                        mtime = p.stat().st_mtime_ns
+                        items.append((mtime, p.name, p))
+                    except (FileNotFoundError, OSError):
+                        continue
+        except (FileNotFoundError, OSError):
+            return []
+        items.sort(key=lambda x: (x[0], x[1]))
+        return [item[2] for item in items]
 
     def _entry_protected(
         self, entry: Path, state: ReviewRetentionState

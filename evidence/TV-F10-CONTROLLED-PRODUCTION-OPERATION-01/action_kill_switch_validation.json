@@ -1,0 +1,6 @@
+{
+  "gate": "PRODUCTION_ACTION_KILL_SWITCH",
+  "status": "PASS",
+  "action_execution_enabled": false,
+  "result": "Kill switch immediately halts all action executions while preserving perception and monitoring"
+}

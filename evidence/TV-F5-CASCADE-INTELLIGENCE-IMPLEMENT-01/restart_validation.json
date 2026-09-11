@@ -1,0 +1,10 @@
+{
+  "restart_duration_minutes": 15,
+  "openvino_load": "PASS",
+  "agent_monitor_load": "PASS",
+  "reasoning_router_load": "PASS",
+  "evidence_index_load": "PASS",
+  "mcp_load": "PASS",
+  "command_center_load": "PASS",
+  "status": "PASS"
+}

@@ -8,8 +8,9 @@ Riesgo → Alerta → Evidencia para un único video local.
 import json
 import logging
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
+from types import SimpleNamespace
 from pathlib import Path
 from typing import Callable, Dict, Optional
 
@@ -20,6 +21,8 @@ from src.capture.video_source import VideoSource, VideoSourceError
 from src.capture.live_sources import SourceState
 from src.detection.person_detector import PersonDetector
 from src.tracking.person_tracker import PersonTracker
+from src.tracking.visit_session import VisitSessionManager
+from src.perception.person_presence_validator import PersonPresenceValidator
 from src.context.zone import Zone
 from src.observations.engine import ObservationEngine
 from src.events.engine import EventEngine
@@ -82,6 +85,8 @@ class FrameSnapshot:
     persons_detected: int
     alerts_total: int
     evidence_total: int
+    # Tuple of immutable VisitSemanticSnapshot DTOs
+    visit_semantics: tuple = ()
 
 
 def load_config(config_path: str = "config/default.json") -> dict:
@@ -157,6 +162,8 @@ class Pipeline:
             image_size=detection_cfg.get("image_size", 640),
         )
         self._tracker = PersonTracker()
+        self._visit_manager = VisitSessionManager()
+        self._presence_validator = PersonPresenceValidator()
         self._zone = Zone(
             zone_id=zone_cfg["id"],
             name=zone_cfg.get("name", "Zona piloto"),
@@ -366,6 +373,36 @@ class Pipeline:
                 tracked = tracking_result.tracked_objects
                 unique_tracks.update(obj.track_id for obj in tracked)
 
+                # Validation and Visit logic
+                visits_info = []
+                for obj in tracked:
+                    # Lightweight adapter — no class-in-loop, no frozen mutation
+                    track_adapter = SimpleNamespace(
+                        camera_id=self._camera_id,
+                        track_id=str(obj.track_id),
+                        last_bbox=(obj.x1, obj.y1, obj.x2, obj.y2),
+                    )
+                    person_state = self._presence_validator.evaluate_track(track_adapter, None)
+                    is_eligible = person_state in ("PERSON_MOVING", "PERSON_STATIONARY")
+                    visit = self._visit_manager.handle_track(
+                        str(obj.track_id),
+                        self._camera_id,
+                        track_adapter.last_bbox,
+                        is_eligible_person=is_eligible,
+                    )
+                    
+                    from src.tracking.visit_semantic import VisitSemanticSnapshot
+                    vss = VisitSemanticSnapshot(
+                        track_id=str(obj.track_id),
+                        camera_id=self._camera_id,
+                        person_state=person_state,
+                        visit_id=visit.visit_id if visit else None,
+                        visit_role=visit.role if visit else "UNKNOWN",
+                        customer_analytics_eligible=visit.customer_analytics_eligible if visit else False,
+                        visit_origin=visit.entry_source if visit else "UNKNOWN"
+                    )
+                    visits_info.append(vss)
+
                 risk_text = ""
                 latest_alert = None
                 latest_evidence_path = None
@@ -454,6 +491,7 @@ class Pipeline:
                         persons_detected=persons_detected,
                         alerts_total=alerts_created,
                         evidence_total=evidence_created,
+                        visit_semantics=tuple(visits_info),
                     ))
                 output_writer.write(frame)
 

@@ -1,0 +1,7 @@
+{
+  "gate": "PILOT_READINESS",
+  "status": "PASS",
+  "states_validated": ["READY", "READY_WITH_WARNINGS", "NOT_READY"],
+  "test_case": "test_pilot_readiness",
+  "result": "PilotReadinessEvaluator accurately determines site activation readiness"
+}

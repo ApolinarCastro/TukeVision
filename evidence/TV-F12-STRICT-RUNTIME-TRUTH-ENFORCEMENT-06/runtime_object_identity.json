@@ -1,0 +1,7 @@
+{
+  "source_manager_class": "SourceManager",
+  "tk_app_class": "TkApp",
+  "health_sampler_class": "SystemHealthSampler",
+  "true_liveness_class": "TrueLivenessTracker",
+  "same_runtime_memory_space": true
+}

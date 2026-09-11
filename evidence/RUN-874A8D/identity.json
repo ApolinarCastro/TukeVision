@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-874A8D",
+  "pid": 29348,
+  "started_at": "2026-08-28T18:49:20",
+  "started_at_unix": 1787957360.9038155,
+  "version": "v3-phase2-baseline-20260828-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

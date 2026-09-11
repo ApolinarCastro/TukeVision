@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F6-001",
+    "component": "AgentOutputValidator",
+    "symptom": "UNSUPPORTED_FACTS_F5_IMPORTED: Validator correctly rejected non-compliant inferences during F5, which were imported as experiences to prevent future reoccurrence.",
+    "root_cause": "LLM occasionally halluncinates entity tags out of bounds.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "None (recorded as failure experience to avoid auto-patch)",
+    "regression_test": "N/A",
+    "result": "PASS"
+  }
+]

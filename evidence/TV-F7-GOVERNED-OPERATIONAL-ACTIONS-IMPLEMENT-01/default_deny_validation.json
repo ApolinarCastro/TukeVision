@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_DEFAULT_DENY",
+  "status": "PASS",
+  "test_case": "test_action_default_deny",
+  "result": "Unregistered action rejected with POLICY_DENIED"
+}

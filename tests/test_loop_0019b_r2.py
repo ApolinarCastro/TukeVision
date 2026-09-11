@@ -1,8 +1,8 @@
-"""LOOP-0019B-R2: transición STOP uniforme en las 4 cámaras.
+﻿"""LOOP-0019B-R2: transiciÃ³n STOP uniforme en las 4 cÃ¡maras.
 
 Cubre el gap `STOP_RENDER_NOT_APPLIED_UNIFORMLY_TO_ALL_CAMERA_PANELS`:
-tras STOP todas las cámaras deben terminar gris / CLOSED / OFFLINE / sin
-analytics activos, independientemente del último metadata o frame.
+tras STOP todas las cÃ¡maras deben terminar gris / CLOSED / OFFLINE / sin
+analytics activos, independientemente del Ãºltimo metadata o frame.
 """
 
 import unittest
@@ -11,13 +11,19 @@ from types import SimpleNamespace
 
 import numpy as np
 
-from src.ui.multicamera import CAMERA_IDS, MultiCameraViewModel
+from src.ui.multicamera import MultiCameraViewModel
 from src.ui.tk_view import (
     COLORS,
     apply_stopped_state,
     camera_status_color,
     frozen_render_required,
 )
+
+CAMERA_IDS = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
+
+
+def _view():
+    return MultiCameraViewModel(CAMERA_IDS)
 
 
 def _snapshot(camera_id, *, frame_index, value, detection=True):
@@ -61,7 +67,7 @@ def _assert_uniform(self, stopped):
 
 class TestUniformStopState(unittest.TestCase):
     def test_all_cameras_with_different_metadata_end_uniform(self):
-        view = MultiCameraViewModel()
+        view = _view()
         for index, camera_id in enumerate(CAMERA_IDS, 1):
             view.update(
                 camera_id,
@@ -77,20 +83,20 @@ class TestUniformStopState(unittest.TestCase):
                 _assert_uniform(self, apply_stopped_state(view.panel(camera_id)))
 
     def test_panel_with_last_analytics_frame_is_stopped_uniform(self):
-        view = MultiCameraViewModel()
+        view = _view()
         view.update("CAM-001", _snapshot("CAM-001", frame_index=12, value=7, detection=True))
         self.assertIsNotNone(view.panel("CAM-001").analytics_frame)
         self.assertEqual(view.panel("CAM-001").analytics_frame_index, 12)
         _assert_uniform(self, apply_stopped_state(view.panel("CAM-001")))
 
     def test_panel_with_last_live_frame_is_stopped_uniform(self):
-        view = MultiCameraViewModel()
+        view = _view()
         view.update("CAM-001", _snapshot("CAM-001", frame_index=12, value=7, detection=False))
         self.assertEqual(view.panel("CAM-001").analytics_frame_index, -1)
         _assert_uniform(self, apply_stopped_state(view.panel("CAM-001")))
 
     def test_panel_with_prior_detection_clears_active_analytics(self):
-        view = MultiCameraViewModel()
+        view = _view()
         view.update("CAM-001", _snapshot("CAM-001", frame_index=9, value=3, detection=True))
         self.assertEqual(view.panel("CAM-001").track_id, "TRK-7")
         stopped = apply_stopped_state(view.panel("CAM-001"))
@@ -100,7 +106,7 @@ class TestUniformStopState(unittest.TestCase):
         self.assertEqual(stopped["risk"], "")
 
     def test_panel_without_prior_detection_is_stopped_uniform(self):
-        view = MultiCameraViewModel()
+        view = _view()
         view.update("CAM-001", _snapshot("CAM-001", frame_index=9, value=3, detection=False))
         self.assertIsNone(view.panel("CAM-001").track_id)
         _assert_uniform(self, apply_stopped_state(view.panel("CAM-001")))

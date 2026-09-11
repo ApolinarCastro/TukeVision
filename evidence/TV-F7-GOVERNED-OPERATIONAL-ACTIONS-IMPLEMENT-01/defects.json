@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F7-001",
+    "component": "ActionPolicyEngine",
+    "symptom": "Autonomous execution of actions without verified evidence was possible if risk class was set to LOW.",
+    "root_cause": "ActionEvidenceGate check was initially placed after the low-risk check.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "Moved ActionEvidenceGate evaluation to execute prior to Autonomy 2 low-risk allowance.",
+    "regression_test": "test_evidence_sufficiency_gate",
+    "result": "PASS"
+  }
+]

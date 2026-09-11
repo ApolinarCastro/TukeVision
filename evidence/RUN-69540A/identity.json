@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-69540A",
+  "pid": 22680,
+  "started_at": "2026-08-30T20:01:32",
+  "started_at_unix": 1788134492.9541824,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

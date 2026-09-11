@@ -1,0 +1,17 @@
+{
+  "gate": "MULTISITE_E2E",
+  "status": "PASS",
+  "pipeline_flow": [
+    "SiteDeploymentProfiles A + B",
+    "Isolated cameras",
+    "Isolated observations",
+    "Isolated situations",
+    "Isolated investigations",
+    "Governed actions per site",
+    "Operator routing per scope",
+    "Experience recording",
+    "Multisite health aggregation",
+    "Audit logging"
+  ],
+  "result": "PASS"
+}

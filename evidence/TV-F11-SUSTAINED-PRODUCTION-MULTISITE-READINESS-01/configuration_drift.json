@@ -1,0 +1,7 @@
+{
+  "gate": "CONFIGURATION_DRIFT_DETECTION",
+  "status": "PASS",
+  "drift_detected_on_tampering": true,
+  "in_sync_verified": true,
+  "automatic_uncontrolled_rewrite": false
+}

@@ -1,0 +1,8 @@
+{
+  "gate": "CROSS_SITE_ACCESS_FAIL_CLOSED",
+  "status": "PASS",
+  "test_performed": "operator_site_a_querying_site_b",
+  "expected": "DENY",
+  "actual": "MultiSiteSecurityError (DENY)",
+  "result": "PASS"
+}

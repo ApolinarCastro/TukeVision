@@ -1,0 +1,15 @@
+{
+  "execution_id": "TV-F12-PHYSICAL-RUNTIME-RECERTIFICATION-04",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "commit_sha": "b0b992af214cfae0322da5602fc635a5bbe9d453",
+  "pid": 6720,
+  "python_executable": "C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\.venv\\Scripts\\python.exe",
+  "launcher": "TukeVision.bat / scripts/launcher.py",
+  "runtime_start_actual": "2026-08-30T18:37:38.617684+00:00",
+  "capture_start_actual": "2026-08-30T18:37:38.629476+00:00",
+  "site_id_from_runtime": "store_nicopoly_principal",
+  "camera_count_configured_from_runtime": 15,
+  "camera_count_available_from_runtime": 15,
+  "source": "LIVE_RUNTIME",
+  "synthetic": false
+}

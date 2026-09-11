@@ -1,0 +1,9 @@
+{
+  "gate": "REAL_PILOT_ROLLBACK",
+  "status": "PASS",
+  "flags": {
+    "PILOT_MODE_ENABLED": false
+  },
+  "behavior": "Pilot operational mode disabled; platform gracefully retains full Phase 8 certified state",
+  "duration_seconds": 300
+}

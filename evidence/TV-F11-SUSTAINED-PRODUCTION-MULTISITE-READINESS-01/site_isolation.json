@@ -1,0 +1,7 @@
+{
+  "gate": "SITE_DATA_ISOLATION",
+  "status": "PASS",
+  "sites_evaluated": ["SITE-A", "SITE-B"],
+  "cross_contamination_detected": false,
+  "result": "Every entity resolves site_id and prevents cross-site data leakage"
+}

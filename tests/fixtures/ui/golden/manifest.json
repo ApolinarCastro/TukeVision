@@ -1,0 +1,6 @@
+{
+  "evidence_type": "UI_GOLDEN",
+  "synthetic": true,
+  "description": "Visual golden fixtures for UI regression validation",
+  "timestamp": 1788110594.033286
+}

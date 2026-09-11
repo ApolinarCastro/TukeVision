@@ -1,0 +1,6 @@
+{
+  "gate": "AGENT_MONITOR_VISIBILITY",
+  "status": "PASS",
+  "investigation_stages_visible": ["FACT", "INFERENCE", "UNKNOWN"],
+  "priority_escalation": "Deterministic priority levels (INFORMATIONAL -> LOW -> MEDIUM -> HIGH -> CRITICAL)"
+}

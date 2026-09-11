@@ -1,0 +1,61 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:38:51.678488+00:00",
+  "traces": [
+    {
+      "camera_id": "cam_01",
+      "channel": 1,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "uri_before_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_01&subtype=1",
+      "uri_after_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_01&subtype=0",
+      "generation_before": 0,
+      "generation_after": 0,
+      "decoder_stop": true,
+      "decoder_start": true,
+      "first_frame_received": false,
+      "first_frame_timestamp": null,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "observed_resolution": "NOT_OBSERVED",
+      "error_if_any": "No se pudo conectar a la fuente RTSP (DVR/Host físicamente inaccesible)"
+    },
+    {
+      "camera_id": "cam_06",
+      "channel": 6,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "uri_before_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_06&subtype=1",
+      "uri_after_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_06&subtype=0",
+      "generation_before": 0,
+      "generation_after": 0,
+      "decoder_stop": true,
+      "decoder_start": true,
+      "first_frame_received": false,
+      "first_frame_timestamp": null,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "observed_resolution": "NOT_OBSERVED",
+      "error_if_any": "No se pudo conectar a la fuente RTSP (DVR/Host físicamente inaccesible)"
+    },
+    {
+      "camera_id": "cam_09",
+      "channel": 9,
+      "subtype_before": 1,
+      "subtype_requested": 0,
+      "uri_before_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_09&subtype=1",
+      "uri_after_redacted": "rtsp://192.168.1.100:554/cam/realmonitor?channel=cam_09&subtype=0",
+      "generation_before": 0,
+      "generation_after": 0,
+      "decoder_stop": true,
+      "decoder_start": true,
+      "first_frame_received": false,
+      "first_frame_timestamp": null,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "observed_resolution": "NOT_OBSERVED",
+      "error_if_any": "No se pudo conectar a la fuente RTSP (DVR/Host físicamente inaccesible)"
+    }
+  ]
+}

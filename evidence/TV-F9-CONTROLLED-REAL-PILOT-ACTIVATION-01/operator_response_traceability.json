@@ -1,0 +1,8 @@
+{
+  "gate": "REAL_OPERATOR_RESPONSE_TRACEABILITY",
+  "status": "PASS",
+  "investigation_id": "INV-REAL-01",
+  "operator_ref": "supervisor_01",
+  "outcome_state": "USEFUL",
+  "result": "Operator interaction linked directly to operational outcome and experience record"
+}

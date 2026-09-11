@@ -1,0 +1,13 @@
+{
+  "gate": "PRODUCTION_NO_FAKE_ROI",
+  "status": "PASS",
+  "fake_economic_metrics": "PROHIBITED",
+  "reported_metrics": [
+    "camera_availability",
+    "frame_freshness",
+    "inference_coverage",
+    "operator_reviews_total",
+    "operator_useful_percentage",
+    "verified_governed_actions"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "gate": "PRODUCTION_SOURCE_SECURITY",
+  "status": "PASS",
+  "states_enforced": {
+    "TRUSTED": "ACTIVE",
+    "PATCH_REQUIRED": "WARNING_ALLOW",
+    "VULNERABLE": "BLOCKED",
+    "ISOLATE": "BLOCKED",
+    "QUARANTINED": "BLOCKED"
+  },
+  "result": "Quarantined and vulnerable RTSP sources strictly blocked from production activation"
+}

@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F11-001",
+    "component": "MultiSiteManager",
+    "symptom": "Backup manifest hash omitted software version key in integrity hash payload.",
+    "root_cause": "data_to_hash dictionary did not serialize software_version field.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "Added version key to data_to_hash payload in create_backup method.",
+    "regression_test": "test_backup_and_restore_verification",
+    "result": "PASS"
+  }
+]

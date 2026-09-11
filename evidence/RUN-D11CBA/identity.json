@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-D11CBA",
+  "pid": 13968,
+  "started_at": "2026-08-30T18:53:09",
+  "started_at_unix": 1788130389.6437492,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

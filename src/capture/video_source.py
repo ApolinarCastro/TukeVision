@@ -55,14 +55,14 @@ class VideoSource:
     def __init__(
         self,
         video_path: str,
-        max_width: int = 640,
+        max_width: int = 0,
         process_every_n_frames: int = 1
     ) -> None:
         """Inicializa la fuente de video.
 
         Args:
             video_path: Ruta al archivo de video.
-            max_width: Ancho máximo del fotograma (0 = sin límite).
+            max_width: Ancho máximo del fotograma (0 = sin límite, preserva resolución original).
             process_every_n_frames: Procesar 1 de cada N fotogramas.
         """
         self._video_path = Path(video_path)
@@ -164,7 +164,11 @@ class VideoSource:
             self._frame_index += 1
 
     def _resize_if_needed(self, frame: cv2.typing.MatLike) -> cv2.typing.MatLike:
-        """Reduce el ancho manteniendo la proporción si supera max_width."""
+        """Reduce el ancho manteniendo la proporción si supera max_width.
+
+        Con max_width=0 (default), preserva la resolución original del frame.
+        El pipeline configura su propio max_width para procesamiento analítico.
+        """
         if self._max_width <= 0:
             return frame
 

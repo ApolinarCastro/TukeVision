@@ -1,0 +1,16 @@
+{
+  "tes_root": "TES/",
+  "canonical_files": [
+    "TES/README.md",
+    "TES/PLAN_MAESTRO_V3.md",
+    "TES/CAPABILITY_MATRIX.md",
+    "TES/DECISION_LOG.md",
+    "TES/TECHNOLOGY_RADAR.md"
+  ],
+  "openvino_status": "ADOPTED / CERTIFIED",
+  "detectron2_status": "REJECTED / RESERVED (EDGE PROFILE)",
+  "onvif_signing_status": "CONTRACT_READY (DEVICE_VALIDATION_NOT_AVAILABLE)",
+  "semantic_investigation_status": "STRUCTURED_RETRIEVAL_IMPLEMENTED / NLP_TARGET",
+  "dvr_nvr_boundary_status": "PRIMARY_RECORDER_PRESERVED",
+  "status": "PASS"
+}

@@ -1,0 +1,17 @@
+{
+  "source": "LIVE_APPLICATION_WINDOW",
+  "synthetic": false,
+  "measured_at": "2026-08-30T19:17:51.891712+00:00",
+  "viewport_width": 1280,
+  "viewport_height": 680,
+  "visible_tiles": 6,
+  "empty_tiles": 0,
+  "overlap_count": 0,
+  "clipped_count": 0,
+  "aspect_ratio_preserved": true,
+  "total_rendered_area_px": 843684.0,
+  "usable_grid_area_px": 870400.0,
+  "dead_space_percent": 3.07,
+  "grid6_pass_derived": true,
+  "status": "PASS"
+}

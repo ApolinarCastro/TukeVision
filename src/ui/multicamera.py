@@ -1,18 +1,17 @@
-"""Minimal four-slot operator view model.
+"""Dynamic N-slot operator view model (OC-01: no four-camera assumption).
 
 This adapter owns no capture, thread, pipeline, or frame history.  The
 certified SourceManager/OperationalPipeline path supplies latest snapshots.
+
+The camera set is configuration-driven: 1 -> 4 -> 16 -> N.  Layouts are
+computed by :mod:`src.ui.grid_layout` and never hardcoded to CAM-001..004.
 """
 
+import time
 from dataclasses import dataclass
 from typing import Any, Dict, Optional, Tuple
 
-
-CAMERA_IDS: Tuple[str, ...] = ("CAM-001", "CAM-002", "CAM-003", "CAM-004")
-PANEL_LAYOUT: Tuple[Tuple[str, str], Tuple[str, str]] = (
-    ("CAM-001", "CAM-002"),
-    ("CAM-003", "CAM-004"),
-)
+from src.ui.grid_layout import grid_layout
 
 
 @dataclass(frozen=True)
@@ -22,8 +21,12 @@ class CameraPanelState:
     frame: Optional[Any] = None
     fps: float = 0.0
     frame_index: int = -1
+    generation: int = 0
+    last_updated_at: float = 0.0
     detections: int = 0
     track_id: Optional[str] = None
+    semantic_track_id: Optional[str] = None
+    customer_analytics_eligible: Optional[bool] = None
     track_status: str = ""
     track_bbox: Optional[Tuple[int, int, int, int]] = None
     bboxes: Tuple[tuple, ...] = ()
@@ -38,21 +41,67 @@ class CameraPanelState:
     analytics_frame: Optional[Any] = None
     analytics_frame_index: int = -1
     resolution: str = ""
+    visit_id: str = ""
+    visit_role: str = ""
+    person_state: str = ""
 
 
 class MultiCameraViewModel:
-    """Bounded latest-wins state for exactly four operator panels."""
+    """Bounded latest-wins state for N operator panels (config-driven).
 
-    def __init__(self, camera_ids: Tuple[str, ...] = CAMERA_IDS) -> None:
-        if tuple(camera_ids) != CAMERA_IDS:
-            raise ValueError("multicamera view requires CAM-001..CAM-004")
+    The model separates the CAMERA CATALOG (every known camera, e.g. all
+    stores' cameras in a multistore deployment) from the CURRENT VIEWPORT
+    (the subset currently rendered).  ``update``/``mark_state`` accept any
+    catalog camera, so late frames or state changes from a store that is no
+    longer in view never raise ``unsupported camera``; their panel state is
+    retained and re-enters the view when the store is selected again.
+    """
+
+    def __init__(
+        self,
+        camera_ids: Tuple[str, ...],
+        catalog_ids: Optional[Tuple[str, ...]] = None,
+    ) -> None:
+        ids = tuple(str(camera_id) for camera_id in camera_ids)
+        if not ids or len(set(ids)) != len(ids):
+            raise ValueError("camera_ids must be non-empty and unique")
+        if catalog_ids is None:
+            catalog_ids = ids
+        catalog = tuple(str(camera_id) for camera_id in catalog_ids)
+        if not catalog or len(set(catalog)) != len(catalog):
+            raise ValueError("catalog_ids must be non-empty and unique")
+        for camera_id in ids:
+            if camera_id not in catalog:
+                raise ValueError(f"viewport camera not in catalog: {camera_id}")
+        self._catalog_ids = catalog
+        self._viewport = ids
         self._panels: Dict[str, CameraPanelState] = {
-            camera_id: CameraPanelState(camera_id) for camera_id in CAMERA_IDS
+            camera_id: CameraPanelState(camera_id) for camera_id in catalog
         }
 
     @property
-    def layout(self) -> Tuple[Tuple[str, str], Tuple[str, str]]:
-        return PANEL_LAYOUT
+    def camera_ids(self) -> Tuple[str, ...]:
+        """Currently visible (viewport) camera set."""
+        return self._viewport
+
+    @property
+    def catalog_ids(self) -> Tuple[str, ...]:
+        """Full camera catalog (all known cameras, across stores)."""
+        return self._catalog_ids
+
+    def select_viewport(self, camera_ids: Tuple[str, ...]) -> None:
+        """Switch the visible set without discarding catalog panel state."""
+        ids = tuple(str(camera_id) for camera_id in camera_ids)
+        if not ids or len(set(ids)) != len(ids):
+            raise ValueError("camera_ids must be non-empty and unique")
+        for camera_id in ids:
+            if camera_id not in self._catalog_ids:
+                raise ValueError(f"unsupported camera: {camera_id}")
+        self._viewport = ids
+
+    @property
+    def layout(self) -> Tuple[Tuple[str, ...], ...]:
+        return tuple(tuple(row) for row in grid_layout(self._viewport))
 
     def update(self, camera_id: str, snapshot: Any) -> None:
         """Accept an existing manager snapshot; retain only the latest frame."""
@@ -60,7 +109,11 @@ class MultiCameraViewModel:
             raise ValueError(f"unsupported camera: {camera_id}")
         current = self._panels[camera_id]
         frame_index = int(getattr(snapshot, "frame_index", current.frame_index))
-        if frame_index < current.frame_index:
+        generation = int(getattr(snapshot, "generation", current.generation) or 0)
+        # Advance if generation increased (reconnect), or same generation with advancing/equal sequence
+        if generation < current.generation:
+            return
+        if generation == current.generation and frame_index < current.frame_index:
             return
         detections = getattr(snapshot, "detections", None)
         track_id = getattr(snapshot, "track_id", None)
@@ -75,11 +128,50 @@ class MultiCameraViewModel:
         behavior = getattr(snapshot, "behavior", None)
         risk = getattr(snapshot, "risk", None)
         evidence = getattr(snapshot, "evidence", None)
+        
+        # Extract visit semantics for the followed track, or the first available
+        visit_id = ""
+        visit_role = ""
+        person_state = ""
+        visit_semantics = getattr(snapshot, "visit_semantics", ())
+        semantic_match_mode = "NO_SEMANTICS"
+        target_semantic = None
+        if visit_semantics:
+            target_semantic = next(
+                (v for v in visit_semantics if v.track_id == track_id),
+                None
+            )
+            if target_semantic:
+                semantic_match_mode = "EXACT_TRACK_MATCH"
+            else:
+                target_semantic = visit_semantics[-1]
+                semantic_match_mode = "FALLBACK_LAST"
+                
+            visit_id = target_semantic.visit_id or ""
+            visit_role = target_semantic.visit_role or "UNKNOWN"
+            person_state = target_semantic.person_state or ""
+            
+        from src.observability.entity_truth_tracer import emit_entity_truth_trace
+        emit_entity_truth_trace(
+            boundary="VIEWMODEL",
+            camera_id=camera_id,
+            raw_track_id=track_id,
+            semantic_track_id=target_semantic.track_id if target_semantic else None,
+            visit_id=visit_id,
+            visit_role=visit_role,
+            person_state=person_state,
+            customer_analytics_eligible=(target_semantic.customer_analytics_eligible if target_semantic else False),
+            event_type=semantic_match_mode,
+            snapshot_camera_id=getattr(snapshot, "camera_id", getattr(snapshot, "source_camera_id", None)),
+            viewmodel_target_camera_id=camera_id
+        )
+
         has_event_analytics = any(
             value not in (None, "")
             for value in (
                 detections, track_id, track_bbox, bboxes, event_id, event_type,
                 event_confidence, inference_ref, temporal, behavior, risk,
+                visit_id
             )
         )
         self._panels[camera_id] = CameraPanelState(
@@ -88,8 +180,12 @@ class MultiCameraViewModel:
             frame=getattr(snapshot, "frame", None),
             fps=float(getattr(snapshot, "fps", 0.0) or 0.0),
             frame_index=frame_index,
+            generation=generation,
+            last_updated_at=time.monotonic() if getattr(snapshot, "frame", None) is not None else current.last_updated_at,
             detections=(int(detections) if detections is not None else current.detections),
             track_id=(track_id if track_id not in (None, "") else current.track_id),
+            semantic_track_id=(target_semantic.track_id if target_semantic else current.semantic_track_id),
+            customer_analytics_eligible=(target_semantic.customer_analytics_eligible if target_semantic else current.customer_analytics_eligible),
             track_status=(str(track_status) if track_status not in (None, "") else current.track_status),
             track_bbox=(tuple(track_bbox) if track_bbox is not None else current.track_bbox),
             bboxes=(tuple(tuple(item) for item in bboxes) if bboxes is not None else current.bboxes),
@@ -109,6 +205,9 @@ class MultiCameraViewModel:
                 frame_index if has_event_analytics else current.analytics_frame_index
             ),
             resolution=str(getattr(snapshot, "resolution", current.resolution) or current.resolution),
+            visit_id=str(visit_id if visit_id not in (None, "") else current.visit_id),
+            visit_role=str(visit_role if visit_role not in (None, "") else current.visit_role),
+            person_state=str(person_state if person_state not in (None, "") else current.person_state),
         )
 
     def mark_state(self, camera_id: str, source_state: str) -> None:
@@ -119,6 +218,8 @@ class MultiCameraViewModel:
             camera_id=camera_id, source_state=source_state, frame=current.frame,
             fps=current.fps, frame_index=current.frame_index,
             detections=current.detections, track_id=current.track_id,
+            semantic_track_id=current.semantic_track_id,
+            customer_analytics_eligible=current.customer_analytics_eligible,
             track_status=current.track_status, track_bbox=current.track_bbox,
             bboxes=current.bboxes, event_id=current.event_id,
             event_type=current.event_type, event_confidence=current.event_confidence,
@@ -134,4 +235,5 @@ class MultiCameraViewModel:
         return self._panels[camera_id]
 
     def snapshot(self) -> Dict[str, CameraPanelState]:
-        return dict(self._panels)
+        """Panels for the current viewport (catalog state is preserved)."""
+        return {camera_id: self._panels[camera_id] for camera_id in self._viewport}

@@ -1,0 +1,17 @@
+{
+  "ui_generated_situations": 0,
+  "ui_generated_ids": 0,
+  "ui_generated_severity": 0,
+  "ui_generated_epistemic_class": 0,
+  "ui_generated_health": 0,
+  "event_only_runtime_count": 0,
+  "track_only_runtime_count": 0,
+  "valid_situation_records_received": 0,
+  "situations_rendered": 0,
+  "agent_state_truthful": "PASS",
+  "autonomy_truthful": "PASS",
+  "system_health_truthful": "PASS",
+  "status": "PASS",
+  "source": "LIVE_RUNTIME",
+  "synthetic": false
+}

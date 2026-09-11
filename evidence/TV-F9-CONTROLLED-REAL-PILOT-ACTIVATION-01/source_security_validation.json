@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_SITE_SOURCE_SECURITY",
+  "status": "PASS",
+  "test_case": "test_real_site_source_security",
+  "result": "Quarantined, unverified, or vulnerable video sources fail closed and block pilot activation"
+}

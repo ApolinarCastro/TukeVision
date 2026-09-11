@@ -1,0 +1,7 @@
+{
+  "execution_id": "TV-F10-CONTROLLED-PRODUCTION-OPERATION-01",
+  "baseline_commit": "533284a0184a0df74a197aa86fd1ebf85f1ea897",
+  "baseline_tag": "v3-phase9-real-pilot-active-stable-20260829",
+  "branch": "phase10/controlled-production-operation",
+  "precheck": "PASS"
+}

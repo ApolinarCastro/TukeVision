@@ -1,0 +1,24 @@
+{
+  "run_id": "RUN-D43ED6",
+  "pid": 11772,
+  "started_at": "2026-08-29T16:38:57",
+  "started_at_unix": 1788035937.028355,
+  "version": "v3-phase12-surgical-runtime-corrected-stable-20260829-dirty",
+  "camera_ids": [
+    "cam_01",
+    "cam_02",
+    "cam_03",
+    "cam_04",
+    "cam_05",
+    "cam_06",
+    "cam_07",
+    "cam_08",
+    "cam_09",
+    "cam_10",
+    "cam_11",
+    "cam_12",
+    "cam_13",
+    "cam_14",
+    "cam_15"
+  ]
+}

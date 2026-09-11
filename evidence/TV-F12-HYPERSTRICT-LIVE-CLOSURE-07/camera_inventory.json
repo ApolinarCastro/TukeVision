@@ -1,0 +1,146 @@
+{
+  "total_configured": 15,
+  "total_registered": 15,
+  "total_available": 15,
+  "total_live": 15,
+  "total_offline": 0,
+  "cameras": [
+    {
+      "camera_id": "cam_01",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_02",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_03",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_04",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_05",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_06",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_07",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_08",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_09",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_10",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_11",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_12",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_13",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_14",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    },
+    {
+      "camera_id": "cam_15",
+      "configured": true,
+      "registered": true,
+      "available": true,
+      "live": true,
+      "stale": false,
+      "offline": false
+    }
+  ],
+  "source": "LIVE_APPLICATION_ATTACHED",
+  "synthetic": false
+}

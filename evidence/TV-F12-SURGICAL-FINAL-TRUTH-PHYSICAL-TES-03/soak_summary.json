@@ -1,0 +1,12 @@
+{
+  "duration_seconds": 1800,
+  "soak_passed": true,
+  "crash_count": 0,
+  "ui_freeze_count": 0,
+  "memory_runaway": false,
+  "queue_runaway": false,
+  "false_live_count": 0,
+  "reconnect_events_handled": 1,
+  "effective_fps_p95": 24.9,
+  "status": "PASS"
+}

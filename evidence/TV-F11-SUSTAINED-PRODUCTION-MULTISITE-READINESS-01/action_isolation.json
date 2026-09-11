@@ -1,0 +1,8 @@
+{
+  "gate": "MULTISITE_ACTION_ISOLATION",
+  "status": "PASS",
+  "test_performed": "site_a_executing_action_on_site_b",
+  "expected": "DENY",
+  "actual": "MultiSiteSecurityError (DENY)",
+  "cross_site_action_executions": 0
+}

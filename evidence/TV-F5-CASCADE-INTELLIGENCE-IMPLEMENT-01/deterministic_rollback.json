@@ -1,0 +1,6 @@
+{
+  "action": "Set REASONING_PROVIDER=deterministic",
+  "duration_minutes": 5,
+  "behavior": "All LLM/VLM calls bypassed. System successfully ran entirely on DeterministicReasoner rules without crashing.",
+  "status": "PASS"
+}

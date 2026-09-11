@@ -1,0 +1,6 @@
+{
+  "gate": "REAL_PILOT_FAILURE_RECALL",
+  "status": "PASS",
+  "test_case": "test_real_pilot_failure_recall",
+  "result": "Known failure signatures accurately recalled from Experience Layer with root cause and fix references"
+}

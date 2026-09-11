@@ -1,0 +1,12 @@
+{
+  "execution_id": "TV-F12-HYPERSTRICT-LIVE-CLOSURE-07",
+  "branch": "phase12/operational-intelligence-visualization-hd",
+  "commit_sha": "2e902da249f972851431d540ca9bd36abe21b875",
+  "runtime_pid": 21032,
+  "collector_pid": 23088,
+  "same_process": true,
+  "live_run_id": "RUN-5D10D8",
+  "started_at": "2026-08-30T17:26:44",
+  "source": "LIVE_APPLICATION_OPERATOR_ATTACHED",
+  "synthetic": false
+}

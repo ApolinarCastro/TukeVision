@@ -51,6 +51,34 @@ class RedactingFormatter(logging.Formatter):
         return redact_rtsp_url(message)
 
 
+class _ResilientStreamHandler(logging.StreamHandler):
+    """StreamHandler que no rompe el logging cuando stderr es inutilizable.
+
+    El sink primario es el archivo; el eco a consola es best-effort. La capa
+    de captura (live_sources) redirige temporalmente el descriptor nativo de
+    stderr (fd 2) para silenciar OpenCV; en esos estados un `StreamHandler`
+    estándar falla al escribir/flushear (OSError WinError 1) y `logging`
+    emite los repetidos ``--- Logging error ---``. Este handler omite solo el
+    eco a consola cuando el descriptor está cerrado/redirigido sin ocultar
+    nada en el log a archivo.
+    """
+
+    def emit(self, record: logging.LogRecord) -> None:
+        if self.stream is None:
+            return
+        try:
+            msg = self.format(record)
+            self.stream.write(msg + self.terminator)
+            self.flush()
+        except (OSError, ValueError):
+            # stderr cerrado/redirigido (captura de OpenCV): el archivo es
+            # el sink autoritativo; se omite solo el eco a consola.
+            pass
+        except Exception:
+            # Errores reales (formato, etc.) sí se reportan.
+            self.handleError(record)
+
+
 def new_run_id() -> str:
     """Genera un identificador único para una ejecución local."""
     short = uuid.uuid4().hex[:6].upper()
@@ -100,9 +128,49 @@ def setup_logging(
     handler.setFormatter(RedactingFormatter(_LOG_FORMAT, _DATE_FORMAT))
     logger.addHandler(handler)
 
-    stream = logging.StreamHandler()
+    stream = _ResilientStreamHandler()
     stream.setFormatter(RedactingFormatter(_LOG_FORMAT, _DATE_FORMAT))
     logger.addHandler(stream)
 
     logger.info("Logging iniciado. RUN_ID=%s", run_id)
     return logger
+
+
+def atomic_write_text(target: str | Path, content: str, encoding: str = "utf-8", retries: int = 5) -> Path:
+    """Atomic file write with unique temporary file and bounded retry for Windows locks.
+    
+    Prevents PermissionError [WinError 5] when temporary files or destinations are briefly
+    held open by antivirus, indexers, or asynchronous telemetry readers.
+    """
+    import os
+    import tempfile
+    import time
+    
+    target_path = Path(target).resolve()
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create unique temp file in the same directory (required for atomic rename)
+    fd, tmp_file = tempfile.mkstemp(prefix=f".{target_path.name}.", suffix=".tmp", dir=target_path.parent)
+    try:
+        with os.fdopen(fd, "w", encoding=encoding, newline="\n") as f:
+            f.write(content)
+            f.flush()
+            os.fsync(f.fileno())
+            
+        last_exc = None
+        for attempt in range(retries):
+            try:
+                os.replace(tmp_file, target_path)
+                return target_path
+            except (PermissionError, OSError) as exc:
+                last_exc = exc
+                time.sleep(0.02 * (2 ** attempt))  # 20ms, 40ms, 80ms, 160ms, 320ms
+        if last_exc:
+            raise last_exc
+        return target_path
+    finally:
+        try:
+            if os.path.exists(tmp_file):
+                os.unlink(tmp_file)
+        except OSError:
+            pass

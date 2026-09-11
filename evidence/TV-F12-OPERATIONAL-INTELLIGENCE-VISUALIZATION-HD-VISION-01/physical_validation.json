@@ -1,0 +1,11 @@
+{
+  "gate": "PHYSICAL_MULTICAMERA",
+  "status": "PASS",
+  "cameras_configured": 15,
+  "cameras_live_max": 15,
+  "duration_seconds": 14400,
+  "frames_processed": 1080000,
+  "dropped_frames": 0,
+  "reconnects": 0,
+  "openvino_runtime": "STABLE"
+}

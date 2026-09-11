@@ -1,0 +1,30 @@
+{
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "profile_observed": "NOT_OBSERVED",
+      "source_resolution": "NOT_OBSERVED",
+      "focus_main_pass": false,
+      "focus_hd_pass": false,
+      "status": "NOT_VALIDATED"
+    },
+    {
+      "camera_id": "cam_06",
+      "profile_observed": "NOT_OBSERVED",
+      "source_resolution": "NOT_OBSERVED",
+      "focus_main_pass": false,
+      "focus_hd_pass": false,
+      "status": "NOT_VALIDATED"
+    },
+    {
+      "camera_id": "cam_09",
+      "profile_observed": "NOT_OBSERVED",
+      "source_resolution": "NOT_OBSERVED",
+      "focus_main_pass": false,
+      "focus_hd_pass": false,
+      "status": "NOT_VALIDATED"
+    }
+  ],
+  "source": "LIVE_RUN_ARTIFACT_OBSERVER",
+  "synthetic": false
+}

@@ -1,0 +1,10 @@
+{
+  "grid_15": true,
+  "focus_mode": true,
+  "zoom": true,
+  "visit_id_in_overlay": true,
+  "visit_role_in_overlay": true,
+  "person_state_in_overlay": true,
+  "panel_detail_shows_visit_fields": true,
+  "panel_detail_hides_null_rows": true
+}

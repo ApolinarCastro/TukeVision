@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-1504AC",
+  "pid": 24536,
+  "started_at": "2026-08-30T20:03:22",
+  "started_at_unix": 1788134602.98693,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-1-gc46067c-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

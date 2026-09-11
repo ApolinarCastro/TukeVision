@@ -1,0 +1,18 @@
+# LOOP-0018M-R1 — POST-COMMIT HASHES
+
+**BASE_HEAD_POST:** `ccacb3d95f963a973ff64400cbdb88500dbde705`
+
+```json
+{
+  "config/default.json": "4B1A1E5AE141974F02F56DEE6AD492B5FED2A4957FD40D8049440C70264B455F",
+  "src/app/pipeline.py": "9B93EAB0D5D7B489CB541466F7DC333B4E2225EFA72520A6F64AAB2336461F42",
+  "src/capture/live_sources.py": "EEA67E3D3252D2E43C15645BC13E9C5D05872C869CF4B83A1A839F709A00295C",
+  "src/ui/controller.py": "CAE5D822718943A4F0811204DEBD38403B0A444A86C9565FB25534F8D4C1F6D4"
+}
+```
+
+Los 4 hashes POST son idénticos a los PRECOMMIT → contenido inmutable confirmado.
+
+**GIT_STATUS:** limpio respecto de archivos de producto; únicamente untracked
+clasificados: `evidence/` (EVIDENCE) y `src/capture/live_sources.BASE_preE01.bak.py`
+(BACKUP, GIT_TRACKED=NO).

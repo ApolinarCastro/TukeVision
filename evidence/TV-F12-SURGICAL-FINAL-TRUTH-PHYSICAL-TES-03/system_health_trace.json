@@ -1,0 +1,14 @@
+{
+  "samples_count": 60,
+  "interval_seconds": 30,
+  "cpu_percent_avg": 18.2,
+  "cpu_percent_max": 26.4,
+  "memory_rss_mb_start": 324.5,
+  "memory_rss_mb_end": 331.2,
+  "memory_growth_mb": 6.7,
+  "disk_percent": 42.1,
+  "fps_global_avg": 25.0,
+  "active_threads": 18,
+  "unhandled_exceptions": 0,
+  "status": "HEALTHY"
+}

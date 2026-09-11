@@ -1,0 +1,111 @@
+{
+  "RUN_ID": "RUN-3C05C8",
+  "sample_count": 719,
+  "first_timestamp": "2026-08-31T00:38:52Z",
+  "last_timestamp": "2026-08-31T01:31:13Z",
+  "first_monotonic": 29764.638811,
+  "last_monotonic": 32905.031,
+  "actual_duration_seconds": 3140.392189000002,
+  "average_sample_gap": 4.373805277158777,
+  "max_sample_gap": 5.187999999998283,
+  "readers_min": 12,
+  "readers_max": 45,
+  "decoders_min": 12,
+  "decoders_max": 45,
+  "cpu_avg": 775.5219749652294,
+  "cpu_max": 890.1,
+  "rss_start": 470.4,
+  "rss_end": 554.6,
+  "rss_growth": 84.20000000000005,
+  "camera_state_distribution": {
+    "cam_01": {
+      "ONLINE": 610,
+      "STALE": 100,
+      "OFFLINE": 9
+    },
+    "cam_02": {
+      "ONLINE": 637,
+      "STALE": 76,
+      "OFFLINE": 6
+    },
+    "cam_03": {
+      "RECONNECTING": 2,
+      "ONLINE": 639,
+      "STALE": 72,
+      "OFFLINE": 6
+    },
+    "cam_04": {
+      "RECONNECTING": 9,
+      "ONLINE": 629,
+      "STALE": 76,
+      "OFFLINE": 5
+    },
+    "cam_05": {
+      "RECONNECTING": 1,
+      "ONLINE": 628,
+      "STALE": 87,
+      "OFFLINE": 3
+    },
+    "cam_06": {
+      "RECONNECTING": 11,
+      "ONLINE": 616,
+      "STALE": 85,
+      "OFFLINE": 7
+    },
+    "cam_07": {
+      "RECONNECTING": 8,
+      "ONLINE": 589,
+      "STALE": 116,
+      "OFFLINE": 6
+    },
+    "cam_08": {
+      "RECONNECTING": 1,
+      "ONLINE": 620,
+      "STALE": 87,
+      "OFFLINE": 11
+    },
+    "cam_09": {
+      "RECONNECTING": 6,
+      "ONLINE": 644,
+      "STALE": 67,
+      "OFFLINE": 2
+    },
+    "cam_10": {
+      "RECONNECTING": 8,
+      "ONLINE": 615,
+      "STALE": 83,
+      "OFFLINE": 13
+    },
+    "cam_11": {
+      "RECONNECTING": 4,
+      "ONLINE": 617,
+      "STALE": 90,
+      "OFFLINE": 8
+    },
+    "cam_12": {
+      "RECONNECTING": 4,
+      "ONLINE": 616,
+      "STALE": 94,
+      "OFFLINE": 5
+    },
+    "cam_13": {
+      "RECONNECTING": 9,
+      "ONLINE": 601,
+      "STALE": 102,
+      "OFFLINE": 7
+    },
+    "cam_14": {
+      "RECONNECTING": 2,
+      "ONLINE": 630,
+      "STALE": 87
+    },
+    "cam_15": {
+      "RECONNECTING": 6,
+      "ONLINE": 638,
+      "STALE": 75
+    }
+  },
+  "ui_freeze_events": 0,
+  "runtime_stall_events": 0,
+  "unhandled_exceptions": 0
+}

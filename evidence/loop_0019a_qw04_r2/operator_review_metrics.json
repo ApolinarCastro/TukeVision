@@ -1,14 +1,17 @@
 {
   "classification_counts": {
+    "BENIGN_ACTIVITY": 3,
     "USEFUL_SIGNAL": 1
   },
   "human_review_evidence_sufficiency_measured": true,
-  "measured_at": "2026-08-18T20:33:57.571099+00:00",
-  "reviewed_records": 1,
+  "measured_at": "2026-08-20T20:11:31.789124+00:00",
+  "reviewed_records": 4,
   "static_evidence_sufficiency": {
-    "YES": 1
+    "NOT_AVAILABLE": 1,
+    "UNCERTAIN": 1,
+    "YES": 2
   },
   "temporal_evidence_sufficiency": {
-    "YES": 1
+    "NOT_AVAILABLE": 4
   }
 }

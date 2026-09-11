@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_PRIVACY_ISOLATION",
+  "status": "PASS",
+  "biometric_detection": "DISABLED",
+  "face_recognition": "DISABLED",
+  "cross_site_exports_blocked": true
+}

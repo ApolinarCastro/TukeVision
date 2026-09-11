@@ -1,0 +1,23 @@
+{
+  "gate": "REAL_PILOT_E2E",
+  "status": "PASS",
+  "pipeline_verified": [
+    "Client Operational Input Record",
+    "Client Input Validation & Hash",
+    "Real Site Configuration Package",
+    "Source Security Gate Check",
+    "Real Site Dry-Run",
+    "PilotSession Activation",
+    "Perception Ingestion (15 Cameras)",
+    "Spatial Intelligence & Tracking",
+    "Attention Orchestrator",
+    "InvestigationSession Creation",
+    "Cascade Intelligence Reasoning",
+    "Governed Operational Actions (AUTONOMY_2)",
+    "Operator Outcome Feedback Ingestion",
+    "Operational Experience Recording",
+    "PilotMetrics Live Telemetry",
+    "Real Pilot Report Generation"
+  ],
+  "label": "REAL_SITE"
+}

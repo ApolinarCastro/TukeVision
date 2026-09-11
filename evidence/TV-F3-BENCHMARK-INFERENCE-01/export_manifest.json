@@ -1,0 +1,39 @@
+{
+  "source_model": "models\\yolo11n.pt",
+  "source_sha256": "0ebbc80d4a7680d14987a577cd21342b65ecfd94632bd9a8da63ae6417644ee1",
+  "source_size_bytes": 5613764,
+  "exports": {
+    "onnx": {
+      "path": "models\\yolo11n.onnx",
+      "sha256": "55814c3c9eb4d9d5fccbad4d6959ab91c5799997944ae92b23bba6c24820e3a4",
+      "size_bytes": 10741397,
+      "export_time_s": 5.160322700001416,
+      "format": "onnx",
+      "opset": 17,
+      "imgsz": 640,
+      "dynamic": false,
+      "simplify": true
+    },
+    "openvino": {
+      "path": "models\\yolo11n_openvino_model",
+      "files": {
+        "metadata.yaml": {
+          "size_bytes": 1665,
+          "sha256": "7e82228918f0dfb164e6bbb69f527fd707b0f59ae1a265a290be2b9e8a587c44"
+        },
+        "yolo11n.bin": {
+          "size_bytes": 10566100,
+          "sha256": "dc6c9b28de0e25e9cc3e449d4c1db3c2ef4a13cd1bb5a7033c5b4ef894085293"
+        },
+        "yolo11n.xml": {
+          "size_bytes": 319299,
+          "sha256": "6adf41bcba8823107c805880bd353f1f121e0a485f478b15a2206cfb14affc1f"
+        }
+      },
+      "export_time_s": 1.8141198000012082,
+      "format": "openvino",
+      "imgsz": 640,
+      "half": false
+    }
+  }
+}

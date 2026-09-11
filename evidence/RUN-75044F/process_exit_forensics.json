@@ -1,0 +1,13 @@
+{
+  "why_process_exited": "UNHANDLED_EXCEPTION",
+  "uptime_s": 49.9,
+  "pid": 9112,
+  "started_wall_clock": "2026-08-28T19:24:46",
+  "exited_wall_clock": "2026-08-28T19:25:36",
+  "detail": {
+    "exception_type": "FileNotFoundError",
+    "exception_message": "[WinError 2] El sistema no puede encontrar el archivo especificado: 'data\\\\runtime_evidence\\\\cam_02\\\\EVD-589145D16BD1421FB90AA8FCB9994C63'",
+    "traceback": "Traceback (most recent call last):\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\threading.py\", line 1075, in _bootstrap_inner\n    self.run()\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\threading.py\", line 1012, in run\n    self._target(*self._args, **self._kwargs)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\scripts\\run_multicamera.py\", line 241, in _run\n    self._pipeline.run(self._stop.is_set, on_result)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\operational_pipeline.py\", line 95, in run\n    result = self.process_available(camera_id, snapshot=snapshot)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\operational_pipeline.py\", line 74, in process_available\n    return self._chain.feed(\n           ^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\app\\advance_chain.py\", line 186, in feed\n    evidence = self._evidence_store.persist_selected(\n               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\evidence\\persistent.py\", line 135, in persist_selected\n    self._enforce_retention(safe_camera)\n  File \"C:\\Users\\ASUS Zenbook\\Documents\\TukeVision\\TukeVision\\src\\evidence\\persistent.py\", line 239, in _enforce_retention\n    stale.rmdir()\n  File \"C:\\Users\\ASUS Zenbook\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\python\\Lib\\pathlib.py\", line 1351, in rmdir\n    os.rmdir(self)\nFileNotFoundError: [WinError 2] El sistema no puede encontrar el archivo especificado: 'data\\\\runtime_evidence\\\\cam_02\\\\EVD-589145D16BD1421FB90AA8FCB9994C63'",
+    "thread": "tukevision-multicamera-pipeline"
+  }
+}

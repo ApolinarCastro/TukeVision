@@ -1,0 +1,15 @@
+{
+  "REAL_PERSON_STATE": "NOT_OBSERVED_PHYSICAL_EXPECTED_PERSON_MOVING_OR_STATIONARY",
+  "REAL_PERSON_LOCAL_TRACK": "NOT_OBSERVED_PHYSICAL_EXPECTED_YES",
+  "REAL_PERSON_VISIT_ID": "NOT_OBSERVED_PHYSICAL_EXPECTED_VIS-NNNNNN",
+  "REAL_PERSON_VISIT_ID_STABLE": "NOT_OBSERVED_PHYSICAL_EXPECTED_YES",
+  "REAL_PERSON_STATIONARY_VALIDATED": "NOT_OBSERVED_PHYSICAL",
+  "required_consecutive_observations": 2,
+  "unit_test_real_person": {
+    "status": "PASS",
+    "tests": ["eligible person gets visit_id", "moving then stationary keeps same visit_id", "visit_id not reused after close"]
+  },
+  "defect": "PHYSICAL_REAL_PERSON_NOT_OBSERVED_HEADLESS",
+  "camera_id": null,
+  "timestamp": null
+}

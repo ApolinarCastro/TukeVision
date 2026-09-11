@@ -1,0 +1,12 @@
+{
+  "gate": "ROLLBACK",
+  "status": "PASS",
+  "rollback_flags": {
+    "OPERATIONAL_UI_ENABLED": false,
+    "OPERATIONAL_MAP_ENABLED": false,
+    "ADAPTIVE_VIDEO_QUALITY_ENABLED": false,
+    "HD_FOCUS_ENABLED": false
+  },
+  "rollback_stability_duration_seconds": 600,
+  "backend_preserved": true
+}

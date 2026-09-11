@@ -1,0 +1,24 @@
+{
+  "run_id": "TV-F12-STRICT-RUNTIME-TRUTH-ENFORCEMENT-06",
+  "pid": 24124,
+  "started_at": "2026-08-30T16:14:01",
+  "started_at_unix": 1788120841.7026021,
+  "version": "v3-phase12-runtime-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "cam_01",
+    "cam_02",
+    "cam_03",
+    "cam_04",
+    "cam_05",
+    "cam_06",
+    "cam_07",
+    "cam_08",
+    "cam_09",
+    "cam_10",
+    "cam_11",
+    "cam_12",
+    "cam_13",
+    "cam_14",
+    "cam_15"
+  ]
+}

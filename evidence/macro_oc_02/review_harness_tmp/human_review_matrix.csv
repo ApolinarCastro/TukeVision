@@ -1,0 +1,2 @@
+review_id,signal_id,camera_id,track_id,classification,review_timestamp,evidence_ref,clip_evidence_ref,clip_sha256,static_evidence_sufficient,temporal_evidence_sufficient,comparison_notes
+SRR-REVIEW-1,SIG-REVIEW-1,cam_05,TRK-9,USEFUL_SIGNAL,2026-08-21T20:50:53.316521+00:00,cam_05/frame_0001.jpg,,,NOT_AVAILABLE,NOT_AVAILABLE,

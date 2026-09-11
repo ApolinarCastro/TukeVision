@@ -1,0 +1,13 @@
+{
+  "execution_id": "TV-F12-PASSIVE-OBSERVER-TRUTH-CLOSURE-08",
+  "capabilities_evaluated": 13,
+  "capabilities_certified": 11,
+  "capabilities_physically_validated": 1,
+  "capabilities_contract_ready": 1,
+  "capabilities_target": 1,
+  "false_certifications": 0,
+  "radar_reconciled": true,
+  "status": "PASS",
+  "source": "TES_RECONCILIATION",
+  "synthetic": false
+}

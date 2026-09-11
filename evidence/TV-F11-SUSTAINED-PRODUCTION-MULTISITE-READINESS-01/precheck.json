@@ -1,0 +1,8 @@
+{
+  "gate": "F11_BASELINE_PRECHECK",
+  "status": "PASS",
+  "input_commit": "a23749d509fc4650bc6d48f5cf7298b5e4f8ec1c",
+  "input_tag": "v3-phase10-controlled-production-stable-20260829",
+  "branch": "phase11/sustained-production-multisite-readiness",
+  "verified_at": "2026-08-29T11:18:45Z"
+}

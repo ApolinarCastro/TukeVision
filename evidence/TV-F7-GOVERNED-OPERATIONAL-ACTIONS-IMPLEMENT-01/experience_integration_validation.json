@@ -1,0 +1,6 @@
+{
+  "gate": "ACTION_EXPERIENCE_INTEGRATION",
+  "status": "PASS",
+  "test_case": "test_experience_integration",
+  "result": "Action outcome successfully recorded in Experience Store as OperationalExperience"
+}

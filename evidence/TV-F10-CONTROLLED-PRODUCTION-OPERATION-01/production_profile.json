@@ -1,0 +1,17 @@
+{
+  "gate": "PRODUCTION_PROFILE",
+  "status": "PASS",
+  "production_id": "PROD-SITE-NICOPOLY-01",
+  "site_id": "SITE-NICOPOLY-01",
+  "pilot_origin_id": "PILOT-REAL-01",
+  "configuration_version": "1.0.0-PROD",
+  "configuration_hash": "e3b0c44298fc1c14",
+  "camera_count": 15,
+  "zone_count": 4,
+  "use_cases": ["ZONE_ACTIVITY", "PROLONGED_PRESENCE", "CROSS_CAMERA_CONTINUITY"],
+  "roles": {
+    "supervisor_01": "SUPERVISOR",
+    "operator_01": "OPERATOR"
+  },
+  "status": "ACTIVE"
+}

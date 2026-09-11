@@ -1,0 +1,11 @@
+{
+  "gate": "PILOT_REPORT",
+  "status": "PASS",
+  "test_case": "test_pilot_report",
+  "report_structure_verified": [
+    "site_id", "session_id", "configuration_version", "duration_seconds",
+    "camera_availability", "system_health", "situations_count",
+    "investigations_count", "actions_executed_count", "quality_summary",
+    "resource_summary", "recoveries_count"
+  ]
+}

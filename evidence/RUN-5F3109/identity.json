@@ -1,0 +1,13 @@
+{
+  "run_id": "RUN-5F3109",
+  "pid": 21336,
+  "started_at": "2026-08-30T19:58:52",
+  "started_at_unix": 1788134332.018627,
+  "version": "v3-phase12-physical-runtime-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "CAM-001",
+    "CAM-002",
+    "CAM-003",
+    "CAM-004"
+  ]
+}

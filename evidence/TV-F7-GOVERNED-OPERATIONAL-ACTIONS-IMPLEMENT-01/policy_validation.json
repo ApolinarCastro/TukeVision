@@ -1,0 +1,12 @@
+{
+  "component": "ActionPolicyEngine",
+  "status": "PASS",
+  "rules": {
+    "default_deny": "ENABLED",
+    "safe_mode_block": "ENABLED",
+    "kill_switch_block": "ENABLED",
+    "evidence_sufficiency_gate": "ENABLED",
+    "source_health_gate": "ENABLED"
+  },
+  "verification": "SOURCE_CODE_VERIFIED"
+}

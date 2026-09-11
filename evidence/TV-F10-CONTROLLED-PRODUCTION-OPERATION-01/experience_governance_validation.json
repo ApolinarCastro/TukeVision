@@ -1,0 +1,10 @@
+{
+  "gate": "PRODUCTION_EXPERIENCE_GOVERNANCE",
+  "status": "PASS",
+  "test_case": "test_production_experience_governance_and_failure_recall",
+  "rules_enforced": [
+    "Experience cannot automatically mutate policy allowlist",
+    "Experience cannot alter fact classifications",
+    "Experience cannot modify code or autonomy levels"
+  ]
+}

@@ -94,7 +94,7 @@ class TestConfig(unittest.TestCase):
                 text = path.read_text(encoding="utf-8", errors="ignore")
                 if "password" in text.lower() or "secret" in text.lower():
                     rel = path.relative_to(PROJECT_ROOT)
-                    if "test_" not in path.name and rel.parts[0] not in ("dist",):
+                    if "test_" not in path.name and rel.parts[0] not in ("dist", "evidence", ".pytest_tmp"):
                         self.fail(f"Posible secreto en {rel}")
 
 

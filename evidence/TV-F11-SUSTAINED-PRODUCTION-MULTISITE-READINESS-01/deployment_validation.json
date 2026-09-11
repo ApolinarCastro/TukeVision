@@ -1,0 +1,14 @@
+{
+  "gate": "DEPLOYMENT_VALIDATION",
+  "status": "PASS",
+  "rules_checked": [
+    "schema_compatibility",
+    "camera_uniqueness",
+    "zone_and_calibration_references",
+    "operator_roles_and_scopes",
+    "retention_and_privacy_policies",
+    "action_policy_validity",
+    "no_plaintext_secrets_fail_closed"
+  ],
+  "result": "VALID"
+}

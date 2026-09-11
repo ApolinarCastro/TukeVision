@@ -1,0 +1,25 @@
+{
+  "visible_cameras": 6,
+  "layout": "1_MAIN_5_SUB",
+  "camera_tiles_requested": 6,
+  "camera_tiles_rendered": 6,
+  "empty_tiles": 0,
+  "overlap": 0,
+  "clipped": 0,
+  "viewport_dimensions": [
+    1,
+    1
+  ],
+  "window_dimensions": [
+    1280,
+    720
+  ],
+  "usable_grid_area": 1.0,
+  "total_tile_area": 2162.0,
+  "dead_space_percent": 0.0,
+  "dead_space_threshold": "<10%",
+  "aspect_preserved": "YES",
+  "status": "PASS",
+  "source": "LIVE_RUNTIME",
+  "synthetic": false
+}

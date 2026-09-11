@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "restart_duration_seconds": 2,
+  "experience_store_load": "PASS",
+  "relations_load": "PASS",
+  "reaudit_candidates_load": "PASS",
+  "failure_signatures_load": "PASS",
+  "mcp_read_only_load": "PASS",
+  "agent_monitor_experience_retrieval": "PASS",
+  "core_f5_operation": "PASS"
+}

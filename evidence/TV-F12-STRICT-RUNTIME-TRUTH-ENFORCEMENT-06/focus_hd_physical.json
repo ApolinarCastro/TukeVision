@@ -1,0 +1,62 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "tested_at": "2026-08-30T19:38:51.678488+00:00",
+  "cameras_tested": [
+    {
+      "camera_id": "cam_01",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": false,
+      "frame_observed": false,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "source_resolution": "NOT_OBSERVED",
+      "source_resolution_observed": false,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    },
+    {
+      "camera_id": "cam_06",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": false,
+      "frame_observed": false,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "source_resolution": "NOT_OBSERVED",
+      "source_resolution_observed": false,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    },
+    {
+      "camera_id": "cam_09",
+      "profile_requested": "MAIN",
+      "profile_observed": "MAIN",
+      "generation_before": 0,
+      "generation_after": 0,
+      "new_generation_observed": false,
+      "frame_observed": false,
+      "frame_sequence_before": -1,
+      "frame_sequence_after": -1,
+      "source_resolution": "NOT_OBSERVED",
+      "source_resolution_observed": false,
+      "is_hd_resolution": false,
+      "focus_main_switch_pass": false,
+      "focus_hd_pass": false,
+      "verdict_derived": "MAIN_SWITCH_FAILED"
+    }
+  ],
+  "overall_focus_main_pass": false,
+  "overall_focus_hd_pass": false,
+  "status": "FAIL",
+  "external_limitation_demonstrated": true
+}

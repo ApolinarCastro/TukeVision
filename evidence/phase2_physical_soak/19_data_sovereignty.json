@@ -1,0 +1,7 @@
+{
+  "unauthorized_video_egress": 0,
+  "unauthorized_audio_egress": 0,
+  "unauthorized_face_data_egress": 0,
+  "unauthorized_metadata_egress": 0,
+  "data_sovereignty": "PASS"
+}

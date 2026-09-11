@@ -1,0 +1,9 @@
+{
+  "gate": "PILOT_ROLLBACK",
+  "status": "PASS",
+  "flags": {
+    "PILOT_MODE_ENABLED": false
+  },
+  "behavior": "Pilot layer disabled; system continues operating at Phase 7 certified state without regression",
+  "duration_seconds": 300
+}

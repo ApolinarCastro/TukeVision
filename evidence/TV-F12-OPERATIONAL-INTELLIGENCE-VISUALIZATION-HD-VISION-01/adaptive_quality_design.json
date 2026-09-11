@@ -1,0 +1,6 @@
+{
+  "gate": "ADAPTIVE_VIDEO_QUALITY",
+  "status": "PASS",
+  "modes_supported": ["GRID (352x240)", "INFERENCE (640x360)", "FOCUS (1920x1080)", "EVIDENCE (1920x1080)"],
+  "resource_adaptation": "Degrades gracefully to 640x360 focus under CRITICAL resource constraints"
+}

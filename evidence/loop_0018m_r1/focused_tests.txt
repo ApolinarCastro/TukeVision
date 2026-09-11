@@ -1,0 +1,28 @@
+# LOOP-0018M-R1 — FOCUSED TESTS
+
+**Fecha:** 2026-08-16
+**Interpreter:** `C:\Users\ASUS Zenbook\Documents\TukeVision-portable\.venv\Scripts\python.exe`
+
+## Resultado
+
+`87/87 OK` en 22.009s
+
+## Módulos
+
+- `tests.test_live_sources` (RTSP: read_frames, reconnect_on_read_failure,
+  reconnect_stops_after_global_limit, reconnect_limit_exhausted,
+  reconnect_failure_during_read, close_releases_capture, metadata, open;
+  Webcam: close, open, read, metadata; RTSP URL/redaction; stderr suppression)
+- `tests.test_rtsp_connection_diagnostic`
+- `tests.test_secret_leak`
+- `tests.test_pipeline` (incluye STREAM_LOST contract)
+- `tests.test_ui_controller`
+- `tests.test_pipeline_equivalence`
+- `tests.test_pipeline_snapshot`
+
+## Estabilidad (LOOP-0018M heredado)
+
+- test_read_frames / test_reconnect_on_read_failure /
+  test_reconnect_stops_after_global_limit: PASS determinista 5/5 (~2.0s cada
+  corrida) — verificado en LOOP-0018M.## STREAM_LOST functional check
+- FAILED_SOURCE_REACHES_STREAM_LOST: FINAL_STATUS=STREAM_LOST

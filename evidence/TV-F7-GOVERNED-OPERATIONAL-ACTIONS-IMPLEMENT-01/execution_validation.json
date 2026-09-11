@@ -1,0 +1,15 @@
+{
+  "gate": "ACTION_EXECUTION",
+  "status": "PASS",
+  "handlers_registered": [
+    "CreateOperatorAlertHandler",
+    "RaiseAttentionPriorityHandler",
+    "CreateReviewTaskHandler",
+    "PinEvidenceHandler",
+    "FocusCommandCenterViewHandler",
+    "RequestOperatorReviewHandler",
+    "MarkInvestigationForFollowupHandler",
+    "AcknowledgeInternalSystemEventHandler"
+  ],
+  "result": "All handlers successfully registered in GovernedActionExecutor allowlist"
+}

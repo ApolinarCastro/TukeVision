@@ -1,0 +1,7 @@
+{
+  "gate": "OPERATOR_ROLE_GOVERNANCE",
+  "status": "PASS",
+  "roles_supported": ["VIEWER", "OPERATOR", "SUPERVISOR", "ADMIN"],
+  "test_case": "test_operator_role_governance",
+  "result": "Unrecognized operator roles rejected during site validation"
+}

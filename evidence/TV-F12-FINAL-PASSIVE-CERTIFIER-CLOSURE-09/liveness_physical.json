@@ -1,0 +1,1074 @@
+{
+  "observation_windows": 5,
+  "observation_duration_seconds": 10.0,
+  "system_operational_liveness": true,
+  "cameras": {
+    "cam_01": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.234
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 16,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 9,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.422
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 17,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.312
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 15,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.515
+        }
+      ]
+    },
+    "cam_02": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 4,
+      "presentation_advancing_windows": 4,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 7,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 1.562
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": true,
+          "frame_age_s": 3.875
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 18,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.766
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 31,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.718
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 18,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.484
+        }
+      ]
+    },
+    "cam_03": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 7,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.187
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 16,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.375
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.531
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 15,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.781
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 13,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 1.234
+        }
+      ]
+    },
+    "cam_04": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 17,
+          "presentation_delta": 7,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.203
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 3,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.828
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 14,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 1.437
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 21,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.843
+        }
+      ]
+    },
+    "cam_05": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 15,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.468
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 17,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 2,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.516
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 15,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.734
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 16,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.843
+        }
+      ]
+    },
+    "cam_06": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.203
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 16,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.203
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.5
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 13,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.718
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 22,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.234
+        }
+      ]
+    },
+    "cam_07": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 24,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.5
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 25,
+          "presentation_delta": 7,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.313
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.547
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 15,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.781
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 20,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        }
+      ]
+    },
+    "cam_08": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 14,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.671
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 19,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.25
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.484
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 17,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.422
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 13,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.906
+        }
+      ]
+    },
+    "cam_09": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 4,
+      "presentation_advancing_windows": 4,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 3,
+          "presentation_delta": 2,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 3,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.828
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": true,
+          "frame_age_s": 2.203
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 1,
+          "presentation_delta": 1,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 2.343
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 1,
+          "presentation_delta": 1,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 1.093
+        }
+      ]
+    },
+    "cam_10": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 2,
+      "presentation_advancing_windows": 2,
+      "fresh_windows": 3,
+      "is_live_derived": false,
+      "status": "INTERMITTENT",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": true,
+          "frame_age_s": 4.718
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": false,
+          "frame_age_s": 7.031
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": false,
+          "frame_age_s": 8.406
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 104,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.437
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 21,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.812
+        }
+      ]
+    },
+    "cam_11": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 4,
+      "presentation_advancing_windows": 4,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.187
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 11,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.672
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 0,
+          "presentation_delta": 0,
+          "session_open": true,
+          "capture_advancing": false,
+          "presentation_advancing": false,
+          "freshness_valid": true,
+          "frame_age_s": 2.047
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 30,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.39
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 14,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.781
+        }
+      ]
+    },
+    "cam_12": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 16,
+          "presentation_delta": 7,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.281
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 16,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.359
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.578
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 18,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.343
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 13,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.765
+        }
+      ]
+    },
+    "cam_13": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 15,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.406
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 17,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.25
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 8,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.484
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 18,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.328
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 14,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.718
+        }
+      ]
+    },
+    "cam_14": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 15,
+          "presentation_delta": 8,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.343
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 17,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.25
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 5,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.75
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 19,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.5
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 16,
+          "presentation_delta": 5,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.64
+        }
+      ]
+    },
+    "cam_15": {
+      "windows_evaluated": 5,
+      "valid_windows": 5,
+      "capture_advancing_windows": 5,
+      "presentation_advancing_windows": 5,
+      "fresh_windows": 5,
+      "is_live_derived": true,
+      "status": "LIVE",
+      "windows_data": [
+        {
+          "window_id": 1,
+          "T0": 1788128682.4160044,
+          "T1": 1788128684.7070525,
+          "capture_delta": 18,
+          "presentation_delta": 6,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.328
+        },
+        {
+          "window_id": 2,
+          "T0": 1788128684.7070525,
+          "T1": 1788128687.0318067,
+          "capture_delta": 16,
+          "presentation_delta": 7,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.313
+        },
+        {
+          "window_id": 3,
+          "T0": 1788128687.0318067,
+          "T1": 1788128688.4152305,
+          "capture_delta": 5,
+          "presentation_delta": 3,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 1.031
+        },
+        {
+          "window_id": 4,
+          "T0": 1788128688.4152305,
+          "T1": 1788128690.758786,
+          "capture_delta": 21,
+          "presentation_delta": 2,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.39
+        },
+        {
+          "window_id": 5,
+          "T0": 1788128690.758786,
+          "T1": 1788128693.1398315,
+          "capture_delta": 15,
+          "presentation_delta": 4,
+          "session_open": true,
+          "capture_advancing": true,
+          "presentation_advancing": true,
+          "freshness_valid": true,
+          "frame_age_s": 0.562
+        }
+      ]
+    }
+  },
+  "source": "MULTI_WINDOW_OBSERVATION",
+  "synthetic": false
+}

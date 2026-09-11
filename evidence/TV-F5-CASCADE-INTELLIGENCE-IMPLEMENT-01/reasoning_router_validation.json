@@ -1,0 +1,10 @@
+{
+  "test_suite": "tests/test_agent_router.py",
+  "status": "PASS",
+  "cases_validated": [
+    "Caso A: Deterministic Only",
+    "Caso B: LLM Escalation and Fallback",
+    "Caso C: VLM Escalation",
+    "Caso E: Critical Budget Fallback"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "source": "LIVE_RUNTIME_ATTACHED",
+  "synthetic": false,
+  "evaluated_at": "2026-08-30T19:19:21.971671+00:00",
+  "execution_id": "TV-F12-MEGALOOP-RUNTIME-TRUTH-CLOSURE-05",
+  "capabilities_evaluated": 13,
+  "capabilities_certified": 13,
+  "false_certifications": 0,
+  "incident_history_preserved": true,
+  "radar_reconciled": true,
+  "status": "PASS"
+}

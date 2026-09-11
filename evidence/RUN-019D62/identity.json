@@ -1,0 +1,16 @@
+{
+  "run_id": "RUN-019D62",
+  "pid": 18560,
+  "started_at": "2026-08-30T18:22:40",
+  "started_at_unix": 1788128560.691612,
+  "version": "v3-phase12-passive-observer-truth-closed-stable-20260830-dirty",
+  "camera_ids": [
+    "cam_caja_01",
+    "cam_caja_02",
+    "cam_pasillo_01",
+    "cam_acceso_01",
+    "cam_pasillo_02",
+    "cam_ip_vitrina_01",
+    "cam_norte_caja_01"
+  ]
+}

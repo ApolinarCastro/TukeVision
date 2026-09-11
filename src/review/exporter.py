@@ -9,6 +9,7 @@ import csv
 import json
 import os
 import tempfile
+import time
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from hashlib import sha256
@@ -257,7 +258,17 @@ class BoundedReviewExporter:
                     stream.write("\n")
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary_name, target)
+            last_exc = None
+            for attempt in range(5):
+                try:
+                    os.replace(temporary_name, target)
+                    last_exc = None
+                    break
+                except (PermissionError, OSError) as exc:
+                    last_exc = exc
+                    time.sleep(0.02 * (2 ** attempt))
+            if last_exc:
+                raise last_exc
         except BaseException:
             try:
                 os.unlink(temporary_name)

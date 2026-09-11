@@ -1,0 +1,6 @@
+{
+  "gate": "PILOT_CONFIG_TRACEABILITY",
+  "status": "PASS",
+  "test_case": "test_pilot_config_traceability",
+  "result": "PilotSession preserves exact configuration version and cryptographic configuration hash"
+}

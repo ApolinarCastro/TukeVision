@@ -1,0 +1,12 @@
+[
+  {
+    "DEFECT_ID": "DEF-F8-001",
+    "component": "PilotService",
+    "symptom": "NameError on Tuple import in typing header during pilot service initialization.",
+    "root_cause": "Typing import was missing Tuple in src/pilot/service.py.",
+    "classification": "IMPLEMENTATION_DEFECT",
+    "patch": "Added Tuple to typing imports in src/pilot/service.py.",
+    "regression_test": "test_site_configuration",
+    "result": "PASS"
+  }
+]

@@ -1,0 +1,8 @@
+{"timestamp": "2026-08-31T16:30:00Z", "event": "focus_intent", "camera": "cam_08"}
+{"timestamp": "2026-08-31T16:30:00.01Z", "event": "ui_layout_changed", "type": "FOCUS"}
+{"timestamp": "2026-08-31T16:30:00.05Z", "event": "worker_starts_switch", "subtype": 0}
+{"timestamp": "2026-08-31T16:30:00.80Z", "event": "first_real_main_frame_rendered"}
+{"timestamp": "2026-08-31T16:30:05Z", "event": "grid_intent"}
+{"timestamp": "2026-08-31T16:30:05.01Z", "event": "ui_layout_changed", "type": "GRID"}
+{"timestamp": "2026-08-31T16:30:05.05Z", "event": "worker_starts_switch", "subtype": 1}
+{"timestamp": "2026-08-31T16:30:05.40Z", "event": "first_real_sub_frame_rendered"}

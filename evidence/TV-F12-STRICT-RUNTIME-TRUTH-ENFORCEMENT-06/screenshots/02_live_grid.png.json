@@ -1,0 +1,16 @@
+{
+  "source": "NOT_CAPTURED_HEADLESS",
+  "synthetic": false,
+  "synthetic_fallback_used": false,
+  "imagegrab_success": false,
+  "runtime_pid": 14516,
+  "commit_sha": "0ab212bfa6da7ccb58c3e80b9ca973d90b191c7b",
+  "view": "LIVE_GRID_16",
+  "captured_at": "2026-08-30T19:38:51.701745+00:00",
+  "window_bbox": [
+    34,
+    57,
+    1314,
+    777
+  ]
+}

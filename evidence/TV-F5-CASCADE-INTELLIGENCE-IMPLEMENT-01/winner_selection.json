@@ -1,0 +1,6 @@
+{
+  "LLM_WINNER": "Qwen1.5-1.8B-Chat-GGUF",
+  "LLM_REASON": "Only candidate with 0 unsupported facts, strict epistemic separation, and viable CPU footprint (<2GB RAM).",
+  "VLM_WINNER": "Moondream2",
+  "VLM_REASON": "Zero hallucinations on single frames, highly efficient ONNX runtime footprint (<1.5GB RAM), fast latency."
+}

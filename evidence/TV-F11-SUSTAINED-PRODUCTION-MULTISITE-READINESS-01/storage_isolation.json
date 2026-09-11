@@ -1,0 +1,7 @@
+{
+  "gate": "MULTISITE_STORAGE_ISOLATION",
+  "status": "PASS",
+  "retention_per_site": true,
+  "protected_evidence_preserved": true,
+  "result": "PASS"
+}
