@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-10  
+**UPDATED:** 2026-09-11  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -21,6 +21,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **Shinobi (`Shinobi-Systems/Shinobi`, GitLab)** | live-grid render, substream switching, next/previous monitor navigation, ONVIF scanner, RTSP transport | **BENCHMARK / ADAPT PATTERNS** contra Gate 0C y Gate 1 | licencia Shinobi Open Source EULA; no copiar código al core |
 | **ONVIF Media Signing** | provenance e integridad desde origen | **SANDBOX BENCHMARK** sign→verify→tamper→fail | hardware físico puede quedar pendiente |
 | **ONVIF TLS Configuration Add-on 2.0 RC** | configuración TLS interoperable y endurecimiento del onboarding LAN/DVR | **BENCHMARK + CONTRACT READINESS** | Release Candidate; no declarar conformidad antes de finalización/test tools |
+| **GeoVision GV-LPC2011/2211 advisory 2026-09** | Gate 1 puede asumir que discovery/ONVIF auth son benignos; el advisory expone replay WS-Security, command injection y DoS en discovery | **ADAPTAR + BENCHMARK DE SEGURIDAD** | vendor-specific; no extrapolar CVE a otros equipos, sí reutilizar patrón de controles negativos |
 | **NCSC Agentic Security** | mínimo privilegio, safe mode, control herramientas | **ADAPT GOVERNANCE** | guía/patrón, no dependencia |
 | **Alocity/Mercury access+video pattern** | correlación ACCESS + VIDEO + LOCATION + TIME | **CONTRACT READINESS** | proveedor-neutral; no módulo Mercury |
 | **Purpose-Bound / Flock governance pattern** | abuso de búsqueda semántica / ampliación de scope | **ADAPT GOVERNANCE** | AI result = lead, no fact |
@@ -61,6 +62,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
  • IntelliSeek │   • Shinobi live-grid/substream benchmark
  • ClearCam RTSP│  • ONVIF Media Signing
                │   • ONVIF TLS Configuration 2.0 RC
+               │   • GeoVision ONVIF security patterns
 ───────────────┼────────────────►
     WATCH      │      RESERVE
  • Local VLM   │   • Radar mmWave
@@ -99,6 +101,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **ClearCam RTSP Recovery** | `roryclear/clearcam` | startup grace, consecutive-failure threshold, single-owner decoder, first-frame recovery | `ADAPTED_PARTIAL` |
 | **Purpose-Bound Investigation** | experiencia de gobernanza CCTV IA | purpose→case→permission→scope→query→lead→evidence→human/audit | `ADOPT_GOVERNANCE_PATTERN` |
 | **Agentic Video Selection** | procesamiento de video dirigido | muestreo/atención selectiva como patrón local futuro | `ADAPT_PATTERN / BENCHMARK` |
+| **ONVIF negative-security patterns** | GeoVision GV-LPC2011/2211 advisory 2026-09 | exigir replay resistance, input bounds y aislamiento de valores ONVIF antes de Gate 1; tratar discovery/auth como superficie hostil | `ADAPT_GOVERNANCE / BENCHMARK_PENDING` |
 
 ### Regla especial ClearCam
 
@@ -131,6 +134,7 @@ Targets activos:
 | **Shinobi (GitLab upstream)** | upstream activo con fixes recientes de live grid, substream y next/previous monitor navigation que coinciden con defectos físicos Gate 0C | benchmark de patrón sobre navegación, ownership de paneles y transición de substream; no integrar producto ni copiar código |
 | **ONVIF Media Signing** | autenticidad/integridad desde captura | benchmark de referencia; `SOURCE_UNSIGNED` cuando no exista firma real |
 | **ONVIF TLS Configuration Add-on 2.0 RC** | RC publicada 2026-09-09 con requisitos TLS más fuertes; impacto directo en Gate 1 LAN/DVR onboarding | mapear configuración/certificados/cipher policy y capacidad del DVR; implementar sólo cuando exista soporte real y especificación/test tool aplicables |
+| **GeoVision GV-LPC2011/2211 security advisory 2026-09** | advisory oficial del 2026-09-10 agrupa 23 CVE y demuestra que ONVIF discovery/auth/event subscription puede ser una superficie de ataque real | antes de Gate 1: pruebas negativas para replay, malformed/excessive discovery scopes, parámetros de callback/subscribe y sanitización; inventario de firmware del DVR/cámaras |
 | **NCSC agentic security** | control externo al modelo | mapear mínimo privilegio, deny-by-default, isolation, safe mode, audit |
 | **Alocity/Mercury pattern** | convergencia abierta access+video+AI | formalizar `SOURCE_TYPE=ACCESS` y `AccessObservation`; no integración propietaria |
 | **Avigilon / March Networks** | experiencia enterprise | identificar palancas reales que mejoren correlación/investigación/multisitio |
@@ -147,6 +151,7 @@ Targets activos:
 | **ONVIF Profile M** | cuando metadata/eventos interoperables sean necesarios en integración física |
 | **ONVIF Profile V** | readiness únicamente; no migrar local-first a cloud |
 | **ONVIF TLS Configuration Add-on 2.0** | reevaluar al publicarse especificación final/test tools a fin de 2026 o antes si Gate 1 descubre capacidad TLS configurable en DVR/cámaras |
+| **GeoVision GV-LPC2011/2211** | reevaluar sólo para el producto si aparece hardware GeoVision o nuevos CVE relevantes; los patrones defensivos ya pasan a Gate 1 vendor-neutral |
 | **WebRTC Gateway** | cuando exista requerimiento real de visualización web remota |
 | **screen2ipcam** | cuando se necesite incorporar pantalla/POS legacy como fuente |
 | **MAGI / repo discovery** | discovery layer; cada candidato requiere fuente original |
@@ -255,3 +260,28 @@ Cada fuente activa debe estar indexada en [KNOWLEDGE_SOURCE_INDEX.md](KNOWLEDGE_
 - **Licencia:** Shinobi Open Source Software License Agreement (EULA propia; uso comercial sujeto a condiciones). No copiar código al core.
 - **Mapeo TukeVision:** defectos físicos Gate 0C (grid, navegación foco, substream) y seguridad de onboarding/operación en Gate 1.
 - **Siguiente gate:** benchmark de comportamiento/patrón desde baseline estable antes de nuevo diseño; `KNOWLEDGE ≠ DEPENDENCY`.
+
+---
+
+## 11. Refresh 2026-09-11
+
+### GeoVision GV-LPC2011/2211 — `ADAPTAR / BENCHMARK`
+
+- **Fuente primaria:** GeoVision Cyber Security, advisory `GV-LPC-2026-09-01`, publicado el **2026-09-10**, estado `Completed`, con **23 CVE** (`CVE-2026-88268` a `CVE-2026-88290`).
+- **Hallazgos materiales verificados en registros CVE asociados:**
+  - `CVE-2026-88278`: replay de ONVIF WS-Security UsernameToken/PasswordDigest por falta de freshness/nonce reuse protection; CVSS 9.8.
+  - `CVE-2026-88277`: command injection autenticado a través de parámetros ONVIF Subscribe/ConsumerReference; ejecución de comandos con privilegios elevados en la versión afectada.
+  - `CVE-2026-88287`: DoS remoto no autenticado mediante exceso de `Scopes` en ONVIF WS-Discovery Probe; la versión 1.14 figura como no afectada en el registro CVE.
+- **Problema que resuelve para TukeVision:** no integrar Gate 1 suponiendo que discovery, autenticación ONVIF o callbacks son datos confiables. El onboarding debe validar firmware/capacidades y tratar respuestas/inputs ONVIF como no confiables.
+- **Mapeo:** Gate 1 LAN/DVR onboarding, discovery, credenciales, capability negotiation, suscripciones/eventos, segmentación de red y auditoría de dispositivo.
+- **Impacto:** alto para el diseño de seguridad de Gate 1; bajo para runtime actual porque TukeVision no incorpora GeoVision ni expone esos endpoints como servidor.
+- **Riesgo:** extrapolar vulnerabilidades de un producto específico a todo ONVIF. La adaptación permitida es el patrón defensivo, no la afirmación de que ONVIF sea inseguro ni la copia de mitigaciones propietarias.
+- **Siguiente gate:** añadir al diseño de Gate 1 un `DEVICE_SECURITY_INVENTORY` y un benchmark negativo: replay de credenciales/tokens cuando aplique, payloads de discovery acotados, sanitización estricta de callback/URI/Subscribe y aislamiento de credenciales. No implementar hasta que Gate 1 sea autorizado.
+- **Reevaluación:** si el hardware real es GeoVision, verificar firmware contra advisory antes de onboarding; si no, mantener sólo los controles vendor-neutral y seguir PSIRT/CVE de los fabricantes reales.
+
+### Cobertura de forjas y upstream — 2026-09-11
+
+- **GitHub:** revisados upstreams activos de ClearCam y Frigate. ClearCam no presenta cambios posteriores al commit `91f2f77` del 2026-09-08 que alteren la decisión TES. Frigate 0.18 RC2 (2026-09-07) mejora playback/UI y CUDA, pero no cambia el boundary TukeVision ni resuelve mejor que los candidatos ya activos la brecha Gate 0C/Gate 1; se mantiene `ACTIVE_EVALUATION` sin nueva adopción.
+- **GitLab:** revisado el upstream canónico Shinobi; no se detectó cambio material posterior al conjunto ya documentado (live-grid/substream/next-prev/auth hardening). No se duplicaron forks/mirrors.
+- **ONVIF:** no hay cambio material posterior a TLS Configuration Add-on 2.0 RC del 2026-09-09; la clasificación previa se mantiene.
+- **Seguridad de fabricante:** el advisory GeoVision del 2026-09-10 sí constituye cambio material y activa la actualización TES de este refresh.
