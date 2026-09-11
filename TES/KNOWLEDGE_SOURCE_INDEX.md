@@ -1,7 +1,7 @@
 # Índice Canónico de Fuentes de Conocimiento — TukeVision TES V3
 
 **STATUS:** ACTIVE
-**UPDATED:** 2026-09-10
+**UPDATED:** 2026-09-11
 
 Este índice convierte las fuentes de experiencia en conocimiento consultable y reevaluable. Una fuente registrada aquí debe tener una decisión, una condición de reevaluación y un mapeo hacia TukeVision.
 
@@ -24,6 +24,7 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 | SHINOBI-GITLAB | `https://gitlab.com/Shinobi-Systems/Shinobi` | VMS/NVR upstream GitLab | **BENCHMARK / ACTIVE_EVALUATION** | live grid, substream, next/previous, ONVIF scanner, auth hardening | Benchmark de patrones para Gate 0C/Gate 1; licencia/EULA propia, no copiar código al core |
 | ONVIF-MEDIA-SIGNING | `https://github.com/onvif/media-signing-framework` | estándar / referencia oficial | **ACTIVE_EVALUATION / CONTRACT_READY** | Evidence, provenance, cadena de custodia | Sandbox sign→verify→tamper→fail; hardware físico cuando esté disponible |
 | ONVIF-TLS-CONFIG-2 | `https://www.onvif.org/pressrelease/onvif-tls-configuration-add-on-release-candidate/` + `https://github.com/onvif/specs` | estándar oficial / specs GitHub | **BENCHMARK / WATCH / CONTRACT_READINESS** | Gate 1 LAN/DVR onboarding, TLS, capability negotiation | Reevaluar con hardware real o especificación/test tools finales a fin de 2026 |
+| GEOVISION-LPC-2026-09 | `https://www.geovision.com.tw/tw/cyber_security.php` | fabricante / PSIRT / ONVIF device security | **ADAPTAR / BENCHMARK / WATCH** | Gate 1 onboarding, discovery, WS-Security, Subscribe/callback, firmware inventory | Adaptar controles vendor-neutral; si aparece hardware GeoVision, verificar firmware/advisory antes de onboarding |
 | DETECTRON2-FAIR | `https://github.com/facebookresearch/detectron2` | CV framework | **REJECTED_FOR_CURRENT_PROFILE / WATCH** | percepción/segmentación | Reabrir sólo si cambia hardware o aparece brecha que YOLO/OpenVINO no resuelva |
 | GODS-EYE-VIEW | referencia ya registrada en TES | arquitectura/UX espacial | **ADAPTED / WATCH** | estado espacial, viewshed, handoff, provenance | Consultar ante problemas espaciales/multicámara; no integrar aplicación externa |
 | AMBIENT-AI | referencia industrial | agentic monitoring / UX | **ADAPTED / WATCH** | Agent Monitor, atención selectiva | Consultar métricas de reducción de carga y priorización |
@@ -115,9 +116,23 @@ Cuando el mismo proyecto esté alojado o espejado en ambas forjas, se conserva *
 - `TES_DECISION=BENCHMARK / WATCH / CONTRACT_READINESS`.
 - `REVISIT_WHEN=hardware Gate 1 exponga TLS configurable, aparezcan test tools aplicables o se publique la versión final`.
 
-### GitLab — cobertura de forja
+### 2026-09-11 — GeoVision GV-LPC2011/2211 security advisory
 
-GitLab fue revisado explícitamente en esta actualización. Shinobi se registra por primera vez como upstream canónico GitLab porque sus cambios recientes coinciden materialmente con problemas físicos actuales de grid/substream/navegación. No se duplican mirrors ni forks.
+- `SOURCE_TYPE=VENDOR_PSIRT / PRIMARY_SECURITY_SOURCE`.
+- `CANONICAL_UPSTREAM=https://www.geovision.com.tw/tw/cyber_security.php`.
+- `LAST_VERIFIED_REF=GV-LPC-2026-09-01`.
+- `LAST_VERIFIED_AT=2026-09-11`.
+- Advisory publicado por GeoVision el 2026-09-10 con 23 CVE (`CVE-2026-88268`…`CVE-2026-88290`) y estado `Completed`.
+- Materialmente relevantes para Gate 1: replay de WS-Security UsernameToken/PasswordDigest (`CVE-2026-88278`), command injection en ONVIF Subscribe (`CVE-2026-88277`) y DoS no autenticado de WS-Discovery por `Scopes` excesivos (`CVE-2026-88287`).
+- `LICENSE=N/A (vendor security advisory; no code adoption)`.
+- `TES_DECISION=ADAPTAR / BENCHMARK / WATCH`.
+- `REVISIT_WHEN=Gate 1 sea autorizado, aparezca hardware GeoVision, cambie firmware real o se publiquen nuevos advisories aplicables`.
+
+### Cobertura de forjas — 2026-09-11
+
+- **GitHub:** ClearCam y Frigate revisados. ClearCam no presenta cambio posterior al commit `91f2f77` (2026-09-08) que cambie la decisión. Frigate 0.18 RC2 fue revisado; no cambia el boundary ni exige una nueva decisión TES.
+- **GitLab:** Shinobi revisado en su upstream canónico; no se detectó novedad material posterior a la evidencia ya registrada. No se incorporaron forks/mirrors.
+- **Fuentes oficiales/primarias:** ONVIF sin cambio posterior a TLS 2.0 RC; GeoVision sí publicó un advisory material y se incorpora como fuente de seguridad de fabricante.
 
 ## Regla de consulta
 
