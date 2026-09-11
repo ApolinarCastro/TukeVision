@@ -52,6 +52,16 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 
 **Áreas**: TLS configuration, certificate/cipher policy, secure device/VMS communication, Gate 1 LAN/DVR onboarding and capability negotiation.
 
+### SOURCE_ID=GEOVISION-LPC-2026-09
+* **SOURCE_TYPE**: VENDOR_PSIRT / PRIMARY_SECURITY_SOURCE
+* **PROJECT**: GeoVision GV-LPC2011/2211 Security Advisory `GV-LPC-2026-09-01`
+* **CANONICAL_UPSTREAM**: `https://www.geovision.com.tw/tw/cyber_security.php`
+* **LAST_VERIFIED_AT**: 2026-09-11
+* **LICENSE**: N/A — vendor advisory, no code adoption
+* **DECISION**: ADAPTAR / BENCHMARK / WATCH
+
+**Áreas**: ONVIF WS-Security replay resistance, WS-Discovery input bounds, Subscribe/callback sanitization, firmware inventory, device onboarding security.
+
 ### SOURCE_ID=NCSC-AGENTIC-SECURITY
 * **SOURCE_TYPE**: AUTHORITY_GUIDANCE
 * **DECISION**: ACTIVE_EVALUATION / ADAPT_GOVERNANCE
@@ -180,6 +190,16 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **TUKEVISION_MAPPING**: discovery/onboarding DVR, credential transport, device capability inventory, future ONVIF conformance readiness.
 * **BOUNDARY**: RC ≠ especificación final; no declarar conformidad ni forzar feature sobre hardware que no la soporte.
 * **REVISIT_WHEN**: Gate 1 pruebe hardware real o ONVIF publique final/test tools aplicables.
+
+### EXP-GEOVISION-ONVIF-SEC-001
+* **PROBLEM**: Tratar discovery, autenticación y suscripciones ONVIF como una superficie confiable durante Gate 1 puede permitir replay, agotamiento/DoS o inyección a través de datos provenientes del dispositivo/red.
+* **SOURCE**: GeoVision advisory `GV-LPC-2026-09-01`, publicado 2026-09-10, 23 CVE.
+* **PRIMARY_PATTERNS**: `CVE-2026-88278` (WS-Security PasswordDigest replay), `CVE-2026-88277` (command injection en ONVIF Subscribe) y `CVE-2026-88287` (WS-Discovery Scopes DoS).
+* **PATTERN**: DEVICE INPUT IS UNTRUSTED -> CAPABILITY/FIRMWARE INVENTORY -> BOUNDED PARSING -> TOKEN FRESHNESS/REPLAY RESISTANCE -> URI/CALLBACK SANITIZATION -> LEAST-PRIVILEGE NETWORK SEGMENT.
+* **DECISION**: ADAPTAR / BENCHMARK.
+* **TUKEVISION_MAPPING**: Gate 1 LAN/DVR onboarding, discovery, auth, event subscription, device security inventory.
+* **BOUNDARY**: vulnerabilidades GeoVision no se extrapolan a todo ONVIF; sólo se adaptan controles defensivos vendor-neutral. No hay dependencia ni copia de código.
+* **REVISIT_WHEN**: Gate 1 sea autorizado o se conozcan marca/modelo/firmware reales del DVR/cámaras.
 
 ### EXP-NCSC-AGENT-001
 * **PROBLEM**: Capacidad del modelo puede superar permisos operacionales del agente.
