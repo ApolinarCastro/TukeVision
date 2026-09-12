@@ -25,11 +25,42 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 
 **Áreas**: multicamera ingestion, ffmpeg/go2rtc lifecycle, hardware acceleration, events, search, recovery, storage, health. La evaluación debe extraer patrones sin convertir TukeVision en segundo NVR.
 
+### SOURCE_ID=SHINOBI-GITLAB
+* **SOURCE_TYPE**: PUBLIC_GITLAB_UPSTREAM
+* **PROJECT**: `Shinobi-Systems/Shinobi`
+* **CANONICAL_UPSTREAM**: `https://gitlab.com/Shinobi-Systems/Shinobi`
+* **LAST_VERIFIED_REF**: `c4cb68d0` (2026-08-20)
+* **LICENSE**: Shinobi Open Source Software License Agreement (EULA propia; condiciones comerciales aplican)
+* **DECISION**: BENCHMARK / ACTIVE_EVALUATION
+* **DIRECT_CODE_REUSE**: NO
+
+**Áreas**: live-grid lifecycle, next/previous monitor navigation, substream loading/switching, ONVIF scanning, RTSP transport options, monitor startup queueing y hardening de auth/permisos.
+
 ### SOURCE_ID=ONVIF-MEDIA-SIGNING
 * **SOURCE_TYPE**: OFFICIAL_GITHUB_UPSTREAM
 * **PROJECT**: `onvif/media-signing-framework`
 * **LICENSE**: MIT
 * **DECISION**: CONTRACT_READY / ACTIVE_SANDBOX_BENCHMARK
+
+### SOURCE_ID=ONVIF-TLS-CONFIG-2
+* **SOURCE_TYPE**: OFFICIAL_STANDARD + OFFICIAL_GITHUB_DEVELOPMENT
+* **PROJECT**: ONVIF TLS Configuration Add-on 2.0 Release Candidate
+* **CANONICAL_UPSTREAM**: ONVIF
+* **DEVELOPMENT_REPO**: `onvif/specs`
+* **LAST_VERIFIED_AT**: 2026-09-10
+* **DECISION**: BENCHMARK / WATCH / CONTRACT_READINESS
+
+**Áreas**: TLS configuration, certificate/cipher policy, secure device/VMS communication, Gate 1 LAN/DVR onboarding and capability negotiation.
+
+### SOURCE_ID=GEOVISION-LPC-2026-09
+* **SOURCE_TYPE**: VENDOR_PSIRT / PRIMARY_SECURITY_SOURCE
+* **PROJECT**: GeoVision GV-LPC2011/2211 Security Advisory `GV-LPC-2026-09-01`
+* **CANONICAL_UPSTREAM**: `https://www.geovision.com.tw/tw/cyber_security.php`
+* **LAST_VERIFIED_AT**: 2026-09-11
+* **LICENSE**: N/A — vendor advisory, no code adoption
+* **DECISION**: ADAPTAR / BENCHMARK / WATCH
+
+**Áreas**: ONVIF WS-Security replay resistance, WS-Discovery input bounds, Subscribe/callback sanitization, firmware inventory, device onboarding security.
 
 ### SOURCE_ID=NCSC-AGENTIC-SECURITY
 * **SOURCE_TYPE**: AUTHORITY_GUIDANCE
@@ -120,6 +151,15 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **DECISION**: ACTIVE_BENCHMARK_REFERENCE.
 * **BOUNDARY**: DVR/NVR sigue siendo grabador primario; no integrar Frigate como producto.
 
+### EXP-SHINOBI-001
+* **PROBLEM**: Gate 0C mostró regresiones físicas en Grid, navegación Anterior/Siguiente y transición de substream al intentar optimizar la UI local.
+* **PATTERN**: revisar lifecycle de live-grid, navegación de monitor y carga de substream en un VMS real antes de rediseñar el flujo propio.
+* **EVIDENCE_UPSTREAM**: commit `c4cb68d0` corrige Live Grid render; MR !548 contiene fixes de next/previous monitor navigation y substream loading; MR !557 endurece auth/permisos y rutas.
+* **DECISION**: BENCHMARK / ADAPT_PATTERN_ONLY.
+* **BOUNDARY**: no dependencia Shinobi, no copia de código; EULA propia con condiciones comerciales.
+* **TUKEVISION_MAPPING**: Gate 0C UI lifecycle/focus navigation; Gate 1 ONVIF/LAN onboarding and security review.
+* **REVISIT_WHEN**: antes de un nuevo diseño Gate 0C desde baseline estable o al definir Gate 1.
+
 ### EXP-AGENTIC-VIDEO-001
 * **PROBLEM**: Expensive/static long-video processing.
 * **PATTERN**: Goal-directed temporal search + dynamic re-sampling + selective high-FPS inspection.
@@ -141,6 +181,25 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **SOURCE**: `onvif/media-signing-framework` (OFFICIAL_UPSTREAM).
 * **LICENSE**: MIT.
 * **NOTE**: Hardware validation remains PENDING_HARDWARE. No runtime certification without physical evidence.
+
+### EXP-ONVIF-TLS-001
+* **PROBLEM**: Gate 1 LAN/DVR onboarding puede introducir credenciales/transporte inseguros o asumir capacidades TLS inexistentes si se diseña sólo alrededor de RTSP/ONVIF básico.
+* **PATTERN**: capability-driven TLS configuration con política criptográfica versionable y evidencia explícita de soporte real del dispositivo.
+* **SOURCE**: ONVIF TLS Configuration Add-on 2.0 Release Candidate, publicada 2026-09-09.
+* **DECISION**: BENCHMARK / CONTRACT_READINESS / WATCH.
+* **TUKEVISION_MAPPING**: discovery/onboarding DVR, credential transport, device capability inventory, future ONVIF conformance readiness.
+* **BOUNDARY**: RC ≠ especificación final; no declarar conformidad ni forzar feature sobre hardware que no la soporte.
+* **REVISIT_WHEN**: Gate 1 pruebe hardware real o ONVIF publique final/test tools aplicables.
+
+### EXP-GEOVISION-ONVIF-SEC-001
+* **PROBLEM**: Tratar discovery, autenticación y suscripciones ONVIF como una superficie confiable durante Gate 1 puede permitir replay, agotamiento/DoS o inyección a través de datos provenientes del dispositivo/red.
+* **SOURCE**: GeoVision advisory `GV-LPC-2026-09-01`, publicado 2026-09-10, 23 CVE.
+* **PRIMARY_PATTERNS**: `CVE-2026-88278` (WS-Security PasswordDigest replay), `CVE-2026-88277` (command injection en ONVIF Subscribe) y `CVE-2026-88287` (WS-Discovery Scopes DoS).
+* **PATTERN**: DEVICE INPUT IS UNTRUSTED -> CAPABILITY/FIRMWARE INVENTORY -> BOUNDED PARSING -> TOKEN FRESHNESS/REPLAY RESISTANCE -> URI/CALLBACK SANITIZATION -> LEAST-PRIVILEGE NETWORK SEGMENT.
+* **DECISION**: ADAPTAR / BENCHMARK.
+* **TUKEVISION_MAPPING**: Gate 1 LAN/DVR onboarding, discovery, auth, event subscription, device security inventory.
+* **BOUNDARY**: vulnerabilidades GeoVision no se extrapolan a todo ONVIF; sólo se adaptan controles defensivos vendor-neutral. No hay dependencia ni copia de código.
+* **REVISIT_WHEN**: Gate 1 sea autorizado o se conozcan marca/modelo/firmware reales del DVR/cámaras.
 
 ### EXP-NCSC-AGENT-001
 * **PROBLEM**: Capacidad del modelo puede superar permisos operacionales del agente.
