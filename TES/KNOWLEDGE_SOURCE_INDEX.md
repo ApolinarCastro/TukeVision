@@ -1,7 +1,7 @@
 # Índice Canónico de Fuentes de Conocimiento — TukeVision TES V3
 
 **STATUS:** ACTIVE
-**UPDATED:** 2026-09-11
+**UPDATED:** 2026-09-13
 
 Este índice convierte las fuentes de experiencia en conocimiento consultable y reevaluable. Una fuente registrada aquí debe tener una decisión, una condición de reevaluación y un mapeo hacia TukeVision.
 
@@ -133,6 +133,45 @@ Cuando el mismo proyecto esté alojado o espejado en ambas forjas, se conserva *
 - **GitHub:** ClearCam y Frigate revisados. ClearCam no presenta cambio posterior al commit `91f2f77` (2026-09-08) que cambie la decisión. Frigate 0.18 RC2 fue revisado; no cambia el boundary ni exige una nueva decisión TES.
 - **GitLab:** Shinobi revisado en su upstream canónico; no se detectó novedad material posterior a la evidencia ya registrada. No se incorporaron forks/mirrors.
 - **Fuentes oficiales/primarias:** ONVIF sin cambio posterior a TLS 2.0 RC; GeoVision sí publicó un advisory material y se incorpora como fuente de seguridad de fabricante.
+
+### 2026-09-13 — material source verification
+
+#### CLEARCAM-RORYCLEAR
+`SOURCE_VERIFIED=YES`  
+`VERSION_OR_REF_VERIFIED=YES` — `2f65c739...`, `3e693451...`, `078c6cc8...`  
+`LICENSE_VERIFIED=YES` — GPL-3.0  
+`CAPABILITIES_EXTRACTED=YES` — self-hosted server path, Qwen without ClearCam user ID, notification helper  
+`TUKEVISION_MAPPING=YES` — P0-62/P0-65/P0-76, local event delivery  
+`ADOPTION_BOUNDARY=YES` — pattern-only; no direct GPL code reuse  
+`REVISIT_CONDITION=YES` — benchmark local endpoint/offline path before implementation  
+`EXPERIENCE_RECORD=EXP-CLEARCAM-008`
+
+#### ONVIF-TLS-CONFIG-2 / ONVIF WebRTC specs
+`SOURCE_VERIFIED=YES`  
+`VERSION_OR_REF_VERIFIED=YES` — `bf3ea360...`, `f1b0e50d...` (2026-09-11)  
+`LICENSE_VERIFIED=YES` — ONVIF specification licensing boundary already recorded; no normative text copied to core  
+`CAPABILITIES_EXTRACTED=YES` — estimated TLS activation time; explicit WebRTC close signaling  
+`TUKEVISION_MAPPING=YES` — Gate 1 TLS transition/health; future WebRTC Gateway resource cleanup  
+`ADOPTION_BOUNDARY=YES` — contract/readiness only until hardware/spec support exists  
+`REVISIT_CONDITION=YES` — Gate 1 hardware exposes TLS configuration or WebRTC requirement becomes real  
+`EXPERIENCE_RECORD=EXP-ONVIF-TLS-002`
+
+#### AMBIENT-AI
+`SOURCE_VERIFIED=YES` — primary Ambient.ai announcement 2026-08-26  
+`VERSION_OR_REF_VERIFIED=YES` — Aug-2026 platform release  
+`LICENSE_VERIFIED=YES` — proprietary product/reference; no code adoption  
+`CAPABILITIES_EXTRACTED=YES` — Agentic Video Walls, Case Management, degraded-view health, credential/network updates, stream-density optimization, Semantic/Similarity Search  
+`TUKEVISION_MAPPING=YES` — Gate 0C health/attention; P0-59/P0-65/P0-66; Gate 1 maintenance  
+`ADOPTION_BOUNDARY=YES` — extract patterns only; no cloud/VMS dependency  
+`REVISIT_CONDITION=YES` — benchmark when health/case-management slice is active  
+`EXPERIENCE_RECORD=EXP-AMBIENT-002`
+
+### Cobertura de forjas — 2026-09-13
+
+- **GitHub:** ClearCam, Frigate, ONVIF specs/media-signing y ECC revisados. ClearCam y ONVIF presentan cambios materiales; Frigate 0.18.0 estable no tiene release posterior que cambie la decisión; ECC 2.2.1 no cambia capacidad CCTV del producto.
+- **GitLab:** Shinobi upstream canónico revisado; último commit visible sigue `c4cb68d0` (2026-08-20). Sin cambio material posterior.
+- **Fuentes oficiales/primarias:** Ambient.ai aporta capacidades materiales no reconciliadas previamente. ONVIF mantiene TLS 2.0 en RC; los commits de especificación sí cambian contratos de transición/readiness.
+- **Mirrors/forks:** no se incorporó ninguno como SOURCE_ID separado.
 
 ## Regla de consulta
 
