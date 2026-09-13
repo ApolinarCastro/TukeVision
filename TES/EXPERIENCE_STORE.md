@@ -47,7 +47,7 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **PROJECT**: ONVIF TLS Configuration Add-on 2.0 Release Candidate
 * **CANONICAL_UPSTREAM**: ONVIF
 * **DEVELOPMENT_REPO**: `onvif/specs`
-* **LAST_VERIFIED_AT**: 2026-09-10
+* **LAST_VERIFIED_AT**: 2026-09-13
 * **DECISION**: BENCHMARK / WATCH / CONTRACT_READINESS
 
 **Áreas**: TLS configuration, certificate/cipher policy, secure device/VMS communication, Gate 1 LAN/DVR onboarding and capability negotiation.
@@ -238,6 +238,45 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **CANDIDATES**: SmolVLM, FastVLM, Qwen3-VL.
 * **DECISION**: WATCH / CONDITIONAL_BENCHMARK.
 * **RULE**: no continuous VLM; no external customer-video upload.
+
+### EXP-CLEARCAM-008
+* **PROBLEM**: Un camino de alertas/VLM ligado a un servicio externo contradice local-first y degrada operación offline.
+* **SOURCE**: `roryclear/clearcam`, refs `2f65c739...`, `3e693451...`, `078c6cc8...`, verificadas 2026-09-13.
+* **PATTERN**: self-hosted event endpoint + selective Qwen summary without vendor user identity.
+* **DECISION**: ADAPTAR / BENCHMARK.
+* **TUKEVISION_MAPPING**: P0-62/P0-65/P0-76, event delivery y futuras notificaciones LAN.
+* **BOUNDARY**: GPL-3.0; no copiar implementación. Reimplementar patrón únicamente si benchmark demuestra valor.
+* **BENCHMARK**: evento local -> VLM selectivo -> endpoint LAN propio -> receipt/audit; medir latencia, offline/failure y egress de media.
+* **REVISIT_WHEN**: se active slice de notificaciones/eventos o distribución LAN de resultados.
+
+### EXP-ONVIF-TLS-002
+* **PROBLEM**: Confundir aceptación de configuración TLS con activación efectiva produce falsos estados OK/FAIL y recovery prematuro.
+* **SOURCE**: `onvif/specs` commit `bf3ea360e20247d68c2ae0e9c9a715a948f79d78` (2026-09-11).
+* **PATTERN**: `CONFIGURATION_ACCEPTED != CONFIGURATION_ACTIVE`; usar duración estimada y estado transicional antes de verificar conectividad.
+* **DECISION**: ADAPTAR / CONTRACT_READINESS / BENCHMARK.
+* **TUKEVISION_MAPPING**: Gate 1 TLS onboarding, health transitions y timeout policy.
+* **BOUNDARY**: RC/spec development ≠ soporte del dispositivo; no declarar conformidad sin hardware/test tool.
+* **BENCHMARK**: detectar capacidad/SetupDuration, aplicar en sandbox, esperar y verificar handshake/conectividad antes de ACTIVE.
+* **REVISIT_WHEN**: Gate 1 tenga hardware TLS-configurable o ONVIF publique final/test tools.
+
+### EXP-ONVIF-WEBRTC-001
+* **PROBLEM**: teardown implícito puede dejar recursos ICE/TURN/sesión retenidos en una futura pasarela WebRTC.
+* **SOURCE**: `onvif/specs` commit `f1b0e50df6ad2779083686406c264806673ba076` (2026-09-11).
+* **PATTERN**: close signaling explícito antes del teardown para liberar recursos remotos.
+* **DECISION**: WATCH / CONTRACT_READINESS.
+* **TUKEVISION_MAPPING**: WebRTC Gateway futuro; no afecta runtime actual.
+* **REVISIT_WHEN**: exista requerimiento real de visualización web/remota.
+
+### EXP-AMBIENT-002
+* **PROBLEM**: `STREAM_UP/DOWN` no captura degradación visual; investigaciones dispersas y cambios de credenciales/red pueden perder contexto operativo si obligan re-onboarding.
+* **SOURCE**: Ambient.ai, release de plataforma publicada 2026-08-26.
+* **CAPABILITIES**: Agentic Video Walls, `degraded` camera health, credential/network updates without losing history, Case Management, Semantic/Similarity Search y stream-density optimization.
+* **PATTERN**: HEALTH = connectivity + view quality; case = ordered clips + metadata + editable narrative + role/audit controls.
+* **DECISION**: ADAPTAR / BENCHMARK; no producto/cloud dependency.
+* **TUKEVISION_MAPPING**: Gate 0C health/attention; P0-59/P0-65/P0-66; Gate 1 maintenance.
+* **BOUNDARY**: métricas del proveedor son claims, no evidencia TukeVision; preservar local-first y DVR/NVR primario.
+* **BENCHMARK**: `DEGRADED_VIEW` independiente de `STREAM_DOWN` + case local cronológico con clips/metadata/audit.
+* **REVISIT_WHEN**: se reabra observabilidad Gate 0C o slice de investigación/case management.
 
 ---
 
