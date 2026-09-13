@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-11  
+**UPDATED:** 2026-09-13  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -122,6 +122,7 @@ Targets activos:
 3. stationary/recovery tracking y comparación OC-SORT.
 4. event/semantic search e indexed evidence.
 5. local VLM sólo como benchmark selectivo.
+6. self-hosted event/notification path con VLM selectivo, sin dependencia de servicio externo.
 
 ---
 
@@ -152,7 +153,7 @@ Targets activos:
 | **ONVIF Profile V** | readiness únicamente; no migrar local-first a cloud |
 | **ONVIF TLS Configuration Add-on 2.0** | reevaluar al publicarse especificación final/test tools a fin de 2026 o antes si Gate 1 descubre capacidad TLS configurable en DVR/cámaras |
 | **GeoVision GV-LPC2011/2211** | reevaluar sólo para el producto si aparece hardware GeoVision o nuevos CVE relevantes; los patrones defensivos ya pasan a Gate 1 vendor-neutral |
-| **WebRTC Gateway** | cuando exista requerimiento real de visualización web remota |
+| **WebRTC Gateway** | cuando exista requerimiento real de visualización web remota; incorporar close signaling explícito si se implementa ONVIF WebRTC |
 | **screen2ipcam** | cuando se necesite incorporar pantalla/POS legacy como fuente |
 | **MAGI / repo discovery** | discovery layer; cada candidato requiere fuente original |
 
@@ -285,3 +286,44 @@ Cada fuente activa debe estar indexada en [KNOWLEDGE_SOURCE_INDEX.md](KNOWLEDGE_
 - **GitLab:** revisado el upstream canónico Shinobi; no se detectó cambio material posterior al conjunto ya documentado (live-grid/substream/next-prev/auth hardening). No se duplicaron forks/mirrors.
 - **ONVIF:** no hay cambio material posterior a TLS Configuration Add-on 2.0 RC del 2026-09-09; la clasificación previa se mantiene.
 - **Seguridad de fabricante:** el advisory GeoVision del 2026-09-10 sí constituye cambio material y activa la actualización TES de este refresh.
+
+---
+
+## 12. Refresh 2026-09-13
+
+### ClearCam self-hosted notification/Qwen path — `ADAPTAR / BENCHMARK`
+
+- **Upstream canónico:** `github.com/roryclear/clearcam`.
+- **Refs verificadas:** `2f65c739d546481edcc78d85213737fda9d0b28a`, `3e69345160c879071c302142005f56693b4cf140`, `078c6cc83714bb0dd1ebdd7ba6919c1890c21559`; integradas en `main` el 2026-09-13.
+- **Cambio material:** ClearCam permite mantener Qwen/notificaciones cuando no existe `userID` si se usa `server_url` propio y añade soporte/helper para servidor receptor. El patrón reduce dependencia de servicio SaaS para el camino evento→resumen→notificación.
+- **Mapeo TukeVision:** P0-62/P0-65/P0-76, notificaciones/eventos locales, futura distribución LAN de resultados y operación offline/local-first.
+- **Riesgo:** GPL-3.0 y commits no firmados; no copiar código al core. El patrón se estudia y se reimplementa de forma independiente sólo tras benchmark.
+- **Benchmark mínimo:** `evento local -> VLM selectivo -> endpoint LAN propio -> evidencia recibida`, midiendo latencia, fallo de endpoint, comportamiento offline y verificando que imagen/video no salga a Internet.
+- **Estado recomendado:** ClearCam se mantiene `ACTIVE_ENGINEERING_CANDIDATE / HIGH`; se amplía el target, no se adopta el producto.
+
+### ONVIF TLS activation timing + WebRTC close signaling — `ADAPTAR / WATCH`
+
+- **Upstream canónico:** `onvif/specs` como repo oficial de desarrollo; especificación publicada ONVIF sigue siendo autoridad normativa.
+- **Refs verificadas:** `bf3ea360e20247d68c2ae0e9c9a715a948f79d78` y `f1b0e50df6ad2779083686406c264806673ba076`, 2026-09-11.
+- **Cambio material TLS:** ONVIF añadió un atributo para indicar el tiempo estimado hasta que una nueva configuración TLS quede activa. Contrato derivado: `CONFIGURATION_ACCEPTED != CONFIGURATION_ACTIVE`.
+- **Mapeo TLS:** Gate 1 LAN/DVR onboarding y health transicional. El estado debe modelarse `REQUESTED -> APPLYING -> ACTIVE | FAILED/TIMEOUT` cuando el hardware exponga esa capacidad.
+- **Cambio material WebRTC:** se añadió señalización `close` para liberar recursos de sesión/ICE/TURN antes de teardown. No activa WebRTC ahora; mejora readiness del `WebRTC Gateway` si se abre ese caso futuro.
+- **Benchmark mínimo TLS:** detectar capacidad/tiempo declarado, aplicar en sandbox y verificar conexión efectiva sólo después del periodo de activación; no declarar `ACTIVE` al aceptar la solicitud.
+- **Estado recomendado:** TLS continúa `BENCHMARK / WATCH / CONTRACT_READINESS`; WebRTC continúa `WATCH`.
+
+### Ambient.ai Aug-2026 platform release — `ADAPTAR / BENCHMARK`
+
+- **Fuente primaria:** Ambient.ai, anuncio del 2026-08-26.
+- **Cambio material:** Agentic Video Walls, Case Management, estado de cámara `degraded` separado de `healthy/unhealthy`, gestión de credenciales/conectividad sin re-onboarding, mayor densidad de streams y mejoras en Semantic/Similarity Search.
+- **Problema TukeVision:** distinguir conectividad de calidad visual, reducir carga del operador, construir casos auditables y evitar perder historia al rotar credenciales o actualizar red.
+- **Mapeo:** Gate 0C observabilidad/health, P0-59/P0-65/P0-66 investigación/evidencia y futuro onboarding/maintenance Gate 1.
+- **Riesgo:** producto propietario/cloud; métricas del proveedor no son evidencia TukeVision. No adoptar VMS ni cloud path.
+- **Benchmark mínimo:** validar localmente un tercer estado `DEGRADED_VIEW` independiente de `STREAM_DOWN`, más un caso cronológico con clips/metadata/audit sin depender de Ambient.
+- **Estado recomendado:** `ADAPTED / WATCH` se mantiene; se extraen patrones concretos para benchmark, no integración.
+
+### Cobertura de esta ejecución
+
+- **GitHub:** ClearCam, Frigate, ONVIF specs/media-signing y ECC revisados; sólo ClearCam/ONVIF generan cambio TES CCTV material. Frigate continúa 0.18.0 estable sin release posterior que cambie el boundary registrado. ECC 2.2.1 no cambia una capacidad CCTV de producto.
+- **GitLab:** Shinobi canónico sigue con `c4cb68d0` como último commit visible del upstream consultado; no hay novedad material posterior al benchmark ya registrado.
+- **Fuentes primarias/industria:** Ambient.ai sí aporta patrón material no reconciliado previamente. March Networks, Avigilon, HiFocus, Alocity, Flock, SmartPSS y NCSC fueron revisados sin cambio que altere decisión TES en esta pasada.
+- **Mirrors/forks:** ninguno incorporado como fuente independiente.
