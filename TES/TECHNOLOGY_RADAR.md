@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-13  
+**UPDATED:** 2026-09-14  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -33,7 +33,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **HiFocus IntelliSeek** | investigación histórica sin indexar cada frame | evaluar análisis local bajo demanda sobre DVR/NVR |
 | **Ambient.ai** | reducción de carga cognitiva / atención selectiva | adaptar métricas y flujo, no producto |
 | **Avigilon** | búsqueda, multisitio, privacidad, video+access | extraer patrones enterprise |
-| **March Networks** | video + datos + acceso + multisitio | comparar con agregador/correlación TukeVision |
+| **March Networks** | investigación histórica + video/datos/acceso/multisitio | **BENCHMARK** de snapshot-search local + correlación access→video; no cloud dependency |
 | **SmartPSS Lite** | UX/operación VMS real | benchmark de producto y flujos operador |
 | **Agentic Video Understanding** | procesamiento de video largo caro | benchmark patrón local de muestreo dirigido |
 
@@ -63,6 +63,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
  • ClearCam RTSP│  • ONVIF Media Signing
                │   • ONVIF TLS Configuration 2.0 RC
                │   • GeoVision ONVIF security patterns
+               │   • March Networks snapshot-search/access benchmark
 ───────────────┼────────────────►
     WATCH      │      RESERVE
  • Local VLM   │   • Radar mmWave
@@ -102,6 +103,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **Purpose-Bound Investigation** | experiencia de gobernanza CCTV IA | purpose→case→permission→scope→query→lead→evidence→human/audit | `ADOPT_GOVERNANCE_PATTERN` |
 | **Agentic Video Selection** | procesamiento de video dirigido | muestreo/atención selectiva como patrón local futuro | `ADAPT_PATTERN / BENCHMARK` |
 | **ONVIF negative-security patterns** | GeoVision GV-LPC2011/2211 advisory 2026-09 | exigir replay resistance, input bounds y aislamiento de valores ONVIF antes de Gate 1; tratar discovery/auth como superficie hostil | `ADAPT_GOVERNANCE / BENCHMARK_PENDING` |
+| **Representative snapshot investigation** | March Networks 2026 Mid-Year Release | snapshots configurables → índice/búsqueda → candidato → video/evidencia fuente; access-event→video como correlación | `BENCHMARK / ADAPT_PATTERN_PENDING` |
 
 ### Regla especial ClearCam
 
@@ -138,7 +140,8 @@ Targets activos:
 | **GeoVision GV-LPC2011/2211 security advisory 2026-09** | advisory oficial del 2026-09-10 agrupa 23 CVE y demuestra que ONVIF discovery/auth/event subscription puede ser una superficie de ataque real | antes de Gate 1: pruebas negativas para replay, malformed/excessive discovery scopes, parámetros de callback/subscribe y sanitización; inventario de firmware del DVR/cámaras |
 | **NCSC agentic security** | control externo al modelo | mapear mínimo privilegio, deny-by-default, isolation, safe mode, audit |
 | **Alocity/Mercury pattern** | convergencia abierta access+video+AI | formalizar `SOURCE_TYPE=ACCESS` y `AccessObservation`; no integración propietaria |
-| **Avigilon / March Networks** | experiencia enterprise | identificar palancas reales que mejoren correlación/investigación/multisitio |
+| **Avigilon** | experiencia enterprise | identificar palancas reales que mejoren correlación/investigación/multisitio |
+| **March Networks 2026 Mid-Year Release** | patrón explícito de AI Smart Search por snapshots y C•CURE access→video que coincide con P0-65 y correlación ACCESS | benchmark local: snapshots representativos vs. análisis continuo + trazabilidad a evidencia; no integrar producto/cloud |
 | **SmartPSS Lite** | benchmark operativo VMS | comparar UX y operaciones que TukeVision deba simplificar/mejorar |
 
 ---
@@ -327,3 +330,27 @@ Cada fuente activa debe estar indexada en [KNOWLEDGE_SOURCE_INDEX.md](KNOWLEDGE_
 - **GitLab:** Shinobi canónico sigue con `c4cb68d0` como último commit visible del upstream consultado; no hay novedad material posterior al benchmark ya registrado.
 - **Fuentes primarias/industria:** Ambient.ai sí aporta patrón material no reconciliado previamente. March Networks, Avigilon, HiFocus, Alocity, Flock, SmartPSS y NCSC fueron revisados sin cambio que altere decisión TES en esta pasada.
 - **Mirrors/forks:** ninguno incorporado como fuente independiente.
+
+---
+
+## 13. Refresh 2026-09-14
+
+### March Networks 2026 Mid-Year Release — `BENCHMARK / ADAPTAR`
+
+- **Upstream canónico:** March Networks, página oficial de la `2026 Mid-Year Release`, publicada **2026-08-11**.
+- **Licencia/madurez:** producto propietario enterprise; referencia de capacidad, no dependencia ni código reutilizable.
+- **Cambio material reconciliado:** la release concreta dos patrones que el TES sólo tenía registrados de forma genérica: (1) AI Smart Search sobre snapshots capturados a intervalos configurables, con búsqueda por lenguaje natural/imagen y trazabilidad al video; (2) correlación C•CURE access-control→video para investigación.
+- **Problema TukeVision:** P0-65 necesita investigar histórico sin procesar continuamente cada frame; la correlación ACCESS requiere unir evento físico y video sin inferir identidad.
+- **Mapeo:** P0-65 investigation/evidence, `AccessObservation`, agregador multisitio y Evidence First.
+- **Boundary:** no Searchlight Cloud como dependencia, no segundo NVR, no subida de video cliente por defecto. DVR/NVR sigue siendo grabador primario y un resultado IA sigue siendo candidato hasta evidencia/humano.
+- **Benchmark mínimo decisivo:** sobre el mismo histórico local/DVR, comparar `representative snapshots -> searchable index` contra análisis continuo en recall útil, latencia, CPU/RAM y capacidad de volver al clip/frame fuente; para access, validar `ACCESS_EVENT -> RELATED_VIDEO` sin convertir credencial en identidad.
+- **Siguiente gate:** ejecutar sólo cuando se active el slice P0-65 o el conector ACCESS/correlación. No justifica código nuevo antes del benchmark.
+- **Estado recomendado:** `ACTIVE_EVALUATION` → `BENCHMARK / ACTIVE_EVALUATION`; no `ACTIVE_ENGINEERING_CANDIDATE` porque la utilidad está en el patrón y el producto/cloud no encaja como dependencia local-first.
+
+### Frescura verificada en la misma pasada
+
+- **ClearCam:** `main` avanzó a `f92e3cba` el 2026-09-14, pero el commit sólo documenta la capacidad de notificaciones personalizadas ya reconciliada en `EXP-CLEARCAM-008`; no cambia decisión/capacidad.
+- **Frigate:** `main` presenta actividad 2026-09-14 (incluido soporte Hailo y mantenimiento de dependencias), pero no aparece release posterior a 0.18.0 ni cambio que altere el benchmark actual Gate 0C/Gate 1.
+- **ECC (`affaan-m/ECC`):** última release visible sigue `v2.2.1`; commits recientes de memoria/control-plane no cambian capacidad CCTV de producto ni el boundary TukeVision.
+- **ONVIF specs:** último conjunto material sigue 2026-09-11 (`bf3ea360`, `f1b0e50d`, `3927e1d2`); sin commit posterior que cambie contrato actual.
+- **GitLab Shinobi:** upstream canónico revisado; `c4cb68d0` continúa como commit reciente visible y no hay cambio material posterior para el benchmark Gate 0C/Gate 1.
