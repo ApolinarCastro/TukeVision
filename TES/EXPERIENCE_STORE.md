@@ -87,10 +87,14 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 **Áreas**: selective attention, appearance/search patterns, multisite, access+video, privacy, PTZ governance.
 
 ### SOURCE_ID=MARCH-NETWORKS
-* **SOURCE_TYPE**: INDUSTRY_REFERENCE
-* **DECISION**: ACTIVE_EVALUATION
+* **SOURCE_TYPE**: VENDOR_PRIMARY / INDUSTRY_REFERENCE
+* **CANONICAL_UPSTREAM**: `https://www.marchnetworks.com/`
+* **LAST_VERIFIED_REF**: `2026 Mid-Year Release` (2026-08-11)
+* **LICENSE**: proprietary product/reference; no code adoption
+* **DECISION**: BENCHMARK / ACTIVE_EVALUATION
+* **DIRECT_PRODUCT_INTEGRATION**: NO
 
-**Áreas**: video + operational data + access + multisite → investigation.
+**Áreas**: representative-snapshot search, natural-language/image investigation, video + operational data + access + multisite correlation. Local-first y DVR/NVR primario permanecen como límites obligatorios.
 
 ### SOURCE_ID=HIFOCUS-INTELLISEEK
 * **SOURCE_TYPE**: INDUSTRY_REFERENCE
@@ -277,6 +281,17 @@ Desde 2026-09-08 el Experience Store es **fuente obligatoria de consulta antes d
 * **BOUNDARY**: métricas del proveedor son claims, no evidencia TukeVision; preservar local-first y DVR/NVR primario.
 * **BENCHMARK**: `DEGRADED_VIEW` independiente de `STREAM_DOWN` + case local cronológico con clips/metadata/audit.
 * **REVISIT_WHEN**: se reabra observabilidad Gate 0C o slice de investigación/case management.
+
+### EXP-MARCH-001
+* **PROBLEM**: La investigación sobre histórico puede volverse costosa si intenta analizar continuamente todos los frames, y los eventos de acceso pueden quedar separados del video que los valida.
+* **SOURCE**: March Networks `2026 Mid-Year Release`, publicada 2026-08-11 en el upstream oficial.
+* **CAPABILITIES**: Searchlight AI, AI Smart Search sobre snapshots a intervalos configurables, búsqueda por texto/imagen, búsqueda expandida de rostro/matrícula y correlación C•CURE access→video.
+* **PATTERN**: `REPRESENTATIVE_SNAPSHOTS -> SEARCHABLE_INDEX -> QUERY -> CANDIDATE_RESULT -> SOURCE_VIDEO/EVIDENCE`; para acceso: `ACCESS_EVENT -> RELATED_VIDEO -> HUMAN_VALIDATION`.
+* **DECISION**: BENCHMARK / ADAPTAR PATTERN; no producto/cloud dependency.
+* **TUKEVISION_MAPPING**: P0-65 investigación, `AccessObservation`, agregador/correlación multisitio y Evidence First.
+* **BOUNDARY**: March Networks es producto propietario/cloud-capable; TukeVision no adopta Searchlight Cloud ni reemplaza el DVR/NVR primario. Resultado IA sigue siendo lead, no hecho.
+* **BENCHMARK**: sobre video local/DVR, comparar índice de snapshots representativos vs. procesamiento continuo en recall útil, latencia, CPU/RAM y trazabilidad al clip/frame fuente; validar access-event→video sin identidad inferida.
+* **REVISIT_WHEN**: se active el slice P0-65 de investigación histórica o el conector ACCESS/correlación.
 
 ---
 
