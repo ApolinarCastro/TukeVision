@@ -1,7 +1,7 @@
 # Índice Canónico de Fuentes de Conocimiento — TukeVision TES V3
 
 **STATUS:** ACTIVE
-**UPDATED:** 2026-09-13
+**UPDATED:** 2026-09-14
 
 Este índice convierte las fuentes de experiencia en conocimiento consultable y reevaluable. Una fuente registrada aquí debe tener una decisión, una condición de reevaluación y un mapeo hacia TukeVision.
 
@@ -30,7 +30,7 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 | AMBIENT-AI | referencia industrial | agentic monitoring / UX | **ADAPTED / WATCH** | Agent Monitor, atención selectiva | Consultar métricas de reducción de carga y priorización |
 | HIFOCUS-INTELLISEEK | referencia industrial | investigación CCTV | **ADAPTED_PARTIAL / ACTIVE_EVALUATION** | P0-65, búsqueda histórica | Evaluar análisis local bajo demanda sobre DVR/NVR sin indexar todo el video |
 | AVIGILON | referencia enterprise | VMS / analytics | **ACTIVE_EVALUATION** | búsqueda, multisitio, privacidad, video+access | Extraer patrones; no adoptar ecosistema vertical |
-| MARCH-NETWORKS | referencia enterprise | VMS / connected intelligence | **ACTIVE_EVALUATION** | agregador, correlación, investigación | Comparar patrón video+datos+acceso+multisitio |
+| MARCH-NETWORKS | `https://www.marchnetworks.com/news/march-networks-launches-2026-mid-year-release-advancing-connected-intelligence-for-modern-security/` | VMS / connected intelligence / vendor primary | **BENCHMARK / ACTIVE_EVALUATION** | P0-65 investigation, snapshot search, video+operational data+access correlation | Benchmark local del patrón snapshot→search→evidence y access→video correlation; no cloud dependency ni segundo NVR |
 | SMARTPSS-LITE | experiencia de producto | VMS / operación | **ACTIVE_EVALUATION** | UX, operación, interoperabilidad | Consultar como benchmark de producto sin copiar arquitectura |
 | NCSC-AGENTIC-SECURITY | guía autoridad | seguridad / agentes | **ACTIVE_EVALUATION** | autonomía, mínimo privilegio, safe mode | Integrar como control/gobernanza, no como dependencia |
 | PURPOSE-BOUND-INVESTIGATION | experiencia de gobernanza | privacidad / investigación | **ADAPTED** | P0-59, P0-65, P0-66, P1-69 | Toda búsqueda IA debe usar purpose/case/scope/audit |
@@ -172,6 +172,19 @@ Cuando el mismo proyecto esté alojado o espejado en ambas forjas, se conserva *
 - **GitLab:** Shinobi upstream canónico revisado; último commit visible sigue `c4cb68d0` (2026-08-20). Sin cambio material posterior.
 - **Fuentes oficiales/primarias:** Ambient.ai aporta capacidades materiales no reconciliadas previamente. ONVIF mantiene TLS 2.0 en RC; los commits de especificación sí cambian contratos de transición/readiness.
 - **Mirrors/forks:** no se incorporó ninguno como SOURCE_ID separado.
+
+### 2026-09-14 — MARCH-NETWORKS material source verification
+
+`SOURCE_VERIFIED=YES` — primary March Networks release page  
+`VERSION_OR_REF_VERIFIED=YES` — **2026 Mid-Year Release**, published 2026-08-11  
+`LICENSE_VERIFIED=YES` — proprietary product/reference; no external code adoption  
+`CAPABILITIES_EXTRACTED=YES` — Searchlight AI, interval-snapshot AI Smart Search, expanded face/license-plate search, broader VIVOTEK support, VORTEX/Searchlight Cloud integration, C•CURE access-control correlation  
+`TUKEVISION_MAPPING=YES` — P0-65 investigation, AccessObservation correlation, multisite search/evidence linkage  
+`ADOPTION_BOUNDARY=YES` — extract patterns only; local-first, DVR/NVR primary recorder, no March cloud/VMS dependency  
+`REVISIT_CONDITION=YES` — benchmark when investigation/search or access-correlation slice is active  
+`EXPERIENCE_RECORD=EXP-MARCH-001`
+
+Material lesson: March Networks documents a concrete pattern of **representative snapshots + natural-language/image search** to reduce processing/storage versus continuous full-stream analysis, plus access-event→video investigation. TukeVision should benchmark the pattern locally against its own evidence/index architecture rather than adopt Searchlight Cloud.
 
 ## Regla de consulta
 
