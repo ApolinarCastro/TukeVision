@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-14  
+**UPDATED:** 2026-09-18  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -354,3 +354,49 @@ Cada fuente activa debe estar indexada en [KNOWLEDGE_SOURCE_INDEX.md](KNOWLEDGE_
 - **ECC (`affaan-m/ECC`):** última release visible sigue `v2.2.1`; commits recientes de memoria/control-plane no cambian capacidad CCTV de producto ni el boundary TukeVision.
 - **ONVIF specs:** último conjunto material sigue 2026-09-11 (`bf3ea360`, `f1b0e50d`, `3927e1d2`); sin commit posterior que cambie contrato actual.
 - **GitLab Shinobi:** upstream canónico revisado; `c4cb68d0` continúa como commit reciente visible y no hay cambio material posterior para el benchmark Gate 0C/Gate 1.
+
+
+---
+
+## 14. Canonical reconciliation — 2026-09-18
+
+This section reconciles material upstream evidence recorded in the 2026-09-16 through 2026-09-18 refresh notes into the canonical radar.
+
+### ClearCam local Qwen without provider identity — `ADAPTAR / BENCHMARK`
+
+- **Canonical upstream:** `roryclear/clearcam`.
+- **Verified ref:** `84b8740a6c5fb103d24714fdc8d9af997192115e` (2026-09-16).
+- **Material change:** local Qwen use no longer depends on a ClearCam user identity/key path.
+- **TukeVision mapping:** selective local VLM for P0-64/P0-65/P0-76; local-first/offline event analysis.
+- **Boundary:** GPL-3.0; pattern benchmark only, no direct core copy and no ClearCam product adoption.
+- **Minimum benchmark:** real local event -> selective Qwen -> structured result -> source-linked evidence/LAN output; verify zero media egress and graceful AI failure.
+- **State:** remains `ACTIVE_ENGINEERING_CANDIDATE / HIGH`; target expanded, architecture unchanged.
+
+### Frigate post-0.18 engineering patterns — `ADAPTAR / BENCHMARK`
+
+- **Canonical upstream:** `blakeblackshear/frigate`; stable release remains v0.18.0 while the following refs are post-release development evidence.
+- **Verified refs:** `64d6366ac4be29cf9044a2a0e11ba29464ad9765` (2026-09-16), `10a0d5ea373025b9a53fbc90a1c701d76b160928` (2026-09-16), `eccd10cd941a4abdce0cd6ae2aa6b274f7fdbafe` (2026-09-17), `334073967b1ab89154652a9ea1e0cd15831f7d01` (2026-09-17).
+- **Material patterns:** explicit live transport selection/async probing and ICE configuration; atomic zone-reference updates; annotated representative frames for GenAI review; optional GenAI audio transcription.
+- **TukeVision mapping:** Gate 0C presentation/lifecycle; P0-64 evidence selection; P0-65 semantic investigation; reference-integrity/provenance.
+- **Boundary:** MIT upstream does not imply product adoption. DVR/NVR remains primary recorder. No second NVR. Audio remains `WATCH / RESERVE`.
+- **Minimum benchmark:** same real evidence, clean vs annotated representative frames, measuring investigation utility, unsupported claims, latency/CPU/RAM and exact source traceability; require `ORIGINAL_EVIDENCE_MUTATED=0`.
+- **State:** remains `ACTIVE_ENGINEERING_CANDIDATE / P0-HIGH`; post-release refs are benchmark evidence, not adoption triggers.
+
+### Serval v0.2.5 — `BENCHMARK / ADAPTAR / WATCH`
+
+- **Canonical upstream:** `Flickersoft/serval`.
+- **Verified ref:** `596613ccc7b97fe471b09a6bd085c52f57d9f733` / v0.2.5 (2026-09-06).
+- **Material change:** process/memory leak fix in a local AI/NVR-oriented stack.
+- **TukeVision mapping:** resource hardening, bounded worker lifecycle and graceful degradation.
+- **Boundary:** AGPL-3.0-or-later; do not copy code into the core and do not adopt Serval as a second NVR.
+- **Minimum benchmark:** >=30 min local load with RSS/process/thread/queue telemetry plus induced AI-worker failure/restart while video remains available.
+- **State:** `WATCH / CONDITIONAL BENCHMARK`; promote only if TukeVision resource-hardening evidence shows a matching unresolved defect.
+
+### Freshness check 2026-09-18
+
+- Frigate latest verified canonical commit remains `334073967...` (2026-09-17); no newer material commit was found in the checked upstream.
+- ClearCam latest verified canonical commit remains `84b8740a...` (2026-09-16).
+- ECC latest release remains v2.2.1; 2026-09-17 commits are sponsor/documentation-only and do not change TukeVision CCTV capability.
+- ONVIF `onvif/specs` latest checked commit is `b0ae7de3...` (2026-09-15), adding `Drone` to metadata ObjectType. It does not resolve a current TukeVision P0/P1 gap, so no adoption/priority change is made.
+- Serval latest verified canonical commit remains `596613ccc...` (2026-09-06).
+- GitLab/Shinobi remains governed by the existing canonical-GitLab benchmark record; no mirror/fork is promoted by this reconciliation.
