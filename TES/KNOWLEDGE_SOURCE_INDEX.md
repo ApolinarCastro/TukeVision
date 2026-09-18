@@ -209,3 +209,15 @@ Las fuentes `ACTIVE_EVALUATION`, `BENCHMARK`, `WATCH` y `DISCOVERY_LAYER` deben 
 - el radar ejecuta una revisión periódica.
 
 La revisión debe comprobar el upstream canónico, sea GitHub o GitLab, y actualizar `EXPERIENCE_STORE.md`, `TECHNOLOGY_RADAR.md` y `DECISION_LOG.md` sólo cuando exista cambio material.
+
+---
+
+## Canonical reconciliation 2026-09-18
+
+| Source | Canonical ref / date | License | Material capability | TukeVision mapping | Adoption boundary | Revisit condition | Experience |
+|---|---|---|---|---|---|---|---|
+| ClearCam | `roryclear/clearcam@84b8740a` / 2026-09-16 | GPL-3.0 | local Qwen path independent of provider user identity/key | P0-64/P0-65/P0-76 local selective VLM | benchmark/pattern only; no core copy | benchmark local event->Qwen->source-linked evidence with zero media egress | `EXP-CLEARCAM-009` |
+| Frigate post-0.18 | `64d6366a`, `10a0d5ea`, `eccd10cd`, `33407396` / 2026-09-16..17 | MIT | live transport lifecycle, atomic zone refs, annotated GenAI review, optional audio transcription | Gate 0C, P0-64, P0-65, provenance/reference integrity | patterns only; no second NVR; audio stays WATCH/RESERVE | same-evidence benchmark proves measurable gain without mutating originals | `EXP-FRIGATE-2026-09-18-ANNOTATED-GENAI-REVIEW` |
+| Serval | `Flickersoft/serval@596613cc` / v0.2.5 / 2026-09-06 | AGPL-3.0-or-later | process/memory leak hardening | resource hardening + graceful degradation | no core copy; no second NVR | unresolved matching resource defect + 30m bounded-resource benchmark | `EXP-SERVAL-001` |
+
+All three records require and now have canonical index linkage for: `SOURCE_VERIFIED`, `VERSION_OR_REF_VERIFIED`, `LICENSE_VERIFIED`, `CAPABILITIES_EXTRACTED`, `TUKEVISION_MAPPING`, `ADOPTION_BOUNDARY`, `REVISIT_CONDITION`, and `EXPERIENCE_RECORD`.
