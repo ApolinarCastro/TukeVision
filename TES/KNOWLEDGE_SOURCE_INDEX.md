@@ -1,7 +1,7 @@
 # Índice Canónico de Fuentes de Conocimiento — TukeVision TES V3
 
 **STATUS:** ACTIVE
-**UPDATED:** 2026-09-08
+**UPDATED:** 2026-09-14
 
 Este índice convierte las fuentes de experiencia en conocimiento consultable y reevaluable. Una fuente registrada aquí debe tener una decisión, una condición de reevaluación y un mapeo hacia TukeVision.
 
@@ -21,13 +21,16 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 |---|---|---|---|---|---|
 | CLEARCAM-RORYCLEAR | `https://github.com/roryclear/clearcam` | OSS CCTV / ingeniería | **ACTIVE_EVALUATION / ADAPTED_PARTIAL** | RTSP, FFmpeg lifecycle, tracking, selective inference, event/semantic search | Benchmark inmediato de resiliencia, tracking y búsqueda; GPL-3.0, no copiar código al core |
 | FRIGATE-OSS | `https://github.com/blakeblackshear/frigate` | OSS NVR/CCTV | **ACTIVE_EVALUATION** | multicámara, lifecycle, aceleración, eventos, búsqueda, recovery | Auditoría comparativa contra ClearCam/TukeVision; no convertir TukeVision en segundo NVR |
+| SHINOBI-GITLAB | `https://gitlab.com/Shinobi-Systems/Shinobi` | VMS/NVR upstream GitLab | **BENCHMARK / ACTIVE_EVALUATION** | live grid, substream, next/previous, ONVIF scanner, auth hardening | Benchmark de patrones para Gate 0C/Gate 1; licencia/EULA propia, no copiar código al core |
 | ONVIF-MEDIA-SIGNING | `https://github.com/onvif/media-signing-framework` | estándar / referencia oficial | **ACTIVE_EVALUATION / CONTRACT_READY** | Evidence, provenance, cadena de custodia | Sandbox sign→verify→tamper→fail; hardware físico cuando esté disponible |
+| ONVIF-TLS-CONFIG-2 | `https://www.onvif.org/pressrelease/onvif-tls-configuration-add-on-release-candidate/` + `https://github.com/onvif/specs` | estándar oficial / specs GitHub | **BENCHMARK / WATCH / CONTRACT_READINESS** | Gate 1 LAN/DVR onboarding, TLS, capability negotiation | Reevaluar con hardware real o especificación/test tools finales a fin de 2026 |
+| GEOVISION-LPC-2026-09 | `https://www.geovision.com.tw/tw/cyber_security.php` | fabricante / PSIRT / ONVIF device security | **ADAPTAR / BENCHMARK / WATCH** | Gate 1 onboarding, discovery, WS-Security, Subscribe/callback, firmware inventory | Adaptar controles vendor-neutral; si aparece hardware GeoVision, verificar firmware/advisory antes de onboarding |
 | DETECTRON2-FAIR | `https://github.com/facebookresearch/detectron2` | CV framework | **REJECTED_FOR_CURRENT_PROFILE / WATCH** | percepción/segmentación | Reabrir sólo si cambia hardware o aparece brecha que YOLO/OpenVINO no resuelva |
 | GODS-EYE-VIEW | referencia ya registrada en TES | arquitectura/UX espacial | **ADAPTED / WATCH** | estado espacial, viewshed, handoff, provenance | Consultar ante problemas espaciales/multicámara; no integrar aplicación externa |
 | AMBIENT-AI | referencia industrial | agentic monitoring / UX | **ADAPTED / WATCH** | Agent Monitor, atención selectiva | Consultar métricas de reducción de carga y priorización |
 | HIFOCUS-INTELLISEEK | referencia industrial | investigación CCTV | **ADAPTED_PARTIAL / ACTIVE_EVALUATION** | P0-65, búsqueda histórica | Evaluar análisis local bajo demanda sobre DVR/NVR sin indexar todo el video |
 | AVIGILON | referencia enterprise | VMS / analytics | **ACTIVE_EVALUATION** | búsqueda, multisitio, privacidad, video+access | Extraer patrones; no adoptar ecosistema vertical |
-| MARCH-NETWORKS | referencia enterprise | VMS / connected intelligence | **ACTIVE_EVALUATION** | agregador, correlación, investigación | Comparar patrón video+datos+acceso+multisitio |
+| MARCH-NETWORKS | `https://www.marchnetworks.com/news/march-networks-launches-2026-mid-year-release-advancing-connected-intelligence-for-modern-security/` | VMS / connected intelligence / vendor primary | **BENCHMARK / ACTIVE_EVALUATION** | P0-65 investigation, snapshot search, video+operational data+access correlation | Benchmark local del patrón snapshot→search→evidence y access→video correlation; no cloud dependency ni segundo NVR |
 | SMARTPSS-LITE | experiencia de producto | VMS / operación | **ACTIVE_EVALUATION** | UX, operación, interoperabilidad | Consultar como benchmark de producto sin copiar arquitectura |
 | NCSC-AGENTIC-SECURITY | guía autoridad | seguridad / agentes | **ACTIVE_EVALUATION** | autonomía, mínimo privilegio, safe mode | Integrar como control/gobernanza, no como dependencia |
 | PURPOSE-BOUND-INVESTIGATION | experiencia de gobernanza | privacidad / investigación | **ADAPTED** | P0-59, P0-65, P0-66, P1-69 | Toda búsqueda IA debe usar purpose/case/scope/audit |
@@ -93,10 +96,95 @@ Cuando el mismo proyecto esté alojado o espejado en ambas forjas, se conserva *
 - Impacto TukeVision: refuerza prioridad del benchmark de `playback/freshness`, sincronización multicámara y startup/recovery; no cambia la frontera GPL ni autoriza copia directa.
 - Decisión: `ACTIVE_EVALUATION_HIGH` se mantiene y gana prioridad operativa.
 
-### GitLab
+### 2026-09-10 — `Shinobi-Systems/Shinobi` — GitLab
 
-- GitLab queda activado como forge de búsqueda y actualización de igual prioridad que GitHub.
-- No se registra aquí un proyecto GitLab específico sin upstream verificado; los candidatos se incorporarán por `SOURCE_ID` conforme sean identificados y validados.
+- `FORGE=GITLAB`.
+- `CANONICAL_UPSTREAM=https://gitlab.com/Shinobi-Systems/Shinobi`.
+- `LAST_VERIFIED_REF=c4cb68d0` (2026-08-20, fix de Live Grid render).
+- MR !548: corrige, entre otros, navegación `open next/previous monitor` y problemas al cargar substreams; también añade opciones ONVIF/RTSP relevantes.
+- MR !557 (2026-08-05): hardening de autenticación, permisos, pairing/debug routes y file-write containment.
+- `LICENSE=Shinobi Open Source Software License Agreement (EULA propia)`; condiciones comerciales aplican. `DIRECT_CODE_REUSE=NO`.
+- `TES_DECISION=BENCHMARK / ACTIVE_EVALUATION`.
+- `REVISIT_WHEN=Gate 0C vuelva a diseñarse desde baseline estable o Gate 1 defina onboarding LAN/DVR`.
+
+### 2026-09-10 — ONVIF TLS Configuration Add-on 2.0 RC — ONVIF + GitHub
+
+- `CANONICAL_UPSTREAM=ONVIF` (fuente normativa oficial); `github.com/onvif/specs` se usa como repositorio de desarrollo público, no como sustituto de la especificación publicada.
+- ONVIF publicó la Release Candidate 2.0 el **2026-09-09** y anunció finalización prevista para fin de 2026.
+- La RC actualiza requisitos de configuración TLS hacia métodos más fuertes y separa requisitos de seguridad mediante add-ons versionables.
+- Licencia de `onvif/specs`: especificaciones bajo licencia ONVIF no-derivatives; contribuciones bajo Apache según el repositorio. No copiar texto normativo al core.
+- `TES_DECISION=BENCHMARK / WATCH / CONTRACT_READINESS`.
+- `REVISIT_WHEN=hardware Gate 1 exponga TLS configurable, aparezcan test tools aplicables o se publique la versión final`.
+
+### 2026-09-11 — GeoVision GV-LPC2011/2211 security advisory
+
+- `SOURCE_TYPE=VENDOR_PSIRT / PRIMARY_SECURITY_SOURCE`.
+- `CANONICAL_UPSTREAM=https://www.geovision.com.tw/tw/cyber_security.php`.
+- `LAST_VERIFIED_REF=GV-LPC-2026-09-01`.
+- `LAST_VERIFIED_AT=2026-09-11`.
+- Advisory publicado por GeoVision el 2026-09-10 con 23 CVE (`CVE-2026-88268`…`CVE-2026-88290`) y estado `Completed`.
+- Materialmente relevantes para Gate 1: replay de WS-Security UsernameToken/PasswordDigest (`CVE-2026-88278`), command injection en ONVIF Subscribe (`CVE-2026-88277`) y DoS no autenticado de WS-Discovery por `Scopes` excesivos (`CVE-2026-88287`).
+- `LICENSE=N/A (vendor security advisory; no code adoption)`.
+- `TES_DECISION=ADAPTAR / BENCHMARK / WATCH`.
+- `REVISIT_WHEN=Gate 1 sea autorizado, aparezca hardware GeoVision, cambie firmware real o se publiquen nuevos advisories aplicables`.
+
+### Cobertura de forjas — 2026-09-11
+
+- **GitHub:** ClearCam y Frigate revisados. ClearCam no presenta cambio posterior al commit `91f2f77` (2026-09-08) que cambie la decisión. Frigate 0.18 RC2 fue revisado; no cambia el boundary ni exige una nueva decisión TES.
+- **GitLab:** Shinobi revisado en su upstream canónico; no se detectó novedad material posterior a la evidencia ya registrada. No se incorporaron forks/mirrors.
+- **Fuentes oficiales/primarias:** ONVIF sin cambio posterior a TLS 2.0 RC; GeoVision sí publicó un advisory material y se incorpora como fuente de seguridad de fabricante.
+
+### 2026-09-13 — material source verification
+
+#### CLEARCAM-RORYCLEAR
+`SOURCE_VERIFIED=YES`  
+`VERSION_OR_REF_VERIFIED=YES` — `2f65c739...`, `3e693451...`, `078c6cc8...`  
+`LICENSE_VERIFIED=YES` — GPL-3.0  
+`CAPABILITIES_EXTRACTED=YES` — self-hosted server path, Qwen without ClearCam user ID, notification helper  
+`TUKEVISION_MAPPING=YES` — P0-62/P0-65/P0-76, local event delivery  
+`ADOPTION_BOUNDARY=YES` — pattern-only; no direct GPL code reuse  
+`REVISIT_CONDITION=YES` — benchmark local endpoint/offline path before implementation  
+`EXPERIENCE_RECORD=EXP-CLEARCAM-008`
+
+#### ONVIF-TLS-CONFIG-2 / ONVIF WebRTC specs
+`SOURCE_VERIFIED=YES`  
+`VERSION_OR_REF_VERIFIED=YES` — `bf3ea360...`, `f1b0e50d...` (2026-09-11)  
+`LICENSE_VERIFIED=YES` — ONVIF specification licensing boundary already recorded; no normative text copied to core  
+`CAPABILITIES_EXTRACTED=YES` — estimated TLS activation time; explicit WebRTC close signaling  
+`TUKEVISION_MAPPING=YES` — Gate 1 TLS transition/health; future WebRTC Gateway resource cleanup  
+`ADOPTION_BOUNDARY=YES` — contract/readiness only until hardware/spec support exists  
+`REVISIT_CONDITION=YES` — Gate 1 hardware exposes TLS configuration or WebRTC requirement becomes real  
+`EXPERIENCE_RECORD=EXP-ONVIF-TLS-002`
+
+#### AMBIENT-AI
+`SOURCE_VERIFIED=YES` — primary Ambient.ai announcement 2026-08-26  
+`VERSION_OR_REF_VERIFIED=YES` — Aug-2026 platform release  
+`LICENSE_VERIFIED=YES` — proprietary product/reference; no code adoption  
+`CAPABILITIES_EXTRACTED=YES` — Agentic Video Walls, Case Management, degraded-view health, credential/network updates, stream-density optimization, Semantic/Similarity Search  
+`TUKEVISION_MAPPING=YES` — Gate 0C health/attention; P0-59/P0-65/P0-66; Gate 1 maintenance  
+`ADOPTION_BOUNDARY=YES` — extract patterns only; no cloud/VMS dependency  
+`REVISIT_CONDITION=YES` — benchmark when health/case-management slice is active  
+`EXPERIENCE_RECORD=EXP-AMBIENT-002`
+
+### Cobertura de forjas — 2026-09-13
+
+- **GitHub:** ClearCam, Frigate, ONVIF specs/media-signing y ECC revisados. ClearCam y ONVIF presentan cambios materiales; Frigate 0.18.0 estable no tiene release posterior que cambie la decisión; ECC 2.2.1 no cambia capacidad CCTV del producto.
+- **GitLab:** Shinobi upstream canónico revisado; último commit visible sigue `c4cb68d0` (2026-08-20). Sin cambio material posterior.
+- **Fuentes oficiales/primarias:** Ambient.ai aporta capacidades materiales no reconciliadas previamente. ONVIF mantiene TLS 2.0 en RC; los commits de especificación sí cambian contratos de transición/readiness.
+- **Mirrors/forks:** no se incorporó ninguno como SOURCE_ID separado.
+
+### 2026-09-14 — MARCH-NETWORKS material source verification
+
+`SOURCE_VERIFIED=YES` — primary March Networks release page  
+`VERSION_OR_REF_VERIFIED=YES` — **2026 Mid-Year Release**, published 2026-08-11  
+`LICENSE_VERIFIED=YES` — proprietary product/reference; no external code adoption  
+`CAPABILITIES_EXTRACTED=YES` — Searchlight AI, interval-snapshot AI Smart Search, expanded face/license-plate search, broader VIVOTEK support, VORTEX/Searchlight Cloud integration, C•CURE access-control correlation  
+`TUKEVISION_MAPPING=YES` — P0-65 investigation, AccessObservation correlation, multisite search/evidence linkage  
+`ADOPTION_BOUNDARY=YES` — extract patterns only; local-first, DVR/NVR primary recorder, no March cloud/VMS dependency  
+`REVISIT_CONDITION=YES` — benchmark when investigation/search or access-correlation slice is active  
+`EXPERIENCE_RECORD=EXP-MARCH-001`
+
+Material lesson: March Networks documents a concrete pattern of **representative snapshots + natural-language/image search** to reduce processing/storage versus continuous full-stream analysis, plus access-event→video investigation. TukeVision should benchmark the pattern locally against its own evidence/index architecture rather than adopt Searchlight Cloud.
 
 ## Regla de consulta
 
@@ -121,3 +209,15 @@ Las fuentes `ACTIVE_EVALUATION`, `BENCHMARK`, `WATCH` y `DISCOVERY_LAYER` deben 
 - el radar ejecuta una revisión periódica.
 
 La revisión debe comprobar el upstream canónico, sea GitHub o GitLab, y actualizar `EXPERIENCE_STORE.md`, `TECHNOLOGY_RADAR.md` y `DECISION_LOG.md` sólo cuando exista cambio material.
+
+---
+
+## Canonical reconciliation 2026-09-18
+
+| Source | Canonical ref / date | License | Material capability | TukeVision mapping | Adoption boundary | Revisit condition | Experience |
+|---|---|---|---|---|---|---|---|
+| ClearCam | `roryclear/clearcam@84b8740a` / 2026-09-16 | GPL-3.0 | local Qwen path independent of provider user identity/key | P0-64/P0-65/P0-76 local selective VLM | benchmark/pattern only; no core copy | benchmark local event->Qwen->source-linked evidence with zero media egress | `EXP-CLEARCAM-009` |
+| Frigate post-0.18 | `64d6366a`, `10a0d5ea`, `eccd10cd`, `33407396` / 2026-09-16..17 | MIT | live transport lifecycle, atomic zone refs, annotated GenAI review, optional audio transcription | Gate 0C, P0-64, P0-65, provenance/reference integrity | patterns only; no second NVR; audio stays WATCH/RESERVE | same-evidence benchmark proves measurable gain without mutating originals | `EXP-FRIGATE-2026-09-18-ANNOTATED-GENAI-REVIEW` |
+| Serval | `Flickersoft/serval@596613cc` / v0.2.5 / 2026-09-06 | AGPL-3.0-or-later | process/memory leak hardening | resource hardening + graceful degradation | no core copy; no second NVR | unresolved matching resource defect + 30m bounded-resource benchmark | `EXP-SERVAL-001` |
+
+All three records require and now have canonical index linkage for: `SOURCE_VERIFIED`, `VERSION_OR_REF_VERIFIED`, `LICENSE_VERIFIED`, `CAPABILITIES_EXTRACTED`, `TUKEVISION_MAPPING`, `ADOPTION_BOUNDARY`, `REVISIT_CONDITION`, and `EXPERIENCE_RECORD`.
