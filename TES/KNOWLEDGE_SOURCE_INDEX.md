@@ -232,3 +232,11 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 | MINICPM-OPENBMB | `https://github.com/OpenBMB/MiniCPM` | local LLM / agentic | **ACTIVE_EVALUATION / P1** | razonamiento estructurado y asistencia de investigación | benchmark local; verificar licencia exacta del checkpoint antes de despliegue |
 | MINICPM-V-OPENBMB | `https://github.com/OpenBMB/MiniCPM-V` | local VLM | **ACTIVE_EVALUATION / P0-HIGH** | interpretación semántica image/video sobre evidencia seleccionada | benchmark event-triggered; no inferencia continua en 15 cámaras |
 | OPENVIEWER | `https://aiopenviewer.com/` + `sonnvntu/openviewer-releases` | arquitectura/product reference | **ACTIVE_EVALUATION / P1** | plugin boundary, reconnect/lifecycle, rule→alert, remote access reference | verificar source-pack provenance/licencia antes de cualquier reutilización |
+
+---
+
+## Fuente residual reconciliada desde PR #3
+
+| SOURCE_ID | Fuente / upstream | Tipo | Estado TES | Mapeo principal | Condición / siguiente acción |
+|---|---|---|---|---|---|
+| JETBRAINS-JUNIE | `https://github.com/JetBrains/junie` | engineering agent / tooling | **WATCH / BENCHMARK_COMPATIBILITY** | agentes de desarrollo, CI/CD, subagentes | reevaluar sólo ante necesidad real; comparar con tooling ya adoptado; no runtime dependency |

@@ -437,3 +437,15 @@ This section reconciles material upstream evidence recorded in the 2026-09-16 th
 - **PATTERNS:** vision spine + plugins, Detection→Classification→Rule→Alert, reconnect/lifecycle, custom model boundary y acceso remoto futuro.
 - **LICENSE_STATUS:** el repositorio público de releases se presenta como propietario; cualquier source pack debe verificarse individualmente antes de reutilización.
 - **DECISION:** benchmark + adaptación de patrones; no dependencia de runtime ni copia de código mientras provenance/licencia no estén resueltas.
+
+---
+
+## 16. Residuales PR #3 reconciliados — 2026-09-18
+
+El PR #3 fue revisado por supersedencia. Sus aportes sustantivos ya fueron absorbidos por el TES vigente salvo tres elementos explícitos, que quedan preservados aquí antes del cierre:
+
+- **Attention Orchestrator Metrics (P0-66)** — `ACTIVE_EVALUATION / INTERNAL_CAPABILITY`. Mantener como capacidad transversal para medir reducción de carga, falsas escalaciones, tiempo a atención e investigación. No crear un sistema paralelo de prioridad.
+- **DVR/NVR AI On-Demand** — `ACTIVE_EVALUATION / P0-65 SUPPORTING_PATTERN`. Analizar histórico del DVR/NVR bajo demanda, localmente, evitando indexar continuamente todos los frames. DVR/NVR sigue siendo grabador primario.
+- **JetBrains Junie** — `WATCH / BENCHMARK_COMPATIBILITY` como herramienta de ingeniería. No es dependencia del runtime. Reabrir sólo si existe necesidad real de subagentes/CI-CD estandarizados y compararlo contra ECC/OpenCode/AutoClaw/Antigravity bajo el mismo flujo de verificación.
+
+Con esta reconciliación no queda conocimiento material exclusivo en PR #3.
