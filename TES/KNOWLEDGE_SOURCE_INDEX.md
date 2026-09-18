@@ -221,3 +221,14 @@ La revisión debe comprobar el upstream canónico, sea GitHub o GitLab, y actual
 | Serval | `Flickersoft/serval@596613cc` / v0.2.5 / 2026-09-06 | AGPL-3.0-or-later | process/memory leak hardening | resource hardening + graceful degradation | no core copy; no second NVR | unresolved matching resource defect + 30m bounded-resource benchmark | `EXP-SERVAL-001` |
 
 All three records require and now have canonical index linkage for: `SOURCE_VERIFIED`, `VERSION_OR_REF_VERIFIED`, `LICENSE_VERIFIED`, `CAPABILITIES_EXTRACTED`, `TUKEVISION_MAPPING`, `ADOPTION_BOUNDARY`, `REVISIT_CONDITION`, and `EXPERIENCE_RECORD`.
+
+---
+
+## Fuentes incorporadas 2026-09-18 — AI multimodal / engineering tools
+
+| SOURCE_ID | Fuente / upstream | Tipo | Estado TES | Mapeo principal | Condición / siguiente acción |
+|---|---|---|---|---|---|
+| QWEN-MM-PLUGINS | `https://github.com/QwenLM/Qwen-MM-Plugins` | OSS multimodal agent toolkit | **ACTIVE_EVALUATION / P0-HIGH** | inspección local de evidencia, Skill+MCP, long-video memory pattern | benchmark de core local; no usar cloud video-memory con CCTV cliente |
+| MINICPM-OPENBMB | `https://github.com/OpenBMB/MiniCPM` | local LLM / agentic | **ACTIVE_EVALUATION / P1** | razonamiento estructurado y asistencia de investigación | benchmark local; verificar licencia exacta del checkpoint antes de despliegue |
+| MINICPM-V-OPENBMB | `https://github.com/OpenBMB/MiniCPM-V` | local VLM | **ACTIVE_EVALUATION / P0-HIGH** | interpretación semántica image/video sobre evidencia seleccionada | benchmark event-triggered; no inferencia continua en 15 cámaras |
+| OPENVIEWER | `https://aiopenviewer.com/` + `sonnvntu/openviewer-releases` | arquitectura/product reference | **ACTIVE_EVALUATION / P1** | plugin boundary, reconnect/lifecycle, rule→alert, remote access reference | verificar source-pack provenance/licencia antes de cualquier reutilización |

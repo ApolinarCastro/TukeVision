@@ -110,3 +110,12 @@ Este registro documenta formalmente las decisiones arquitectónicas, tecnológic
 - **Contexto:** Mecanismos como Google Gemini Agentic Video Processing optimizan la inferencia a través de escaneo temporal dirigido y re-muestreo dinámico, pero implican subida a nube.
 - **Decisión:** TukeVision adopta el PATRÓN algorítmico (búsqueda orientada a objetivo + muestreo selectivo FPS) para optimizar el Edge, pero RECHAZA la subida de video de cliente a la nube externa. Customer CCTV remains local.
 - **Impacto:** Refuerza la autonomía local Edge reduciendo cómputo ocioso sin comprometer la soberanía de los datos.
+
+---
+
+### [DEC-013] Base tecnológica de IA multimodal local
+- **Estado:** `ADOPTADO COMO BASE TECNOLÓGICA / BENCHMARK SELECTIVO`
+- **Contexto:** TukeVision necesita mejorar análisis e interpretación de actividad/evidencia sin acoplar el producto a un único proveedor ni ejecutar modelos pesados continuamente sobre todas las cámaras.
+- **Decisión:** usar la familia OpenBMB MiniCPM como base de candidatos de IA local (MiniCPM-V para interpretación visual selectiva; MiniCPM5-2B para razonamiento estructurado), Qwen-MM-Plugins como herramienta/patrón de ingeniería multimodal y memoria de video, y OpenViewer sólo como referencia arquitectónica/patrón mientras su provenance/licencia de source packs no esté resuelta.
+- **Límites:** local-first; inferencia disparada por evento; no VLM continuo sobre 15 cámaras; no reemplazar detector/tracker/Entity Truth; `AI OUTPUT = OBSERVATION_AI`; no enviar CCTV de cliente a servicios externos; verificar licencia exacta de checkpoints antes de despliegue/redistribución.
+- **Impacto:** establece una capa AI intercambiable y gobernada por Evidence First, evitando que modelo, toolkit o producto externo se conviertan en la verdad operacional o en un segundo pipeline de video.

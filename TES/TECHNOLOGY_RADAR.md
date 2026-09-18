@@ -400,3 +400,40 @@ This section reconciles material upstream evidence recorded in the 2026-09-16 th
 - ONVIF `onvif/specs` latest checked commit is `b0ae7de3...` (2026-09-15), adding `Drone` to metadata ObjectType. It does not resolve a current TukeVision P0/P1 gap, so no adoption/priority change is made.
 - Serval latest verified canonical commit remains `596613ccc...` (2026-09-06).
 - GitLab/Shinobi remains governed by the existing canonical-GitLab benchmark record; no mirror/fork is promoted by this reconciliation.
+
+---
+
+## 15. Refresh 2026-09-18 — Base AI multimodal y herramientas de investigación
+
+### Qwen-MM-Plugins — `ACTIVE_ENGINEERING_CANDIDATE / P0-HIGH`
+
+- **SOURCE_ID:** `QWEN-MM-PLUGINS`
+- **UPSTREAM:** `https://github.com/QwenLM/Qwen-MM-Plugins`
+- **LAST_VERIFIED_REF:** `fac5c9e307737afadd15bacda0314870e886864c` (2026-09-18)
+- **LICENSE:** Apache-2.0
+- **CAPABILITIES:** inspección multimodal local para agentes, Skill+MCP por capacidad, lectura/recorte/anotación de imagen/video y patrón de memoria jerárquica para video largo.
+- **TUKEVISION_MAPPING:** herramientas de ingeniería, Evidence inspection, P0-64 Evidence Selector, P0-65 Semantic Investigation y memoria de video dirigida.
+- **DECISION:** `BENCHMARK + ENGINEERING_TOOL + ARCHITECTURAL_PATTERN`.
+- **BOUNDARY:** no subir CCTV de cliente a servicios externos; `video-memory` cloud no se adopta tal cual. Resultado de memoria/IA = lead, debe volver a evidencia original.
+- **REVISIT:** benchmark local del core y, posteriormente, reimplementación local del patrón de memoria jerárquica si aporta valor medible.
+
+### OpenBMB MiniCPM — `ACTIVE_AI_TECH_BASE`
+
+- **SOURCE_ID:** `MINICPM-OPENBMB`
+- **UPSTREAMS:** `https://github.com/OpenBMB/MiniCPM` y `https://github.com/OpenBMB/MiniCPM-V`
+- **LAST_VERIFIED_REFS:** MiniCPM `310e3fce1d8378e26471577c55084ea44bd9c8c3` (2026-09-12); MiniCPM-V `6ada8e8ef5e2979670fc94406f02b87c3c7e7ee0` (2026-09-08)
+- **REPOSITORY_CODE_LICENSE:** Apache-2.0. La licencia del checkpoint/modelo concreto debe verificarse antes de despliegue o redistribución.
+- **PRIMARY_CANDIDATES:** MiniCPM-V 4.6 = P0 intérprete semántico visual local; MiniCPM5-2B = P1 razonamiento/agentic local; MiniCPM-o = P2 benchmark futuro.
+- **DECISION:** base tecnológica de IA local para análisis e interpretación, bajo inferencia selectiva disparada por evento.
+- **BOUNDARY:** no sustituye captura, detector, tracker, Entity Truth ni reglas deterministas; no VLM continuo sobre 15 cámaras; salida = `OBSERVATION_AI`, no hecho canónico.
+- **BENCHMARK:** precisión semántica, alucinación, latencia, RAM/VRAM/CPU, calidad en español y trazabilidad a evidencia fuente.
+
+### OpenViewer — `ACTIVE_ENGINEERING_REFERENCE / P1`
+
+- **SOURCE_ID:** `OPENVIEWER`
+- **REFERENCE:** `https://aiopenviewer.com/`
+- **PUBLIC_RELEASES:** `https://github.com/sonnvntu/openviewer-releases`
+- **LAST_VERIFIED_REF:** `fbb5d9f7ba548cc2ba6da7ce2f7dedd874ce83b6`
+- **PATTERNS:** vision spine + plugins, Detection→Classification→Rule→Alert, reconnect/lifecycle, custom model boundary y acceso remoto futuro.
+- **LICENSE_STATUS:** el repositorio público de releases se presenta como propietario; cualquier source pack debe verificarse individualmente antes de reutilización.
+- **DECISION:** benchmark + adaptación de patrones; no dependencia de runtime ni copia de código mientras provenance/licencia no estén resueltas.
