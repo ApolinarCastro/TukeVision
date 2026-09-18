@@ -310,3 +310,47 @@ FAILURE
 ```
 
 Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y en `KNOWLEDGE_SOURCE_INDEX.md`.
+
+---
+
+## EXP-CLEARCAM-009 — Local Qwen without provider identity dependency
+- SOURCE_VERIFIED: YES — `roryclear/clearcam`
+- VERSION_OR_REF_VERIFIED: YES — `84b8740a6c5fb103d24714fdc8d9af997192115e`, 2026-09-16
+- LICENSE_VERIFIED: YES — GPL-3.0
+- CAPABILITIES_EXTRACTED: YES — selective local Qwen path can operate without ClearCam user identity/key dependency
+- TUKEVISION_MAPPING: P0-64 / P0-65 / P0-76; local-first selective VLM and source-linked investigation
+- ADOPTION_BOUNDARY: benchmark and independently reimplement pattern only; no direct GPL core copy; no product adoption
+- REVISIT_CONDITION: benchmark demonstrates useful source-linked output with zero media egress, bounded latency/resources and graceful AI failure
+- EXPERIENCE_RECORD: YES
+- CLASSIFICATION: ADAPTAR / BENCHMARK
+- RISK: accidental SaaS/identity coupling or GPL contamination
+- MINIMUM_BENCHMARK: real event -> local Qwen -> structured result -> source evidence/LAN; verify no media egress
+- NEXT_GATE: P0-64/P0-65 selective investigation benchmark
+
+## EXP-FRIGATE-2026-09-18-ANNOTATED-GENAI-REVIEW — Representative annotated evidence
+- SOURCE_VERIFIED: YES — `blakeblackshear/frigate`
+- VERSION_OR_REF_VERIFIED: YES — `eccd10cd941a4abdce0cd6ae2aa6b274f7fdbafe` (2026-09-17); related lifecycle refs `64d6366a`, `10a0d5ea`; audio ref `33407396`
+- LICENSE_VERIFIED: YES — MIT
+- CAPABILITIES_EXTRACTED: YES — annotated representative frames for GenAI review; exact zone-reference updates; explicit live transport handling; optional GenAI audio transcription
+- TUKEVISION_MAPPING: Gate 0C, P0-64 Evidence Selector, P0-65 Semantic Investigation, provenance/reference integrity
+- ADOPTION_BOUNDARY: patterns/benchmark only; no Frigate product adoption; no second NVR; audio remains WATCH/RESERVE
+- REVISIT_CONDITION: same-evidence benchmark demonstrates measurable investigation gain without source mutation or unsupported claims
+- EXPERIENCE_RECORD: YES
+- CLASSIFICATION: ADAPTAR / BENCHMARK
+- RISK: annotations can bias model output or be mistaken for original evidence
+- MINIMUM_BENCHMARK: clean vs annotated representative frames over identical real evidence; measure utility, hallucination/unsupported claims, latency, CPU/RAM and source traceability; `ORIGINAL_EVIDENCE_MUTATED=0`
+- NEXT_GATE: P0-64/P0-65 benchmark before any new implementation
+
+## EXP-SERVAL-001 — Bounded process/memory lifecycle
+- SOURCE_VERIFIED: YES — `Flickersoft/serval`
+- VERSION_OR_REF_VERIFIED: YES — v0.2.5 / `596613ccc7b97fe471b09a6bd085c52f57d9f733`, 2026-09-06
+- LICENSE_VERIFIED: YES — AGPL-3.0-or-later
+- CAPABILITIES_EXTRACTED: YES — upstream fix specifically addresses process/memory leakage in a local AI/NVR-oriented runtime
+- TUKEVISION_MAPPING: resource hardening, worker lifecycle and graceful degradation
+- ADOPTION_BOUNDARY: benchmark pattern only; no AGPL code copy into core; no Serval/NVR adoption
+- REVISIT_CONDITION: TukeVision evidence shows matching resource leak/orphan process defect or the benchmark proves a reusable lifecycle pattern
+- EXPERIENCE_RECORD: YES
+- CLASSIFICATION: BENCHMARK / ADAPTAR / WATCH
+- RISK: early-project maturity plus AGPL boundary and NVR-role overlap
+- MINIMUM_BENCHMARK: >=1800s local load with RSS/process/thread/queue telemetry + induced AI-worker failure/restart while video continues
+- NEXT_GATE: resource-hardening benchmark only when matching defect is evidenced
