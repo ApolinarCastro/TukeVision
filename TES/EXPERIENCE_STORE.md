@@ -354,3 +354,59 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 - RISK: early-project maturity plus AGPL boundary and NVR-role overlap
 - MINIMUM_BENCHMARK: >=1800s local load with RSS/process/thread/queue telemetry + induced AI-worker failure/restart while video continues
 - NEXT_GATE: resource-hardening benchmark only when matching defect is evidenced
+
+---
+
+### SOURCE_ID=QWEN-MM-PLUGINS
+* **SOURCE_TYPE**: PUBLIC_GITHUB_PROJECT
+* **PROJECT**: `QwenLM/Qwen-MM-Plugins`
+* **LAST_VERIFIED_REF**: `fac5c9e307737afadd15bacda0314870e886864c` (2026-09-18)
+* **LICENSE**: Apache-2.0
+* **DECISION**: ACTIVE_ENGINEERING_CANDIDATE / BENCHMARK
+* **DIRECT_RUNTIME_DEPENDENCY**: NO
+
+**Áreas**: multimodal agent tools, local media inspection, Skill+MCP boundaries, hierarchical long-video memory, event/entity/OCR/time retrieval.
+
+### SOURCE_ID=MINICPM-OPENBMB
+* **SOURCE_TYPE**: PUBLIC_GITHUB_PROJECT
+* **PROJECTS**: `OpenBMB/MiniCPM`, `OpenBMB/MiniCPM-V`
+* **LAST_VERIFIED_REFS**: `310e3fce1d8378e26471577c55084ea44bd9c8c3`; `6ada8e8ef5e2979670fc94406f02b87c3c7e7ee0`
+* **REPOSITORY_CODE_LICENSE**: Apache-2.0
+* **MODEL_LICENSE_RULE**: verificar el checkpoint/model card exacto antes de despliegue o redistribución.
+* **DECISION**: ACTIVE_AI_TECH_BASE / SELECTIVE_BENCHMARK
+
+**Áreas**: MiniCPM-V como intérprete visual semántico local; MiniCPM5-2B como reasoning/agentic layer; inferencia selectiva y local-first.
+
+### SOURCE_ID=OPENVIEWER
+* **SOURCE_TYPE**: PRODUCT / ARCHITECTURE_REFERENCE
+* **REFERENCE**: `https://aiopenviewer.com/`
+* **PUBLIC_RELEASES**: `sonnvntu/openviewer-releases`
+* **LAST_VERIFIED_REF**: `fbb5d9f7ba548cc2ba6da7ce2f7dedd874ce83b6`
+* **LICENSE_STATUS**: public releases repository proprietary; source packs require individual verification.
+* **DECISION**: ACTIVE_ENGINEERING_REFERENCE / PATTERN_BENCHMARK
+* **DIRECT_CODE_REUSE**: BLOCKED_PENDING_LICENSE
+
+**Áreas**: vision spine + plugins, model/plugin boundary, reconnect lifecycle, Detection→Classification→Rule→Alert, future remote-access patterns.
+
+### EXP-QWEN-MM-001 — Multimodal engineering layer and bounded video memory
+* **PROBLEM**: agentes de ingeniería y futura investigación multimodal requieren inspección de medios y memoria de video sin crear herramientas ad-hoc por cada ejecución.
+* **PATTERN**: local multimodal tools + Skill/MCP boundary + hierarchical video memory -> retrieve candidate interval -> return to original video for verification.
+* **DECISION**: BENCHMARK / ENGINEERING_TOOL / ARCHITECTURAL_PATTERN.
+* **TUKEVISION_MAPPING**: Evidence inspection, P0-64, P0-65, agent tooling.
+* **BOUNDARY**: memoria aproximada no es Entity Truth; no customer CCTV cloud upload.
+* **REVISIT_WHEN**: benchmark local demuestre reducción de trabajo manual y buena trazabilidad a evidencia fuente.
+
+### EXP-MINICPM-001 — Selective local semantic interpretation
+* **PROBLEM**: comprender actividad/contexto más allá de detección/tracking sin ejecutar un VLM pesado 24/7 sobre todos los canales.
+* **PATTERN**: event candidate -> keyframe/short clip -> local MiniCPM-V -> structured semantic observation -> deterministic validation -> Situation/Evidence.
+* **DECISION**: ACTIVE_AI_TECH_BASE / BENCHMARK.
+* **TUKEVISION_MAPPING**: P0-64 Evidence Selector, P0-65 Semantic Investigation, Gate 5 analysis/interpretation.
+* **BOUNDARY**: `OBSERVATION_AI != ENTITY_TRUTH`; detector/tracker/temporal engine remain authoritative for their domains.
+* **BENCHMARK**: semantic accuracy, hallucination, latency, RAM/VRAM/CPU, Spanish output quality, evidence traceability.
+
+### EXP-OPENVIEWER-001 — Vision spine and plugin boundary
+* **PROBLEM**: riesgo de acoplar modelos/IA al pipeline central y convertir cada nueva capacidad en un segundo sistema.
+* **PATTERN**: stable vision spine -> plugins -> Detection→Classification→Rule→Alert, with reconnect/lifecycle isolated from model plugins.
+* **DECISION**: ADAPT_PATTERN / BENCHMARK_REFERENCE.
+* **TUKEVISION_MAPPING**: future semantic plugin boundary, lifecycle/reconnect and remote-access design.
+* **BOUNDARY**: no code adoption while source-pack provenance/license remains unresolved.
