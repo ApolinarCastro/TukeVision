@@ -64,3 +64,51 @@ If activated, compare against the current TukeVision baseline and existing Clear
 ## Mandatory-source sweep
 
 The current canonical HEAD was read first. Since the prior canonical update, GitHub commit checks found no newer commits in `blakeblackshear/frigate`, `roryclear/clearcam`, `affaan-m/ECC`, `onvif/media-signing-framework`, `onvif/specs`, `QwenLM/Qwen-MM-Plugins`, `OpenBMB/MiniCPM`, `OpenBMB/MiniCPM-V`, or `sonnvntu/openviewer-releases`. Shinobi's canonical GitLab evidence reviewed in this sweep did not expose a newer material change than the already-recorded live-grid/substream/ONVIF work. No decision-log change is warranted.
+
+---
+
+## Material update: Frigate restart-rate observability hardening
+
+**SOURCE_ID:** `FRIGATE-OSS`  
+**FORGE:** GitHub  
+**CANONICAL_UPSTREAM:** `https://github.com/blakeblackshear/frigate`  
+**LAST_VERIFIED_REF:** `397f5253a568abddbe0f7968fd99b400ca9f1ac0` (2026-09-24)  
+**LICENSE:** MIT  
+**TES_CLASSIFICATION:** `ADAPTAR | BENCHMARK`  
+**DIRECT_PRODUCT_INTEGRATION:** `NO`
+
+### Validation minimum
+
+- `SOURCE_VERIFIED=YES` — canonical Frigate upstream verified on GitHub.
+- `VERSION_OR_REF_VERIFIED=YES` — commit `397f5253...` verified on 2026-09-24.
+- `LICENSE_VERIFIED=YES` — MIT at the verified ref.
+- `CAPABILITIES_EXTRACTED=YES` — event-rate/FPS observability now prevents restart-buffer bursts from being interpreted as 100+ FPS by enforcing a minimum one-second denominator while preserving true sub-second configured windows.
+- `TUKEVISION_MAPPING=YES` — FFmpeg restart/recovery observability, detector health metrics, stale/buffered-frame diagnosis and operator telemetry.
+- `ADOPTION_BOUNDARY=YES` — adapt the invariant/benchmark only; do not adopt Frigate as recorder/NVR and do not change runtime in this TES refresh.
+- `REVISIT_CONDITION=YES` — activate implementation work only if TukeVision telemetry shows restart-adjacent FPS/rate spikes, misleading detector-health values or alerting derived from undersized elapsed-time windows.
+- `EXPERIENCE_RECORD=EXP-FRIGATE-RATE-001`.
+
+## Experience record — `EXP-FRIGATE-RATE-001`
+
+**PROBLEM:** immediately after an FFmpeg/detector restart, buffered events can be counted over only a few milliseconds and create physically misleading FPS/rate telemetry.  
+**PATTERN:** health/rate metrics must define an explicit observation-window contract and must not divide restart bursts by an accidentally tiny elapsed interval. Frigate's fix uses at least a one-second divisor for the normal case while keeping intentionally configured sub-second windows internally consistent.  
+**TUKEVISION_DECISION:** `ADAPTAR | BENCHMARK`; pattern only.
+
+### Materiality and TukeVision mapping
+
+This is material because it changes the trustworthiness of lifecycle observability rather than merely refactoring implementation. A false 100+ FPS signal immediately after recovery can hide instability, corrupt health interpretation or trigger incorrect operational conclusions. For TukeVision the relevant gate is lifecycle/observability around RTSP/FFmpeg recovery; the DVR/NVR remains the primary recorder.
+
+### Minimum benchmark
+
+1. Force repeated RTSP/FFmpeg restarts with buffered frames pending.
+2. Capture raw event/frame counts, elapsed observation time and reported FPS/rate before/during/after recovery.
+3. Assert no impossible restart-adjacent spike is emitted solely because elapsed time is a few milliseconds.
+4. Verify a deliberately configured sub-second measurement window still reports its intended true rate.
+5. Confirm health/alert logic consumes the stabilized metric without masking real sustained overload.
+
+**RISK:** over-smoothing could hide a genuine short burst; therefore the raw count, elapsed window and stabilized health metric should remain distinguishable in evidence/telemetry.  
+**NEXT_GATE:** benchmark against current TukeVision restart telemetry before any product-code change.
+
+### Sweep delta
+
+The previous mandatory-source statement above describes the earlier same-day sweep. A later check found this new Frigate commit at 2026-09-24T12:28:00Z. No new material decision change was found in the other mandatory sources during this refresh. `DECISION_LOG.md` remains unchanged because the Frigate boundary and classification are not changed; only a new engineering/observability pattern is recorded.
