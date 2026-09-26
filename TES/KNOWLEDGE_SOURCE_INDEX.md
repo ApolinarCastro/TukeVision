@@ -240,3 +240,28 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 | SOURCE_ID | Fuente / upstream | Tipo | Estado TES | Mapeo principal | Condición / siguiente acción |
 |---|---|---|---|---|---|
 | JETBRAINS-JUNIE | `https://github.com/JetBrains/junie` | engineering agent / tooling | **WATCH / BENCHMARK_COMPATIBILITY** | agentes de desarrollo, CI/CD, subagentes | reevaluar sólo ante necesidad real; comparar con tooling ya adoptado; no runtime dependency |
+
+
+---
+
+### SOURCE_ID=JEV-TYPESAFE-SYSTEM-ONE
+- **SOURCE_TYPE:** HOSTED_AI_MODEL + OFFICIAL_SDKS + GATEWAY_INTEGRATIONS
+- **PROJECT / PROVIDER:** TypeSafe AI / Jev
+- **CATEGORY:** AI Decision Engines → System-One Models
+- **OFFICIAL_SOURCES:** `https://typesafe.ai/blog/introducing-system-one-models-and-jev`; `https://api.typesafe.ai/docs`
+- **OFFICIAL_SDKS:** `typesafe-ai/typesafe-sdk-python`; `typesafe-ai/typesafe-sdk-js`
+- **GATEWAYS_VERIFIED:** Vercel AI Gateway `typesafe-ai/jev`; Cloudflare Workers AI `typesafe/jev`
+- **LAST_VERIFIED_AT:** 2026-09-25
+- **LAST_VERIFIED_REFS:** Python SDK latest public release observed `v0.7.1` (2026-09-21); JS/TS SDK latest public release observed `v0.6.0` (2026-09-15)
+- **CAPABILITY:** text/structured-state → typed `Choice / Score / Noul` decisions with probabilities/confidence; classification, routing, scoring and gating
+- **TUKVISION_ROLE:** Experimental Event Decision Engine after deterministic correlation and before Policy Engine
+- **STATUS:** WATCH / EXPERIMENTAL
+- **PRODUCTION_READY:** FALSE
+- **CORE_DEPENDENCY:** FALSE
+- **TESTED_WITH_TUKEVISION:** FALSE
+- **PRIORITY:** MEDIUM-HIGH
+- **ADOPTION_BOUNDARY:** Jev proposes only; Policy Engine authorizes; no direct tool/action execution; no replacement for vision/tracking/ReID/OCR/VLM/temporal analysis/evidence/human validation
+- **PRIVACY_BOUNDARY:** metadata-first; no customer CCTV/media/biometric identifiers to hosted services without explicit security/privacy review
+- **REVISIT_CONDITION:** Gate/roadmap reaches Event Decision Layer and a labeled TukeVision event corpus exists for controlled lab benchmarking
+- **BENCHMARK_REQUIRED:** deterministic rules vs Jev vs LLM vs multimodal vs hybrid; include accuracy, FP/FN, UNKNOWN, calibration, p50/p95, cost/1k events, avoided multimodal calls, operator interventions and incorrect escalations
+- **ALTERNATIVE_SEARCH:** calibrated decision models, typed probabilistic routers, small/local classifiers, semantic routers and hybrid deterministic/probabilistic routing; do not make radar vendor-exclusive
