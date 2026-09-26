@@ -410,3 +410,19 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 * **DECISION**: ADAPT_PATTERN / BENCHMARK_REFERENCE.
 * **TUKEVISION_MAPPING**: future semantic plugin boundary, lifecycle/reconnect and remote-access design.
 * **BOUNDARY**: no code adoption while source-pack provenance/license remains unresolved.
+
+
+---
+
+### EXP-JEV-EVENT-DECISION-001 — Typed probabilistic event routing behind policy
+- **PROBLEM:** TukeVision puede detectar/correlacionar eventos pero necesita reducir costo y carga operativa al decidir qué evidencia merece correlación adicional, VLM, investigación o revisión humana.
+- **SOURCE:** TypeSafe AI Jev / System One Models; lanzamiento oficial 2026-09-15; API y SDKs públicos verificados 2026-09-25.
+- **PATTERN:** `DETERMINISTIC_FACTS -> PROBABILISTIC_DECISION -> POLICY_ENGINE -> AUTHORIZED_NEXT_STEP -> EVIDENCE`.
+- **DECISION:** WATCH / EXPERIMENTAL; no producción.
+- **TUKVISION_MAPPING:** Event triage, next-step routing, multicamera-check routing, event prioritization, multimodal-call gate, Agent Monitor routing, confidence gating.
+- **BOUNDARY:** Jev no crea FACT; no ejecuta acciones; no reemplaza correlación determinística; `UNKNOWN` permanece válido; hard safety rules preceden al modelo.
+- **INPUT_BOUNDARY:** empezar sólo con metadata estructurada minimizada; imágenes/rostros/identificadores/streams quedan fuera del primer laboratorio.
+- **RISK:** alta confianza incorrecta, mala calibración, pérdida de contexto temporal, correlación multicámara errónea, FP/FN, vendor lock-in, precio/API, privacidad, latencia y disponibilidad externa.
+- **BENCHMARK:** A reglas; B Jev; C LLM; D multimodal; E híbrido. Medir classification accuracy, FP/FN, UNKNOWN accuracy, routing, multicamera routing, calibration, p50/p95, cost/1000, multimodal calls avoided, operator interventions, incorrect escalations.
+- **PROMOTION_RULE:** `WATCH -> LAB -> BENCHMARK -> CANDIDATE -> PRODUCTION`; promover sólo con evidencia propia y Policy Engine intacto.
+- **REVISIT_WHEN:** exista dataset etiquetado de eventos TukeVision y Gate 0C esté cerrado; crear entonces `/experiments/jev_event_lab/` fuera del core.

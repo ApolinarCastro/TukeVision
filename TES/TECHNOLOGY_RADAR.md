@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-18  
+**UPDATED:** 2026-09-25  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -36,6 +36,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **March Networks** | investigación histórica + video/datos/acceso/multisitio | **BENCHMARK** de snapshot-search local + correlación access→video; no cloud dependency |
 | **SmartPSS Lite** | UX/operación VMS real | benchmark de producto y flujos operador |
 | **Agentic Video Understanding** | procesamiento de video largo caro | benchmark patrón local de muestreo dirigido |
+| **Jev / TypeSafe AI — System One Models** | triage, routing, priorización y escalamiento de eventos ya detectados | **WATCH / EXPERIMENTAL → LAB**; evaluar sólo como Event Decision Engine detrás de correlación determinística y delante de Policy Engine |
 
 ### CONDITIONAL BENCHMARK
 
@@ -159,6 +160,7 @@ Targets activos:
 | **WebRTC Gateway** | cuando exista requerimiento real de visualización web remota; incorporar close signaling explícito si se implementa ONVIF WebRTC |
 | **screen2ipcam** | cuando se necesite incorporar pantalla/POS legacy como fuente |
 | **MAGI / repo discovery** | discovery layer; cada candidato requiere fuente original |
+| **Jev / TypeSafe AI — System One Models** | `WATCH / EXPERIMENTAL`; promover sólo por `WATCH → LAB → BENCHMARK → CANDIDATE → PRODUCTION` con datos propios, calibración y Policy Engine |
 
 ---
 
@@ -449,3 +451,90 @@ El PR #3 fue revisado por supersedencia. Sus aportes sustantivos ya fueron absor
 - **JetBrains Junie** — `WATCH / BENCHMARK_COMPATIBILITY` como herramienta de ingeniería. No es dependencia del runtime. Reabrir sólo si existe necesidad real de subagentes/CI-CD estandarizados y compararlo contra ECC/OpenCode/AutoClaw/Antigravity bajo el mismo flujo de verificación.
 
 Con esta reconciliación no queda conocimiento material exclusivo en PR #3.
+
+
+---
+
+## AI Decision Engines
+
+### System-One Models
+
+```text
+AI Decision Engines
+└── System-One Models
+    ├── Jev / TypeSafe AI
+    ├── alternatives
+    └── research
+```
+
+### Jev / TypeSafe AI — `WATCH / EXPERIMENTAL`
+
+```text
+TECHNOLOGY=Jev / TypeSafe AI
+CATEGORY=System-One Decision Model
+TUKEVISION_ROLE=Experimental Event Decision Engine
+STATUS=WATCH / EXPERIMENTAL
+PRODUCTION_READY=FALSE
+CORE_DEPENDENCY=FALSE
+TESTED_WITH_TUKEVISION=FALSE
+PRIORITY=MEDIUM-HIGH
+```
+
+**Hipótesis TukeVision**
+
+```text
+RTSP / CCTV
+→ Detection
+→ Tracking
+→ Event Candidates
+→ Deterministic Correlation
+→ Jev Event Decision Layer
+→ Policy Engine
+→ Investigation / Multimodal Model / Human Review
+→ Evidence
+```
+
+Principio obligatorio:
+
+```text
+Jev proposes.
+Policy Engine validates.
+TukeVision executes only authorized actions.
+Evidence confirms or refutes.
+```
+
+Nunca: `Jev → acción autónoma directa`.
+
+**Capacidad verificada del upstream (2026-09-25):**
+- TypeSafe presentó Jev el 2026-09-15 como su primer System One Model: estado de texto/JSON + preguntas tipadas → decisiones estructuradas con probabilidades/confianza.
+- API pública documentada: `POST /v1/systemone` y `GET /v1/models`.
+- SDK oficial Python: `typesafe-ai/typesafe-sdk-python`; SDK oficial JS/TS: `typesafe-ai/typesafe-sdk-js`.
+- Vercel AI Gateway expone Jev como `typesafe-ai/jev` y permite TypeSafe client, HTTP API y AI SDK.
+- Cloudflare Workers AI expone `typesafe/jev`, con Zero Data Retention indicado por Cloudflare para esa ruta.
+- Jev actualmente evalúa estado textual/estructurado; no sustituye visión, tracking, ReID, OCR, VLM ni análisis temporal.
+- Las cifras públicas de velocidad/costo de TypeSafe son **claims del proveedor** hasta reproducirlas con datos TukeVision.
+
+**Casos de uso a evaluar:**
+1. Event triage: `NORMAL | RELEVANT | SUSPICIOUS | NEEDS_MORE_EVIDENCE | REQUIRES_CORRELATION | REQUIRES_MULTICAMERA_CHECK | OPERATOR_REVIEW | UNKNOWN`.
+2. Next-step routing: `CORRELATE_ENTITY | CHECK_PREVIOUS_CAMERA | CHECK_NEXT_CAMERA | EXTEND_TIME_WINDOW | SEARCH_TRACK_HISTORY | RUN_MULTIMODAL_ANALYSIS | OPEN_INVESTIGATION | WAIT_FOR_MORE_EVIDENCE | NO_ACTION`.
+3. Multicamera correlation support usando sólo señales ya disponibles y conservando provenance.
+4. Event prioritization: `LOW_PRIORITY | MEDIUM_PRIORITY | HIGH_PRIORITY | CRITICAL_REVIEW`; las reglas determinísticas siempre tienen precedencia.
+5. Multimodal gate para reducir llamadas grandes.
+6. Agent Monitor router sin acceso directo a capabilities.
+7. Confidence gating: `AUTO_CONTINUE | SECOND_VALIDATION | MULTIMODAL_REVIEW | HUMAN_REVIEW`; umbrales sólo después de benchmark.
+
+**Límites epistemológicos permanentes:**
+```text
+FACT != INFERENCE
+INFERENCE != EVIDENCE
+NO_EVIDENCE != NEGATIVE_EVIDENCE
+UNKNOWN is valid
+```
+
+**Privacidad inicial:** metadata estructurada antes que imágenes. No enviar rostros, streams, identificadores personales ni CCTV sensible a terceros sin evaluación específica. Preferir `camera_id, timestamp, zone, object_class, track_id, trajectory, event_descriptors`.
+
+**Laboratorio futuro:** `/experiments/jev_event_lab/`, aislado del core. No crearlo hasta autorización de implementación.
+
+**Benchmark mínimo futuro:** comparar A) reglas determinísticas, B) Jev, C) LLM, D) multimodal, E) híbrido; medir clasificación, FP/FN, exactitud de UNKNOWN, routing/multicámara, calibración, p50/p95, costo/1000 eventos, llamadas multimodales evitadas, intervenciones humanas y escalaciones incorrectas.
+
+**Criterio de promoción:** `WATCH → LAB → BENCHMARK → CANDIDATE → PRODUCTION`. No saltar etapas. Debe demostrar mejora operacional propia, no aumentar errores críticos, trazabilidad/auditabilidad, respeto al Policy Engine y ventaja medible frente a reglas/modelos existentes.
