@@ -119,3 +119,18 @@ Este registro documenta formalmente las decisiones arquitectónicas, tecnológic
 - **Decisión:** usar la familia OpenBMB MiniCPM como base de candidatos de IA local (MiniCPM-V para interpretación visual selectiva; MiniCPM5-2B para razonamiento estructurado), Qwen-MM-Plugins como herramienta/patrón de ingeniería multimodal y memoria de video, y OpenViewer sólo como referencia arquitectónica/patrón mientras su provenance/licencia de source packs no esté resuelta.
 - **Límites:** local-first; inferencia disparada por evento; no VLM continuo sobre 15 cámaras; no reemplazar detector/tracker/Entity Truth; `AI OUTPUT = OBSERVATION_AI`; no enviar CCTV de cliente a servicios externos; verificar licencia exacta de checkpoints antes de despliegue/redistribución.
 - **Impacto:** establece una capa AI intercambiable y gobernada por Evidence First, evitando que modelo, toolkit o producto externo se conviertan en la verdad operacional o en un segundo pipeline de video.
+
+
+---
+
+### [GOV-EXEC-001] Project Execution OS + ECC + Anti-Hallucination & Resource Gate
+- **Fecha:** 2026-09-27
+- **Estado:** `ADOPTADO / ACTIVO`
+- **Contexto:** El desarrollo guiado por contexto de chat produjo riesgo de pérdida de estado, repetición de intentos, deriva de alcance, sobredeclaración de avance y uso ineficiente de recursos.
+- **Decisión:** Todo trabajo material de TukeVision queda gobernado por `07_PROJECT_EXECUTION_OS_TASKVIEW_ECC` y `06_ANTI_HALLUCINATION_AND_RESOURCE_GATE`. El chat no es fuente de verdad. Antes de actuar se recupera estado persistente, se identifica el primer checkpoint bloqueante y se ejecuta el ciclo `plan -> test -> implement -> review -> verify -> remember -> improve`.
+- **Estados permitidos:** `NOT_TESTED | READY | IN_PROGRESS | FAIL | BLOCKED | PASS | CLOSED`.
+- **Anti-deriva:** ninguna tecnología o capa nueva pasa a implementación sin blocker demostrado, evidencia, alternativa simple descartada, criterio de éxito, rollback y costo de recursos justificado.
+- **Persistencia:** decisiones, fallos, estado de tarea, evidencia, lecciones y siguientes pasos deben quedar fuera del chat en sus artefactos persistentes correspondientes.
+- **TaskView:** sólo candidato a Execution State / Project Control Plane. Permanece `NOT_TESTED` hasta cerrar `TV-001..TV-008`; no es fuente de verdad ni dependencia productiva.
+- **ECC:** se consulta cuando el trabajo involucra agentes, memoria, skills, workflows, planificación, verificación, seguridad, contexto, aprendizaje continuo o harness. Los patrones ECC se adoptan como gobernanza/benchmark, no como dependencia automática del runtime.
+- **Impacto:** se elimina el desarrollo dirigido por chat como mecanismo de control; la secuencia operativa pasa a `persistent state -> evidence -> smallest next action -> test -> verify -> persist`.
