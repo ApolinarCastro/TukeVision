@@ -120,9 +120,33 @@ La verificación fue reportada como READ_ONLY y no modificó código, tests ni d
 
 ---
 
-## 5. Primer checkpoint actual
+## 5. Último intento físico
 
-**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-001`  
+**EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-001`  
+**EXECUTION_RESULT:** `FAIL`  
+**PRODUCT_PHYSICAL_GATE_STATUS:** `NOT_TESTED`  
+**FIRST_FAILURE_OR_BLOCKER:** `POWERSHELL_SYNTAX_ERROR_NULL_COALESCING_UNSUPPORTED`
+
+La ejecución no alcanzó el runtime ni realizó muestreo físico: Windows PowerShell 5.1 rechazó el operador `??` antes de iniciar la verificación. Por tanto, este FAIL pertenece al **harness/instrucción de verificación**, no constituye evidencia de fallo del producto Gate 0C.
+
+```text
+MONITOR_DURATION_SECONDS = 0
+MONITOR_VALID_SAMPLES = 0
+PRODUCT_RUNTIME_EXERCISED = NO
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = NOT_TESTED
+READY_TO_COMMIT = NO
+READY_FOR_GATE1 = NO
+READY_FOR_COMPLEMENTATION = NO
+```
+
+Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-001`.
+
+---
+
+## 6. Primer checkpoint actual
+
+**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-002`  
 **OBJECTIVE:** validar físicamente el comportamiento Gate 0C sobre el runtime real y 15 cámaras antes de cualquier commit o nueva funcionalidad.  
 **STATUS:** `READY`
 
@@ -148,15 +172,15 @@ La verificación fue reportada como READ_ONLY y no modificó código, tests ni d
 10. si ocurre recuperación natural, `SOURCE_CLOSED` deja trazabilidad;
 11. test PASS + comportamiento físico FAIL = FAIL.
 
-**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-001` sin modificaciones.
+**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-002` con sintaxis compatible con Windows PowerShell 5.1, sin modificar producto.
 
 ---
 
-## 6. Después del Gate 0C físico
+## 7. Después del Gate 0C físico
 
 No ejecutar todavía.
 
-Si y sólo si `TV-GATE0C-PHYSICAL-VERIFY-001 = PASS`:
+Si y sólo si `TV-GATE0C-PHYSICAL-VERIFY-002 = PASS`:
 
 ```text
 NEXT = atomic consolidation of current Gate 0C
@@ -168,7 +192,7 @@ La complementación prioritaria se seleccionará por evidencia. Radar, Edge Impu
 
 ---
 
-## 7. TaskView
+## 8. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -179,7 +203,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 8. Reglas permanentes
+## 9. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
