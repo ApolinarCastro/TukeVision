@@ -20,3 +20,29 @@
 - **NEXT_TASK:** `TV-GATE0C-PHYSICAL-VERIFY-002`
 - **PRODUCT_CODE_CHANGED:** `NO`
 - **TESTS_CHANGED:** `NO`
+
+
+## FAIL-TV-GATE0C-PHYSICAL-002
+
+- **DATE:** 2026-09-28
+- **EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-002`
+- **STATE:** `CLOSED_AS_HARNESS_FAILURE`
+- **EXECUTION_RESULT:** `FAIL`
+- **PRODUCT_GATE_RESULT:** `NOT_TESTED`
+- **FIRST_FAILURE:** `INSUFFICIENT_PHYSICAL_OBSERVATION`
+- **ENVIRONMENT:** Windows PowerShell 5.1 under Antigravity command-session orchestration
+- **OBSERVED:** el runtime real fue localizado como `RUN-870246`, PID `15088`, con 15 cámaras; después de iniciar un monitor mediante `Start-Job`, la sesión de PowerShell terminó y el job no sobrevivió para producir la ventana de 600 s. La confirmación del operador quedó vacía.
+- **MONITOR_DURATION_SECONDS:** `0`
+- **MONITOR_VALID_SAMPLES:** `0`
+- **MONITOR_ERRORS:** `0`
+- **SOURCE_CLOSED_COUNT:** `25`
+- **SOURCE_RETRY_COUNT:** `18`
+- **CRITICAL_FILE_HASH_DELTA:** `EMPTY`
+- **VERIFY_CODE_INTEGRITY:** `PASS`
+- **STATIC_GATE0C_PRECONDITION:** `PASS (27/27 targeted tests)`
+- **IMPACT:** no hay evidencia física suficiente para evaluar Grid/Focus/Zoom/PrevNext/SWITCHING_PROFILE/health accounting. Los campos UI marcados FAIL derivan de confirmación vacía y no son prueba de fallo del producto.
+- **UPSTREAM_RTSP_TRIGGER_PROVEN:** `NO`
+- **CORRECTIVE_RULE:** no usar `Start-Job` para observaciones que deban sobrevivir a una sesión de comando de Antigravity. El monitor debe ejecutarse en un proceso PowerShell independiente y persistente, con archivo externo al repo y handoff explícito entre start/collect.
+- **NEXT_TASK:** `TV-GATE0C-PHYSICAL-VERIFY-003A`
+- **PRODUCT_CODE_CHANGED:** `NO`
+- **TESTS_CHANGED:** `NO`
