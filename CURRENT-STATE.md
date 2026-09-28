@@ -144,9 +144,44 @@ Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-001`.
 
 ---
 
-## 6. Primer checkpoint actual
+## 6. Segundo intento físico
 
-**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-002`  
+**EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-002`  
+**EXECUTION_RESULT:** `FAIL`  
+**PRODUCT_PHYSICAL_GATE_STATUS:** `NOT_TESTED`  
+**FIRST_FAILURE_OR_BLOCKER:** `INSUFFICIENT_PHYSICAL_OBSERVATION`
+
+La ejecución identificó el runtime real (`RUN-870246`, PID `15088`, 15 cámaras) y preservó la integridad del código, pero el monitor implementado con `Start-Job` quedó atado a la sesión de PowerShell usada por Antigravity y terminó antes de recolectar muestras. La confirmación del operador también llegó vacía. Por tanto, no existe evidencia física válida de comportamiento del producto.
+
+```text
+POWERSHELL_VERSION = 5
+RUN_ID = RUN-870246
+RUNTIME_PID = 15088
+CAMERA_COUNT = 15
+MONITOR_DURATION_SECONDS = 0
+MONITOR_VALID_SAMPLES = 0
+MONITOR_ERRORS = 0
+SOURCE_CLOSED_COUNT = 25
+SOURCE_RETRY_COUNT = 18
+CRITICAL_FILE_HASH_DELTA = EMPTY
+VERIFY_CODE_INTEGRITY = PASS
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = NOT_TESTED
+UPSTREAM_RTSP_TRIGGER_PROVEN = NO
+READY_TO_COMMIT = NO
+READY_FOR_GATE1 = NO
+READY_FOR_COMPLEMENTATION = NO
+```
+
+Los contadores `SOURCE_CLOSED=25` y `SOURCE_RETRY=18` son observaciones del log, pero sin ventana de monitor válida no prueban causa ni cierre del Gate 0C.
+
+Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-002`.
+
+---
+
+## 7. Primer checkpoint actual
+
+**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003A`  
 **OBJECTIVE:** validar físicamente el comportamiento Gate 0C sobre el runtime real y 15 cámaras antes de cualquier commit o nueva funcionalidad.  
 **STATUS:** `READY`
 
@@ -172,15 +207,15 @@ Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-001`.
 10. si ocurre recuperación natural, `SOURCE_CLOSED` deja trazabilidad;
 11. test PASS + comportamiento físico FAIL = FAIL.
 
-**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-002` con sintaxis compatible con Windows PowerShell 5.1, sin modificar producto.
+**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003A` usando un monitor desacoplado del proceso/sesión de Antigravity; no evaluar todavía el producto hasta recolectar una ventana física válida.
 
 ---
 
-## 7. Después del Gate 0C físico
+## 8. Después del Gate 0C físico
 
 No ejecutar todavía.
 
-Si y sólo si `TV-GATE0C-PHYSICAL-VERIFY-002 = PASS`:
+Si y sólo si la secuencia `TV-GATE0C-PHYSICAL-VERIFY-003A/003B = PASS`:
 
 ```text
 NEXT = atomic consolidation of current Gate 0C
@@ -192,7 +227,7 @@ La complementación prioritaria se seleccionará por evidencia. Radar, Edge Impu
 
 ---
 
-## 8. TaskView
+## 9. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -203,7 +238,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 9. Reglas permanentes
+## 10. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
