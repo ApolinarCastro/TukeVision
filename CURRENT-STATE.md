@@ -270,10 +270,54 @@ El baseline es válido y no modifica producto. Los contadores SOURCE_CLOSED/SOUR
 
 ---
 
-## 10. Primer checkpoint actual
+## 10. Physical verification 003C — failed acceptance, root cause not yet proven
+
+**TASK_ID:** `TV-GATE0C-F12-DIAG-001`  
+**STATUS:** `FAIL`  
+**SOURCE:** Antigravity report 2026-10-02.
+
+```text
+RUN_ID = RUN-8EF244
+RUNTIME_PID = 22764
+OBSERVATION_SECONDS = 480
+VALID_SAMPLES = 443
+REQUIRED_SECONDS = 600
+ACCOUNTING_FAILURES = 0
+SWITCHING_PROFILE_EXERCISED = YES
+HEALTHY_LIVE_MISMATCH_FINAL_SNAPSHOT = 2
+FRAME_SEQUENCE_ADVANCED = YES
+UI_RENDERED_SEQUENCE_ADVANCED = YES
+SOURCE_CLOSED_T0 = 31
+SOURCE_CLOSED_T1 = 72
+SOURCE_CLOSED_DELTA = 41
+SOURCE_RETRY_T0 = 28
+SOURCE_RETRY_T1 = 65
+SOURCE_RETRY_DELTA = 37
+CRITICAL_FILE_HASH_DELTA = EMPTY
+VERIFY_CODE_INTEGRITY = PASS
+OPERATOR_CONFIRMATION = MISSING
+UPSTREAM_RTSP_TRIGGER_PROVEN = NO
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = FAIL
+READY_TO_COMMIT = NO
+READY_FOR_GATE1 = NO
+READY_FOR_COMPLEMENTATION = NO
+```
+
+Interpretación canónica:
+- Gate 0C no puede cerrar: la ventana fue menor a 600 s y faltó la confirmación manual obligatoria.
+- Los dos casos `capture_state=HEALTHY` con `live/liveness != ONLINE` fueron observados en el snapshot final, pero la ejecución no registró `frame_age_s` ni edad del reader heartbeat por cámara. Por tanto, **F12 root cause remains UNKNOWN**: puede ser defecto real o un verificador demasiado fuerte si esos frames/heartbeats estaban stale.
+- Los nueve campos UI no deben reinterpretarse como fallos físicos observados; quedaron **NOT_OBSERVED** porque el operador no aportó evidencia.
+- `SOURCE_CLOSED`/`SOURCE_RETRY` crecieron, pero esos contadores no prueban que el disparador upstream RTSP esté identificado.
+
+Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003C`.
+
+---
+
+## 11. Primer checkpoint actual
 
 **TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003C`  
-**OBJECTIVE:** cerrar o fallar Gate 0C físico leyendo retrospectivamente la telemetría nativa acumulada desde T0 y combinándola con confirmación explícita del operador.  
+**OBJECTIVE:** determinar read-only si HEALTHY_LIVE_MISMATCH=2 representa un defecto F12 real o una clasificación válida por frame/reader staleness.  
 **STATUS:** `READY`
 
 **DEPENDENCIES:**
@@ -283,7 +327,7 @@ El baseline es válido y no modifica producto. Los contadores SOURCE_CLOSED/SOUR
 - acumular >=600 s desde `UPTIME_T0=778.9`;
 - no modificar código/tests/docs durante VERIFY.
 
-**FIRST_BLOCKER:** `PHYSICAL_GATE0C_NOT_TESTED`.
+**FIRST_BLOCKER:** `F12_HEALTHY_LIVE_MISMATCH_ROOT_CAUSE_UNKNOWN`.
 
 **ACCEPTANCE MINIMUM:**
 1. mismo runtime y 15 cámaras;
@@ -297,11 +341,11 @@ El baseline es válido y no modifica producto. Los contadores SOURCE_CLOSED/SOUR
 9. SOURCE_CLOSED/SOURCE_RETRY se reportan como delta sin inferir causa;
 10. archivos críticos conservan hashes del receipt T0.
 
-**NEXT_EXACT_ACTION:** ejecutar la interacción manual, esperar hasta que el runtime acumule >=600 s desde T0 y luego ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003C` READ_ONLY.
+**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-F12-DIAG-001` READ_ONLY sobre el runtime/evidencia actual, capturando por cámara capture_state, liveness_state, live, stale, frame_age_s y reader-heartbeat age; no corregir código.nteracción manual, esperar hasta que el runtime acumule >=600 s desde T0 y luego ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003C` READ_ONLY.
 
 ---
 
-## 11. Después del Gate 0C físico
+## 12. Después del Gate 0C físico
 
 No ejecutar todavía.
 
@@ -317,7 +361,7 @@ Radar, Edge Impulse, NVIDIA Body Pose, Jev, MiniCPM, Qwen y TaskView no tienen a
 
 ---
 
-## 12. TaskView
+## 13. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -328,7 +372,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 13. Reglas permanentes
+## 14. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
