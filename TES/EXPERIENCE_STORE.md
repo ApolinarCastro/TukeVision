@@ -426,3 +426,26 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 - **BENCHMARK:** A reglas; B Jev; C LLM; D multimodal; E híbrido. Medir classification accuracy, FP/FN, UNKNOWN accuracy, routing, multicamera routing, calibration, p50/p95, cost/1000, multimodal calls avoided, operator interventions, incorrect escalations.
 - **PROMOTION_RULE:** `WATCH -> LAB -> BENCHMARK -> CANDIDATE -> PRODUCTION`; promover sólo con evidencia propia y Policy Engine intacto.
 - **REVISIT_WHEN:** exista dataset etiquetado de eventos TukeVision y Gate 0C esté cerrado; crear entonces `/experiments/jev_event_lab/` fuera del core.
+
+
+---
+
+### EXP-NVIDIA-POSE-BEHAVIOR-001 — Tracker-aligned body pose as selective behavior signal
+- **PROBLEM:** object detection + tracking identify presence and trajectory but do not directly encode articulated body movement needed for gesture/action-pattern analysis.
+- **SOURCE:** NVIDIA 3D Body Pose NIM, verified 2026-10-02.
+- **PATTERN:** `TRACKED_PERSON -> POSE_SEQUENCE -> TEMPORAL_FEATURES -> RULE/NORMALITY -> SITUATION_CANDIDATE -> EVIDENCE/HUMAN`.
+- **DECISION:** ACTIVE_EVALUATION / BENCHMARK; no implementation while Gate 0C remains open.
+- **WHY_RELEVANT:** the NIM accepts existing tracked boxes and preserves `tracking_id`, so it can complement rather than replace TukeVision Detection/Tracking.
+- **OUTPUT:** 2D/3D joints, confidence, joint rotations, root/rest pose; use as structured inference features, never as identity or proof of theft.
+- **RESOURCE_BOUNDARY:** NVIDIA validates a 24 GB GPU floor for the NIM host and shows throughput falling strongly with body count; continuous 15-camera deployment is not the default target.
+- **PRIVACY:** no real customer CCTV to the hosted trial. Future lab must be local/self-hosted or use synthetic/non-sensitive clips.
+- **MINIMUM_BENCHMARK:** compare existing detector+tracker baseline vs 2D pose baseline vs NVIDIA 3D pose on labeled clips; measure action/gesture classification, UNKNOWN rate, FP/FN, latency, GPU memory, bodies/sec and incremental operator utility.
+- **REVISIT_WHEN:** Gate 0C PASS and behavior/loss-prevention dataset exists.
+
+### EXP-NVIDIA-DERIVED-VIDEO-001 — Transformative video must remain outside canonical evidence
+- **PROBLEM:** enhancement/transformation can improve human visibility but can also create or alter pixels and therefore blur the boundary between original evidence and derived imagery.
+- **SOURCES:** NVIDIA VSR NIM, Relighting NIM, Eye Contact NIM.
+- **PATTERN:** `ORIGINAL_EVIDENCE -> OPTIONAL_DERIVED_VIEW -> HUMAN_ASSISTANCE`; original remains immutable and side-by-side provenance is mandatory.
+- **DECISION:** VSR = BENCHMARK/DERIVED_VIEW_ONLY; Relighting = REJECT_CORE/RESERVE_DERIVED_VIEW; Eye Contact = REJECT_CORE/RESERVE_REFERENCE.
+- **BOUNDARY:** no transformed output may silently replace source evidence or become FACT. Eye Contact specifically modifies gaze and therefore has no CCTV evidence role.
+- **REVISIT_WHEN:** a concrete human-review blocker exists and a representative benchmark can test utility without compromising epistemic integrity.
