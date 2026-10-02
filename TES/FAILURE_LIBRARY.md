@@ -67,3 +67,25 @@
 - **NEXT_TASK:** `TV-GATE0C-RUNTIME-READY-001`
 - **PRODUCT_CODE_CHANGED:** `NO`
 - **TESTS_CHANGED:** `NO`
+
+
+## FAIL-TV-GATE0C-PHYSICAL-003C
+
+- **DATE:** 2026-10-02
+- **EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003C`
+- **STATE:** `OPEN_ROOT_CAUSE_ANALYSIS`
+- **EXECUTION_RESULT:** `FAIL`
+- **PRODUCT_GATE_RESULT:** `FAIL`
+- **FIRST_REPORTED_FAILURE:** `F12_HEALTHY_LIVE_MISMATCH`
+- **RUN:** `RUN-8EF244`, PID `22764`
+- **OBSERVATION:** 480 s / 443 valid samples; acceptance required >=600 s.
+- **HEALTH_ACCOUNTING:** 0 failures; SWITCHING_PROFILE exercised; frame/UI sequences advanced.
+- **F12_OBSERVATION:** final snapshot contained 2 cameras with `capture_state=HEALTHY` while `live != true` or `liveness_state != ONLINE`.
+- **F12_LIMITATION:** no per-camera `frame_age_s` or reader-heartbeat age was recorded in the report, so this does not yet distinguish a TrueLiveness defect from valid stale-frame handling.
+- **OPERATOR_CONFIRMATION:** missing; UI Grid/Focus/Zoom/PrevNext results are `NOT_OBSERVED`, not evidence-backed FAILs.
+- **SOURCE_CLOSED:** 31 -> 72 (delta 41).
+- **SOURCE_RETRY:** 28 -> 65 (delta 37).
+- **UPSTREAM_RTSP_TRIGGER_PROVEN:** `NO`; counts alone do not prove cause.
+- **CODE_INTEGRITY:** critical hashes unchanged.
+- **NEXT_TASK:** `TV-GATE0C-F12-DIAG-001`.
+- **RULE:** diagnose before patch; no re-run-to-PASS and no implementation until root cause is classified.
