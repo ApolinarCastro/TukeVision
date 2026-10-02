@@ -46,3 +46,24 @@
 - **NEXT_TASK:** `TV-GATE0C-PHYSICAL-VERIFY-003A`
 - **PRODUCT_CODE_CHANGED:** `NO`
 - **TESTS_CHANGED:** `NO`
+
+
+## FAIL-TV-GATE0C-PHYSICAL-003A
+
+- **DATE:** 2026-10-02
+- **EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003A`
+- **STATE:** `CLOSED_AS_PRECONDITION_FAILURE`
+- **EXECUTION_RESULT:** `FAIL`
+- **PRODUCT_GATE_RESULT:** `NOT_TESTED`
+- **FIRST_FAILURE:** `ACTIVE_RUNTIME_NOT_FOUND`
+- **OBSERVED:** no active Python runtime could be matched to any current `evidence/RUN-*/identity.json`; `ACTIVE_RUNTIME_CANDIDATES=0`.
+- **RUNTIME_ID:** `NONE`
+- **CAMERA_COUNT:** `UNKNOWN`
+- **TELEMETRY_BASELINE_CAPTURED:** `NO`
+- **PRODUCT_RUNTIME_EXERCISED:** `NO`
+- **STATIC_GATE0C_PRECONDITION:** `PASS (27/27 targeted tests)`
+- **IMPACT:** no physical product conclusion is possible. Keep `PHYSICAL_GATE0C=NOT_TESTED`.
+- **CORRECTIVE_RULE:** do not run physical Gate 0C baseline/interaction loops until a separate runtime-ready precheck proves exactly one active TukeVision runtime with 15 configured cameras and advancing native telemetry.
+- **NEXT_TASK:** `TV-GATE0C-RUNTIME-READY-001`
+- **PRODUCT_CODE_CHANGED:** `NO`
+- **TESTS_CHANGED:** `NO`
