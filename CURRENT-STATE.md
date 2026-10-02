@@ -208,7 +208,7 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003A`.
 
 ## 8. Runtime readiness verified
 
-**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003B`  
+**TASK_ID:** `TV-GATE0C-RUNTIME-READY-001`  
 **STATUS:** `PASS`  
 **SOURCE:** Antigravity report 2026-10-02.
 
@@ -231,59 +231,93 @@ STATIC_GATE0C = PASS
 PHYSICAL_GATE0C = NOT_TESTED
 ```
 
-El prerequisito de runtime real está satisfecho. Esto no certifica aún el comportamiento físico de Grid/Focus/Zoom/PrevNext ni los estados de transición.
+El prerrequisito de runtime real quedó satisfecho; no certificó todavía comportamiento físico.
 
 ---
 
-## 9. Primer checkpoint actual
+## 9. Physical baseline T0 captured
 
-**TASK_ID:** `TV-GATE0C-RUNTIME-READY-001`  
-**OBJECTIVE:** capturar un baseline T0 persistente del runtime activo y hacer handoff al operador para la secuencia física Gate 0C, sin modificar producto.  
+**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003B`  
+**STATUS:** `PASS`  
+**SOURCE:** Antigravity report 2026-10-02.
+
+```text
+RUN_ID = RUN-8EF244
+RUNTIME_PID = 22764
+CAMERA_COUNT = 15
+LIVE_CAMERA_COUNT = 15
+SAMPLE_COUNT_T0 = 736
+UPTIME_T0 = 778.9
+WALL_CLOCK_T0 = 2026-10-02T12:43:09
+NATIVE_TELEMETRY_ADVANCING = YES
+ONLINE_T0 = 15
+DEGRADED_T0 = 0
+RECONNECTING_T0 = 0
+OFFLINE_T0 = 0
+SWITCHING_PROFILE_T0 = 0
+ACCOUNTING_TOTAL_T0 = 15
+UI_RENDERED_TOTAL_T0 = 13008
+FRAME_SEQUENCE_TOTAL_T0 = 40806
+MAIN_PROFILE_COUNT_T0 = 1
+SOURCE_CLOSED_T0 = 31
+SOURCE_RETRY_T0 = 28
+SESSION_PATH = C:\Users\ASUS Zenbook\Documents\TukeVision\_verification\TV-GATE0C-PHYSICAL-VERIFY-003\session-20261002-124310.json
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = NOT_TESTED
+```
+
+El baseline es válido y no modifica producto. Los contadores SOURCE_CLOSED/SOURCE_RETRY son sólo T0; no prueban causa.
+
+---
+
+## 10. Primer checkpoint actual
+
+**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003C`  
+**OBJECTIVE:** cerrar o fallar Gate 0C físico leyendo retrospectivamente la telemetría nativa acumulada desde T0 y combinándola con confirmación explícita del operador.  
 **STATUS:** `READY`
 
 **DEPENDENCIES:**
-- aplicación arrancada manualmente desde el workspace actual;
-- sesión visible/maximizada;
-- 15 cámaras configuradas;
-- cambios Gate 0C locales intactos;
-- ningún cambio de código durante VERIFY.
+- mantener activo el mismo `RUN-8EF244` / PID `22764` o demostrar continuidad inequívoca;
+- ejecutar manualmente la secuencia Grid/Focus/Zoom/Prev/Next;
+- aportar nueve resultados explícitos PASS/FAIL del operador;
+- acumular >=600 s desde `UPTIME_T0=778.9`;
+- no modificar código/tests/docs durante VERIFY.
 
 **FIRST_BLOCKER:** `PHYSICAL_GATE0C_NOT_TESTED`.
 
 **ACCEPTANCE MINIMUM:**
-1. una sola instancia lógica de runtime;
-2. 15 canales configurados;
-3. vídeo visible sin blanks/duplicados atribuibles al cambio;
-4. Grid `1 → 4 → 6 → 9 → 15 → 1 → 15`;
-5. Focus/MAIN/Zoom operativos;
-6. Prev/Next usan el camino gobernado;
-7. planned profile switch muestra `SWITCHING_PROFILE`, no falso `DEGRADED/OFFLINE`;
-8. `online + degraded + reconnecting + offline + switching_profile = 15` en telemetría;
-9. TrueLiveness trata `HEALTHY` como vivo;
-10. si ocurre recuperación natural, `SOURCE_CLOSED` deja trazabilidad;
-11. test PASS + comportamiento físico FAIL = FAIL.
+1. mismo runtime y 15 cámaras;
+2. >=600 s de observación nativa desde T0;
+3. todas las muestras posteriores a T0 conservan accounting total 15;
+4. al menos una muestra `SWITCHING_PROFILE > 0` durante la interacción;
+5. frame sequence y UI rendered avanzan;
+6. no mismatch HEALTHY→ONLINE/live cuando HEALTHY sea observado;
+7. snapshot final sin readers/ffmpeg duplicados;
+8. los nueve resultados del operador son PASS;
+9. SOURCE_CLOSED/SOURCE_RETRY se reportan como delta sin inferir causa;
+10. archivos críticos conservan hashes del receipt T0.
 
-**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003B` para congelar T0 fuera del repo y entregar la secuencia manual; después de la interacción y >=10 minutos de runtime, ejecutar la lectura final 003C.
+**NEXT_EXACT_ACTION:** ejecutar la interacción manual, esperar hasta que el runtime acumule >=600 s desde T0 y luego ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003C` READ_ONLY.
 
 ---
 
-## 10. Después del Gate 0C físico
+## 11. Después del Gate 0C físico
 
 No ejecutar todavía.
 
-Si y sólo si la secuencia `TV-GATE0C-PHYSICAL-VERIFY-003B/003C = PASS`:
+Si y sólo si `TV-GATE0C-PHYSICAL-VERIFY-003C = PASS`:
 
 ```text
-NEXT = atomic consolidation of current Gate 0C
+NEXT = TV-GATE0C-CONSOLIDATE-001
 THEN = reconcile remote TES/documentation without losing local runtime work
 THEN = select one complement value slice
 ```
 
-La complementación prioritaria se seleccionará por evidencia. Radar, Edge Impulse, Jev, MiniCPM, Qwen y TaskView no tienen autorización automática de implementación.
+Radar, Edge Impulse, NVIDIA Body Pose, Jev, MiniCPM, Qwen y TaskView no tienen autorización automática de implementación.
 
 ---
 
-## 11. TaskView
+## 12. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -294,7 +328,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 12. Reglas permanentes
+## 13. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
