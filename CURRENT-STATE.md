@@ -1,6 +1,6 @@
 # TukeVision — Current Execution State
 
-**UPDATED:** 2026-09-28  
+**UPDATED:** 2026-10-02  
 **PROJECT:** TukeVision  
 **CANONICAL_REMOTE_BRANCH:** `feature/product-evolution-v1`  
 **CANONICAL_REMOTE_HEAD_POLICY:** `RESOLVE_LIVE_BEFORE_MATERIAL_WORK`  
@@ -206,10 +206,39 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003A`.
 
 ---
 
-## 8. Primer checkpoint actual
+## 8. Runtime readiness verified
+
+**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003B`  
+**STATUS:** `PASS`  
+**SOURCE:** Antigravity report 2026-10-02.
+
+```text
+LOCAL_BRANCH = feature/product-evolution-v1
+LOCAL_HEAD = 0d3640571dfcd737958903ae3fb52b8fe425cee4
+ACTIVE_RUNTIME_CANDIDATES = 1
+RUN_ID = RUN-8EF244
+RUNTIME_PID = 22764
+CAMERA_COUNT = 15
+LIVE_CAMERA_COUNT = 15
+TELEMETRY_SAMPLES_T0 = 250
+TELEMETRY_SAMPLES_T1 = 255
+NATIVE_TELEMETRY_ADVANCING = YES
+CODE_CHANGED = NO
+TEST_CHANGED = NO
+DOC_CHANGED = NO
+PROCESS_CREATED = NO
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = NOT_TESTED
+```
+
+El prerequisito de runtime real está satisfecho. Esto no certifica aún el comportamiento físico de Grid/Focus/Zoom/PrevNext ni los estados de transición.
+
+---
+
+## 9. Primer checkpoint actual
 
 **TASK_ID:** `TV-GATE0C-RUNTIME-READY-001`  
-**OBJECTIVE:** establecer el prerrequisito físico mínimo: TukeVision debe estar iniciado manualmente, visible y con el runtime real activo antes de volver a capturar T0.  
+**OBJECTIVE:** capturar un baseline T0 persistente del runtime activo y hacer handoff al operador para la secuencia física Gate 0C, sin modificar producto.  
 **STATUS:** `READY`
 
 **DEPENDENCIES:**
@@ -219,7 +248,7 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003A`.
 - cambios Gate 0C locales intactos;
 - ningún cambio de código durante VERIFY.
 
-**FIRST_BLOCKER:** `ACTIVE_RUNTIME_NOT_FOUND`.
+**FIRST_BLOCKER:** `PHYSICAL_GATE0C_NOT_TESTED`.
 
 **ACCEPTANCE MINIMUM:**
 1. una sola instancia lógica de runtime;
@@ -234,15 +263,15 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003A`.
 10. si ocurre recuperación natural, `SOURCE_CLOSED` deja trazabilidad;
 11. test PASS + comportamiento físico FAIL = FAIL.
 
-**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003A` usando un monitor desacoplado del proceso/sesión de Antigravity; no evaluar todavía el producto hasta recolectar una ventana física válida.
+**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003B` para congelar T0 fuera del repo y entregar la secuencia manual; después de la interacción y >=10 minutos de runtime, ejecutar la lectura final 003C.
 
 ---
 
-## 9. Después del Gate 0C físico
+## 10. Después del Gate 0C físico
 
 No ejecutar todavía.
 
-Si y sólo si la secuencia `TV-GATE0C-PHYSICAL-VERIFY-003A/003B = PASS`:
+Si y sólo si la secuencia `TV-GATE0C-PHYSICAL-VERIFY-003B/003C = PASS`:
 
 ```text
 NEXT = atomic consolidation of current Gate 0C
@@ -254,7 +283,7 @@ La complementación prioritaria se seleccionará por evidencia. Radar, Edge Impu
 
 ---
 
-## 10. TaskView
+## 11. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -265,7 +294,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 11. Reglas permanentes
+## 12. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
