@@ -314,10 +314,37 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003C`.
 
 ---
 
-## 11. Primer checkpoint actual
+## 11. F12 diagnosis complete
 
-**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003C`  
-**OBJECTIVE:** determinar read-only si HEALTHY_LIVE_MISMATCH=2 representa un defecto F12 real o una clasificación válida por frame/reader staleness.  
+**TASK_ID:** `TV-GATE0C-F12-DIAG-001`  
+**STATUS:** `PASS`
+
+```text
+RUN_ID = RUN-8EF244
+RUNTIME_PID = 22764
+CAMERA_COUNT = 15
+LOCAL_CODE_ACCEPTS_HEALTHY = YES
+F12_MISMATCH_TOTAL = 7
+FRESH_HEALTHY_NOT_LIVE = 0
+FRAME_STALE_MISMATCHES = 7
+HEARTBEAT_STALE_MISMATCHES = 0
+UNKNOWN_FRESHNESS_MISMATCHES = 0
+AFFECTED_CAMERAS = cam_07
+F12_DIAGNOSIS = VERIFIER_FALSE_POSITIVE
+UPSTREAM_RTSP_TRIGGER_PROVEN = NO
+CODE_CHANGED = NO
+TEST_CHANGED = NO
+DOC_CHANGED = NO
+```
+
+All observed HEALTHY/non-live cases were frame-stale. No fresh HEALTHY violation was observed. No F12 product patch is authorized.
+
+---
+
+## 12. Primer checkpoint actual
+
+**TASK_ID:** `TV-GATE0C-PHYSICAL-CLOSE-004`  
+**OBJECTIVE:** cerrar Gate 0C físico con criterio F12 basado en freshness y evidencia manual explícita, sin modificar producto.  
 **STATUS:** `READY`
 
 **DEPENDENCIES:**
@@ -327,7 +354,7 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003C`.
 - acumular >=600 s desde `UPTIME_T0=778.9`;
 - no modificar código/tests/docs durante VERIFY.
 
-**FIRST_BLOCKER:** `F12_HEALTHY_LIVE_MISMATCH_ROOT_CAUSE_UNKNOWN`.
+**FIRST_BLOCKER:** `MISSING_OPERATOR_UI_EVIDENCE_AND_COMPLETE_600S_ACCEPTANCE`.
 
 **ACCEPTANCE MINIMUM:**
 1. mismo runtime y 15 cámaras;
@@ -341,11 +368,11 @@ Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003C`.
 9. SOURCE_CLOSED/SOURCE_RETRY se reportan como delta sin inferir causa;
 10. archivos críticos conservan hashes del receipt T0.
 
-**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-F12-DIAG-001` READ_ONLY sobre el runtime/evidencia actual, capturando por cámara capture_state, liveness_state, live, stale, frame_age_s y reader-heartbeat age; no corregir código.nteracción manual, esperar hasta que el runtime acumule >=600 s desde T0 y luego ejecutar `TV-GATE0C-PHYSICAL-VERIFY-003C` READ_ONLY.
+**NEXT_EXACT_ACTION:** ejecutar `TV-GATE0C-PHYSICAL-CLOSE-004` READ_ONLY después de completar y registrar los nueve resultados manuales de UI.
 
 ---
 
-## 12. Después del Gate 0C físico
+## 13. Después del Gate 0C físico
 
 No ejecutar todavía.
 
@@ -361,7 +388,7 @@ Radar, Edge Impulse, NVIDIA Body Pose, Jev, MiniCPM, Qwen y TaskView no tienen a
 
 ---
 
-## 13. TaskView
+## 14. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -372,7 +399,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 14. Reglas permanentes
+## 15. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;

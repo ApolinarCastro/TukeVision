@@ -89,3 +89,24 @@
 - **CODE_INTEGRITY:** critical hashes unchanged.
 - **NEXT_TASK:** `TV-GATE0C-F12-DIAG-001`.
 - **RULE:** diagnose before patch; no re-run-to-PASS and no implementation until root cause is classified.
+
+
+## DIAG-TV-GATE0C-F12-001
+
+- **DATE:** 2026-10-02
+- **EXECUTION_ID:** `TV-GATE0C-F12-DIAG-001`
+- **STATE:** `CLOSED_DIAGNOSIS_PASS`
+- **RESULT:** `PASS`
+- **RELATED_FAILURE:** `FAIL-TV-GATE0C-PHYSICAL-003C`
+- **F12_DIAGNOSIS:** `VERIFIER_FALSE_POSITIVE`
+- **RUN:** `RUN-8EF244`, PID `22764`
+- **MISMATCH_TOTAL:** `7`
+- **FRESH_HEALTHY_NOT_LIVE:** `0`
+- **FRAME_STALE_MISMATCHES:** `7`
+- **HEARTBEAT_STALE_MISMATCHES:** `0`
+- **UNKNOWN_FRESHNESS:** `0`
+- **AFFECTED_CAMERAS:** `cam_07`
+- **INTERPRETATION:** capture HEALTHY does not override freshness; the prior verifier treated HEALTHY alone as sufficient.
+- **PRODUCT_PATCH_REQUIRED:** `NO`
+- **UPSTREAM_RTSP_TRIGGER_PROVEN:** `NO`
+- **NEXT_TASK:** `TV-GATE0C-PHYSICAL-CLOSE-004`
