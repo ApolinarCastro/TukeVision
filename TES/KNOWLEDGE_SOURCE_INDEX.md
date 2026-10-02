@@ -265,3 +265,60 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 - **REVISIT_CONDITION:** Gate/roadmap reaches Event Decision Layer and a labeled TukeVision event corpus exists for controlled lab benchmarking
 - **BENCHMARK_REQUIRED:** deterministic rules vs Jev vs LLM vs multimodal vs hybrid; include accuracy, FP/FN, UNKNOWN, calibration, p50/p95, cost/1k events, avoided multimodal calls, operator interventions and incorrect escalations
 - **ALTERNATIVE_SEARCH:** calibrated decision models, typed probabilistic routers, small/local classifiers, semantic routers and hybrid deterministic/probabilistic routing; do not make radar vendor-exclusive
+
+
+---
+
+## NVIDIA AI for Media / Maxine — sources verified 2026-10-02
+
+### SOURCE_ID=NVIDIA-3D-BODY-POSE-NIM
+- **SOURCE_TYPE:** NVIDIA NIM / hosted trial + downloadable container
+- **OFFICIAL_SOURCE:** `https://build.nvidia.com/nvidia/body-pose`
+- **DOCS:** `https://docs.nvidia.com/nim/maxine/body-pose/latest/`
+- **VERSION_OR_REF_VERIFIED:** NIM 1.0.0 documentation/performance corpus current at verification
+- **LICENSE_VERIFIED:** YES — NIM container under NVIDIA Software License Agreement + Product-Specific Terms; packaged models have NVIDIA Open Model License plus DINOv3/SAM terms where documented
+- **CAPABILITIES_EXTRACTED:** YES — tracker-aligned 2D/3D Nova-77 body pose, joint confidence, rotations, rest/root pose
+- **TUKEVISION_MAPPING:** selective pose/gesture feature extraction after Detection/Tracking for behavior/normality analysis
+- **ADOPTION_BOUNDARY:** no continuous 15-camera use by default; no cloud trial with customer CCTV; pose inference remains INFERENCE, not FACT
+- **REVISIT_CONDITION:** Gate 0C closed + labeled behavior clips + available supported NVIDIA lab GPU
+- **EXPERIENCE_RECORD:** `EXP-NVIDIA-POSE-BEHAVIOR-001`
+- **STATUS:** ACTIVE_EVALUATION / HIGH
+
+### SOURCE_ID=NVIDIA-EYE-CONTACT-NIM
+- **SOURCE_TYPE:** NVIDIA NIM video transformation
+- **OFFICIAL_SOURCE:** `https://build.nvidia.com/nvidia/eyecontact`
+- **DOCS:** `https://docs.nvidia.com/nim/maxine/eye-contact/1.5.0/`
+- **VERSION_OR_REF_VERIFIED:** 1.5.0
+- **LICENSE_VERIFIED:** YES — NVIDIA software/product terms + AI foundation/community model license as documented
+- **CAPABILITIES_EXTRACTED:** YES — gaze redirection using face tracking, 2D landmarks and 6DOF head pose; outputs gaze-modified video
+- **TUKEVISION_MAPPING:** no current operational analytics role
+- **ADOPTION_BOUNDARY:** transformed video cannot enter canonical evidence or behavior truth path
+- **REVISIT_CONDITION:** only if a future non-evidence UX/video-conferencing use case exists
+- **EXPERIENCE_RECORD:** `EXP-NVIDIA-DERIVED-VIDEO-001`
+- **STATUS:** REJECT_CORE / RESERVE_REFERENCE
+
+### SOURCE_ID=NVIDIA-RELIGHTING-NIM
+- **SOURCE_TYPE:** NVIDIA NIM video transformation
+- **OFFICIAL_SOURCE:** `https://build.nvidia.com/nvidia/relighting`
+- **DOCS:** `https://docs.nvidia.com/nim/maxine/relighting/latest/`
+- **VERSION_OR_REF_VERIFIED:** 1.1.x documentation current at verification
+- **LICENSE_VERIFIED:** YES — NVIDIA software/product terms + NVIDIA Community Model License
+- **CAPABILITIES_EXTRACTED:** YES — foreground/background segmentation + HDRI-based synthetic relighting + compositing
+- **TUKEVISION_MAPPING:** possible future labeled operator-assistance derived view only
+- **ADOPTION_BOUNDARY:** never canonical evidence; never silent preprocessing of evidence
+- **REVISIT_CONDITION:** only if human-review benchmark shows measurable gain without evidence confusion
+- **EXPERIENCE_RECORD:** `EXP-NVIDIA-DERIVED-VIDEO-001`
+- **STATUS:** REJECT_CORE / RESERVE_DERIVED_VIEW
+
+### SOURCE_ID=NVIDIA-VSR-NIM
+- **SOURCE_TYPE:** NVIDIA NIM video enhancement
+- **OFFICIAL_SOURCE:** `https://build.nvidia.com/nvidia/vsr`
+- **DOCS:** `https://docs.nvidia.com/nim/maxine/vsr/latest/`
+- **VERSION_OR_REF_VERIFIED:** 1.0.10
+- **LICENSE_VERIFIED:** YES — NIM under NVIDIA software/product terms; DLPP 2.1 model under NVIDIA Open Model License
+- **CAPABILITIES_EXTRACTED:** YES — AI video super-resolution; compressed gRPC/RTP-UDP/cloud-file and ST 2110 paths; up to 4x per dimension for compressed workflow
+- **TUKEVISION_MAPPING:** selected ROI/clip derived enhancement for operator/forensic assistance
+- **ADOPTION_BOUNDARY:** original evidence immutable; derived output labeled + provenance; not current detector/tracker truth input
+- **REVISIT_CONDITION:** supported NVIDIA lab GPU + benchmark on low-resolution evidence after Gate 0C
+- **EXPERIENCE_RECORD:** `EXP-NVIDIA-DERIVED-VIDEO-001`
+- **STATUS:** BENCHMARK / DERIVED_VIEW_ONLY

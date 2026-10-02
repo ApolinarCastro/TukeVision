@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-09-25  
+**UPDATED:** 2026-10-02  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -538,3 +538,83 @@ UNKNOWN is valid
 **Benchmark mínimo futuro:** comparar A) reglas determinísticas, B) Jev, C) LLM, D) multimodal, E) híbrido; medir clasificación, FP/FN, exactitud de UNKNOWN, routing/multicámara, calibración, p50/p95, costo/1000 eventos, llamadas multimodales evitadas, intervenciones humanas y escalaciones incorrectas.
 
 **Criterio de promoción:** `WATCH → LAB → BENCHMARK → CANDIDATE → PRODUCTION`. No saltar etapas. Debe demostrar mejora operacional propia, no aumentar errores críticos, trazabilidad/auditabilidad, respeto al Policy Engine y ventaja medible frente a reglas/modelos existentes.
+
+
+---
+
+## NVIDIA AI for Media / Maxine — Perception & Derived Video
+
+### 3D Body Pose NIM — `ACTIVE_EVALUATION / HIGH`
+
+```text
+SOURCE_ID=NVIDIA-3D-BODY-POSE-NIM
+ROLE=Pose/gesture feature extractor for behavior analysis
+STATUS=ACTIVE_EVALUATION
+PRODUCTION_READY_FOR_CURRENT_PROFILE=FALSE
+CURRENT_CORE_DEPENDENCY=FALSE
+```
+
+**Verified capability (2026-10-02):**
+- consumes video plus tracked bounding boxes keyed by `frame_id` / `tracking_id`;
+- returns per tracked body: 77x 2D keypoints, per-joint confidence, 77x 3D joint positions, rest pose, joint rotations and root pose;
+- output stays aligned to the input tracker identity;
+- constant-frame-rate input is required;
+- local NIM host is Linux amd64 with supported NVIDIA GPU; NVIDIA documents 24 GB as the validated floor, not a measured minimum;
+- inference cost scales approximately with number of tracked bodies.
+
+**TukeVision mapping:**
+
+```text
+Detection
+→ Track ID
+→ selected person / event candidate
+→ 3D Body Pose
+→ pose sequence / gesture features
+→ temporal behavior
+→ anomaly/rule correlation
+→ Situation candidate
+→ human/evidence validation
+```
+
+This is directly relevant to the Loss Prevention / Normality roadmap because it can add non-biometric body-motion features such as pose, orientation, reach/crouch/movement primitives and pose trajectories. It must not label a person as stealing or suspicious by pose alone.
+
+**Boundary:** benchmark pattern/model selectively; never run continuously across all 15 cameras by default. Prefer event-triggered person crops/clips. Cloud trial is forbidden for real customer CCTV; use only non-sensitive/synthetic media until a privacy decision exists.
+
+**Promotion condition:** only after Gate 0C is closed and a labeled behavior dataset exists. Benchmark against simpler 2D pose alternatives and existing detector/tracker signals before any dependency decision.
+
+### Video Super Resolution NIM — `BENCHMARK / DERIVED_VIEW_ONLY`
+
+- Current NIM release documented as `1.0.10`.
+- Supports compressed workflows through gRPC/RTP-UDP/cloud-file and ST 2110 workflows.
+- Current shared requirements: Ada-or-later NVIDIA GPU, driver 590.33+, CUDA 13.1+.
+- Supports configurable target resolution and up to 4x scale per dimension in compressed workflows.
+
+**TukeVision use:** optional derived operator/forensic-assistance view for selected ROI/clip when source resolution is poor.
+
+**Evidence boundary:**
+
+```text
+ORIGINAL_EVIDENCE = immutable canonical source
+DERIVED_VSR_VIEW = operator assistance only
+DERIVED_VSR_VIEW != FACT
+```
+
+Never replace the original frame/clip, never run detector/tracker truth only on the enhanced result without an explicit benchmark, and always retain provenance.
+
+### Eye Contact NIM — `REJECT_CORE / RESERVE_REFERENCE`
+
+NVIDIA Eye Contact redirects gaze in the video to simulate eye contact. It is a **video transformation**, not a gaze-event detector for CCTV. It uses face tracking/head pose internally and outputs altered H.264 video.
+
+**Decision:** do not use in TukeVision analytics, evidence, identification or behavior detection. Keep only as a reference for NVIDIA face/ROI pipeline engineering if a future non-evidence use case appears.
+
+### Relighting NIM — `REJECT_CORE / RESERVE_DERIVED_VIEW`
+
+Relighting separates foreground/background and synthetically re-illuminates the person using HDR environment maps.
+
+**Decision:** no canonical evidence or detection-path use. A future operator-assistance experiment could compare a clearly labeled derived view against the original, but only if it improves human review without creating unsupported detail.
+
+### Resource / architecture conclusion
+
+None of these technologies resolves the current Gate 0C blocker, so **no implementation is authorized now**.
+
+The high-value research item is `3D Body Pose` as a selective behavior-feature stage after TukeVision tracking. VSR is secondary and derived-only. Eye Contact and Relighting are not part of the operational truth path.
