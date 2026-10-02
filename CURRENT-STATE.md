@@ -179,10 +179,37 @@ Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-002`.
 
 ---
 
-## 7. Primer checkpoint actual
+## 7. Tercer intento físico — preflight 003A
 
-**TASK_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003A`  
-**OBJECTIVE:** validar físicamente el comportamiento Gate 0C sobre el runtime real y 15 cámaras antes de cualquier commit o nueva funcionalidad.  
+**EXECUTION_ID:** `TV-GATE0C-PHYSICAL-VERIFY-003A`  
+**EXECUTION_RESULT:** `FAIL`  
+**PRODUCT_PHYSICAL_GATE_STATUS:** `NOT_TESTED`  
+**FIRST_FAILURE_OR_BLOCKER:** `ACTIVE_RUNTIME_NOT_FOUND`
+
+La ejecución no encontró ningún proceso Python activo asociado a un `evidence/RUN-*/identity.json`. Por tanto no pudo iniciar T0, leer telemetría ni evaluar UI/comportamiento. No existe evidencia de fallo del producto.
+
+```text
+ACTIVE_RUNTIME_CANDIDATES = 0
+RUN_ID = NONE
+RUNTIME_PID = NONE
+CAMERA_COUNT = UNKNOWN
+SAMPLE_COUNT_T0 = NONE
+STATIC_GATE0C = PASS
+PHYSICAL_GATE0C = NOT_TESTED
+PRODUCT_CODE_CHANGED = NO
+READY_TO_COMMIT = NO
+READY_FOR_GATE1 = NO
+READY_FOR_COMPLEMENTATION = NO
+```
+
+Persistencia: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-003A`.
+
+---
+
+## 8. Primer checkpoint actual
+
+**TASK_ID:** `TV-GATE0C-RUNTIME-READY-001`  
+**OBJECTIVE:** establecer el prerrequisito físico mínimo: TukeVision debe estar iniciado manualmente, visible y con el runtime real activo antes de volver a capturar T0.  
 **STATUS:** `READY`
 
 **DEPENDENCIES:**
@@ -192,7 +219,7 @@ Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-002`.
 - cambios Gate 0C locales intactos;
 - ningún cambio de código durante VERIFY.
 
-**FIRST_BLOCKER:** `PHYSICAL_GATE0C_NOT_TESTED`.
+**FIRST_BLOCKER:** `ACTIVE_RUNTIME_NOT_FOUND`.
 
 **ACCEPTANCE MINIMUM:**
 1. una sola instancia lógica de runtime;
@@ -211,7 +238,7 @@ Persistencia del fallo: `TES/FAILURE_LIBRARY.md#FAIL-TV-GATE0C-PHYSICAL-002`.
 
 ---
 
-## 8. Después del Gate 0C físico
+## 9. Después del Gate 0C físico
 
 No ejecutar todavía.
 
@@ -227,7 +254,7 @@ La complementación prioritaria se seleccionará por evidencia. Radar, Edge Impu
 
 ---
 
-## 9. TaskView
+## 10. TaskView
 
 ```text
 TASKVIEW_ROLE = candidate Execution State / Project Control Plane
@@ -238,7 +265,7 @@ PROMOTION_GATE = TV-001..TV-008
 
 ---
 
-## 10. Reglas permanentes
+## 11. Reglas permanentes
 
 - hipótesis ≠ hecho;
 - test automatizado ≠ comportamiento físico;
