@@ -1,7 +1,7 @@
 # Índice Canónico de Fuentes de Conocimiento — TukeVision TES V3
 
 **STATUS:** ACTIVE
-**UPDATED:** 2026-09-14
+**UPDATED:** 2026-10-05
 
 Este índice convierte las fuentes de experiencia en conocimiento consultable y reevaluable. Una fuente registrada aquí debe tener una decisión, una condición de reevaluación y un mapeo hacia TukeVision.
 
@@ -322,3 +322,60 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 - **REVISIT_CONDITION:** supported NVIDIA lab GPU + benchmark on low-resolution evidence after Gate 0C
 - **EXPERIENCE_RECORD:** `EXP-NVIDIA-DERIVED-VIDEO-001`
 - **STATUS:** BENCHMARK / DERIVED_VIEW_ONLY
+
+---
+
+## FDE engineering tooling sources — verified 2026-10-05
+
+### SOURCE_ID=CLOSEDLOOP-CLAUDE-PLUGINS
+- **SOURCE:** `closedloop-ai/claude-plugins`
+- **VERIFIED_REF:** `e22099008fe79b289c92a9e2598783cd7cdcfb65`
+- **LICENSE:** Apache-2.0
+- **CAPABILITIES:** implementation planning, code review, multi-judge evaluation, pattern/self-learning workflows
+- **TUKVISION_GAP:** execution-quality hardening; does not solve current Gate 0C
+- **CLASSIFICATION:** **RELEVANTE**
+- **ADOPTION_BOUNDARY:** patterns only; no install now; LLM judge output cannot override deterministic tests, runtime evidence or operator evidence
+- **REVISIT:** when a concrete execution-quality defect needs a finite benchmark
+- **EXPERIENCE:** `EXP-FDE-EXECUTION-PATTERNS-001`
+
+### SOURCE_ID=IX-REPOSITORY-INTELLIGENCE
+- **SOURCE:** `ix-infrastructure/Ix`
+- **VERIFIED_REF:** `677e0f440055b03c00e47c19a52f6d93652edd4c`
+- **LICENSE:** Apache-2.0
+- **CAPABILITIES:** persistent local graph of symbols/calls/imports/relationships; explain/trace/impact; CLI/MCP
+- **TUKVISION_GAP:** repository intelligence/impact analysis; no equivalent persistent graph evidenced in current repo
+- **CLASSIFICATION:** **EVALUAR**
+- **RESOURCE_BOUNDARY:** current upstream architecture uses Docker plus ArangoDB/memory backend and Node tooling; this footprint must pass the TukeVision resource gate before adoption
+- **ADOPTION_BOUNDARY:** isolated benchmark only; no core/runtime dependency
+- **REVISIT:** after Gate 0C or when a real cross-file impact-analysis blocker appears
+- **BENCHMARK:** `RI-IX-001`
+- **EXPERIENCE:** `EXP-FDE-REPOSITORY-INTELLIGENCE-001`
+
+### SOURCE_ID=OPENOPC-HKUDS
+- **SOURCE:** `HKUDS/OpenOPC`
+- **VERIFIED_REF:** `b14e85d8fff8d174a5e8d54c267e50ecae23ceb4`
+- **LICENSE:** MIT
+- **CAPABILITIES:** project/company orchestration, dependency DAGs, work-item state machine, review/rework/escalation, accumulated role experience
+- **TUKVISION_GAP:** no current gap proven; overlaps existing 07/08 execution governance and TaskView candidate control-plane role
+- **CLASSIFICATION:** **RADAR**
+- **ADOPTION_BOUNDARY:** no installation; never a second source of truth/control plane
+- **REVISIT:** only after a reproducible failure of existing task/dependency/handoff/review governance
+- **EXPERIENCE:** `EXP-FDE-ORCHESTRATION-001`
+
+### SOURCE_ID=OPENCODE-ANOMALYCO
+- **SOURCE:** `anomalyco/opencode`
+- **VERIFIED_REF:** `907b3bc518fa48e90e8ec24dd327d13eee71c36c`
+- **LICENSE:** MIT
+- **CAPABILITIES:** coding agent with read-only plan role, build/execution role, subagents and configurable permissions
+- **TUKVISION_GAP:** executor/integrator role, not product architecture
+- **CLASSIFICATION:** **RELEVANTE**
+- **ADOPTION_BOUNDARY:** external executor governed by 06/07/08; no self-certified PASS; no automatic installation/integration
+- **REVISIT:** when selecting an authorized engineering executor for a bounded task
+- **EXPERIENCE:** `EXP-FDE-EXECUTION-PATTERNS-001`
+
+### Naming disambiguation
+- `OpenOPC` in this radar means `HKUDS/OpenOPC`, matching the project-orchestration capability requested; it does not mean older industrial OPC-DA Python libraries with the same name.
+- `OpenCode` means the active canonical `anomalyco/opencode`, not archived `opencode-ai/opencode`.
+
+### Governance note
+The repository contains the active 06/07 governance decision in `TES/DECISION_LOG.md`. The exact artifact named `08_DEVIN_EXECUTION_ARCHITECTURE_STANDARD` was not found in the TukeVision repository at verification time; its persistent project/framework execution contract was applied as governance input and is not represented as a repo-local dependency.
