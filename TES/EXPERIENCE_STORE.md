@@ -449,3 +449,41 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 - **DECISION:** VSR = BENCHMARK/DERIVED_VIEW_ONLY; Relighting = REJECT_CORE/RESERVE_DERIVED_VIEW; Eye Contact = REJECT_CORE/RESERVE_REFERENCE.
 - **BOUNDARY:** no transformed output may silently replace source evidence or become FACT. Eye Contact specifically modifies gaze and therefore has no CCTV evidence role.
 - **REVISIT_WHEN:** a concrete human-review blocker exists and a representative benchmark can test utility without compromising epistemic integrity.
+
+---
+
+### EXP-FDE-EXECUTION-PATTERNS-001 — Plan first, verify findings, executor never certifies itself
+- **SOURCES:** `closedloop-ai/claude-plugins@e220990...`; `anomalyco/opencode@907b3bc...`.
+- **PROBLEM:** execution agents can drift from approved scope, emit plausible-but-unverified findings, or conflate implementation completion with certification.
+- **PATTERN:** `READ_ONLY_PLAN -> APPROVAL -> BOUNDED_EXECUTION -> DIFF/REVIEW -> DETERMINISTIC_VERIFY -> EVIDENCE`.
+- **TUKVISION_MAPPING:** strengthens 06/07/08 without adding a product component.
+- **JUDGES:** advisory reviewers only; never override tests, runtime telemetry, physical evidence or operator acceptance.
+- **SELF_LEARNING:** capture only verified patterns with provenance, confidence/freshness and explicit promotion criteria; never auto-promote model output into canonical project truth.
+- **DECISION:** ClosedLoop = **RELEVANTE**, pattern-only; OpenCode = **RELEVANTE**, executor-only.
+- **INSTALL_NOW:** NO.
+- **REVISIT:** when a bounded task demonstrates execution drift/review-quality gap.
+
+### EXP-FDE-REPOSITORY-INTELLIGENCE-001 — Persistent structural graph before risky cross-file change
+- **SOURCE:** `ix-infrastructure/Ix@677e0f4...`.
+- **PROBLEM:** no evidenced persistent repository graph exists for symbols, calls, imports, traces and change impact; current inspection relies on file/search/Git reasoning.
+- **PATTERN:** `MAP -> STRUCTURE -> QUERY TRACE/IMPACT -> CHANGE PLAN -> VERIFY`.
+- **VALUE_HYPOTHESIS:** reduce repeated repository rereads and improve cross-file impact detection.
+- **COST/RISK:** Docker/ArangoDB/memory service, Node/MCP setup, extra persistent state and resource overhead; upstream token-reduction figures are vendor internal measurements, not TukeVision evidence.
+- **DECISION:** **EVALUAR**, never auto-adopt.
+- **MINIMUM_GATE:** `RI-IX-001` on isolated repo snapshot with 10 ground-truthed queries, zero fabricated edges, measurable analysis benefit, explicit resource budget and clean rollback.
+- **INSTALL_NOW:** NO.
+
+### EXP-FDE-ORCHESTRATION-001 — Avoid a second project control plane
+- **SOURCE:** `HKUDS/OpenOPC@b14e85d...`.
+- **PROBLEM:** complex work benefits from dependency DAG, owner/reviewer state and bounded escalation.
+- **EXISTING_TUKEVISION_CAPABILITY:** 07 Project Execution OS already defines task/dependency/status/evidence flow; TaskView is an existing candidate Project Control Plane.
+- **PATTERN_WORTH_KEEPING:** explicit dependency transitions, owner/reviewer separation, bounded rework and human escalation.
+- **DECISION:** **RADAR** only.
+- **NON_DUPLICATION_RULE:** do not install OpenOPC or create another orchestrator/source of truth unless a reproducible governance gap is first proven.
+- **INSTALL_NOW:** NO.
+
+### EXP-FDE-RADAR-GATE-2026-10-05 — Engineering tools cannot bypass product blocker
+- **CURRENT_PRODUCT_BLOCKER:** physical Gate 0C close remains first.
+- **RESULT:** none of ClosedLoop, Ix, OpenOPC or OpenCode solves that blocker.
+- **RULE:** engineering-tool value is assessed separately from product value. A useful tool is not an implementation authorization.
+- **EVIDENCE_REQUIRED_FOR_ADOPTION:** finite benchmark + PASS/FAIL + rollback + resource cost + no regression + persistent result.
