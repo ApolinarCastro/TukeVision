@@ -1,6 +1,6 @@
 # Radar de Tecnología — TukeVision V3
 
-**UPDATED:** 2026-10-02  
+**UPDATED:** 2026-10-05  
 **MODE:** ACTIVE_EVALUATION  
 **RULE:** toda experiencia relevante debe poder pasar de conocimiento a benchmark/decisión; `TES_REFERENCE_ONLY` ya no es un estado final válido para candidatos que resuelven brechas actuales.
 
@@ -618,3 +618,72 @@ Relighting separates foreground/background and synthetically re-illuminates the 
 None of these technologies resolves the current Gate 0C blocker, so **no implementation is authorized now**.
 
 The high-value research item is `3D Body Pose` as a selective behavior-feature stage after TukeVision tracking. VSR is secondary and derived-only. Eye Contact and Relighting are not part of the operational truth path.
+
+---
+
+## FDE Engineering Tooling — 2026-10-05
+
+**EXECUTION_ID:** `TV-RADAR-FDE-ENGINEERING-2026-10-05`  
+**MODE:** `RADAR_ONLY / NO_INSTALL / NO_INTEGRATION`  
+**CURRENT_PRODUCT_BLOCKER:** `TV-GATE0C-PHYSICAL-CLOSE-004` — unchanged.
+
+The evaluation was performed against the persistent project state and the active execution rules `07_PROJECT_EXECUTION_OS_TASKVIEW_ECC`, `06_ANTI_HALLUCINATION_AND_RESOURCE_GATE`, plus the persistent execution contract associated with `08_DEVIN_EXECUTION_ARCHITECTURE_STANDARD`. The exact named `08_...` artifact is not present in the TukeVision repository; it is treated as an external/persistent governance input, not as an invented repo-local file.
+
+| Candidate | Classification | Real TukeVision gap | Decision now | Boundary |
+|---|---|---|---|---|
+| **closedloop-ai/claude-plugins** | **RELEVANTE** | execution-quality hardening: plan artifacts, verified review, plan-vs-code drift, learning quality/staleness | adapt patterns only | no plugin install; LLM judges are advisory, never PASS authority |
+| **ix-infrastructure/Ix** | **EVALUAR** | persistent Repository Intelligence for symbols/calls/imports/traces/change-impact; no equivalent persistent graph is evidenced in repo | finite isolated benchmark only | Docker/ArangoDB/Node/MCP footprint must pass resource gate; no core dependency |
+| **HKUDS/OpenOPC** | **RADAR** | no current orchestration gap proven; overlaps Project Execution OS, TaskView candidate role and existing review/dependency governance | observe patterns only | no second control plane/orchestrator/source of truth |
+| **anomalyco/opencode** | **RELEVANTE** | technical executor/integrator role under external governance | retain/benchmark as executor role only | not architecture, not source of truth, no self-certified PASS |
+
+### Gap conclusion
+
+```text
+CURRENT_GATE0C_BLOCKER != ENGINEERING_TOOLING_GAP
+```
+
+None of these four candidates closes the current physical Gate 0C blocker. No product/runtime integration is authorized.
+
+The only newly evidenced engineering-gap candidate is persistent repository structure/impact intelligence. TukeVision currently has no evidenced repository-level symbol/call/dependency graph or impact-query service. Ix is therefore worth a bounded benchmark, not adoption by default.
+
+ClosedLoop and OpenCode primarily reinforce execution patterns TukeVision already requires. OpenOPC substantially overlaps existing orchestration governance and remains radar-only unless a specific coordination failure is demonstrated.
+
+### Finite evaluation gates
+
+**CL-PATTERN-001 — future, pattern-only**
+
+```text
+INPUT = 3 historical TukeVision changes with known evidence
+TEST = plan-vs-diff drift + finding verification
+PASS = reproducible real detections; deterministic evidence stays authoritative; unauthorized writes=0; output reproducible
+FAIL = judge overrides physical/test evidence OR added loop with no measurable detection gain
+```
+
+**RI-IX-001 — future, isolated**
+
+```text
+INPUT = isolated repo snapshot; no runtime writes
+QUESTIONS = 10 predefined definition/caller/callee/trace/impact queries
+GROUND_TRUTH = manually verified current repo
+PASS = fabricated edges=0; answers correct; measurable reduction in reads/context/time; resource cost within explicit lab budget; clean rollback
+FAIL = wrong impact edge OR hidden dependency OR unjustified resource cost OR no measurable advantage
+```
+
+**OPC-ORCH-001** — dormant. Open only if existing governance demonstrates a reproducible orchestration gap. Use synthetic/project metadata only; require no policy bypass, no second source of truth, reproducible dependency/review state and measurable coordination reduction.
+
+**OC-EXEC-001** — operational rule, not product integration:
+
+```text
+READ_ONLY_PLAN -> EXPLICIT_AUTHORIZATION -> BOUNDED_IMPLEMENTATION -> DETERMINISTIC_TEST -> PHYSICAL_VERIFY_WHEN_APPLICABLE -> EVIDENCE
+```
+
+OpenCode cannot promote its own work to PASS.
+
+### Verified upstream refs
+
+- `closedloop-ai/claude-plugins@e22099008fe79b289c92a9e2598783cd7cdcfb65` — Apache-2.0.
+- `ix-infrastructure/Ix@677e0f440055b03c00e47c19a52f6d93652edd4c` — Apache-2.0.
+- `HKUDS/OpenOPC@b14e85d8fff8d174a5e8d54c267e50ecae23ceb4` — MIT.
+- `anomalyco/opencode@907b3bc518fa48e90e8ec24dd327d13eee71c36c` — MIT.
+
+**RADAR RESULT:** knowledge incorporated; software installation/integration = **NO**.
