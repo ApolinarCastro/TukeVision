@@ -22,6 +22,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **ONVIF Media Signing** | provenance e integridad desde origen | **SANDBOX BENCHMARK** sign→verify→tamper→fail | hardware físico puede quedar pendiente |
 | **ONVIF TLS Configuration Add-on 2.0 RC** | configuración TLS interoperable y endurecimiento del onboarding LAN/DVR | **BENCHMARK + CONTRACT READINESS** | Release Candidate; no declarar conformidad antes de finalización/test tools |
 | **GeoVision GV-LPC2011/2211 advisory 2026-09** | Gate 1 puede asumir que discovery/ONVIF auth son benignos; el advisory expone replay WS-Security, command injection y DoS en discovery | **ADAPTAR + BENCHMARK DE SEGURIDAD** | vendor-specific; no extrapolar CVE a otros equipos, sí reutilizar patrón de controles negativos |
+| **CamSniff (`John0n1/CamSniff`)** | discovery/onboarding LAN/DVR, inventario RTSP/ONVIF y contención de alcance | **BENCHMARK + ADAPT PATTERNS** | sólo discovery autorizado y acotado; no credential guessing, Masscan/high-rate scanning ni captura sensible como comportamiento normal |
 | **NCSC Agentic Security** | mínimo privilegio, safe mode, control herramientas | **ADAPT GOVERNANCE** | guía/patrón, no dependencia |
 | **Alocity/Mercury access+video pattern** | correlación ACCESS + VIDEO + LOCATION + TIME | **CONTRACT READINESS** | proveedor-neutral; no módulo Mercury |
 | **Purpose-Bound / Flock governance pattern** | abuso de búsqueda semántica / ampliación de scope | **ADAPT GOVERNANCE** | AI result = lead, no fact |
@@ -37,6 +38,7 @@ Esta cola se consulta antes de diseñar soluciones nuevas.
 | **SmartPSS Lite** | UX/operación VMS real | benchmark de producto y flujos operador |
 | **Agentic Video Understanding** | procesamiento de video largo caro | benchmark patrón local de muestreo dirigido |
 | **Jev / TypeSafe AI — System One Models** | triage, routing, priorización y escalamiento de eventos ya detectados | **WATCH / EXPERIMENTAL → LAB**; evaluar sólo como Event Decision Engine detrás de correlación determinística y delante de Policy Engine |
+| **Edge Impulse edge inference family** | portabilidad de inferencia edge, model packaging y backpressure/latest-frame-wins | **WATCH / BENCHMARK**; comparar sólo si mejora portabilidad o despliegue frente al baseline OpenVINO sin duplicar runtime |
 
 ### CONDITIONAL BENCHMARK
 
@@ -136,7 +138,7 @@ Targets activos:
 | **ClearCam broader benchmark** | ya resolvió parcialmente problemas de resiliencia; contiene patrones adicionales relevantes | mismo video/hardware: recovery, CPU/RAM, stale frames, ID switches, search latency |
 | **Frigate** | referencia OSS madura CCTV/NVR | mapear ingestion, go2rtc/ffmpeg, lifecycle, hardware accel, events, search, recovery; adoptar sólo patrones útiles |
 | **Shinobi (GitLab upstream)** | upstream activo con fixes recientes de live grid, substream y next/previous monitor navigation que coinciden con defectos físicos Gate 0C | benchmark de patrón sobre navegación, ownership de paneles y transición de substream; no integrar producto ni copiar código |
-| **ONVIF Media Signing** | autenticidad/integridad desde captura | benchmark de referencia; `SOURCE_UNSIGNED` cuando no exista firma real |
+| **ONVIF Media Signing** | autenticidad/integridad desde captura | benchmark de referencia; incluir tamper/adversarial SEI y crash-resistance; `SOURCE_UNSIGNED` cuando no exista firma real |
 | **ONVIF TLS Configuration Add-on 2.0 RC** | RC publicada 2026-09-09 con requisitos TLS más fuertes; impacto directo en Gate 1 LAN/DVR onboarding | mapear configuración/certificados/cipher policy y capacidad del DVR; implementar sólo cuando exista soporte real y especificación/test tool aplicables |
 | **GeoVision GV-LPC2011/2211 security advisory 2026-09** | advisory oficial del 2026-09-10 agrupa 23 CVE y demuestra que ONVIF discovery/auth/event subscription puede ser una superficie de ataque real | antes de Gate 1: pruebas negativas para replay, malformed/excessive discovery scopes, parámetros de callback/subscribe y sanitización; inventario de firmware del DVR/cámaras |
 | **NCSC agentic security** | control externo al modelo | mapear mínimo privilegio, deny-by-default, isolation, safe mode, audit |
@@ -687,3 +689,38 @@ OpenCode cannot promote its own work to PASS.
 - `anomalyco/opencode@907b3bc518fa48e90e8ec24dd327d13eee71c36c` — MIT.
 
 **RADAR RESULT:** knowledge incorporated; software installation/integration = **NO**.
+
+
+## 14. Refresh 2026-10-05 — Media Signing hardening + onboarding discovery
+
+### ONVIF Media Signing Framework r26.6.2 — `MATERIAL_CHANGE=YES / BENCHMARK HARDENING`
+
+- **Upstream:** `onvif/media-signing-framework`.
+- **Ref verificado:** commit `807ea4bf16d13ff9d4fd2913fc09e3a7476cb305`, versión `r26.6.2`, 2026-10-05.
+- **Cambio material:** aborta explícitamente un `UNDEFINED_TAG` en SEI manipulado que antes podía avanzar hasta un decoder inexistente y provocar crash.
+- **Impacto TukeVision:** Evidence/Provenance no sólo debe validar firma/tamper; el verificador debe sobrevivir entradas corruptas o maliciosas sin caída.
+- **Acción:** ampliar el sandbox `sign → verify → tamper → fail` con corpus adversarial de SEI inválido y criterio `PROCESS_CRASH=0`.
+- **Decisión:** se mantiene `ACTIVE_EVALUATION / CONTRACT_READY`; no hay cambio arquitectónico ni certificación física.
+
+### CamSniff 2.3.0 — `NEW_RELEVANT_SOURCE / ADAPT_PATTERN`
+
+- **Upstream:** `John0n1/CamSniff`, MIT.
+- **Ref observado:** `ad6a0aacbd1b85fd4c228e025f2a3c36523bd9d3`; README declara versión 2.3.0.
+- **Patrones útiles:** target containment explícito; RTSP `OPTIONS/DESCRIBE` acotado sin iniciar playback; inventario ONVIF con presupuesto fijo; clasificación basada en evidencia positiva/negativa; outputs JSON versionados.
+- **Mapeo:** Gate 1 LAN/DVR discovery/onboarding e inventario de capacidades.
+- **Límite obligatorio:** no adoptar credential guessing, Masscan/high-rate scanning, modos agresivos ni captura de credenciales/medios como comportamiento normal de TukeVision.
+- **Decisión:** `BENCHMARK + ADAPT PATTERNS`; no dependencia de producto.
+
+### Edge Impulse inferencing SDK — `NEW_RELEVANT_SOURCE / WATCH`
+
+- **Upstream principal:** `edgeimpulse/inferencing-sdk-cpp`.
+- **Ref observado:** `v1.95.14`, commit `4505ca2f427556557164c3dfeb6b63b7e1f88c8f`, 2026-09-23.
+- **Licencia:** BSD 3-Clause Clear por defecto, con componentes third-party bajo licencias propias.
+- **Mapeo:** portabilidad de inferencia edge, model packaging y posibles patrones de latest-frame-wins/backpressure.
+- **Decisión:** `WATCH / BENCHMARK`; no sustituye OpenVINO mientras no exista una brecha medible de hardware/portabilidad.
+
+### Jev / TypeSafe AI SDK — mantenimiento de referencia
+
+- **Python SDK observado:** `v0.7.2` (2026-09-26), añade extra opcional HTTP/2 y documentación asociada.
+- **Impacto:** mejora potencial de transporte/latencia, pero no altera el rol ni la madurez de Jev en TukeVision.
+- **Decisión:** permanece `WATCH / EXPERIMENTAL`; sin LAB hasta disponer de corpus etiquetado y benchmark propio.
