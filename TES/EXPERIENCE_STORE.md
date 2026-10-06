@@ -487,3 +487,31 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 - **RESULT:** none of ClosedLoop, Ix, OpenOPC or OpenCode solves that blocker.
 - **RULE:** engineering-tool value is assessed separately from product value. A useful tool is not an implementation authorization.
 - **EVIDENCE_REQUIRED_FOR_ADOPTION:** finite benchmark + PASS/FAIL + rollback + resource cost + no regression + persistent result.
+
+
+### EXP-ONVIF-MEDIA-SIGNING-HARDENING-002
+* **PROBLEM**: A media-signing verifier can itself become an availability risk if malformed/tampered SEI reaches an undefined decoder path.
+* **SOURCE**: `onvif/media-signing-framework` r26.6.2, commit `807ea4bf16d13ff9d4fd2913fc09e3a7476cb305`.
+* **PATTERN**: FAIL-CLOSED PARSING -> reject undefined/invalid tag -> preserve process liveness -> record verification failure as evidence state, not crash.
+* **DECISION**: ADAPT_TEST_PATTERN / BENCHMARK.
+* **TUKEVISION_MAPPING**: Evidence/provenance validator and ONVIF Media Signing sandbox.
+* **MINIMUM_TEST**: valid stream verifies; tampered stream fails; undefined-tag SEI fails safely; `PROCESS_CRASH=0`; deterministic error/evidence state emitted.
+* **BOUNDARY**: does not certify physical ONVIF signing hardware.
+
+### EXP-CAMSNIFF-DISCOVERY-001
+* **PROBLEM**: Gate 1 needs to discover and inventory LAN/DVR/RTSP/ONVIF sources without uncontrolled scans, false vendor assumptions, or scope expansion.
+* **SOURCE**: `John0n1/CamSniff` 2.3.0, MIT.
+* **PATTERN**: EXPLICIT_AUTHORIZED_TARGETS -> bounded protocol probes -> evidence correlation + negative evidence -> schema-versioned inventory -> follow-up only inside original scope.
+* **DECISION**: ADAPT_PATTERN / BENCHMARK.
+* **TUKEVISION_MAPPING**: LAN/DVR onboarding, RTSP/ONVIF capability inventory, scope containment.
+* **MINIMUM_TEST**: explicit fixture subnet; no probe outside target set; bounded ONVIF/RTSP request counts; vendor remains UNKNOWN when evidence insufficient; JSON provenance retained.
+* **BOUNDARY**: do not adopt credential guessing, Masscan/high-rate scanning, aggressive modes, broad vuln scanning, or sensitive media capture as normal TukeVision behavior.
+
+### EXP-EDGEIMPULSE-001
+* **PROBLEM**: Future hardware portability or model packaging may exceed what the current OpenVINO-centric baseline handles cleanly.
+* **SOURCE**: `edgeimpulse/inferencing-sdk-cpp` v1.95.14, BSD 3-Clause Clear default with third-party license boundaries.
+* **PATTERN**: portable model packaging + explicit runtime/backend abstraction; evaluate latest-frame-wins/backpressure patterns from the wider Edge Impulse family only when they solve a measured bottleneck.
+* **DECISION**: WATCH / CONDITIONAL_BENCHMARK.
+* **TUKEVISION_MAPPING**: edge inference portability and deployment tooling.
+* **REVISIT_WHEN**: unsupported target hardware, measured packaging/deployment friction, or proven resource advantage over baseline.
+* **BOUNDARY**: do not replace OpenVINO or add cloud dependency without benchmark evidence.

@@ -21,6 +21,7 @@ Este índice convierte las fuentes de experiencia en conocimiento consultable y 
 |---|---|---|---|---|---|
 | CLEARCAM-RORYCLEAR | `https://github.com/roryclear/clearcam` | OSS CCTV / ingeniería | **ACTIVE_EVALUATION / ADAPTED_PARTIAL** | RTSP, FFmpeg lifecycle, tracking, selective inference, event/semantic search | Benchmark inmediato de resiliencia, tracking y búsqueda; GPL-3.0, no copiar código al core |
 | FRIGATE-OSS | `https://github.com/blakeblackshear/frigate` | OSS NVR/CCTV | **ACTIVE_EVALUATION** | multicámara, lifecycle, aceleración, eventos, búsqueda, recovery | Auditoría comparativa contra ClearCam/TukeVision; no convertir TukeVision en segundo NVR |
+| CAMSNIFF-JOHN0N1 | `https://github.com/John0n1/CamSniff` | OSS camera/network discovery | **BENCHMARK / ADAPT_PATTERN** | Gate 1 discovery/onboarding, RTSP/ONVIF inventory, scope containment | Adaptar sólo discovery autorizado y acotado; prohibido credential guessing/high-rate scanning como comportamiento normal |
 | SHINOBI-GITLAB | `https://gitlab.com/Shinobi-Systems/Shinobi` | VMS/NVR upstream GitLab | **BENCHMARK / ACTIVE_EVALUATION** | live grid, substream, next/previous, ONVIF scanner, auth hardening | Benchmark de patrones para Gate 0C/Gate 1; licencia/EULA propia, no copiar código al core |
 | ONVIF-MEDIA-SIGNING | `https://github.com/onvif/media-signing-framework` | estándar / referencia oficial | **ACTIVE_EVALUATION / CONTRACT_READY** | Evidence, provenance, cadena de custodia | Sandbox sign→verify→tamper→fail; hardware físico cuando esté disponible |
 | ONVIF-TLS-CONFIG-2 | `https://www.onvif.org/pressrelease/onvif-tls-configuration-add-on-release-candidate/` + `https://github.com/onvif/specs` | estándar oficial / specs GitHub | **BENCHMARK / WATCH / CONTRACT_READINESS** | Gate 1 LAN/DVR onboarding, TLS, capability negotiation | Reevaluar con hardware real o especificación/test tools finales a fin de 2026 |
@@ -229,6 +230,7 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 | SOURCE_ID | Fuente / upstream | Tipo | Estado TES | Mapeo principal | Condición / siguiente acción |
 |---|---|---|---|---|---|
 | QWEN-MM-PLUGINS | `https://github.com/QwenLM/Qwen-MM-Plugins` | OSS multimodal agent toolkit | **ACTIVE_EVALUATION / P0-HIGH** | inspección local de evidencia, Skill+MCP, long-video memory pattern | benchmark de core local; no usar cloud video-memory con CCTV cliente |
+| EDGEIMPULSE-INFERENCING | `https://github.com/edgeimpulse/inferencing-sdk-cpp` + familia Edge Impulse Linux/GStreamer | edge inference SDK/tooling | **WATCH / BENCHMARK** | hardware portability, model packaging, backpressure/latest-frame-wins | activar sólo ante brecha real frente a OpenVINO; revisar licencias third-party antes de reutilizar componentes |
 | MINICPM-OPENBMB | `https://github.com/OpenBMB/MiniCPM` | local LLM / agentic | **ACTIVE_EVALUATION / P1** | razonamiento estructurado y asistencia de investigación | benchmark local; verificar licencia exacta del checkpoint antes de despliegue |
 | MINICPM-V-OPENBMB | `https://github.com/OpenBMB/MiniCPM-V` | local VLM | **ACTIVE_EVALUATION / P0-HIGH** | interpretación semántica image/video sobre evidencia seleccionada | benchmark event-triggered; no inferencia continua en 15 cámaras |
 | OPENVIEWER | `https://aiopenviewer.com/` + `sonnvntu/openviewer-releases` | arquitectura/product reference | **ACTIVE_EVALUATION / P1** | plugin boundary, reconnect/lifecycle, rule→alert, remote access reference | verificar source-pack provenance/licencia antes de cualquier reutilización |
@@ -251,8 +253,8 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 - **OFFICIAL_SOURCES:** `https://typesafe.ai/blog/introducing-system-one-models-and-jev`; `https://api.typesafe.ai/docs`
 - **OFFICIAL_SDKS:** `typesafe-ai/typesafe-sdk-python`; `typesafe-ai/typesafe-sdk-js`
 - **GATEWAYS_VERIFIED:** Vercel AI Gateway `typesafe-ai/jev`; Cloudflare Workers AI `typesafe/jev`
-- **LAST_VERIFIED_AT:** 2026-09-25
-- **LAST_VERIFIED_REFS:** Python SDK latest public release observed `v0.7.1` (2026-09-21); JS/TS SDK latest public release observed `v0.6.0` (2026-09-15)
+- **LAST_VERIFIED_AT:** 2026-10-05
+- **LAST_VERIFIED_REFS:** Python SDK latest public release observed `v0.7.2` (2026-09-26; optional HTTP/2 extra); JS/TS SDK latest public release observed `v0.6.0` (2026-09-15)
 - **CAPABILITY:** text/structured-state → typed `Choice / Score / Noul` decisions with probabilities/confidence; classification, routing, scoring and gating
 - **TUKVISION_ROLE:** Experimental Event Decision Engine after deterministic correlation and before Policy Engine
 - **STATUS:** WATCH / EXPERIMENTAL
@@ -379,3 +381,37 @@ All three records require and now have canonical index linkage for: `SOURCE_VERI
 
 ### Governance note
 The repository contains the active 06/07 governance decision in `TES/DECISION_LOG.md`. The exact artifact named `08_DEVIN_EXECUTION_ARCHITECTURE_STANDARD` was not found in the TukeVision repository at verification time; its persistent project/framework execution contract was applied as governance input and is not represented as a repo-local dependency.
+
+
+### SOURCE_ID=ONVIF-MEDIA-SIGNING-R26.6.2
+- **UPSTREAM:** `https://github.com/onvif/media-signing-framework`
+- **LAST_VERIFIED_REF:** `807ea4bf16d13ff9d4fd2913fc09e3a7476cb305` / `r26.6.2`
+- **LAST_VERIFIED_AT:** 2026-10-05
+- **LICENSE:** MIT
+- **CAPABILITY_CHANGE:** explicit abort on undefined SEI tag; prevents decoder path from continuing into crash on tampered input
+- **TUKEVISION_MAPPING:** Evidence verification, provenance, adversarial tamper handling
+- **ADOPTION_BOUNDARY:** sandbox/reference only until hardware-backed validation; no claim of signed-source support without physical evidence
+- **REVISIT_CONDITION:** after adversarial corpus benchmark or next upstream security/integrity change
+- **EXPERIENCE_RECORD:** EXP-ONVIF-MEDIA-SIGNING-HARDENING-002
+
+### SOURCE_ID=CAMSNIFF-JOHN0N1
+- **UPSTREAM:** `https://github.com/John0n1/CamSniff`
+- **VERSION_OR_REF_VERIFIED:** README `2.3.0`; latest observed commit `ad6a0aacbd1b85fd4c228e025f2a3c36523bd9d3`
+- **LAST_VERIFIED_AT:** 2026-10-05 local / upstream commit timestamp 2026-10-06T00:11Z
+- **LICENSE:** MIT
+- **CAPABILITIES_EXTRACTED:** explicit target containment; bounded RTSP OPTIONS/DESCRIBE; bounded unauthenticated ONVIF inventory; evidence/confidence model with negative evidence; schema-versioned JSON
+- **TUKEVISION_MAPPING:** Gate 1 LAN/DVR discovery/onboarding and capability inventory
+- **ADOPTION_BOUNDARY:** pattern-only; no credential guessing, Masscan/high-rate modes, broad vulnerability scanning, or sensitive media capture as normal product behavior
+- **REVISIT_CONDITION:** Gate 1 implementation/benchmark or material upstream change in scope containment/discovery model
+- **EXPERIENCE_RECORD:** EXP-CAMSNIFF-DISCOVERY-001
+
+### SOURCE_ID=EDGEIMPULSE-INFERENCING
+- **UPSTREAM:** `https://github.com/edgeimpulse/inferencing-sdk-cpp`
+- **VERSION_OR_REF_VERIFIED:** `v1.95.14`; commit `4505ca2f427556557164c3dfeb6b63b7e1f88c8f`
+- **LAST_VERIFIED_AT:** 2026-10-05
+- **LICENSE:** BSD 3-Clause Clear by default; bundled third-party components retain their own licenses
+- **CAPABILITIES_EXTRACTED:** portable C++ DSP/inference library; model/runtime portability patterns
+- **TUKEVISION_MAPPING:** edge inference portability, packaging, hardware abstraction; potential backpressure/latest-frame-wins patterns through related family components
+- **ADOPTION_BOUNDARY:** WATCH/BENCHMARK only; OpenVINO remains primary baseline; no dependency without measurable gap and license review
+- **REVISIT_CONDITION:** new hardware target unsupported by baseline, measurable deployment bottleneck, or material upstream runtime/backend change
+- **EXPERIENCE_RECORD:** EXP-EDGEIMPULSE-001
