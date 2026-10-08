@@ -415,3 +415,16 @@ The repository contains the active 06/07 governance decision in `TES/DECISION_LO
 - **ADOPTION_BOUNDARY:** WATCH/BENCHMARK only; OpenVINO remains primary baseline; no dependency without measurable gap and license review
 - **REVISIT_CONDITION:** new hardware target unsupported by baseline, measurable deployment bottleneck, or material upstream runtime/backend change
 - **EXPERIENCE_RECORD:** EXP-EDGEIMPULSE-001
+
+
+### SOURCE_ID=SHADOWBROKER-BIGBODYCOBAIN
+- **UPSTREAM:** `https://github.com/BigBodyCobain/Shadowbroker`
+- **LAST_VERIFIED_REF:** `84ab6cba53e9d35952bf6fb2c5633b252235a859`
+- **LAST_VERIFIED_AT:** 2026-10-08
+- **LICENSE:** AGPL-3.0
+- **CAPABILITIES_EXTRACTED:** public CCTV ingestion/proxy, deterministic compact telemetry routing, explicit expensive-command gate, HMAC agent channel, background layer refresh, outbound-data audit documentation
+- **TUKEVISION_MAPPING:** future agent policy surface; resource-efficient state reads; browser/backend media proxy hardening; connector privacy/egress governance
+- **ADOPTION_BOUNDARY:** pattern/reference only; no AGPL code copy into TukeVision core; no public-CCTV/recon/InfoNet adoption
+- **REVISIT_CONDITION:** agent-control slice, remote web media proxy, external connector registry, or measured full-state polling/resource bottleneck
+- **EXPERIENCE_RECORD:** `EXP-SHADOWBROKER-001`
+- **STATUS:** BENCHMARK / ADAPT_PATTERN

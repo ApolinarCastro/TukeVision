@@ -515,3 +515,16 @@ Antes de una corrección nueva debe ejecutarse una búsqueda en este documento y
 * **TUKEVISION_MAPPING**: edge inference portability and deployment tooling.
 * **REVISIT_WHEN**: unsupported target hardware, measured packaging/deployment friction, or proven resource advantage over baseline.
 * **BOUNDARY**: do not replace OpenVINO or add cloud dependency without benchmark evidence.
+
+
+### EXP-SHADOWBROKER-001 — Thin agent surface + targeted telemetry + hardened media proxy
+- **PROBLEM:** future TukeVision agent/operator surfaces can become unsafe or resource-heavy if every command can pull full state, write directly, or proxy arbitrary media URLs.
+- **SOURCE:** `BigBodyCobain/Shadowbroker@84ab6cba53e9d35952bf6fb2c5633b252235a859`, AGPL-3.0.
+- **PATTERN A:** `ROUTE_INTENT -> TARGETED_READ -> COMPACT_RESULT`; require explicit confirmation for expensive full scans/dumps.
+- **PATTERN B:** `MEDIA_URL -> SCHEME_CHECK -> HOST_ALLOWLIST -> MANUAL_REDIRECT -> REVALIDATE_EACH_HOP -> PROXY` to contain SSRF.
+- **PATTERN C:** network-heavy optional refresh executes away from the UI/request critical path.
+- **PATTERN D:** maintain an outbound-data register that states who calls which third party, what metadata leaves, opt-out controls, and accepted tradeoffs.
+- **DECISION:** ADAPT_PATTERN / BENCHMARK; do not install ShadowBroker as a TukeVision component.
+- **LICENSE_BOUNDARY:** study/reimplement behavior independently; no direct code reuse without explicit AGPL/legal decision.
+- **MINIMUM_FUTURE_TESTS:** expensive command blocked without confirmation; targeted path returns same needed answer with lower state volume; disallowed redirect cannot reach private/local targets; heavy refresh does not block UI/control loop; outbound connector inventory is complete and auditable.
+- **CURRENT_GATE:** no effect on Gate 0C; current physical close remains first.
