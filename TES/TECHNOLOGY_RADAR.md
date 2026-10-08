@@ -724,3 +724,30 @@ OpenCode cannot promote its own work to PASS.
 - **Python SDK observado:** `v0.7.2` (2026-09-26), añade extra opcional HTTP/2 y documentación asociada.
 - **Impacto:** mejora potencial de transporte/latencia, pero no altera el rol ni la madurez de Jev en TukeVision.
 - **Decisión:** permanece `WATCH / EXPERIMENTAL`; sin LAB hasta disponer de corpus etiquetado y benchmark propio.
+
+
+## 15. Refresh 2026-10-08 — ShadowBroker OSINT/CCTV engineering patterns
+
+### BigBodyCobain/Shadowbroker — `BENCHMARK / ADAPT_PATTERN / NO_CORE_DEPENDENCY`
+
+- **Upstream:** `BigBodyCobain/Shadowbroker`
+- **Verified main ref:** `84ab6cba53e9d35952bf6fb2c5633b252235a859`
+- **License:** AGPL-3.0
+- **Stack observed:** FastAPI/Python backend, Next.js/MapLibre frontend, Docker, SQLite-backed CCTV catalog, HMAC-signed agent channel.
+- **Material TukeVision value:** not its global OSINT product; its reusable engineering patterns around bounded agent surfaces, compact telemetry reads, explicit expensive-operation gates, CCTV proxy hardening, on-demand background refresh, and outbound-data auditability.
+- **CCTV proxy pattern:** host allowlist + scheme check + per-hop redirect revalidation to contain redirect-to-SSRF chains.
+- **Agent pattern:** thin primary read/write surface; expensive full telemetry/search commands blocked unless explicitly confirmed; deterministic intent routing prefers targeted reads and batches.
+- **Resource pattern:** network-heavy/large layer refreshes run off the single request worker; full product default container budget is materially heavier than TukeVision's local-first target.
+- **Evidence/privacy pattern:** operator-facing outbound-data register distinguishes browser egress, backend egress, opt-ins, accepted exposure and self-hosting choices.
+- **Boundary:** do not copy AGPL code into TukeVision core. Reimplement patterns independently if a proven gap exists; preserve provenance and license separation.
+- **Not a Gate 0C solution:** does not change the current blocker `TV-GATE0C-PHYSICAL-CLOSE-004`.
+- **Decision:** `BENCHMARK / ADAPT_PATTERN`; install/integrate now = **NO**.
+
+**Highest-value future adaptations:**
+1. `Agent Surface Contract`: targeted read/write capabilities + explicit confirmation for expensive/high-blast-radius actions.
+2. `what_changed / layer slice` pattern for agent monitoring instead of repeated full-state dumps.
+3. `CCTV_PROXY_SSRF-001`: allowlist + redirect revalidation if/when a browser/backend media proxy exists.
+4. `OUTBOUND_DATA_REGISTRY`: explicit third-party egress inventory for every external connector/provider.
+5. Background refresh for heavy optional modules so UI/control path never blocks on network work.
+
+**Rejected for direct adoption:** global OSINT layer set, public CCTV harvesting, InfoNet/mesh/governance stack, recon toolkit, and full application runtime. These are out of current TukeVision scope and would create unnecessary architecture/resource/license surface.
