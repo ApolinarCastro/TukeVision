@@ -751,3 +751,55 @@ OpenCode cannot promote its own work to PASS.
 5. Background refresh for heavy optional modules so UI/control path never blocks on network work.
 
 **Rejected for direct adoption:** global OSINT layer set, public CCTV harvesting, InfoNet/mesh/governance stack, recon toolkit, and full application runtime. These are out of current TukeVision scope and would create unnecessary architecture/resource/license surface.
+
+
+---
+
+## Ultralytics Rust Inference — `BENCHMARK / CONDITIONAL_RUNTIME_CANDIDATE`
+
+```text
+SOURCE_ID=ULTRALYTICS-RUST-INFERENCE
+UPSTREAM=https://github.com/ultralytics/inference
+VERIFIED_RELEASE=v0.0.51
+VERIFIED_AT=2026-10-10
+ROLE=alternative high-performance ONNX inference runtime
+STATUS=BENCHMARK / CONDITIONAL_RUNTIME_CANDIDATE
+CORE_DEPENDENCY=FALSE
+CURRENT_GATE_BLOCKER_SOLVED=NO
+```
+
+**Verified capabilities**
+- Rust inference library + CLI, no Python/PyTorch runtime required.
+- ONNX Runtime execution providers include CPU, CUDA, TensorRT, OpenVINO, DirectML, CoreML, XNNPACK, QNN and others.
+- Supported task families include detection, instance/semantic segmentation, classification, pose, OBB and YOLO26 depth.
+- Accepts images, files, webcam/video and RTSP/stream sources.
+- Current stable release observed: `v0.0.51` (2026-10-08).
+- Upstream benchmark on DGX Spark reports substantial TensorRT throughput gains, but these are **upstream measurements** and not TukeVision evidence.
+- License: **AGPL-3.0**; upstream offers an Enterprise License path for commercial use.
+
+**TukeVision mapping**
+- Potential future replacement/sidecar for the current Python inference worker where measured CPU/RAM/latency or deployment friction justifies it.
+- Particularly relevant if a single ONNX inference surface is desired across Intel/OpenVINO, NVIDIA/TensorRT, Windows/DirectML and other targets.
+- Does **not** replace SourceManager, tracker, temporal behavior, Entity Truth, Situation/Evidence, operator workflow or DVR/NVR integration.
+
+**Current decision**
+- Do not integrate during Gate 0C.
+- Do not replace the current OpenVINO path without a reproduced bottleneck.
+- Direct commercial embedding is blocked pending licensing decision; process isolation does not by itself remove AGPL obligations.
+- Revisit only with a controlled benchmark against the existing OpenVINO inference path on the actual target hardware.
+
+**Minimum benchmark before promotion**
+```text
+same model
+same frames
+same preprocessing
+same confidence/NMS
+same hardware
+Python/OpenVINO baseline
+vs
+Rust/ONNX Runtime/OpenVINO
+vs
+Rust/ONNX Runtime/DirectML or TensorRT when hardware exists
+```
+
+Measure p50/p95 latency, FPS, RSS, startup time, CPU/GPU, output parity, dropped frames, deployment complexity and license/commercial impact.
